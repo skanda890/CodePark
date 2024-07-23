@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Example</title>
+    <title>Surprise</title>
     <style>
         body {
             display: flex;
@@ -21,10 +21,11 @@
     </style>
 </head>
 <body>
-    <button onclick="showAlert()">Click Me!</button>
+    <button onclick="redirectToWebsite()">Go to Website</button>
+
     <script>
-        function showAlert() {
-            alert('Go to https://github.com/skanda890.');
+        function redirectToWebsite() {
+            window.location.href = 'https://github.com/skanda890'; // Replace with your desired URL
         }
     </script>
 </body>
