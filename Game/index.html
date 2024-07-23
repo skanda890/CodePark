@@ -5,15 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catch the Falling Objects Game</title>
     <style>
-        /* Basic styling for the body and canvas */
         body { margin: 0; overflow: hidden; }
         canvas { display: block; background: #eee; }
     </style>
 </head>
 <body>
-    <!-- Canvas element where the game will be rendered -->
     <canvas id="gameCanvas"></canvas>
-    <!-- Link to the JavaScript file containing the game logic -->
-    <script src="game.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            width: 50,
+            height: 50,
+            dx: 0
+        };
+
+        let objects = [];
+        let score = 0;
+        let level = 1;
+        let missedObjects = 0;
+        const maxMissedObjects = 5;
+        let powerUpActive = false;
+        let powerUpEndTime = 0;
+
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawObjects() {
+            objects.forEach(obj => {
+                ctx.fillStyle = obj.color;
+                ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            });
+        }
+
+        function updateObjects() {
+            objects.forEach(obj => {
+                obj.y += obj.dy;
+                if (obj.y > canvas.height) {
+                    missedObjects++;
+                    objects.splice(objects.indexOf(obj), 1);
+                }
+            });
+
+            if (missedObjects >= maxMissedObjects) {
+                alert('Game Over! Your score: ' + score);
+                document.location.reload();
+            }
+        }
+
+        function createObject() {
+            const x = Math.random() * (canvas.width - 20);
+            const type = Math.random() > 0.8 ? 'bonus' : 'normal';
+            const color = type === 'bonus' ? 'green' : 'red';
+            const dy = type === 'bonus' ? 3 : 2;
+            objects.push({ x, y: 0, width: 20, height: 20, dy, type, color });
+        }
+
+        function createPowerUp() {
+            const x = Math.random() * (canvas.width - 20);
+            objects.push({ x, y: 0, width: 20, height: 20, dy: 2, type: 'powerUp', color: 'yellow' });
+        }
+
+        function detectCollision() {
+            objects.forEach((obj, index) => {
+                if (obj.x < player.x + player.width &&
+                    obj.x + obj.width > player.x &&
+                    obj.y < player.y + player.height &&
+                    obj.y + obj.height > player.y) {
+                    objects.splice(index, 1);
+                    if (obj.type === 'powerUp') {
+                        powerUpActive = true;
+                        powerUpEndTime = Date.now() + 5000;
+                    } else if (obj.type === 'bonus') {
+                        score
+</script>
 </body>
 </html>
