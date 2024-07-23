@@ -85,4 +85,79 @@
                         powerUpActive = true;
                         powerUpEndTime = Date.now() + 5000;
                     } else if (obj.type === 'bonus') {
-                        score
+                        score += 5;
+                    } else {
+                        score++;
+                    }
+                }
+            });
+        }
+
+        function updatePlayer() {
+            if (powerUpActive && Date.now() > powerUpEndTime) {
+                powerUpActive = false;
+            }
+            player.x += powerUpActive ? player.dx * 2 : player.dx;
+
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        }
+
+        function drawScore() {
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 20);
+        }
+
+        function drawLevel() {
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Level: ${level}`, 10, 50);
+        }
+
+        function drawMissedObjects() {
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Missed: ${missedObjects}`, 10, 80);
+        }
+
+        function increaseDifficulty() {
+            if (score % 10 === 0 && score !== 0) {
+                level++;
+                objects.forEach(obj => obj.dy += 1);
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function gameLoop() {
+            clearCanvas();
+            drawPlayer();
+            drawObjects();
+            drawScore();
+            drawLevel();
+            drawMissedObjects();
+            updateObjects();
+            updatePlayer();
+            detectCollision();
+            increaseDifficulty();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') player.dx = 5;
+            if (e.key === 'ArrowLeft') player.dx = -5;
+        });
+
+        document.addEventListener('keyup', () => {
+            player.dx = 0;
+        });
+
+        setInterval(createObject, 1000);
+        setInterval(createPowerUp, 10000);
+        gameLoop();
+    </script>
+</body>
+</html>
