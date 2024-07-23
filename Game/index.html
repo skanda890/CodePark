@@ -30,7 +30,6 @@
         let score = 0;
         let level = 1;
         let missedObjects = 0;
-        const maxMissedObjects = 5;
         let powerUpActive = false;
         let powerUpEndTime = 0;
 
@@ -54,11 +53,6 @@
                     objects.splice(objects.indexOf(obj), 1);
                 }
             });
-
-            if (missedObjects >= maxMissedObjects) {
-                alert('Game Over! Your score: ' + score);
-                document.location.reload();
-            }
         }
 
         function createObject() {
