@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My HTML App</title>
+    <title>My HTML Application</title>
     <HTA:APPLICATION
         ID="myApp"
-        APPLICATIONNAME="My HTML App"
+        APPLICATIONNAME="My HTML Application"
         BORDER="thin"
         INNERBORDER="no"
         SCROLL="no"
@@ -14,17 +14,18 @@
     <style>
         body {
             background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
         .logo {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 200px;
-            background-color: #0078d4;
+            background: linear-gradient(to bottom, #0078d4, #005ea1);
             color: #ffffff;
             font-size: 24px;
             font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .input-container {
             text-align: center;
@@ -44,20 +45,28 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005ea1;
         }
     </style>
 </head>
 <body>
-    <div class="logo">My HTML App</div>
+    <div class="logo">My HTML Application</div>
     <div class="input-container">
-        <button onclick="showGreeting()">Say Hello to</button>
         <input type="text" id="myInput" placeholder="Enter your name">
+        <button onclick="showGreeting()">Say Hello</button>
     </div>
 
     <script type="text/javascript">
         function showGreeting() {
             var name = document.getElementById("myInput").value;
-            alert("Hello " + name + "!");
+            if (name.trim() === "") {
+                alert("Please enter your name.");
+            } else {
+                alert("Hello " + name + "!");
+            }
         }
     </script>
 </body>
