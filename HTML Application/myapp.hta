@@ -50,14 +50,14 @@
 <body>
     <div class="logo">My HTML App</div>
     <div class="input-container">
-        <button onclick="showGreeting()">Say Hello</button>
+        <button onclick="showGreeting()">Say Hello to</button>
         <input type="text" id="myInput" placeholder="Enter your name">
     </div>
 
     <script type="text/javascript">
         function showGreeting() {
             var name = document.getElementById("myInput").value;
-            alert("Hello" + name + "!");
+            alert("Hello " + name + "!");
         }
     </script>
 </body>
