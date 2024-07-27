@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My HTA App</title>
+    <HTA:APPLICATION
+        ID="myApp"
+        APPLICATIONNAME="My HTA App"
+        BORDER="thin"
+        INNERBORDER="no"
+        SCROLL="no"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="normal"
+    />
+</head>
+<body>
+    <h1>My HTML Application</h1>
+    <input type="text" id="myInput" placeholder="Enter your name">
+    <button onclick="showGreeting()">Say Hello</button>
+
+    <script type="text/javascript">
+        function showGreeting() {
+            var name = document.getElementById("myInput").value;
+            alert("Hello, " + name + "!");
+        }
+    </script>
+</body>
+</html>
