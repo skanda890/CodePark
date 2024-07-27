@@ -11,21 +11,53 @@
         SINGLEINSTANCE="yes"
         WINDOWSTATE="normal"
     />
-<style>
-    body {
-        background-color: #f0f0f0;
-    }
-</style>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background-color: #0078d4;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .input-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0078d4;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>My HTML Application</h1>
-    <input type="text" id="myInput" placeholder="Enter your name">
-    <button onclick="showGreeting()">Say Hello</button>
+    <div class="logo">My HTML App</div>
+    <div class="input-container">
+        <input type="text" id="myInput" placeholder="Enter your name">
+        <button onclick="showGreeting()">Say Hello</button>
+    </div>
 
     <script type="text/javascript">
         function showGreeting() {
             var name = document.getElementById("myInput").value;
-            alert("Hello, " + name + "!");
+            alert("Hello," + name + "!");
         }
     </script>
 </body>
