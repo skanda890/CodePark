@@ -62,7 +62,7 @@
     <script type="text/javascript">
         function showGreeting() {
             var name = document.getElementById("myInput").value;
-            if (name.trim() === "") {
+            if (name() === "") {
                 alert("Please enter your name.");
             } else {
                 alert("Hello " + name + "!");
