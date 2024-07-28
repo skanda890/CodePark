@@ -1,1 +1,1 @@
-**Skanda890/CodePark** is a GitHub repository where the user **Skanda890** showcases their coding skills and certificates. It's a place where they share their programming projects and achievements. If you're interested in exploring their work, you can find the repository [here](https://github.com/skanda890/CodePark). 😊
+**Skanda890/CodePark** is a GitHub repository where the user **Skanda890** showcases their coding skills and certificates. It's a place where they share their programming projects and achievements.
