@@ -1,3 +1,5 @@
-Do
+@echo off
+:loop
 msg * hi
-loop
+timeout /t 0 >nul
+goto loop
