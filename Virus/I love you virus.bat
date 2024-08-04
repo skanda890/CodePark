@@ -1,7 +1,7 @@
 @echo off
 
 color a
-echo Hello, do you love me?(Anwer in only yes/no)
+echo Hello, do you love me?(Answer in only yes/no)
 set/p input=
 if /i %input%==Yes goto love
 if /i %input%==No goto hate
