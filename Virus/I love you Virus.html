@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Love Question</title>
+    <script type="text/javascript">
+        function askQuestion() {
+            var input = prompt("Hello, do you love me? (Answer in only yes/no)").toLowerCase();
+
+            if (input === "yes") {
+                alert("I Love You Too...\nHeart...Heart...Heart...\nSee You Later");
+            } else if (input === "no") {
+                alert("But I Love You Too...\nCry...Cry...Cry...\nBlee you deserve it!");
+                setTimeout(function() {
+                    window.close();
+                }, 3000);
+            } else {
+                alert("Please answer with yes or no.");
+            }
+        }
+    </script>
+</head>
+<body onload="askQuestion()">
+</body>
+</html>
