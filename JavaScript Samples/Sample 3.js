@@ -5,7 +5,6 @@ const endpoint = "https://models.inference.ai.azure.com";
 const modelName = "gpt-4o-mini";
 
 export async function main() {
-
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
 
   const response = await client.chat.completions.create({
@@ -14,11 +13,14 @@ export async function main() {
       { role: "user", content: "What is the capital of France?" },
       { role: "assistant", content: "The capital of France is Paris." },
       { role: "user", content: "What about Spain?" }
-      ],
-      model: modelName
-    });
+    ],
+    model: modelName,
+    stream: true // Enable streaming
+  });
 
-  console.log(response.choices[0].message.content);
+  for await (const chunk of response) {
+    process.stdout.write(chunk.choices[0].message.content);
+  }
 }
 
 main().catch((err) => {
