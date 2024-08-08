@@ -1,6 +1,9 @@
 {
   "name": "my-project",
   "version": "1.0.0",
+  "scripts": {
+    "build": "webpack --config webpack.config.js"
+  },
   "dependencies": {
     "@azure-rest/ai-inference": "latest",
     "@azure/core-auth": "latest",
