@@ -2,9 +2,12 @@
   "name": "my-project",
   "version": "1.0.0",
   "dependencies": {
-    "openai": "latest",
     "@azure-rest/ai-inference": "latest",
     "@azure/core-auth": "latest",
-    "@azure/core-sse": "latest"
+    "@azure/core-sse": "latest",
+    "openai": "latest"
+  },
+  "devDependencies": {
+    "@codecov/vite-plugin": "^0.0.1-beta.10"
   }
 }
