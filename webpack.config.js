@@ -6,5 +6,11 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
+  resolve: {
+    alias: {
+      'my-alias': path.resolve(__dirname, 'src/')
+    },
+    extensions: ['.js', '.json', '.wasm']
+  },
   mode: 'development'
 };
