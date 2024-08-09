@@ -1,16 +1,10 @@
-const path = require('path');
+import path from 'path';
 
-module.exports = {
+export default {
   entry: './src/index.js',
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve('dist'),
+    filename: 'bundle.js'
   },
-  resolve: {
-    alias: {
-      'my-alias': path.resolve(__dirname, 'src/')
-    },
-    extensions: ['.js', '.json', '.wasm']
-  },
-  mode: 'development'
+  // other configurations
 };
