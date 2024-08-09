@@ -12,28 +12,21 @@ if answer.lower() == 'yes':
     else:
         print('Wrong answer!')
 
-    answer = input('Question 2: Who played football in Real Madrid in the 2014 season? ')
-    if answer.lower() == 'Ronaldo':
-        score += 1
-        print('Correct!')
-    else:
-        print('Wrong answer!')
-
-    answer = input('Question 3: What is the square root of 64? ')
+    answer = input('Question 2: What is the square root of 64? ')
     if answer == '8':
         score += 1
         print('Correct!')
     else:
         print('Wrong answer!')
 
-    answer = input('Question 4: What is 15 * 3? ')
+    answer = input('Question 3: What is 15 * 3? ')
     if answer == '45':
         score += 1
         print('Correct!')
     else:
         print('Wrong answer!')
 
-    answer = input('Question 5: What is 100 divided by 4? ')
+    answer = input('Question 4: What is 100 divided by 4? ')
     if answer == '25':
         score += 1
         print('Correct!')
