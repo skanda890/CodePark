@@ -44,3 +44,5 @@ class Quiz:
 if __name__ == "__main__":
     quiz = Quiz()
     quiz.start_quiz()
+
+input('Press Enter to exit')
