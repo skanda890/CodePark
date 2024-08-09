@@ -38,3 +38,5 @@ if answer.lower() == 'yes':
     print(f'Marks obtained: {mark:.1f}%')
 else:
     print('Goodbye!')
+
+input('Press Enter to exit')
