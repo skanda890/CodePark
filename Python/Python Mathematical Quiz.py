@@ -33,6 +33,13 @@ if answer.lower() == 'yes':
     else:
         print('Wrong answer!')
 
+    answer = input('Question 5: What is the factorial of 5? ')
+    if answer == '120':
+        score += 1
+        print('Correct!')
+    else:
+        print('Wrong answer!')
+
     print(f'Thank you for playing! You attempted {score} questions correctly.')
     mark = (score / total_questions) * 100
     print(f'Marks obtained: {mark:.1f}%')
