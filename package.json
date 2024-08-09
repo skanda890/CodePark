@@ -15,8 +15,8 @@
     "@azure/core-auth": "latest",
     "@azure/core-sse": "latest",
     "express": "^4.17.1",
-    "openai": "latest",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "openai": "latest"
   },
   "devDependencies": {
     "@codecov/vite-plugin": "^0.0.1-beta.10",
