@@ -2,6 +2,8 @@
   "name": "my-project",
   "version": "1.0.0",
   "type": "module",
+  "description": "A sample project",
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "build": "webpack --config webpack.config.js",
@@ -13,7 +15,8 @@
     "@azure/core-auth": "latest",
     "@azure/core-sse": "latest",
     "express": "^4.17.1",
-    "openai": "latest"
+    "openai": "latest",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@codecov/vite-plugin": "^0.0.1-beta.10",
