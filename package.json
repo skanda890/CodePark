@@ -5,14 +5,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "renovatebot/github-action": "^40.2.5",
-    "actions/first-interaction": "^1.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CodePark/ci-setup.git"
+    "url": "git+https://github.com/your-repo/ci-setup.git"
   },
   "keywords": [
     "ci",
@@ -23,7 +20,7 @@
   "author": "Your Name",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/CodePark/ci-setup/issues"
+    "url": "https://github.com/your-repo/ci-setup/issues"
   },
-  "homepage": "https://github.com/CodePark/ci-setup#readme"
+  "homepage": "https://github.com/your-repo/ci-setup#readme"
 }
