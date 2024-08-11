@@ -1,0 +1,29 @@
+{
+  "name": "ci-setup",
+  "version": "1.0.0",
+  "description": "CI setup for GitHub Actions",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "renovatebot/github-action": "^40.2.5",
+    "actions/first-interaction": "^1.3.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodePark/ci-setup.git"
+  },
+  "keywords": [
+    "ci",
+    "github-actions",
+    "renovate",
+    "first-interaction"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CodePark/ci-setup/issues"
+  },
+  "homepage": "https://github.com/CodePark/ci-setup#readme"
+}
