@@ -9,7 +9,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-repo/ci-setup.git"
+    "url": "git+https://github.com/skanda890/ci-setup.git"
   },
   "keywords": [
     "ci",
@@ -17,10 +17,10 @@
     "renovate",
     "first-interaction"
   ],
-  "author": "Your Name",
+  "author": "Skanda890",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/your-repo/ci-setup/issues"
+    "url": "https://github.com/skanda890/ci-setup/issues"
   },
-  "homepage": "https://github.com/your-repo/ci-setup#readme"
+  "homepage": "https://github.com/skanda890/ci-setup#readme"
 }
