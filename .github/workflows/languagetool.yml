@@ -1,0 +1,25 @@
+name: LanguageTool Check
+
+on: [push, pull_request]
+
+jobs:
+  languagetool:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: Download LanguageTool
+      run: |
+        wget https://languagetool.org/download/LanguageTool-stable.zip
+        unzip LanguageTool-stable.zip -d languagetool
+
+    - name: Run LanguageTool
+      run: |
+        java -jar languagetool/languagetool-commandline.jar --language en-US --recursive .
