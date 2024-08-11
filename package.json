@@ -9,7 +9,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/skanda890/ci-setup.git"
+    "url": "git+https://github.com/Skanda890/CodePark.git"
   },
   "keywords": [
     "ci",
@@ -20,7 +20,7 @@
   "author": "Skanda890",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/skanda890/ci-setup/issues"
+    "url": "https://github.com/Skanda890/CodePark/issues"
   },
-  "homepage": "https://github.com/skanda890/ci-setup#readme"
+  "homepage": "https://github.com/Skanda890/CodePark#readme"
 }
