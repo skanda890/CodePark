@@ -28,3 +28,6 @@ jobs:
         useSlim: true
         env-regex: '^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN|NODE_OPTIONS)$'
         renovate-version: 'latest'
+
+    - name: Upload Tool Results To Pixeebot
+      uses: pixee/upload-tool-results-action@v2.3.0
