@@ -1,9 +1,8 @@
 ---
 name: Pull Request
-about: Create a pull request to contribute to the project
-title: ''
+about: Create a pull request to contribute to the project.
 labels: ''
-assignees: ''
+assignees: 'skanda890'
 
 ---
 
