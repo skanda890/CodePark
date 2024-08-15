@@ -1,1 +1,14 @@
-**Skanda890/CodePark** is a GitHub repository where the user **Skanda890** showcases their coding skills and certificates. It's a place where they share their programming projects and achievements.
+# CodePark
+
+Welcome to CodePark! This project is designed to [brief description of your project].
+
+## Features
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Installation
+```bash
+git clone https://github.com/yourusername/CodePark.git
+cd CodePark
+npm install
