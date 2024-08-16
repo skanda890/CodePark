@@ -4,7 +4,9 @@
   "description": "CI setup for GitHub Actions",
   "scripts": {
     "test": "jest",
-    "start": "node index.js",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "lint": "eslint .",
