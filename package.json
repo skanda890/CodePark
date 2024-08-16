@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "description": "CI setup for GitHub Actions",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "build": "webpack --config webpack.config.js",
+    "lint": "eslint .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "openai": "latest"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^5.11.0",
+    "eslint": "^7.14.0",
+    "gh-pages": "^3.2.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Skanda890/CodePark.git"
