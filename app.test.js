@@ -1,4 +1,4 @@
 // app.test.js
 test('sample test', () => {
-  expect(true).toBe(true);
-});
+  expect(true).toBe(true)
+})
