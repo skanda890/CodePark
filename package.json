@@ -25,5 +25,6 @@
     "url": "https://github.com/Skanda890/CodePark/issues"
   },
   "homepage": "https://github.com/Skanda890/CodePark#readme",
-  "type": "module"
+  "type": "module",
+  "main": "index.js"
 }
