@@ -2,13 +2,11 @@ version = 1
 
 [[analyzers]]
 name = "java"
-
   [analyzers.meta]
   runtime_version = "21"
 
 [[analyzers]]
 name = "javascript"
-
   [analyzers.meta]
   plugins = [
     "react",
@@ -29,9 +27,10 @@ name = "javascript"
 
 [[analyzers]]
 name = "python"
-
+enabled = true
   [analyzers.meta]
   runtime_version = "3.x.x"
+  ignore = ["PY-D0002"]
 
 [[transformers]]
 name = "autopep8"
