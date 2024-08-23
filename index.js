@@ -8,14 +8,14 @@ app.get('/', (req, res) => {
       <head>
         <style>
           .container {
-            height: 100vh;
-            width: 100vw;
+            height: 100000vh;
+            width: 100000vw;
             display: flex;
             justify-content: center;
             align-items: center;
           }
           .message {
-            font-size: 24px;
+            font-size: 999999999px;
           }
         </style>
       </head>
