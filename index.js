@@ -12,6 +12,8 @@ const rl = readline.createInterface({
 const randomNumber = Math.floor(Math.random() * 100) + 1;
 console.log(`The random number is: ${randomNumber}`);
 
+let attempts = 0; // Declare and initialize the attempts variable
+
 console.log('Welcome to the Number Guessing Game!');
 console.log('I have selected a random number between 1 and 100. Can you guess it?');
 
