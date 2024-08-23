@@ -31,3 +31,6 @@ jobs:
 
     - name: Upload Tool Results To Pixeebot
       uses: pixee/upload-tool-results-action@v2.3.0
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6.1.0
