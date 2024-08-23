@@ -6,7 +6,6 @@ public class FactorialCalculator {
         System.out.print("Enter a positive integer: ");
         int num = scanner.nextInt();
         scanner.close();
-
         if (num < 0) {
             System.out.println("Factorial is not defined for negative numbers.");
         } else {
@@ -14,7 +13,6 @@ public class FactorialCalculator {
             System.out.println("Factorial of " + num + " = " + result);
         }
     }
-
     public static long calculateFactorial(int n) {
         if (n == 0 || n == 1) {
             return 1;
