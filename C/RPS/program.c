@@ -8,7 +8,7 @@ void clearInputBuffer() {
 }
 
 void playGame() {
-    char *choices[] = {"Rock", "Paper", Scissors"};
+    char *choices[] = {"Rock", "Paper", "Scissors"};
     int userChoice, computerChoice;
 
     while (1) {
