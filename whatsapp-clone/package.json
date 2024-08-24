@@ -4,9 +4,10 @@
   "description": "A WhatsApp clone using Node.js, Express, Socket.io, and React",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "client": "cd client && npm start",
-    "dev": "concurrently \"npm run start\" \"npm run client\""
+  "start": "node server.js",
+  "client": "cd client && npm start",
+  "dev": "concurrently \"npm run start\" \"npm run client\""
+}
   },
   "dependencies": {
     "express": "^4.17.1",
