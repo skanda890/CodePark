@@ -21,5 +21,10 @@ int main() {
         printf("Factorial of %d = %llu\n", num, result);
     }
 
+    // Wait for user input before closing
+    printf("Press Enter to close the program...");
+    getchar(); // Consume the newline character left by scanf
+    getchar(); // Wait for the user to press Enter
+
     return 0;
 }
