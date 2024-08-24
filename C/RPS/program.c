@@ -6,14 +6,17 @@ void playGame() {
     char *choices[] = {"Rock", "Paper", "Scissors"};
     int userChoice, computerChoice;
 
-    printf("Choose an option:\n");
-    printf("1. Rock\n2. Paper\n3. Scissors\n");
-    printf("Enter your choice: ");
-    scanf("%d", &userChoice);
+    while (1) {
+        printf("Choose an option:\n");
+        printf("1. Rock\n2. Paper\n3. Scissors\n");
+        printf("Enter your choice: ");
+        scanf("%d", &userChoice);
 
-    if (userChoice < 1 || userChoice > 3) {
-        printf("Invalid choice! Please choose a number between 1 and 3.\n");
-        return;
+        if (userChoice >= 1 && userChoice <= 3) {
+            break;
+        } else {
+            printf("Invalid choice! Please choose a number between 1 and 3.\n");
+        }
     }
 
     srand(time(0));
