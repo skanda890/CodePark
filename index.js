@@ -9,7 +9,7 @@ const rl = readline.createInterface({
   output: process.stdout
 })
 
-const randomNumber = Math.floor(Math.random() * 100000) + 1
+const randomNumber = Math.floor(Math.random() * 10) + 1
 console.log(`The random number is: ${randomNumber}`)
 
 let attempts = 0 // Declare and initialize the attempts variable
