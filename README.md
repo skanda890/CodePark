@@ -8,10 +8,15 @@ CodePark is a comprehensive project management and collaboration platform design
 
 With CodePark, teams can efficiently manage projects, track progress, collaborate in real time, and ensure code quality through integrated version control and code review processes. The platform’s user-friendly interface and extensive feature set make it an ideal choice for developers and project managers looking to optimize their workflows and improve overall productivity.
 
-## Installation
+## Installation of the development server
 
 ```bash
 git clone https://github.com/skanda890/CodePark.git
 cd CodePark
 npm install
+```
+## Starting the development server
+ 
+```bash
+node index.js
 ```
