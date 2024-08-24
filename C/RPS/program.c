@@ -2,15 +2,24 @@
 #include <stdlib.h>
 #include <time.h>
 
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 void playGame() {
-    char *choices[] = {"Rock", "Paper", "Scissors"};
+    char *choices[] = {"Rock", "Paper", Scissors"};
     int userChoice, computerChoice;
 
     while (1) {
         printf("Choose an option:\n");
         printf("1. Rock\n2. Paper\n3. Scissors\n");
         printf("Enter your choice: ");
-        scanf("%d", &userChoice);
+        if (scanf("%d", &userChoice) != 1) {
+            printf("Invalid choice! Please choose a number between 1 and 3.\n");
+            clearInputBuffer();
+            continue;
+        }
 
         if (userChoice >= 1 && userChoice <= 3) {
             break;
