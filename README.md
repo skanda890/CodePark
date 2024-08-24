@@ -15,8 +15,9 @@ git clone https://github.com/skanda890/CodePark.git
 cd CodePark
 npm install
 ```
+
 ## Starting the development server
- 
+
 ```bash
 node index.js
 ```
