@@ -2,32 +2,44 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-app.get('/', (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <style>
-          .container {
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-          .message {
-            font-size: 24px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="message">Hello World!</div>
-        </div>
-      </body>
-    </html>
-  `)
+const readline = require('readline')
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+const randomNumber = Math.floor(Math.random() * 100) + 1
+console.log(`The random number is: ${randomNumber}`)
+
+let attempts = 0 // Declare and initialize the attempts variable
+
+console.log('Welcome to the Number Guessing Game!')
+console.log(
+  'I have selected a random number between 1 and 100. Can you guess it?'
+)
+
+const askQuestion = () => {
+  rl.question('Enter your guess: ', (answer) => {
+    const guess = parseInt(answer, 10)
+    attempts += 1
+
+    if (isNaN(guess)) {
+      console.log('Please enter a valid number.')
+    } else if (guess < randomNumber) {
+      console.log('Too low! Try again.')
+    } else if (guess > randomNumber) {
+      console.log('Too high! Try again.')
+    } else {
+      console.log(
+        `Congratulations! You guessed the number in ${attempts} attempts.`
+      )
+      rl.close()
+      return
+    }
+
+    askQuestion()
+  })
+}
+
+askQuestion()
