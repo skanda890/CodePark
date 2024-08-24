@@ -1,19 +1,23 @@
 {
   "name": "whatsapp-clone",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A WhatsApp clone using Node.js, Express, Socket.io, and React",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run start\" \"npm run client\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0",
+    "mongoose": "^5.12.3",
     "bcryptjs": "^2.4.3",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.5.4",
-    "socket.io": "^4.7.5"
-  }
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.0"
+  },
+  "author": "SkandaBT",
+  "license": "ISC"
 }
