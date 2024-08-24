@@ -1,3 +1,7 @@
+const express = require('express')
+const app = express()
+const port = 3000
+
 const readline = require('readline')
 
 const rl = readline.createInterface({
@@ -6,7 +10,9 @@ const rl = readline.createInterface({
 })
 
 const randomNumber = Math.floor(Math.random() * 100) + 1
-let attempts = 0
+console.log(`The random number is: ${randomNumber}`)
+
+let attempts = 0 // Declare and initialize the attempts variable
 
 console.log('Welcome to the Number Guessing Game!')
 console.log(
