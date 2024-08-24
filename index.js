@@ -32,7 +32,7 @@ const askQuestion = () => {
       console.log('Too high! Try again.')
     } else {
       console.log(
-        `Congratulations! You guessed the number in ${attempts} attempts.`
+        `Congratulations! You guessed the number in ${attempts} attempt(s).`
       )
       rl.close()
       return
