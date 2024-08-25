@@ -17,6 +17,7 @@ function sendMessage() {
 // WebRTC setup
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
+remoteVideo.srcObject = newMediaStream;
 const peerConnection = new RTCPeerConnection();
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
