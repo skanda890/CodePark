@@ -1,17 +1,22 @@
 {
   "name": "web-rtc-chat",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A messaging and calling application using WebRTC and Socket.io",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["webrtc", "chat", "socket.io", "messaging", "calling"],
+  "author": "SkandaBT",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "webrtc-adapter": "^9.0.1"
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0",
+    "webrtc-adapter": "^7.7.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skanda890/CodePark.git"
   }
 }
