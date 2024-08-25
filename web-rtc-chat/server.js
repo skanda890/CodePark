@@ -19,10 +19,16 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
+let messageHistory = [];
+
 io.on('connection', (socket) => {
   console.log('New client connected');
 
+  // Send message history to the new client
+  socket.emit('messageHistory', messageHistory);
+
   socket.on('message', (data) => {
+    messageHistory.push(data);
     io.emit('message', data);
   });
 
