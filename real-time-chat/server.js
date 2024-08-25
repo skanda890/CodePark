@@ -12,6 +12,14 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+// Serve static files from the "public" directory
+app.use(express.static('public'));
+
+// Define a route for the root URL
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 io.on('connection', (socket) => {
   console.log('New client connected');
   socket.on('message', (data) => {
