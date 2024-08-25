@@ -1,31 +1,49 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const admin = require('firebase-admin');
+const serviceAccount = require('./path/to/serviceAccountKey.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
-
 io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
-    });
+  console.log('New client connected');
+  socket.on('message', (data) => {
+    io.emit('message', data);
+    sendPushNotification(data);
+  });
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
 });
 
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const sendPushNotification = (message) => {
+  const payload = {
+    notification: {
+      title: 'New Message',
+      body: message,
+    },
+  };
+
+  const options = {
+    priority: 'high',
+    timeToLive: 60 * 60 * 24, // 1 day
+  };
+
+  admin.messaging().sendToTopic('chat', payload, options)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+    });
+};
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
