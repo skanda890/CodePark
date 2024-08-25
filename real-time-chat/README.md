@@ -13,4 +13,6 @@ A real-time chat application built with Node.js, Express, and Socket.io.
    ```sh
    git clone https://github.com/yourusername/real-time-chat.git
    cd real-time-chat
+   npm install
+   npm start
    ```
