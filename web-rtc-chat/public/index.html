@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Chat</title>
+</head>
+<body>
+  <h1>WebRTC Chat</h1>
+  <div id="chat">
+    <input id="message" type="text" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+    <div id="messages"></div>
+  </div>
+  <video id="localVideo" autoplay></video>
+  <video id="remoteVideo" autoplay></video>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
