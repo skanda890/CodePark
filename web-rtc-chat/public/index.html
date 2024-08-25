@@ -28,6 +28,10 @@
     <button onclick="sendMessage()">Send</button>
     <div id="messages"></div>
   </div>
+  <div id="file-sharing">
+    <input type="file" id="fileInput">
+    <button onclick="sendFile()">Send File</button>
+  </div>
   <video id="localVideo" autoplay></video>
   <video id="remoteVideo" autoplay></video>
   <script src="/socket.io/socket.io.js"></script>
