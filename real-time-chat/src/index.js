@@ -3,12 +3,13 @@ import firebase from 'firebase/app';
 import 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCLvXN9jUa2eYHNJd5SdQ9WHonQqCUi4EM",
+  authDomain: "real-time-chat-b5bf4.firebaseapp.com",
+  projectId: "real-time-chat-b5bf4",
+  storageBucket: "real-time-chat-b5bf4.appspot.com",
+  messagingSenderId: "339845194129",
+  appId: "1:339845194129:web:551c29ffd878ef2c267a30",
+  measurementId: "G-8Y8JF761RP"
 };
 
 firebase.initializeApp(firebaseConfig);
