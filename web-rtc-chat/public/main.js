@@ -1,4 +1,4 @@
-const socket = io('https://192.168.1.8:3443'); // Change this to match your server URL and port
+const socket = io('http://192.168.1.8:3000'); // Change this to match your server URL and port
 
 socket.on('messageHistory', (messages) => {
   const messagesContainer = document.getElementById('messages');
