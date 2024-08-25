@@ -1,10 +1,17 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const socketIo = require('socket.io');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+const httpServer = http.createServer(app);
+const httpsOptions = {
+  key: fs.readFileSync('./private.key'),
+  cert: fs.readFileSync('./certificate.crt')
+};
+const httpsServer = https.createServer(httpsOptions, app);
+const io = socketIo(httpServer); // You can also use socketIo(httpsServer) if needed
 
 app.use(express.static('public'));
 
@@ -28,5 +35,8 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const HTTP_PORT = process.env.HTTP_PORT || 3000;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
+
+httpServer.listen(HTTP_PORT, () => console.log(`HTTP server running on port ${HTTP_PORT}`));
+httpsServer.listen(HTTPS_PORT, () => console.log(`HTTPS server running on port ${HTTPS_PORT}`));
