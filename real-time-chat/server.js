@@ -12,10 +12,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve static files from the "public" directory
 app.use(express.static('public'));
 
-// Define a route for the root URL
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
@@ -23,6 +21,7 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('New client connected');
   socket.on('message', (data) => {
+    console.log('Message received:', data);
     io.emit('message', data);
     sendPushNotification(data);
   });
@@ -53,5 +52,5 @@ const sendPushNotification = (message) => {
     });
 };
 
-const PORT = 3000; // Change the port to 3000
+const PORT = 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
