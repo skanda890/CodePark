@@ -60,5 +60,30 @@ async function call() {
   socket.emit('offer', offer);
 }
 
+function sendFile() {
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const arrayBuffer = event.target.result;
+      socket.emit('file', { fileName: file.name, fileData: arrayBuffer });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+socket.on('file', (data) => {
+  const messages = document.getElementById('messages');
+  const message = document.createElement('div');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([data.fileData]));
+  link.download = data.fileName;
+  link.textContent = `Download ${data.fileName}`;
+  message.appendChild(link);
+  messages.appendChild(message);
+});
+
 window.sendMessage = sendMessage;
 window.call = call;
+window.sendFile = sendFile;
