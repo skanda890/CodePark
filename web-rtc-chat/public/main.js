@@ -17,8 +17,11 @@ function sendMessage() {
 // WebRTC setup
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
-remoteVideo.srcObject = newMediaStream;
-const peerConnection = new RTCPeerConnection();
+const peerConnection = new RTCPeerConnection({
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' }
+  ]
+});
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   .then(stream => {
@@ -26,28 +29,28 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
   });
 
-peerConnection.ontrack = event => {
+peerConnection.ontrack = (event) => {
   remoteVideo.srcObject = event.streams[0];
 };
 
-peerConnection.onicecandidate = event => {
+peerConnection.onicecandidate = (event) => {
   if (event.candidate) {
     socket.emit('ice-candidate', event.candidate);
   }
 };
 
-socket.on('ice-candidate', candidate => {
+socket.on('ice-candidate', (candidate) => {
   peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
 });
 
-socket.on('offer', async offer => {
+socket.on('offer', async (offer) => {
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
   socket.emit('answer', answer);
 });
 
-socket.on('answer', async answer => {
+socket.on('answer', async (answer) => {
   await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
