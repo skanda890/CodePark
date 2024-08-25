@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json'); // Ensure this path is correct
+const serviceAccount = require('A:\GitHub Desktop\CodePark\real-time-chat/serviceAccountKey.json'); // Ensure this path is correct
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
