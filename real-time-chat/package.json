@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "firebase": "^10.13.0",
+    "firebase-admin": "^12.4.0",
     "socket.io": "^4.0.0"
   },
   "author": "SkandaBT",
