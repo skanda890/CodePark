@@ -1,4 +1,3 @@
-// public/main.js
 const socket = io();
 
 socket.on('message', (data) => {
