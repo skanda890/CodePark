@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io('https://192.168.1.8:3443'); // Change this to match your server URL and port
 
 socket.on('message', (data) => {
   const messages = document.getElementById('messages');
