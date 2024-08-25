@@ -1,5 +1,14 @@
 const socket = io('https://192.168.1.8:3443'); // Change this to match your server URL and port
 
+socket.on('messageHistory', (messages) => {
+  const messagesContainer = document.getElementById('messages');
+  messages.forEach((data) => {
+    const message = document.createElement('div');
+    message.textContent = data;
+    messagesContainer.appendChild(message);
+  });
+});
+
 socket.on('message', (data) => {
   const messages = document.getElementById('messages');
   const message = document.createElement('div');
