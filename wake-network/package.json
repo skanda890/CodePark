@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "local-devices": "^3.0.0",
     "wake_on_lan": "^1.0.0"
   }
 }
