@@ -2,14 +2,15 @@
   "name": "my-hyperv-project",
   "version": "1.0.0",
   "description": "A Node.js project for managing Hyper-V virtual machines",
-  "main": "index.js",
-  "scripts": {
-  "create-vm": "node create-vm.js",
-  "start-vm": "node start-vm.js"
-}
+  "dependencies": {
+    "express": "^4.17.1",
+    "axios": "^0.21.1",
+    "node-powershell": "^5.1.0"
   },
   "author": "SkandaBT",
   "license": "MIT",
-  "dependencies": {
-    // Add any dependencies your project requires
+  "scripts": {
+    "create-vm": "node create-vm.js",
+    "start-vm": "node start-vm.js"
   }
+}
