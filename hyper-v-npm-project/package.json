@@ -5,7 +5,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "axios": "^0.21.1",
-    "node-powershell": "^5.1.0"
+    "node-powershell": "^16.0"
   },
   "author": "SkandaBT",
   "license": "MIT",
