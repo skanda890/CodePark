@@ -1,16 +1,16 @@
 {
-  "name": "hyper-v-npm-project",
+  "name": "my-hyperv-project",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "description": "A Node.js project for managing Hyper-V virtual machines",
   "dependencies": {
-    "express": "^4.19.2",
-    "node-powershell": "^5.0.1"
+    "express": "^4.17.1",
+    "axios": "^0.21.1",
+    "node-powershell": "^5.1.0"
+  },
+  "author": "SkandaBT",
+  "license": "MIT",
+  "scripts": {
+    "create-vm": "node create-vm.js",
+    "start-vm": "node start-vm.js"
   }
 }
