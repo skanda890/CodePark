@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; // Import your custom CSS file (create one if you haven't)
+import './App.css';
 
 const App = () => {
   const [query, setQuery] = useState('');
