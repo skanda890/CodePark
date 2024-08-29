@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css'; // Import your custom CSS file (create one if you haven't)
 
 const App = () => {
   const [query, setQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
-  const [vegOnly, setVegOnly] = useState(false); // New state for veg-only filter
+  const [vegOnly, setVegOnly] = useState(false);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -24,7 +25,7 @@ const App = () => {
     if (query) {
       fetchRecipes();
     }
-  }, [query, vegOnly]); // Include vegOnly in the dependency array
+  }, [query, vegOnly]);
 
   const handleChange = (event) => {
     setQuery(event.target.value);
@@ -46,7 +47,7 @@ const App = () => {
           onChange={handleChange}
         />
         <button
-          className={`bg-${vegOnly ? 'green' : 'blue'}-500 hover:bg-${vegOnly ? 'green' : 'blue'}-600 text-white font-bold py-2 px-4 rounded-r focus:outline-none`}
+          className={`toggle-button ${vegOnly ? 'veg' : 'nonveg'}`}
           onClick={handleToggle}
         >
           {vegOnly ? 'Veg Only' : 'All Recipes'}
