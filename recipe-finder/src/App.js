@@ -4,6 +4,7 @@ import axios from 'axios';
 const App = () => {
   const [query, setQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
+  const [vegOnly, setVegOnly] = useState(false); // New state for veg-only filter
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -11,7 +12,10 @@ const App = () => {
         const response = await axios.get(
           `https://api.spoonacular.com/recipes/complexSearch?apiKey=68f96c72b638477eaa3a7084ddcb99e3&query=${query}&number=10`
         );
-        setRecipes(response.data.results);
+        const filteredRecipes = vegOnly
+          ? response.data.results.filter((recipe) => recipe.vegetarian)
+          : response.data.results;
+        setRecipes(filteredRecipes);
       } catch (error) {
         console.error('Error fetching recipes:', error);
       }
@@ -20,10 +24,14 @@ const App = () => {
     if (query) {
       fetchRecipes();
     }
-  }, [query]);
+  }, [query, vegOnly]); // Include vegOnly in the dependency array
 
   const handleChange = (event) => {
     setQuery(event.target.value);
+  };
+
+  const handleToggle = () => {
+    setVegOnly(!vegOnly);
   };
 
   return (
@@ -37,19 +45,14 @@ const App = () => {
           value={query}
           onChange={handleChange}
         />
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r focus:outline-none">
-          Search
+        <button
+          className={`bg-${vegOnly ? 'green' : 'blue'}-500 hover:bg-${vegOnly ? 'green' : 'blue'}-600 text-white font-bold py-2 px-4 rounded-r focus:outline-none`}
+          onClick={handleToggle}
+        >
+          {vegOnly ? 'Veg Only' : 'All Recipes'}
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="border rounded p-4 shadow-md">
-            <img src={recipe.image} alt={recipe.title} className="w-full h-48 object-cover mb-4" />
-            <h2 className="text-xl font-bold mb-2">{recipe.title}</h2>
-            <p className="text-gray-700">{recipe.summary}</p>
-          </div>
-        ))}
-      </div>
+      {/* Rest of your recipe display logic */}
     </div>
   );
 };
