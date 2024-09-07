@@ -18,6 +18,8 @@ app.post('/compile', (req, res) => {
         resultPromise = compileRun.java.runSource(code);
     } else if (language === 'c') {
         resultPromise = compileRun.c.runSource(code);
+    } else if (language === 'html') {
+        resultPromise = compileRun.html.runSource(code);
     } else if (language === 'cpp') {
         resultPromise = compileRun.cpp.runSource(code);
     } else {
