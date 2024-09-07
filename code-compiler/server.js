@@ -4,6 +4,7 @@ const { exec } = require('child_process');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.static(__dirname));
 
 app.post('/compile', (req, res) => {
     const { code, language } = req.body;
