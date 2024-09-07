@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { exec } = require('child_process');
+const compileRun = require('compile-run');
 
 const app = express();
 app.use(bodyParser.json());
@@ -9,21 +9,28 @@ app.use(express.static(__dirname));
 app.post('/compile', (req, res) => {
     const { code, language } = req.body;
 
-    let command;
+    let resultPromise;
     if (language === 'javascript') {
-        command = `node -e "${code}"`;
+        resultPromise = compileRun.runNode(code);
     } else if (language === 'python') {
-        command = `python -c "${code}"`;
+        resultPromise = compileRun.runPython(code);
+    } else if (language === 'java') {
+        resultPromise = compileRun.runJava(code);
+    } else if (language === 'c') {
+        resultPromise = compileRun.runC(code);
+    } else if (language === 'cpp') {
+        resultPromise = compileRun.runCpp(code);
     } else {
         return res.status(400).send('Unsupported language');
     }
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            return res.status(500).send(stderr);
-        }
-        res.send(stdout);
-    });
+    resultPromise
+        .then(result => {
+            res.send(result.stdout);
+        })
+        .catch(err => {
+            res.status(500).send(err.stderr);
+        });
 });
 
 const PORT = process.env.PORT || 3001;
