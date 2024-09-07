@@ -1,17 +1,15 @@
 {
   "name": "code-compiler",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A simple code compiler web application",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "child_process": "^1.0.2",
-    "express": "^4.19.2"
-  }
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "author": "skanda890",
+  "license": "MIT"
 }
