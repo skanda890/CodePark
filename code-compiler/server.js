@@ -11,15 +11,15 @@ app.post('/compile', (req, res) => {
 
     let resultPromise;
     if (language === 'javascript') {
-        resultPromise = compileRun.runSource(code, { language: 'node' });
+        resultPromise = compileRun.node.runSource(code);
     } else if (language === 'python') {
-        resultPromise = compileRun.runSource(code, { language: 'python' });
+        resultPromise = compileRun.python.runSource(code);
     } else if (language === 'java') {
-        resultPromise = compileRun.runSource(code, { language: 'java' });
+        resultPromise = compileRun.java.runSource(code);
     } else if (language === 'c') {
-        resultPromise = compileRun.runSource(code, { language: 'c' });
+        resultPromise = compileRun.c.runSource(code);
     } else if (language === 'cpp') {
-        resultPromise = compileRun.runSource(code, { language: 'cpp' });
+        resultPromise = compileRun.cpp.runSource(code);
     } else {
         return res.status(400).send('Unsupported language');
     }
