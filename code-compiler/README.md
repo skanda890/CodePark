@@ -1,1 +1,1 @@
-A simple code compiler web application.
+A simple code compiler web application which supports various languages.
