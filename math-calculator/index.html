@@ -14,7 +14,6 @@
     </form>
     <h2>Results:</h2>
     <p><strong>Question:</strong> <span id="question"></span></p>
-    <p><strong>Working:</strong> <span id="working"></span></p>
     <p><strong>Solution:</strong> <span id="solution"></span></p>
 
     <script>
@@ -30,7 +29,6 @@
             });
             const result = await response.json();
             document.getElementById('question').textContent = result.question;
-            document.getElementById('working').textContent = result.working;
             document.getElementById('solution').textContent = result.solution;
         });
     </script>
