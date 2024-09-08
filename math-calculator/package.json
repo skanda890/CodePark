@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
   "start": "node server.js",
-  "start:index": "node index.js"
+  "start:index": "node index.js",
+  "start:both": "npm start && npm run start:index"
 },
   "author": "skanda890",
   "license": "MIT",
