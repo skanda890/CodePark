@@ -1,6 +1,7 @@
 const math = require('mathjs');
 const readline = require('readline-sync');
 
+// Function to get step-by-step calculation
 function getStepByStepCalculation(expression) {
   try {
     const node = math.parse(expression);
@@ -13,9 +14,17 @@ function getStepByStepCalculation(expression) {
     }
 
     simplifyStep(node);
-    return steps.join(' -> ');
+    return steps;
   } catch (error) {
     return `Error: ${error.message}`;
   }
 }
 
+// Get user input
+const expression = readline.question('Enter a mathematical expression: ');
+const steps = getStepByStepCalculation(expression);
+const solution = steps[steps.length - 1];
+
+console.log(`Question: ${expression}`);
+console.log(`Working: ${steps.join(' -> ')}`);
+console.log(`Solution: ${solution}`);
