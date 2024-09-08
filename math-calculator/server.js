@@ -1,9 +1,18 @@
 const express = require('express');
 const math = require('mathjs');
+const path = require('path');
 const app = express();
 const port = 4000;
 
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Math Calculator API!');
+});
+
+app.get('/calculator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 function getStepByStepCalculation(expression) {
   try {
@@ -22,10 +31,6 @@ function getStepByStepCalculation(expression) {
     return `Error: ${error.message}`;
   }
 }
-
-app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API!');
-});
 
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
