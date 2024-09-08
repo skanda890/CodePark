@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Calculator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Math Calculator</h1>
-    <form id="calcForm">
-        <label for="expression">Enter a mathematical expression:</label>
-        <input type="text" id="expression" name="expression" required>
-        <button type="submit">Calculate</button>
-    </form>
-    <h2>Results:</h2>
-    <p><strong>Question:</strong> <span id="question"></span></p>
-    <p><strong>Working:</strong> <span id="working"></span></p>
-    <p><strong>Solution:</strong> <span id="solution"></span></p>
+    <div class="container mt-5">
+        <h1 class="text-center">Math Calculator</h1>
+        <form id="calcForm" class="mt-4">
+            <div class="form-group">
+                <label for="expression">Enter a mathematical expression:</label>
+                <input type="text" id="expression" name="expression" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Calculate</button>
+        </form>
+        <div class="mt-4">
+            <h2>Results:</h2>
+            <p><strong>Question:</strong> <span id="question"></span></p>
+            <p><strong>Working:</strong> <span id="working"></span></p>
+            <p><strong>Solution:</strong> <span id="solution"></span></p>
+        </div>
+    </div>
 
     <script>
         document.getElementById('calcForm').addEventListener('submit', async function(event) {
