@@ -26,7 +26,7 @@ function getStepByStepCalculation(expression) {
     }
 
     simplifyStep(node);
-    return steps.join(' -> ');
+    return steps;
   } catch (error) {
     return `Error: ${error.message}`;
   }
@@ -35,7 +35,12 @@ function getStepByStepCalculation(expression) {
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
   const steps = getStepByStepCalculation(expression);
-  res.json({ expression, steps });
+  const solution = steps[steps.length - 1];
+  res.json({ 
+    question: expression, 
+    working: steps.join(' -> '), 
+    solution 
+  });
 });
 
 app.listen(port, () => {
