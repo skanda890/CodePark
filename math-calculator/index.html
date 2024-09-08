@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Calculator</title>
+</head>
+<body>
+    <h1>Math Calculator</h1>
+    <form id="calcForm">
+        <label for="expression">Enter a mathematical expression:</label>
+        <input type="text" id="expression" name="expression" required>
+        <button type="submit">Calculate</button>
+    </form>
+    <h2>Steps:</h2>
+    <pre id="steps"></pre>
+
+    <script>
+        document.getElementById('calcForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const expression = document.getElementById('expression').value;
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ expression })
+            });
+            const result = await response.json();
+            document.getElementById('steps').textContent = result.steps;
+        });
+    </script>
+</body>
+</html>
