@@ -9,6 +9,7 @@
   "author": "skanda890",
   "license": "MIT",
   "dependencies": {
-    "mathjs": "^10.0.0"
+    "mathjs": "^10.0.0",
+    "readline-sync": "^1.4.10"
   }
 }
