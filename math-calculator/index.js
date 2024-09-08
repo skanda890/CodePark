@@ -3,13 +3,19 @@ const readline = require('readline-sync');
 
 function getStepByStepCalculation(expression) {
   try {
-    const steps = math.simplify(expression).toString();
-    return steps;
+    const node = math.parse(expression);
+    const steps = [];
+
+    function simplifyStep(node) {
+      const simplified = math.simplify(node);
+      steps.push(simplified.toString());
+      return simplified;
+    }
+
+    simplifyStep(node);
+    return steps.join(' -> ');
   } catch (error) {
     return `Error: ${error.message}`;
   }
 }
 
-const expression = readline.question('Enter a mathematical expression: ');
-console.log(`Expression: ${expression}`);
-console.log(`Steps: ${getStepByStepCalculation(expression)}`);
