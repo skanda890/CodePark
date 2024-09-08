@@ -1,15 +1,14 @@
 {
   "name": "math-calculator",
   "version": "1.0.0",
+  "description": "A simple project to get step-by-step calculations for math problems",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "skanda890",
+  "license": "MIT",
   "dependencies": {
-    "mathjs": "^13.1.1"
+    "mathjs": "^10.0.0"
   }
 }
