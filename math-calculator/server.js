@@ -1,7 +1,7 @@
 const express = require('express');
 const math = require('mathjs');
 const app = express();
-const port = process.env.PORT || 8080;
+const port = 4000;
 
 app.use(express.json());
 
@@ -23,6 +23,11 @@ function getStepByStepCalculation(expression) {
     return `Error: ${error.message}`;
   }
 }
+
+// Route for the root URL
+app.get('/', (req, res) => {
+  res.send('Welcome to the Math Calculator API!');
+});
 
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
