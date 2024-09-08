@@ -9,6 +9,7 @@
   "author": "skanda890",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.19.2",
     "mathjs": "^10.0.0",
     "readline-sync": "^1.4.10"
   }
