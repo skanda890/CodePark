@@ -5,7 +5,6 @@ const port = 4000;
 
 app.use(express.json());
 
-// Function to get step-by-step calculation
 function getStepByStepCalculation(expression) {
   try {
     const node = math.parse(expression);
@@ -24,7 +23,6 @@ function getStepByStepCalculation(expression) {
   }
 }
 
-// Route for the root URL
 app.get('/', (req, res) => {
   res.send('Welcome to the Math Calculator API!');
 });
