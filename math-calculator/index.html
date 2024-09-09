@@ -19,7 +19,6 @@
         <div class="mt-4">
             <h2>Results:</h2>
             <p><strong>Question:</strong> <span id="question"></span></p>
-            <p><strong>Working:</strong> <span id="working"></span></p>
             <p><strong>Solution:</strong> <span id="solution"></span></p>
         </div>
     </div>
@@ -40,7 +39,6 @@
             const result = await response.json();
             console.log('Result:', result); // Add this line
             document.getElementById('question').textContent = result.question;
-            document.getElementById('working').textContent = result.working;
             document.getElementById('solution').textContent = result.solution;
         });
     </script>
