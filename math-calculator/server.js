@@ -42,7 +42,6 @@ app.post('/calculate', (req, res) => {
   const solution = steps[steps.length - 1];
   res.json({ 
     question: expression, 
-    working: steps.join(' -> '), 
     solution 
   });
 });
