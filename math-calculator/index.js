@@ -26,5 +26,4 @@ const steps = getStepByStepCalculation(expression);
 const solution = steps[steps.length - 1];
 
 console.log(`Question: ${expression}`);
-console.log(`Working: ${steps.join(' -> ')}`);
 console.log(`Solution: ${solution}`);
