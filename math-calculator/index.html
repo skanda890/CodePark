@@ -19,7 +19,9 @@
         <div class="mt-4">
             <h2>Results:</h2>
             <p><strong>Question:</strong> <span id="question"></span></p>
-            <p><strong>Solution:</strong> <span id="solution"></span></p>
+            <p><strong>Working:</strong> <span id="working"></span></p>
+            <p><strong>Solution (Fraction):</strong> <span id="solution-fraction"></span></p>
+            <p><strong>Solution (Decimal):</strong> <span id="solution-decimal"></span></p>
         </div>
     </div>
 
@@ -39,7 +41,9 @@
             const result = await response.json();
             console.log('Result:', result); // Add this line
             document.getElementById('question').textContent = result.question;
-            document.getElementById('solution').textContent = result.solution;
+            document.getElementById('working').textContent = result.working;
+            document.getElementById('solution-fraction').textContent = result.solution.fraction;
+            document.getElementById('solution-decimal').textContent = result.solution.decimal;
         });
     </script>
 </body>
