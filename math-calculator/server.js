@@ -8,7 +8,7 @@ app.use(express.json());
 
 // Route for the root URL
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API!');
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
 });
 
 // Serve the HTML file at a different route
