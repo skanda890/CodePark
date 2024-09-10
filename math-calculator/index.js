@@ -50,7 +50,6 @@ app.post('/calculate', (req, res) => {
   const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
     question: expression, 
-    working: steps.join(' -> '), 
     solution 
   });
 });
