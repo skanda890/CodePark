@@ -8,7 +8,7 @@ app.use(express.json());
 
 // Route for the root URL
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to 192.168.1.7:4000/calculator');
+  res.send('Welcome to the Math Calculator API!');
 });
 
 // Serve the HTML file at a different route
@@ -35,13 +35,19 @@ function getStepByStepCalculation(expression) {
   }
 }
 
+// Function to perform the calculation and format the result as a fraction
+function performCalculation(expression) {
+  return math.format(math.evaluate(expression), { fraction: 'ratio' });
+}
+
 // POST route for calculations
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
   const steps = getStepByStepCalculation(expression);
-  const solution = steps[steps.length - 1];
+  const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
     question: expression, 
+    working: steps.join(' -> '), 
     solution 
   });
 });
