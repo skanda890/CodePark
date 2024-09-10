@@ -46,8 +46,7 @@ app.post('/calculate', (req, res) => {
   const steps = getStepByStepCalculation(expression);
   const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
-    question: expression, 
-    working: steps.join(' -> '), 
+    question: expression,
     solution 
   });
 });
