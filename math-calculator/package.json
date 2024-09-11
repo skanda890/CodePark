@@ -7,7 +7,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^5.0.0",
     "mathjs": "^9.4.4"
   },
   "devDependencies": {},
