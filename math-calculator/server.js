@@ -6,6 +6,11 @@ const port = 4000; // Set the port to 4000
 
 app.use(express.json());
 
+// Define π as a constant
+math.import({
+  π: Math.PI
+});
+
 // Route for the root URL
 app.get('/', (req, res) => {
   res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
@@ -49,7 +54,7 @@ app.post('/calculate', (req, res) => {
   const steps = getStepByStepCalculation(expression);
   const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
-    question: expression, 
+    question: expression,  
     solution 
   });
 });
