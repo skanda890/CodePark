@@ -1,16 +1,16 @@
 {
   "name": "math-calculator",
   "version": "1.0.0",
-  "description": "A simple project to get step-by-step calculations for math problems",
+  "description": "A simple math calculator that supports decimals and the π symbol.",
   "main": "server.js",
   "scripts": {
-  "start": "node server.js",
-},
-  "author": "skanda890",
-  "license": "MIT",
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.19.2",
-    "mathjs": "^10.0.0",
-    "readline-sync": "^1.4.10"
-  }
+    "express": "^4.17.1",
+    "mathjs": "^9.4.4"
+  },
+  "devDependencies": {},
+  "author": "skanda890",
+  "license": "MIT"
 }
