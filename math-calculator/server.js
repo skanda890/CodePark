@@ -2,12 +2,13 @@ const express = require('express');
 const math = require('mathjs');
 const path = require('path');
 const app = express();
-const port = 4000; // Set the port to 4000
+const port = 4000;
 
 app.use(express.json());
 
-// Define π as a constant
-math.import({
+// Create a new Math.js instance and define π as a constant
+const mathInstance = math.create(math.all);
+mathInstance.import({
   π: Math.PI
 });
 
@@ -24,11 +25,11 @@ app.get('/calculator', (req, res) => {
 // Function to get step-by-step calculation
 function getStepByStepCalculation(expression) {
   try {
-    const node = math.parse(expression);
+    const node = mathInstance.parse(expression);
     const steps = [];
 
     function simplifyStep(node) {
-      const simplified = math.simplify(node);
+      const simplified = mathInstance.simplify(node);
       steps.push(simplified.toString());
       return simplified;
     }
@@ -42,9 +43,9 @@ function getStepByStepCalculation(expression) {
 
 // Function to perform the calculation and format the result as both fraction and decimal
 function performCalculation(expression) {
-  const result = math.evaluate(expression);
-  const fractionResult = math.format(result, { fraction: 'ratio' });
-  const decimalResult = math.format(result, { notation: 'fixed', precision: 10 });
+  const result = mathInstance.evaluate(expression);
+  const fractionResult = mathInstance.format(result, { fraction: 'ratio' });
+  const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
   return { fraction: fractionResult, decimal: decimalResult };
 }
 
