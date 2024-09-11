@@ -44,6 +44,7 @@ function getStepByStepCalculation(expression) {
 // Function to perform the calculation and format the result as both fraction and decimal
 function performCalculation(expression) {
   const result = mathInstance.evaluate(expression);
+  const fractionResult = mathInstance.format(result, { fraction: 'ratio' });
   const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
   return { fraction: fractionResult, decimal: decimalResult };
 }
