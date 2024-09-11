@@ -35,9 +35,12 @@ function getStepByStepCalculation(expression) {
   }
 }
 
-// Function to perform the calculation and format the result as a fraction
+// Function to perform the calculation and format the result as both fraction and decimal
 function performCalculation(expression) {
-  return math.format(math.evaluate(expression), { fraction: 'ratio' });
+  const result = math.evaluate(expression);
+  const fractionResult = math.format(result, { fraction: 'ratio' });
+  const decimalResult = math.format(result, { notation: 'fixed', precision: 10 });
+  return { fraction: fractionResult, decimal: decimalResult };
 }
 
 // POST route for calculations
@@ -46,7 +49,7 @@ app.post('/calculate', (req, res) => {
   const steps = getStepByStepCalculation(expression);
   const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
-    question: expression,
+    question: expression, 
     solution 
   });
 });
