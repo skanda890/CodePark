@@ -2,11 +2,9 @@
   "name": "math-calculator",
   "version": "1.0.0",
   "description": "A simple project to get step-by-step calculations for math problems",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
   "start": "node server.js",
-  "start:index": "node index.js",
-  "start:both": "npm start && npm run start:index"
 },
   "author": "skanda890",
   "license": "MIT",
