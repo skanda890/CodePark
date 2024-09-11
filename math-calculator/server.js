@@ -14,7 +14,7 @@ mathInstance.import({
 
 // Route for the root URL
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator'); 
 });
 
 // Serve the HTML file at a different route
@@ -41,12 +41,11 @@ function getStepByStepCalculation(expression) {
   }
 }
 
-// Function to perform the calculation and format the result as both fraction and decimal
+// Function to perform the calculation and format the result as a decimal
 function performCalculation(expression) {
   const result = mathInstance.evaluate(expression);
-  const fractionResult = mathInstance.format(result, { fraction: 'ratio' });
   const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
-  return { fraction: fractionResult, decimal: decimalResult };
+  return decimalResult;
 }
 
 // POST route for calculations
