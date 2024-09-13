@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "express": "^4.17.1"
-    // Add other dependencies as needed
   },
   "author": "SkandaBT",
   "license": "MIT",
