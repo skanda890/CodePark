@@ -4,7 +4,7 @@
   "description": "My personal portfolio website",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.17.1"
