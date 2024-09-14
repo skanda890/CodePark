@@ -1,5 +1,5 @@
 {
-  "name": "Bios",
+  "name": "BIOS-Info",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
