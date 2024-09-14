@@ -1,3 +1,4 @@
+// Option 1: Using Express Router (as you initially provided)
 const express = require('express');
 const router = express.Router();
 const books = require('./books.json'); // Assume you have a JSON file with book data
@@ -45,3 +46,14 @@ router.delete('/:id', (req, res) => {
 });
 
 module.exports = router;
+
+// Option 2: Using Express directly
+const express = require('express');
+const app = express();
+const port = 5000; // Set your desired port number
+
+// ... other middleware and route setup ...
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
