@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "SkandaBT",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.21.0",
     "express-handlebars": "^8.0.1",
