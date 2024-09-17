@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#sudoku-grid {
+    /* Style your Sudoku grid here */
+    /* Example: set a fixed width, border, and padding */
+    width: 300px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#showSolution {
+    /* Style the "Show Solution" button */
+    background-color: #0074D9;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+}

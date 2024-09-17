@@ -1,0 +1,12 @@
+{
+  "name": "sudoku-generator",
+  "version": "1.0.0",
+  "description": "A Sudoku puzzle generator with solution reveal",
+  "main": "script.js",
+  "scripts": {
+    "start": "node script.js"
+  },
+  "dependencies": {
+    "sudoku-gen": "^1.0.0"
+  }
+}
