@@ -1,3 +1,4 @@
+
 const express = require('express');
 const math = require('mathjs');
 const path = require('path');
@@ -51,14 +52,8 @@ function performCalculation(expression) {
 // POST route for calculations
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
-
-  // Check if "approx" or "exact" is next to an equation
-  const modifiedExpression = expression.replace(/approx(?=\s*[\+\-\*\/\(\)])/g, 'approximated')
-                                       .replace(/exact(?=\s*[\+\-\*\/\(\)])/g, 'exact');
-
-  const steps = getStepByStepCalculation(modifiedExpression);
-  const solution = performCalculation(modifiedExpression);
-
+  const steps = getStepByStepCalculation(expression);
+  const solution = performCalculation(expression); // Use the performCalculation function here
   res.json({ 
     question: expression,  
     solution 
