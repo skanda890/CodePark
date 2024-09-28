@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["webrtc", "chat", "socket.io", "messaging", "calling"],
+  "keywords": [
+    "webrtc",
+    "chat",
+    "socket.io",
+    "messaging",
+    "calling"
+  ],
   "author": "SkandaBT",
   "license": "ISC",
   "dependencies": {
