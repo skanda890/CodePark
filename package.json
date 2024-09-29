@@ -7,11 +7,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.7.5",
+    "axios": "^1.7.7",
     "express": "^5.0.0",
     "https": "^1.0.0",
-    "mongodb": "^6.8.0",
-    "nodemailer": "^6.9.14",
+    "mongodb": "^6.8.1",
+    "nodemailer": "^6.9.15",
     "sudoku-gen": "^1.0.2",
     "systeminformation": "^5.23.5"
   },
