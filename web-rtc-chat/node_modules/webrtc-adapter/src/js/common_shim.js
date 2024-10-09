@@ -25,26 +25,30 @@ export function shimRTCIceCandidate(window) {
     if (typeof args === 'object' && args.candidate &&
         args.candidate.indexOf('a=') === 0) {
       args = JSON.parse(JSON.stringify(args));
-      args.candidate = args.candidate.substr(2);
+      args.candidate = args.candidate.substring(2);
     }
 
     if (args.candidate && args.candidate.length) {
       // Augment the native candidate with the parsed fields.
       const nativeCandidate = new NativeRTCIceCandidate(args);
       const parsedCandidate = SDPUtils.parseCandidate(args.candidate);
-      const augmentedCandidate = Object.assign(nativeCandidate,
-          parsedCandidate);
+      for (const key in parsedCandidate) {
+        if (!(key in nativeCandidate)) {
+          Object.defineProperty(nativeCandidate, key,
+            {value: parsedCandidate[key]});
+        }
+      }
 
-      // Add a serializer that does not serialize the extra attributes.
-      augmentedCandidate.toJSON = function toJSON() {
+      // Override serializer to not serialize the extra attributes.
+      nativeCandidate.toJSON = function toJSON() {
         return {
-          candidate: augmentedCandidate.candidate,
-          sdpMid: augmentedCandidate.sdpMid,
-          sdpMLineIndex: augmentedCandidate.sdpMLineIndex,
-          usernameFragment: augmentedCandidate.usernameFragment,
+          candidate: nativeCandidate.candidate,
+          sdpMid: nativeCandidate.sdpMid,
+          sdpMLineIndex: nativeCandidate.sdpMLineIndex,
+          usernameFragment: nativeCandidate.usernameFragment,
         };
       };
-      return augmentedCandidate;
+      return nativeCandidate;
     }
     return new NativeRTCIceCandidate(args);
   };
@@ -58,6 +62,31 @@ export function shimRTCIceCandidate(window) {
         value: new window.RTCIceCandidate(e.candidate),
         writable: 'false'
       });
+    }
+    return e;
+  });
+}
+
+export function shimRTCIceCandidateRelayProtocol(window) {
+  if (!window.RTCIceCandidate || (window.RTCIceCandidate && 'relayProtocol' in
+      window.RTCIceCandidate.prototype)) {
+    return;
+  }
+
+  // Hook up the augmented candidate in onicecandidate and
+  // addEventListener('icecandidate', ...)
+  utils.wrapPeerConnectionEvent(window, 'icecandidate', e => {
+    if (e.candidate) {
+      const parsedCandidate = SDPUtils.parseCandidate(e.candidate.candidate);
+      if (parsedCandidate.type === 'relay') {
+        // This is a libwebrtc-specific mapping of local type preference
+        // to relayProtocol.
+        e.candidate.relayProtocol = {
+          0: 'tls',
+          1: 'tcp',
+          2: 'udp',
+        }[parsedCandidate.priority >> 24];
+      }
     }
     return e;
   });
@@ -148,7 +177,7 @@ export function shimMaxMessageSize(window, browserDetails) {
     const match = SDPUtils.matchPrefix(description.sdp,
       'a=max-message-size:');
     if (match.length > 0) {
-      maxMessageSize = parseInt(match[0].substr(19), 10);
+      maxMessageSize = parseInt(match[0].substring(19), 10);
     } else if (browserDetails.browser === 'firefox' &&
                 remoteIsFirefox !== -1) {
       // If the maximum message size is not present in the remote SDP and
@@ -283,12 +312,12 @@ export function shimConnectionState(window) {
     set(cb) {
       if (this._onconnectionstatechange) {
         this.removeEventListener('connectionstatechange',
-            this._onconnectionstatechange);
+          this._onconnectionstatechange);
         delete this._onconnectionstatechange;
       }
       if (cb) {
         this.addEventListener('connectionstatechange',
-            this._onconnectionstatechange = cb);
+          this._onconnectionstatechange = cb);
       }
     },
     enumerable: true,
@@ -383,5 +412,51 @@ export function shimAddIceCandidateNullOrEmpty(window, browserDetails) {
         return Promise.resolve();
       }
       return nativeAddIceCandidate.apply(this, arguments);
+    };
+}
+
+// Note: Make sure to call this ahead of APIs that modify
+// setLocalDescription.length
+export function shimParameterlessSetLocalDescription(window, browserDetails) {
+  if (!(window.RTCPeerConnection && window.RTCPeerConnection.prototype)) {
+    return;
+  }
+  const nativeSetLocalDescription =
+      window.RTCPeerConnection.prototype.setLocalDescription;
+  if (!nativeSetLocalDescription || nativeSetLocalDescription.length === 0) {
+    return;
+  }
+  window.RTCPeerConnection.prototype.setLocalDescription =
+    function setLocalDescription() {
+      let desc = arguments[0] || {};
+      if (typeof desc !== 'object' || (desc.type && desc.sdp)) {
+        return nativeSetLocalDescription.apply(this, arguments);
+      }
+      // The remaining steps should technically happen when SLD comes off the
+      // RTCPeerConnection's operations chain (not ahead of going on it), but
+      // this is too difficult to shim. Instead, this shim only covers the
+      // common case where the operations chain is empty. This is imperfect, but
+      // should cover many cases. Rationale: Even if we can't reduce the glare
+      // window to zero on imperfect implementations, there's value in tapping
+      // into the perfect negotiation pattern that several browsers support.
+      desc = {type: desc.type, sdp: desc.sdp};
+      if (!desc.type) {
+        switch (this.signalingState) {
+          case 'stable':
+          case 'have-local-offer':
+          case 'have-remote-pranswer':
+            desc.type = 'offer';
+            break;
+          default:
+            desc.type = 'answer';
+            break;
+        }
+      }
+      if (desc.sdp || (desc.type !== 'offer' && desc.type !== 'answer')) {
+        return nativeSetLocalDescription.apply(this, [desc]);
+      }
+      const func = desc.type === 'offer' ? this.createOffer : this.createAnswer;
+      return func.apply(this)
+        .then(d => nativeSetLocalDescription.apply(this, [d]));
     };
 }
