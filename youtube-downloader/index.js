@@ -8,14 +8,23 @@ if (ytdl.validateURL(videoUrl)) {
   const videoId = ytdl.getURLVideoID(videoUrl);
   const output = `${videoId}.mp4`;
 
-  ytdl(videoUrl, { quality: 'highest' })
-    .pipe(fs.createWriteStream(output))
+  console.log(`Starting download for video: ${videoUrl}`);
+
+  const videoStream = ytdl(videoUrl, { quality: 'highest' });
+
+  videoStream.pipe(fs.createWriteStream(output))
     .on('finish', () => {
       console.log(`Video downloaded successfully as ${output}`);
     })
     .on('error', (err) => {
       console.error('Error downloading video:', err);
     });
+
+  videoStream.on('progress', (chunkLength, downloaded, total) => {
+    const percent = (downloaded / total * 100).toFixed(2);
+    console.log(`Progress: ${percent}%`);
+  });
+
 } else {
   console.log('Invalid YouTube URL. Please try again.');
 }
