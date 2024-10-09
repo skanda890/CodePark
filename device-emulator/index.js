@@ -23,7 +23,7 @@ app.post('/emulate', (req, res) => {
         const device = { deviceType, action };
         emulatedDevices.push(device);
         console.log(`Emulating ${deviceType} performing action: ${action}`);
-        res.status(200).send(device);
+        res.status(200).json(device);
     } else {
         res.status(400).send('Invalid request');
     }
