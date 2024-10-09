@@ -11,8 +11,8 @@ async function fetchProgramEpisodes(programName) {
     const $ = cheerio.load(html);
 
     const episodes = [];
-    $('.program-card').each((index, element) => {
-      const title = $(element).find('.program-title').text();
+    $('.card').each((index, element) => {
+      const title = $(element).find('.title').text();
       if (title.toLowerCase().includes(programName.toLowerCase())) {
         const link = $(element).find('a').attr('href');
         episodes.push({ title, link });
