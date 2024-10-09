@@ -10,6 +10,8 @@ async function sendMessageToAllDevices() {
         const devices = await localDevices();
         const client = dgram.createSocket('udp4');
 
+        let pendingMessages = devices.length;
+
         devices.forEach(device => {
             client.send(message, 0, message.length, PORT, device.ip, (err) => {
                 if (err) {
@@ -17,10 +19,14 @@ async function sendMessageToAllDevices() {
                 } else {
                     console.log(`Message sent to ${device.name} (${device.ip})`);
                 }
+
+                pendingMessages -= 1;
+                if (pendingMessages === 0) {
+                    client.close();
+                }
             });
         });
 
-        client.close();
     } catch (error) {
         console.error('Error fetching devices:', error);
     }
