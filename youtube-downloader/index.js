@@ -8,7 +8,7 @@ if (ytdl.validateURL(videoUrl)) {
   const videoId = ytdl.getURLVideoID(videoUrl);
   const output = `${videoId}.mp4`;
 
-  ytdl(videoUrl)
+  ytdl(videoUrl, { quality: 'highest' })
     .pipe(fs.createWriteStream(output))
     .on('finish', () => {
       console.log(`Video downloaded successfully as ${output}`);
