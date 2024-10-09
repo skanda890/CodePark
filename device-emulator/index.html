@@ -42,6 +42,15 @@
         button:hover {
             background-color: #0056b3;
         }
+        .device-list {
+            margin-top: 20px;
+        }
+        .device-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +64,7 @@
             <button type="submit">Emulate Device</button>
         </form>
         <div id="result"></div>
+        <div class="device-list" id="deviceList"></div>
     </div>
 
     <script>
@@ -71,9 +81,25 @@
                 body: JSON.stringify({ deviceType, action })
             });
 
-            const result = await response.text();
-            document.getElementById('result').innerText = result;
+            const result = await response.json();
+            document.getElementById('result').innerText = `Emulated ${result.deviceType} performing action: ${result.action}`;
+            fetchEmulatedDevices();
         });
+
+        async function fetchEmulatedDevices() {
+            const response = await fetch('http://localhost:5000/devices');
+            const devices = await response.json();
+            const deviceList = document.getElementById('deviceList');
+            deviceList.innerHTML = '';
+            devices.forEach(device => {
+                const deviceItem = document.createElement('div');
+                deviceItem.className = 'device-item';
+                deviceItem.innerText = `Device Type: ${device.deviceType}, Action: ${device.action}`;
+                deviceList.appendChild(deviceItem);
+            });
+        }
+
+        fetchEmulatedDevices();
     </script>
 </body>
 </html>
