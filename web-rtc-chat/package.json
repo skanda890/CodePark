@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^5.0.0",
-    "socket.io": "^4.0.0",
+    "socket.io": "^4.8.0",
     "webrtc-adapter": "^9.0.1"
   },
   "devDependencies": {},
