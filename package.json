@@ -16,5 +16,8 @@
     "systeminformation": "^5.23.5"
   },
   "author": "SkandaBT",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@tolgee/cli": "^2.2.0"
+  }
 }
