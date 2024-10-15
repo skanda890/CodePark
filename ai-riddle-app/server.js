@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 const port = 5000;
@@ -33,6 +34,10 @@ const generateRiddle = async () => {
 app.get('/riddle', async (req, res) => {
   const riddle = await generateRiddle();
   res.json({ riddle });
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
