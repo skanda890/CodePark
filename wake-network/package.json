@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "wake.js",
   "scripts": {
-    "test": "node wake.js"
+    "start": "node wake.js"
   },
   "keywords": [],
   "author": "SkandaBT",
