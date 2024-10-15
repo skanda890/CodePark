@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 const port = 5000;
 
-const openaiApiKey = 'your_openai_api_key';
+const openaiApiKey = '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';
 
 const generateRiddle = async () => {
   try {
