@@ -27,13 +27,17 @@ const generateRiddle = async () => {
     return response.data.choices[0].text.trim();
   } catch (error) {
     console.error('Error generating riddle:', error);
-    return 'Could not generate a riddle at this time.';
+    return null;
   }
 };
 
 app.get('/riddle', async (req, res) => {
   const riddle = await generateRiddle();
-  res.json({ riddle });
+  if (riddle) {
+    res.json({ riddle });
+  } else {
+    res.json({ riddle: 'Could not generate a riddle at this time. Please try again later.' });
+  }
 });
 
 app.get('/', (req, res) => {
