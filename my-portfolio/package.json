@@ -2,7 +2,7 @@
   "name": "my-portfolio",
   "version": "1.0.0",
   "description": "My personal portfolio website",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
