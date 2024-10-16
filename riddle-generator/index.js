@@ -1,54 +1,61 @@
-const language = require('@google-cloud/language');
+// index.js
+const axios = require('axios');
 
 async function generateRiddle(topic) {
-  const client = new language.LanguageServiceClient();
+    const modelId = "bigscience/bloomz-560m"; // Replace with a suitable Hugging Face model ID
 
-  const document = {
-    content: `Generate a riddle about a ${topic}`,
-    type: 'PLAIN_TEXT',
-  };
+    const prompt = `Generate a riddle about a ${topic}`;
 
-  try {
-    const [response] = await client.generateText({
-      model: 'text-bison-001', // or a suitable model
-      documents: [document],
-      temperature: 0.5, // Adjust for creativity (higher = more creative)
-      maxOutputTokens: 100, // Adjust output length
-    });
+    const headers = {
+        "Authorization": `Bearer ${huggingFaceApiKey}`, // Replace with your Hugging Face API key (optional)
+        "Content-Type": "application/json",
+    };
 
-     // Extract and clean the riddle.  This part needs robust error handling
-    // and potentially more sophisticated parsing based on the model's output.
-    const riddleText = response.candidates[0].output.replace(/Answer:/i, '').trim();
+    const data = {
+        "inputs": prompt,
+        "parameters": {
+            "temperature": 0.7, // Adjust for creativity
+            "max_new_tokens": 100, // Adjust length
+        },
+    };
+
+    try {
+        const response = await axios.post(
+            `https://api-inference.huggingface.co/models/${modelId}`,
+            data,
+            { headers: headers }
+        );
+
+        const generatedText = response.data[0].generated_text;
+
+        // (Extract the riddle and answer - the logic might need to be adjusted 
+        // based on the specific model's output format)
+        const riddleText = generatedText.replace(/Answer:/i, '').trim();
+        const answerStartIndex = riddleText.lastIndexOf('\n'); 
+        const riddle = riddleText.substring(0, answerStartIndex).trim();
+        const answer = riddleText.substring(answerStartIndex).trim();
 
 
-    //  Find the answer.  This is a BIG assumption about the format.
-    //  You'll need better logic to extract answers reliably.
-    const answerStartIndex = riddleText.lastIndexOf('\n'); // Assumes answer on last line
-    const riddle = riddleText.substring(0, answerStartIndex).trim();
-    const answer = riddleText.substring(answerStartIndex).trim();
-
-
-    return { riddle, answer };
-
-
-  } catch (error) {
-    console.error('Error generating riddle:', error);
-    return null;
-  }
+        return { riddle, answer };
+    } catch (error) {
+        console.error('Error generating riddle:', error);
+        return null;
+    }
 }
 
 
 async function main() {
-  const topic = process.argv[2] || 'tree'; // Get topic from command line or default
+    const topic = process.argv[2] || 'tree';
 
-  const riddleData = await generateRiddle(topic);
+    const riddleData = await generateRiddle(topic);
 
-  if (riddleData) {
-      console.log("Riddle:", riddleData.riddle);
-      console.log("Answer:", riddleData.answer);
-
-
-  }
+    if (riddleData) {
+        console.log("Riddle:", riddleData.riddle);
+        console.log("Answer:", riddleData.answer);
+    }
 }
+
+// Get a Hugging Face API key (optional but recommended for higher rate limits)
+const huggingFaceApiKey = process.env.HUGGING_FACE_API_KEY || ''; // Set in environment variables
 
 main();
