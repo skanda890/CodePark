@@ -2,7 +2,6 @@ require('dotenv').config();
 const axios = require('axios');
 
 const apiKey = process.env.API_KEY;
-const url = `https://api.google.com/gemini/v1/riddles?apikey=${apiKey}`;
 
 axios.get(url)
   .then(response => {
