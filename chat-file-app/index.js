@@ -1,9 +1,9 @@
 const express = require('express');
-const http = require('http');
-const https = require('https');
 const fs = require('fs');
+const https = require('https');
 const socketIo = require('socket.io');
 const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const privateKey = fs.readFileSync('key.pem', 'utf8');
@@ -14,6 +14,8 @@ const httpsServer = https.createServer(credentials, app);
 const io = socketIo(httpsServer);
 
 const upload = multer({ dest: 'uploads/' });
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/upload', upload.single('file'), (req, res) => {
   res.send('File uploaded successfully');
@@ -31,6 +33,10 @@ io.on('connection', (socket) => {
   });
 });
 
-httpsServer.listen(3000, () => {
-  console.log('Server is running on https://localhost:3000');
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+httpsServer.listen(443, '192.168.0.x', () => {
+  console.log('Server is running on https://192.168.0.x:443');
 });
