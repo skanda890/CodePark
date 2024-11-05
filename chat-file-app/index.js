@@ -37,6 +37,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-httpsServer.listen(443, '192.168.1.5', () => {
+httpsServer.listen(443, '192.168.1.10', () => {
   console.log('Server is running on https://192.168.1.5:443');
 });
