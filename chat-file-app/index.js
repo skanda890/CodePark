@@ -18,25 +18,32 @@ const upload = multer({ dest: 'uploads/' });
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/upload', upload.single('file'), (req, res) => {
-  res.send('File uploaded successfully');
+    res.send('File uploaded successfully');
 });
 
 io.on('connection', (socket) => {
-  console.log('A user connected');
+    console.log('A user connected');
 
-  socket.on('message', (msg) => {
-    io.emit('message', msg);
-  });
+    socket.on('message', (msg) => {
+        io.emit('message', msg);
+    });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
+    socket.on('signal', (data) => {
+        socket.broadcast.emit('signal', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-httpsServer.listen(443, '192.168.1.10', () => {
-  console.log('Server is running on https://192.168.1.10:443');
+const host = '192.168.0.x'; // Replace with your local network IP
+const port = 443;
+
+httpsServer.listen(port, host, () => {
+    console.log(`Server is running on https://${host}:${port}`);
 });
