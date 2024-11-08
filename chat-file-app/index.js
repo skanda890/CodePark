@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const host = '192.168.0.x'; // Replace with your local network IP
+const host = '192.168.1.3'; // Replace with your local network IP
 const port = 443;
 
 httpsServer.listen(port, host, () => {
