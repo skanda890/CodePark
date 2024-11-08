@@ -17,7 +17,9 @@
             <button onclick="sendMessage()" class="button">Send</button>
         </div>
         <div class="input-group">
-            <input type="file" id="fileInput" class="input">
+            <input type="file" id="fileInput" class="input" style="display: none;" onchange="showFileName()">
+            <input type="text" id="fileName" class="input" placeholder="No file chosen" readonly>
+            <button onclick="document.getElementById('fileInput').click();" class="button">Choose File</button>
             <button onclick="uploadFile()" class="button">Upload File</button>
         </div>
         <button onclick="startCall()" class="button call-button">Start Call</button>
@@ -48,6 +50,11 @@
                 body: formData
             }).then(response => response.text())
               .then(result => console.log(result));
+        }
+
+        function showFileName() {
+            const file = document.getElementById('fileInput').files[0];
+            document.getElementById('fileName').value = file ? file.name : 'No file chosen';
         }
 
         let peer;
