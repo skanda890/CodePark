@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('signal', (data) => {
-        socket.broadcast.emit('signal', data);
+        io.emit('signal', data); // Broadcast signal data to all connected clients
     });
 
     socket.on('disconnect', () => {
