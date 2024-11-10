@@ -1,65 +1,46 @@
-
 const express = require('express');
-const math = require('mathjs');
+const http = require('http');
+const socketIO = require('socket.io');
 const path = require('path');
-const app = express();
-const port = 4000;
 
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+
+// Middleware to parse JSON request bodies
 app.use(express.json());
 
-// Create a new Math.js instance and define π as a constant
-const mathInstance = math.create(math.all);
-mathInstance.import({
-  π: Math.PI
-});
+app.use(express.static('public'));
 
-// Route for the root URL
+// Serve index.html
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator'); 
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Serve the HTML file at a different route
-app.get('/calculator', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+// Endpoint to calculate exact sum
+app.post('/calculate-sum', (req, res) => {
+  const { num1, num2 } = req.body;
+  const sum = num1 + num2;
+  res.json({ sum });
 });
 
-// Function to get step-by-step calculation
-function getStepByStepCalculation(expression) {
-  try {
-    const node = mathInstance.parse(expression);
-    const steps = [];
+// Endpoint to approximate sum
+app.post('/approximate-sum', (req, res) => {
+  const { num1, num2 } = req.body;
+  const fraction = num2 / num1;
+  const expApprox = 1 + fraction + Math.pow(fraction, 2) / 2 + Math.pow(fraction, 3) / 6 + Math.pow(fraction, 4) / 24 + Math.pow(fraction, 5) / 120;
+  const approxSum = num1 * expApprox;
+  res.json({ approxSum });
+});
 
-    function simplifyStep(node) {
-      const simplified = mathInstance.simplify(node);
-      steps.push(simplified.toString());
-      return simplified;
-    }
+io.on('connection', (socket) => {
+  console.log('A user connected');
 
-    simplifyStep(node);
-    return steps;
-  } catch (error) {
-    return `Error: ${error.message}`;
-  }
-}
-
-// Function to perform the calculation and format the result as a decimal
-function performCalculation(expression) {
-  const result = mathInstance.evaluate(expression);
-  const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
-  return decimalResult;
-}
-
-// POST route for calculations
-app.post('/calculate', (req, res) => {
-  const expression = req.body.expression;
-  const steps = getStepByStepCalculation(expression);
-  const solution = performCalculation(expression); // Use the performCalculation function here
-  res.json({ 
-    question: expression,  
-    solution 
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
   });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+server.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
