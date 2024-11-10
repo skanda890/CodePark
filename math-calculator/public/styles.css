@@ -17,32 +17,4 @@ body {
   text-align: center;
 }
 
-input {
-  margin: 10px 0;
-  padding: 10px;
-  width: calc(100% - 22px);
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  padding: 10px 20px;
-  margin: 10px 5px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 45%;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-#result {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-}
+input
