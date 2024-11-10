@@ -1,14 +1,17 @@
 {
   "name": "math-calculator",
   "version": "1.0.0",
-  "description": "A simple math calculator that supports decimals and the π symbol.",
+  "description": "A math calculator with approximation feature",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^5.0.1",
-    "mathjs": "^13.2.0"
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0",
+    "crypto-js": "^4.0.0",
+    "readline-sync": "^1.4.10",
+    "mathjs": "^10.0.0"
   },
   "author": "SkandaBT",
   "license": "MIT"
