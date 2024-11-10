@@ -41,3 +41,54 @@ document.getElementById('approximateSum').addEventListener('click', () => {
     document.getElementById('result').innerText = `Approximate Sum: ${data.approxSum}`;
   });
 });
+
+document.getElementById('calculateDifference').addEventListener('click', () => {
+  const num1 = parseFloat(document.getElementById('num1').value);
+  const num2 = parseFloat(document.getElementById('num2').value);
+
+  fetch('/calculate-difference', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ num1, num2 })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('result').innerText = `Difference: ${data.difference}`;
+  });
+});
+
+document.getElementById('calculateProduct').addEventListener('click', () => {
+  const num1 = parseFloat(document.getElementById('num1').value);
+  const num2 = parseFloat(document.getElementById('num2').value);
+
+  fetch('/calculate-product', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ num1, num2 })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('result').innerText = `Product: ${data.product}`;
+  });
+});
+
+document.getElementById('calculateQuotient').addEventListener('click', () => {
+  const num1 = parseFloat(document.getElementById('num1').value);
+  const num2 = parseFloat(document.getElementById('num2').value);
+
+  fetch('/calculate-quotient', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ num1, num2 })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('result').innerText = `Quotient: ${data.quotient}`;
+  });
+});
