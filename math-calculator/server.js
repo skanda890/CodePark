@@ -12,7 +12,6 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
-// Serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -31,6 +30,27 @@ app.post('/approximate-sum', (req, res) => {
   const expApprox = 1 + fraction + Math.pow(fraction, 2) / 2 + Math.pow(fraction, 3) / 6 + Math.pow(fraction, 4) / 24 + Math.pow(fraction, 5) / 120;
   const approxSum = num1 * expApprox;
   res.json({ approxSum });
+});
+
+// Endpoint to calculate difference
+app.post('/calculate-difference', (req, res) => {
+  const { num1, num2 } = req.body;
+  const difference = num1 - num2;
+  res.json({ difference });
+});
+
+// Endpoint to calculate product
+app.post('/calculate-product', (req, res) => {
+  const { num1, num2 } = req.body;
+  const product = num1 * num2;
+  res.json({ product });
+});
+
+// Endpoint to calculate quotient
+app.post('/calculate-quotient', (req, res) => {
+  const { num1, num2 } = req.body;
+  const quotient = num1 / num2;
+  res.json({ quotient });
 });
 
 io.on('connection', (socket) => {
