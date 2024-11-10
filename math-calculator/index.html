@@ -1,46 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Calculator</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <title>Math Calculator</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center">Math Calculator</h1>
-        <form id="calcForm" class="mt-4">
-            <div class="form-group">
-                <label for="expression">Enter a mathematical expression:</label>
-                <input type="text" id="expression" name="expression" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Calculate</button>
-        </form>
-        <div class="mt-4">
-            <h2>Results:</h2>
-            <p><strong>Question:</strong> <span id="question"></span></p>
-            <p><strong>Solution:</strong> <span id="solution"></span></p>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('calcForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            console.log('Form submitted'); // Add this line
-            const expression = document.getElementById('expression').value;
-            console.log('Expression:', expression); // Add this line
-            const response = await fetch('/calculate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ expression })
-            });
-            const result = await response.json();
-            console.log('Result:', result); // Add this line
-            document.getElementById('question').textContent = result.question;
-            document.getElementById('solution').textContent = result.solution;
-        });
-    </script>
+  <h1>Math Calculator</h1>
+  <div class="calculator">
+    <input type="number" id="num1" placeholder="Enter first number" />
+    <input type="number" id="num2" placeholder="Enter second number" />
+    <button id="calculateSum">Calculate Sum</button>
+    <button id="approximateSum">Approximate Sum</button>
+    <button id="calculateDifference">Calculate Difference</button>
+    <button id="calculateProduct">Calculate Product</button>
+    <button id="calculateQuotient">Calculate Quotient</button>
+    <div id="result"></div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
