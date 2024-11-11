@@ -7,6 +7,10 @@ body {
   background-color: #f0f0f0;
 }
 
+h1 {
+  color: #333;
+}
+
 .calculator {
   border: 1px solid #ccc;
   padding: 20px;
@@ -17,4 +21,38 @@ body {
   text-align: center;
 }
 
-input
+input {
+  margin: 10px 0;
+  padding: 10px;
+  width: calc(100% - 22px);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 45%;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
