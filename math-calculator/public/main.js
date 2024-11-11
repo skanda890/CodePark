@@ -1,81 +1,87 @@
-// Function to approximate values
-function approximate(value, type) {
-  const fraction = value.b / value.a;
-  let result;
-  const expApprox = 1 + fraction + Math.pow(fraction, 2) / 2 + Math.pow(fraction, 3) / 6 + Math.pow(fraction, 4) / 24 + Math.pow(fraction, 5) / 120;
+const socket = io();
 
-  switch(type) {
+// Function to approximate using a series expansion
+function approximateOperation(num1, num2, operation) {
+  const fraction = num2 / num1;
+  const expApprox = 1 + fraction + Math.pow(fraction, 2) / 2 + Math.pow(fraction, 3) / 6 + Math.pow(fraction, 4) / 24 + Math.pow(fraction, 5) / 120;
+  
+  switch (operation) {
     case 'sum':
-      result = value.a * expApprox;
-      break;
+      return num1 * expApprox;
     case 'difference':
-      result = value.a * (1 - expApprox);
-      break;
+      return num1 * (1 - expApprox);
     case 'product':
-      result = value.a * Math.pow(expApprox, 2);
-      break;
+      return num1 * num2 * expApprox;
     case 'quotient':
-      result = value.a / expApprox;
-      break;
+      return num1 / (num2 * expApprox);
     default:
-      result = 0;
+      return null;
   }
-  return result;
 }
 
-// Helper function to fetch results from server
-function fetchResult(endpoint, data) {
-  return fetch(endpoint, {
+// Fetch and display result from API
+function fetchResult(url, num1, num2, resultElement) {
+  fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({ num1, num2 })
   })
-  .then(response => response.json());
+  .then(response => response.json())
+  .then(data => {
+    const result = data.result !== undefined ? data.result : data.error;
+    resultElement.innerText = result;
+  })
+  .catch(error => {
+    resultElement.innerText = `Error: ${error.message}`;
+  });
 }
 
-// Add event listeners to buttons
 document.getElementById('calculateSum').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  fetchResult('/calculate-sum', { num1, num2 })
-  .then(data => document.getElementById('result').innerText = `Sum: ${data.sum}`);
+  fetchResult('/calculate-sum', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('approximateSum').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  document.getElementById('result').innerText = `Approximate Sum: ${approximate({ a: num1, b: num2 }, 'sum')}`;
+  fetchResult('/approximate-sum', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('calculateDifference').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  fetchResult('/calculate-difference', { num1, num2 })
-  .then(data => document.getElementById('result').innerText = `Difference: ${data.difference}`);
+  fetchResult('/calculate-difference', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('approximateDifference').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  document.getElementById('result').innerText = `Approximate Difference: ${approximate({ a: num1, b: num2 }, 'difference')}`;
+  fetchResult('/approximate-difference', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('calculateProduct').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  fetchResult('/calculate-product', { num1, num2 })
-  .then(data => document.getElementById('result').innerText = `Product: ${data.product}`);
+  fetchResult('/calculate-product', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('approximateProduct').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  document.getElementById('result').innerText = `Approximate Product: ${approximate({ a: num1, b: num2 }, 'product')}`;
+  fetchResult('/approximate-product', num1, num2, document.getElementById('result'));
 });
 
 document.getElementById('calculateQuotient').addEventListener('click', () => {
   const num1 = parseFloat(document.getElementById('num1').value);
   const num2 = parseFloat(document.getElementById('num2').value);
-  fetchResult
+  fetchResult('/calculate-quotient', num1, num2, document.getElementById('result'));
+});
+
+document.getElementById('approximateQuotient').addEventListener('click', () => {
+  const num1 = parseFloat(document.getElementById('num1').value);
+  const num2 = parseFloat(document.getElementById('num2').value);
+  fetchResult('/approximate-quotient', num1, num2, document.getElementById('result'));
+});
