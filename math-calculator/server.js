@@ -13,6 +13,7 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
+// Serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -33,7 +34,7 @@ app.post('/approximate-sum', (req, res) => {
   res.json({ approxSum });
 });
 
-// Endpoint to calculate difference
+// Endpoint to calculate exact difference
 app.post('/calculate-difference', (req, res) => {
   const { num1, num2 } = req.body;
   const difference = math.subtract(num1, num2);
@@ -49,7 +50,7 @@ app.post('/approximate-difference', (req, res) => {
   res.json({ approxDifference });
 });
 
-// Endpoint to calculate product
+// Endpoint to calculate exact product
 app.post('/calculate-product', (req, res) => {
   const { num1, num2 } = req.body;
   const product = math.multiply(num1, num2);
@@ -59,12 +60,14 @@ app.post('/calculate-product', (req, res) => {
 // Endpoint to approximate product
 app.post('/approximate-product', (req, res) => {
   const { num1, num2 } = req.body;
-  const logProduct = math.log(num1) + math.log(num2);
-  const approxProduct = math.exp(logProduct);
+  const logNum1 = math.log(num1);
+  const logNum2 = math.log(num2);
+  const approxLogProduct = logNum1 + logNum2;
+  const approxProduct = math.exp(approxLogProduct);
   res.json({ approxProduct });
 });
 
-// Endpoint to calculate quotient
+// Endpoint to calculate exact quotient
 app.post('/calculate-quotient', (req, res) => {
   const { num1, num2 } = req.body;
   const quotient = math.divide(num1, num2);
@@ -74,8 +77,10 @@ app.post('/calculate-quotient', (req, res) => {
 // Endpoint to approximate quotient
 app.post('/approximate-quotient', (req, res) => {
   const { num1, num2 } = req.body;
-  const logQuotient = math.log(num1) - math.log(num2);
-  const approxQuotient = math.exp(logQuotient);
+  const logNum1 = math.log(num1);
+  const logNum2 = math.log(num2);
+  const approxLogQuotient = logNum1 - logNum2;
+  const approxQuotient = math.exp(approxLogQuotient);
   res.json({ approxQuotient });
 });
 
