@@ -40,6 +40,15 @@ app.post('/calculate-difference', (req, res) => {
   res.json({ difference });
 });
 
+// Endpoint to approximate difference
+app.post('/approximate-difference', (req, res) => {
+  const { num1, num2 } = req.body;
+  const fraction = num2 / num1;
+  const expApprox = 1 - fraction + math.pow(fraction, 2) / 2 - math.pow(fraction, 3) / 6 + math.pow(fraction, 4) / 24 - math.pow(fraction, 5) / 120;
+  const approxDifference = math.multiply(num1, expApprox);
+  res.json({ approxDifference });
+});
+
 // Endpoint to calculate product
 app.post('/calculate-product', (req, res) => {
   const { num1, num2 } = req.body;
@@ -47,11 +56,27 @@ app.post('/calculate-product', (req, res) => {
   res.json({ product });
 });
 
+// Endpoint to approximate product
+app.post('/approximate-product', (req, res) => {
+  const { num1, num2 } = req.body;
+  const logProduct = math.log(num1) + math.log(num2);
+  const approxProduct = math.exp(logProduct);
+  res.json({ approxProduct });
+});
+
 // Endpoint to calculate quotient
 app.post('/calculate-quotient', (req, res) => {
   const { num1, num2 } = req.body;
   const quotient = math.divide(num1, num2);
   res.json({ quotient });
+});
+
+// Endpoint to approximate quotient
+app.post('/approximate-quotient', (req, res) => {
+  const { num1, num2 } = req.body;
+  const logQuotient = math.log(num1) - math.log(num2);
+  const approxQuotient = math.exp(logQuotient);
+  res.json({ approxQuotient });
 });
 
 io.on('connection', (socket) => {
