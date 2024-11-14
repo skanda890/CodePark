@@ -9,7 +9,7 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "express": "^4.21.1",
-    "mathjs": "^10.6.4",
+    "mathjs": "^13.2.0",
     "readline-sync": "^1.4.10",
     "socket.io": "^4.8.1"
   },
