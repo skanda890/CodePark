@@ -1,6 +1,7 @@
 const express = require('express');
 const math = require('mathjs');
 const path = require('path');
+const axios = require('axios');
 const app = express();
 const port = 4000;
 
@@ -48,7 +49,6 @@ function performCalculation(expression) {
   if (Number.isInteger(result)) {
     return result.toString();
   } else {
-    // Remove trailing zeros but keep significant decimals
     return parseFloat(result.toFixed(10)).toString();
   }
 }
@@ -66,4 +66,20 @@ app.post('/calculate', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+
+  // Function to make a request to the /calculate endpoint
+  async function calculateExpression() {
+    try {
+      const response = await axios.post(`http://localhost:${port}/calculate`, {
+        expression: '99.99 - 99'
+      });
+      console.log('Question:', response.data.question);
+      console.log('Solution:', response.data.solution);
+    } catch (error) {
+      console.error('Error:', error.response ? error.response.data : error.message);
+    }
+  }
+
+  // Call the function to make the request
+  calculateExpression();
 });
