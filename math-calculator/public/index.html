@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Calculator</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
     <div class="container mt-5">
@@ -26,9 +27,7 @@
     <script>
         document.getElementById('calcForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            console.log('Form submitted'); // Add this line
             const expression = document.getElementById('expression').value;
-            console.log('Expression:', expression); // Add this line
             const response = await fetch('/calculate', {
                 method: 'POST',
                 headers: {
@@ -37,7 +36,6 @@
                 body: JSON.stringify({ expression })
             });
             const result = await response.json();
-            console.log('Result:', result); // Add this line
             document.getElementById('question').textContent = result.question;
             document.getElementById('solution').textContent = result.solution;
         });
