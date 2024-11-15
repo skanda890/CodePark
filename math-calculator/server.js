@@ -41,19 +41,23 @@ function getStepByStepCalculation(expression) {
   }
 }
 
-// Function to perform the calculation and format the result as a decimal
+// Function to perform the calculation and format the result properly
 function performCalculation(expression) {
   const result = mathInstance.evaluate(expression);
   // Format the result to remove unnecessary decimals
-  const formattedResult = Number.isInteger(result) ? result : result.toFixed(10);
-  return formattedResult;
+  if (Number.isInteger(result)) {
+    return result.toString();
+  } else {
+    // Remove trailing zeros but keep significant decimals
+    return parseFloat(result.toFixed(10)).toString();
+  }
 }
 
 // POST route for calculations
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
   const steps = getStepByStepCalculation(expression);
-  const solution = performCalculation(expression); // Use the performCalculation function here
+  const solution = performCalculation(expression);
   res.json({ 
     question: expression,  
     solution 
