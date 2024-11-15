@@ -44,8 +44,9 @@ function getStepByStepCalculation(expression) {
 // Function to perform the calculation and format the result as a decimal
 function performCalculation(expression) {
   const result = mathInstance.evaluate(expression);
-  const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
-  return decimalResult;
+  // Format the result to remove unnecessary decimals
+  const formattedResult = Number.isInteger(result) ? result : result.toFixed(10);
+  return formattedResult;
 }
 
 // POST route for calculations
