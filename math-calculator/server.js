@@ -1,94 +1,64 @@
 const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const path = require('path');
 const math = require('mathjs');
-
+const path = require('path');
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const port = 4000;
 
-// Middleware to parse JSON request bodies
 app.use(express.json());
 
-app.use(express.static('public'));
+// Create a new Math.js instance and define π as a constant
+const mathInstance = math.create(math.all);
+mathInstance.import({
+  π: Math.PI
+});
 
+// Route for the root URL
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator'); 
 });
 
-// Endpoint to calculate exact sum
-app.post('/calculate-sum', (req, res) => {
-  const { num1, num2 } = req.body;
-  const sum = math.add(num1, num2);
-  res.json({ sum });
+// Serve the HTML file at a different route
+app.get('/calculator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Endpoint to approximate sum
-app.post('/approximate-sum', (req, res) => {
-  const { num1, num2 } = req.body;
-  const fraction = num2 / num1;
-  const expApprox = 1 + fraction + math.pow(fraction, 2) / 2 + math.pow(fraction, 3) / 6 + math.pow(fraction, 4) / 24 + math.pow(fraction, 5) / 120;
-  const approxSum = math.multiply(num1, expApprox);
-  res.json({ approxSum });
-});
+// Function to get step-by-step calculation
+function getStepByStepCalculation(expression) {
+  try {
+    const node = mathInstance.parse(expression);
+    const steps = [];
 
-// Endpoint to calculate exact difference
-app.post('/calculate-difference', (req, res) => {
-  const { num1, num2 } = req.body;
-  const difference = math.subtract(num1, num2);
-  res.json({ difference });
-});
+    function simplifyStep(node) {
+      const simplified = mathInstance.simplify(node);
+      steps.push(simplified.toString());
+      return simplified;
+    }
 
-// Endpoint to approximate difference
-app.post('/approximate-difference', (req, res) => {
-  const { num1, num2 } = req.body;
-  const fraction = num2 / num1;
-  const expApprox = 1 + fraction + math.pow(fraction, 2) / 2 + math.pow(fraction, 3) / 6 + math.pow(fraction, 4) / 24 + math.pow(fraction, 5) / 120;
-  const approxDifference = math.subtract(num1, math.multiply(num1, fraction * expApprox));
-  res.json({ approxDifference });
-});
+    simplifyStep(node);
+    return steps;
+  } catch (error) {
+    return `Error: ${error.message}`;
+  }
+}
 
-// Endpoint to calculate exact product
-app.post('/calculate-product', (req, res) => {
-  const { num1, num2 } = req.body;
-  const product = math.multiply(num1, num2);
-  res.json({ product });
-});
+// Function to perform the calculation and format the result as a decimal
+function performCalculation(expression) {
+  const result = mathInstance.evaluate(expression);
+  const decimalResult = mathInstance.format(result, { notation: 'fixed', precision: 10 });
+  return decimalResult;
+}
 
-// Endpoint to approximate product
-app.post('/approximate-product', (req, res) => {
-  const { num1, num2 } = req.body;
-  const fraction = num2 / num1;
-  const expApprox = 1 + fraction + math.pow(fraction, 2) / 2 + math.pow(fraction, 3) / 6 + math.pow(fraction, 4) / 24 + math.pow(fraction, 5) / 120;
-  const approxProduct = math.multiply(num1, math.exp(math.log(num2) * expApprox));
-  res.json({ approxProduct });
-});
-
-// Endpoint to calculate exact quotient
-app.post('/calculate-quotient', (req, res) => {
-  const { num1, num2 } = req.body;
-  const quotient = math.divide(num1, num2);
-  res.json({ quotient });
-});
-
-// Endpoint to approximate quotient
-app.post('/approximate-quotient', (req, res) => {
-  const { num1, num2 } = req.body;
-  const fraction = num2 / num1;
-  const expApprox = 1 + fraction + math.pow(fraction, 2) / 2 + math.pow(fraction, 3) / 6 + math.pow(fraction, 4) / 24 + math.pow(fraction, 5) / 120;
-  const approxQuotient = math.divide(num1, expApprox);
-  res.json({ approxQuotient });
-});
-
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
+// POST route for calculations
+app.post('/calculate', (req, res) => {
+  const expression = req.body.expression;
+  const steps = getStepByStepCalculation(expression);
+  const solution = performCalculation(expression); // Use the performCalculation function here
+  res.json({ 
+    question: expression,  
+    solution 
   });
 });
 
-server.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
