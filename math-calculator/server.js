@@ -2,6 +2,7 @@ const express = require('express');
 const math = require('mathjs');
 const path = require('path');
 const axios = require('axios');
+const readline = require('readline');
 const app = express();
 const port = 4000;
 
@@ -82,4 +83,30 @@ app.listen(port, () => {
 
   // Call the function to make the request
   calculateExpression();
+});
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+function calculate(expression) {
+  const sqrtRegex = /squareroot(\d+)/;
+  const squareRegex = /square(\d+)/;
+
+  if (sqrtRegex.test(expression)) {
+    const number = parseFloat(expression.match(sqrtRegex)[1]);
+    return Math.sqrt(number);
+  } else if (squareRegex.test(expression)) {
+    const number = parseFloat(expression.match(squareRegex)[1]);
+    return Math.pow(number, 2);
+  } else {
+    return 'Unsupported operation.';
+  }
+}
+
+rl.question('Enter the calculation: ', (answer) => {
+  const result = calculate(answer);
+  console.log(`Result: ${result}`);
+  rl.close();
 });
