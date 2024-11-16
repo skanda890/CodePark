@@ -46,12 +46,25 @@ function getStepByStepCalculation(expression) {
 
 // Function to perform the calculation and format the result properly
 function performCalculation(expression) {
-  const result = mathInstance.evaluate(expression);
-  // Format the result to remove unnecessary decimals
-  if (Number.isInteger(result)) {
-    return result.toString();
-  } else {
-    return parseFloat(result.toFixed(10)).toString();
+  try {
+    // Handling power operations separately using Decimal.js
+    const powerRegex = /(\d+)p(\d+)/;
+    if (powerRegex.test(expression)) {
+      const match = expression.match(powerRegex);
+      const base = new Decimal(match[1]);
+      const exponent = new Decimal(match[2]);
+      return base.pow(exponent).toString();
+    } else {
+      const result = mathInstance.evaluate(expression);
+      // Format the result to remove unnecessary decimals
+      if (Number.isInteger(result)) {
+        return result.toString();
+      } else {
+        return parseFloat(result.toFixed(10)).toString();
+      }
+    }
+  } catch (error) {
+    return 'Error: Unable to perform the calculation.';
   }
 }
 
