@@ -93,6 +93,7 @@ const rl = readline.createInterface({
 function calculate(expression) {
   const sqrtRegex = /squareroot(\d+)/;
   const squareRegex = /square(\d+)/;
+  const powerRegex = /(\d+)p(\d+)/;
 
   if (sqrtRegex.test(expression)) {
     const number = parseFloat(expression.match(sqrtRegex)[1]);
@@ -100,6 +101,11 @@ function calculate(expression) {
   } else if (squareRegex.test(expression)) {
     const number = parseFloat(expression.match(squareRegex)[1]);
     return Math.pow(number, 2);
+  } else if (powerRegex.test(expression)) {
+    const match = expression.match(powerRegex);
+    const base = parseFloat(match[1]);
+    const exponent = parseFloat(match[2]);
+    return Math.pow(base, exponent);
   } else {
     return 'Unsupported operation.';
   }
