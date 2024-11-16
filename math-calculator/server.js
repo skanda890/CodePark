@@ -3,7 +3,7 @@ const math = require('mathjs');
 const path = require('path');
 const axios = require('axios');
 const readline = require('readline');
-const Big = require('big.js');
+const bigInt = require('big-integer');
 const app = express();
 const port = 4000;
 
@@ -102,7 +102,7 @@ function calculate(expression) {
     return Math.pow(number, 2);
   } else if (powerRegex.test(expression)) {
     const match = expression.match(powerRegex);
-    const base = new Big(match[1]);
+    const base = bigInt(match[1]);
     const exponent = parseInt(match[2], 10);
     return base.pow(exponent).toString();
   } else {
