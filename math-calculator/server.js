@@ -72,9 +72,7 @@ app.listen(port, () => {
   // Function to make a request to the /calculate endpoint
   async function calculateExpression() {
     try {
-      const response = await axios.post(`http://localhost:${port}/calculate`, {
-        expression: '99.99 - 99'
-      });
+      const response = await axios.post(`http://localhost:${port}/calculate`);
       console.log('Question:', response.data.question);
       console.log('Solution:', response.data.solution);
     } catch (error) {
