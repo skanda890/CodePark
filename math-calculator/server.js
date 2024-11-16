@@ -55,14 +55,38 @@ function performCalculation(expression) {
   }
 }
 
-// POST route for calculations
+// Function to provide an explanation for the calculation
+function getExplanation(expression) {
+  const sqrtRegex = /squareroot(\d+)/;
+  const squareRegex = /square(\d+)/;
+  const powerRegex = /(\d+)p(\d+)/;
+
+  if (sqrtRegex.test(expression)) {
+    const number = parseFloat(expression.match(sqrtRegex)[1]);
+    return `The square root of ${number} is calculated by finding a number which, when multiplied by itself, gives ${number}. The result is ${Math.sqrt(number)}.`;
+  } else if (squareRegex.test(expression)) {
+    const number = parseFloat(expression.match(squareRegex)[1]);
+    return `The square of ${number} is calculated by multiplying ${number} by itself. The result is ${Math.pow(number, 2)}.`;
+  } else if (powerRegex.test(expression)) {
+    const match = expression.match(powerRegex);
+    const base = new Decimal(match[1]);
+    const exponent = new Decimal(match[2]);
+    return `${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. The result is ${base.pow(exponent).toString()}.`;
+  } else {
+    return 'This is an unsupported operation or a straightforward calculation.';
+  }
+}
+
+// POST route for calculations with explanations
 app.post('/calculate', (req, res) => {
   const expression = req.body.expression;
   const steps = getStepByStepCalculation(expression);
   const solution = performCalculation(expression);
+  const explanation = getExplanation(expression);
   res.json({ 
     question: expression,  
-    solution 
+    solution,
+    explanation
   });
 });
 
@@ -73,10 +97,11 @@ app.listen(port, () => {
   async function calculateExpression() {
     try {
       const response = await axios.post(`http://localhost:${port}/calculate`, {
-        expression: '99.99 - 99'
+        expression: '10p2200'
       });
       console.log('Question:', response.data.question);
       console.log('Solution:', response.data.solution);
+      console.log('Explanation:', response.data.explanation);
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
     }
@@ -115,5 +140,6 @@ function calculate(expression) {
 rl.question('Enter the calculation: ', (answer) => {
   const result = calculate(answer);
   console.log(`Result: ${result}`);
+  console.log(getExplanation(answer));
   rl.close();
 });
