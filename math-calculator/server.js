@@ -75,8 +75,7 @@ function getExplanation(expression) {
     const match = expression.match(powerRegex);
     const base = new Decimal(match[1]);
     const exponent = new Decimal(match[2]);
-    return `Exponentiation is a mathematical operation that involves raising a base number to a power (exponent). 
-    Here, ${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. 
+    return `${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. 
     This can be written as ${base}^${exponent}. The result of ${base}^${exponent} is ${base.pow(exponent).toString()}.`;
   } else {
     try {
@@ -109,7 +108,9 @@ app.listen(port, () => {
   // Function to make a request to the /calculate endpoint
   async function calculateExpression() {
     try {
-      const response = await axios.post(`http://localhost:${port}/calculate`);
+      const response = await axios.post(`http://localhost:${port}/calculate`, {
+        expression: '10p2200'
+      });
       console.log('Question:', response.data.question);
       console.log('Solution:', response.data.solution);
       console.log('Explanation:', response.data.explanation);
