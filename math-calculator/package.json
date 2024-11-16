@@ -7,10 +7,12 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "big-integer": "^1.6.52",
     "big.js": "^6.2.2",
     "crypto-js": "^4.2.0",
     "express": "^4.21.1",
-    "mathjs": "^13.2.0",
+    "mathjs": "^13.2.2",
     "readline-sync": "^1.4.10",
     "socket.io": "^4.8.1"
   },
