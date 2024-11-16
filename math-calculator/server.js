@@ -55,7 +55,7 @@ function performCalculation(expression) {
   }
 }
 
-// Function to provide an explanation for the calculation
+// Function to provide a detailed explanation for the calculation
 function getExplanation(expression) {
   const sqrtRegex = /squareroot(\d+)/;
   const squareRegex = /square(\d+)/;
@@ -63,19 +63,27 @@ function getExplanation(expression) {
 
   if (sqrtRegex.test(expression)) {
     const number = parseFloat(expression.match(sqrtRegex)[1]);
-    return `The square root of ${number} is calculated by finding a number which, when multiplied by itself, gives ${number}. The result is ${Math.sqrt(number)}.`;
+    return `The square root of a number is a value that, when multiplied by itself, gives the original number. 
+    For instance, the square root of ${number} is calculated by finding a number which, when multiplied by itself, gives ${number}. 
+    Mathematically, it is expressed as √${number}, and the result is ${Math.sqrt(number)}.`;
   } else if (squareRegex.test(expression)) {
     const number = parseFloat(expression.match(squareRegex)[1]);
-    return `The square of ${number} is calculated by multiplying ${number} by itself. The result is ${Math.pow(number, 2)}.`;
+    return `The square of a number is the result of multiplying the number by itself. 
+    For example, the square of ${number} is calculated by multiplying ${number} by itself. 
+    Mathematically, it is represented as ${number}², and the result is ${Math.pow(number, 2)}.`;
   } else if (powerRegex.test(expression)) {
     const match = expression.match(powerRegex);
     const base = new Decimal(match[1]);
     const exponent = new Decimal(match[2]);
-    return `${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. The result is ${base.pow(exponent).toString()}.`;
+    return `Exponentiation is a mathematical operation that involves raising a base number to a power (exponent). 
+    Here, ${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. 
+    This can be written as ${base}^${exponent}. The result of ${base}^${exponent} is ${base.pow(exponent).toString()}.`;
   } else {
     try {
       const result = mathInstance.evaluate(expression);
-      return `The expression "${expression}" is evaluated using standard mathematical operations. The result is ${result}.`;
+      return `The expression "${expression}" is evaluated using standard mathematical operations. 
+      This involves following the order of operations: parentheses first, then exponents, followed by multiplication and division, 
+      and finally addition and subtraction (PEMDAS/BODMAS rules). The result is ${result}.`;
     } catch (error) {
       return 'This is an unsupported operation or there was an error in the calculation.';
     }
