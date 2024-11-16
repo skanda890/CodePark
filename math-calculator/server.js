@@ -73,7 +73,12 @@ function getExplanation(expression) {
     const exponent = new Decimal(match[2]);
     return `${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. The result is ${base.pow(exponent).toString()}.`;
   } else {
-    return 'This is an unsupported operation or a straightforward calculation.';
+    try {
+      const result = mathInstance.evaluate(expression);
+      return `The expression "${expression}" is evaluated using standard mathematical operations. The result is ${result}.`;
+    } catch (error) {
+      return 'This is an unsupported operation or there was an error in the calculation.';
+    }
   }
 }
 
@@ -131,7 +136,12 @@ function calculate(expression) {
     const exponent = new Decimal(match[2]);
     return base.pow(exponent).toString();
   } else {
-    return 'Unsupported operation.';
+    try {
+      const result = mathInstance.evaluate(expression);
+      return result.toString();
+    } catch (error) {
+      return 'Unsupported operation or invalid expression.';
+    }
   }
 }
 
