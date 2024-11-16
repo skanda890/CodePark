@@ -23,24 +23,24 @@
             <p><strong>Solution:</strong> <span id="solution"></span></p>
             <p><strong>Explanation:</strong> <span id="explanation"></span></p>
         </div>
-    </div>
 
-    <script>
-        document.getElementById('calcForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const expression = document.getElementById('expression').value;
-            const response = await fetch('/calculate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ expression })
+        <script>
+            document.getElementById('calcForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const expression = document.getElementById('expression').value;
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ expression })
+                });
+                const result = await response.json();
+                document.getElementById('question').textContent = result.question;
+                document.getElementById('solution').textContent = result.solution;
+                document.getElementById('explanation').textContent = result.explanation;
             });
-            const result = await response.json();
-            document.getElementById('question').textContent = result.question;
-            document.getElementById('solution').textContent = result.solution;
-            document.getElementById('explanation').textContent = result.explanation;
-        });
-    </script>
+        </script>
+    </div>
 </body>
 </html>
