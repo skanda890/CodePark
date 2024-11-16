@@ -3,7 +3,7 @@ const math = require('mathjs');
 const path = require('path');
 const axios = require('axios');
 const readline = require('readline');
-const bigInt = require('big-integer');
+const Decimal = require('decimal.js');
 const app = express();
 const port = 4000;
 
@@ -72,7 +72,9 @@ app.listen(port, () => {
   // Function to make a request to the /calculate endpoint
   async function calculateExpression() {
     try {
-      const response = await axios.post(`http://localhost:${port}/calculate`);
+      const response = await axios.post(`http://localhost:${port}/calculate`, {
+        expression: '99.99 - 99'
+      });
       console.log('Question:', response.data.question);
       console.log('Solution:', response.data.solution);
     } catch (error) {
@@ -95,15 +97,15 @@ function calculate(expression) {
   const powerRegex = /(\d+)p(\d+)/;
 
   if (sqrtRegex.test(expression)) {
-    const number = parseFloat(expression.match(sqrtRegex)[1]);
-    return Math.sqrt(number);
+    const number = new Decimal(expression.match(sqrtRegex)[1]);
+    return number.sqrt().toString();
   } else if (squareRegex.test(expression)) {
-    const number = parseFloat(expression.match(squareRegex)[1]);
-    return Math.pow(number, 2);
+    const number = new Decimal(expression.match(squareRegex)[1]);
+    return number.pow(2).toString();
   } else if (powerRegex.test(expression)) {
     const match = expression.match(powerRegex);
-    const base = bigInt(match[1]);
-    const exponent = parseInt(match[2], 10);
+    const base = new Decimal(match[1]);
+    const exponent = new Decimal(match[2]);
     return base.pow(exponent).toString();
   } else {
     return 'Unsupported operation.';
