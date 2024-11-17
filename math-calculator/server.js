@@ -47,13 +47,41 @@ function getStepByStepCalculation(expression) {
 // Function to perform the calculation and format the result properly
 function performCalculation(expression) {
   try {
-    // Handling power operations separately using Decimal.js
     const powerRegex = /(\d+)p(\d+)/;
+    const factorialRegex = /(\d+)!/;
+    const permutationRegex = /(\d+)P(\d+)/;
+    const combinationRegex = /(\d+)C(\d+)/;
+    const logRegex = /log\((\d+)\)/;
+    const trigRegex = /(sin|cos|tan)\((\d+)\)/;
+
     if (powerRegex.test(expression)) {
       const match = expression.match(powerRegex);
       const base = new Decimal(match[1]);
       const exponent = new Decimal(match[2]);
       return base.pow(exponent).toString();
+    } else if (factorialRegex.test(expression)) {
+      const number = parseInt(expression.match(factorialRegex)[1], 10);
+      return math.factorial(number).toString();
+    } else if (permutationRegex.test(expression)) {
+      const match = expression.match(permutationRegex);
+      const n = parseInt(match[1], 10);
+      const r = parseInt(match[2], 10);
+      return math.permutations(n, r).toString();
+    } else if (combinationRegex.test(expression)) {
+      const match = expression.match(combinationRegex);
+      const n = parseInt(match[1], 10);
+      const r = parseInt(match[2], 10);
+      return math.combinations(n, r).toString();
+    } else if (logRegex.test(expression)) {
+      const number = parseFloat(expression.match(logRegex)[1]);
+      return math.log10(number).toString();
+    } else if (trigRegex.test(expression)) {
+      const match = expression.match(trigRegex);
+      const func = match[1];
+      const angle = parseFloat(match[2]);
+      if (func === "sin") return math.sin(math.unit(angle, 'deg')).toString();
+      if (func === "cos") return math.cos(math.unit(angle, 'deg')).toString();
+      if (func === "tan") return math.tan(math.unit(angle, 'deg')).toString();
     } else {
       const result = mathInstance.evaluate(expression);
       // Format the result to remove unnecessary decimals
@@ -73,6 +101,11 @@ function getExplanation(expression) {
   const sqrtRegex = /squareroot(\d+)/;
   const squareRegex = /square(\d+)/;
   const powerRegex = /(\d+)p(\d+)/;
+  const factorialRegex = /(\d+)!/;
+  const permutationRegex = /(\d+)P(\d+)/;
+  const combinationRegex = /(\d+)C(\d+)/;
+  const logRegex = /log\((\d+)\)/;
+  const trigRegex = /(sin|cos|tan)\((\d+)\)/;
 
   if (sqrtRegex.test(expression)) {
     const number = parseFloat(expression.match(sqrtRegex)[1]);
