@@ -17,7 +17,7 @@ mathInstance.import({
 
 // Route for the root URL
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator'); 
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
 });
 
 // Serve the HTML file at a different route
@@ -123,6 +123,43 @@ function getExplanation(expression) {
     const exponent = new Decimal(match[2]);
     return `${base} raised to the power of ${exponent} means multiplying ${base} by itself ${exponent} times. 
     This can be written as ${base}^${exponent}. The result of ${base}^${exponent} is ${base.pow(exponent).toString()}.`;
+  } else if (factorialRegex.test(expression)) {
+    const number = parseInt(expression.match(factorialRegex)[1], 10);
+    return `The factorial of a number is the product of all positive integers up to that number. 
+    For example, the factorial of ${number} (written as ${number}!) is calculated by multiplying ${number} by every positive integer less than ${number}. 
+    The result is ${math.factorial(number).toString()}.`;
+  } else if (permutationRegex.test(expression)) {
+    const match = expression.match(permutationRegex);
+    const n = parseInt(match[1], 10);
+    const r = parseInt(match[2], 10);
+    return `The number of permutations of ${n} items taken ${r} at a time is calculated using the formula nPr = n! / (n - r)!. 
+    The result is ${math.permutations(n, r).toString()}.`;
+  } else if (combinationRegex.test(expression)) {
+    const match = expression.match(combinationRegex);
+    const n = parseInt(match[1], 10);
+    const r = parseInt(match[2], 10);
+    return `The number of combinations of ${n} items taken ${r} at a time is calculated using the formula nCr = n! / [r!(n - r)!]. 
+    The result is ${math.combinations(n, r).toString()}.`;
+  } else if (logRegex.test(expression)) {
+    const number = parseFloat(expression.match(logRegex)[1]);
+    return `The logarithm base 10 of ${number} is the power to which the base 10 must be raised to obtain the number. 
+    Mathematically, it is expressed as log(${number}). The result is ${math.log10(number).toString()}.`;
+  } else if (trigRegex.test(expression)) {
+    const match = expression.match(trigRegex);
+    const func = match[1];
+    const angle = parseFloat(match[2]);
+    if (func === "sin") {
+      return `The sine of an angle is a trigonometric function which gives the ratio of the length of the opposite side to the hypotenuse. 
+      The sine of ${angle} degrees is ${math.sin(math.unit(angle, 'deg')).toString()}.`;
+    }
+    if (func === "cos") {
+      return `The cosine of an angle is a trigonometric function which gives the ratio of the length of the adjacent side to the hypotenuse. 
+      The cosine of ${angle} degrees is ${math.cos(math.unit(angle, 'deg')).toString()}.`;
+    }
+    if (func === "tan") {
+      return `The tangent of an angle is a trigonometric function which gives the ratio of the length of the opposite side to the adjacent side. 
+      The tangent of ${angle} degrees is ${math.tan(math.unit(angle, 'deg')).toString()}.`;
+    }
   } else {
     try {
       const result = mathInstance.evaluate(expression);
@@ -136,73 +173,4 @@ function getExplanation(expression) {
 }
 
 // POST route for calculations with explanations
-app.post('/calculate', (req, res) => {
-  const expression = req.body.expression;
-  const steps = getStepByStepCalculation(expression);
-  const solution = performCalculation(expression);
-  const explanation = getExplanation(expression);
-  res.json({ 
-    question: expression,  
-    solution,
-    explanation
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-
-  // Function to make a request to the /calculate endpoint
-  async function calculateExpression() {
-    try {
-      const response = await axios.post(`http://localhost:${port}/calculate`, {
-        expression: '10p2200'
-      });
-      console.log('Question:', response.data.question);
-      console.log('Solution:', response.data.solution);
-      console.log('Explanation:', response.data.explanation);
-    } catch (error) {
-      console.error('Error:', error.response ? error.response.data : error.message);
-    }
-  }
-
-  // Call the function to make the request
-  calculateExpression();
-});
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-function calculate(expression) {
-  const sqrtRegex = /squareroot(\d+)/;
-  const squareRegex = /square(\d+)/;
-  const powerRegex = /(\d+)p(\d+)/;
-
-  if (sqrtRegex.test(expression)) {
-    const number = new Decimal(expression.match(sqrtRegex)[1]);
-    return number.sqrt().toString();
-  } else if (squareRegex.test(expression)) {
-    const number = new Decimal(expression.match(squareRegex)[1]);
-    return number.pow(2).toString();
-  } else if (powerRegex.test(expression)) {
-    const match = expression.match(powerRegex);
-    const base = new Decimal(match[1]);
-    const exponent = new Decimal(match[2]);
-    return base.pow(exponent).toString();
-  } else {
-    try {
-      const result = mathInstance.evaluate(expression);
-      return result.toString();
-    } catch (error) {
-      return 'Unsupported operation or invalid expression.';
-    }
-  }
-}
-
-rl.question('Enter the calculation: ', (answer) => {
-  const result = calculate(answer);
-  console.log(`Result: ${result}`);
-  console.log(getExplanation(answer));
-  rl.close();
-});
+app.post('/calculate',
