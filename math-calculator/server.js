@@ -173,4 +173,7 @@ function getExplanation(expression) {
 }
 
 // POST route for calculations with explanations
-app.post('/calculate',
+app.post('/calculate', (req, res) => {
+  const { expression } = req.body;
+  const result = performCalculation(expression);
+  const explanation = getExplanation(expression);
