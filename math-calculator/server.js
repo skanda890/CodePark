@@ -3,6 +3,7 @@ const math = require('mathjs');
 const path = require('path');
 const Decimal = require('decimal.js');
 const nerdamer = require('nerdamer');
+const nerdamerS = require('nerdamer/Algebra');  // Include algebra functions
 
 const app = express();
 const port = 4000;
@@ -27,7 +28,6 @@ app.get('/calculator', (req, res) => {
 
 // Function to handle calculations, including the question, solution, and explanation
 function handleCalculation(expression) {
-  // Regex patterns for various operations
   const sqrtRegex = /squareroot(\d+)/;
   const squareRegex = /square(\d+)/;
   const powerRegex = /(\d+)\^(\d+)/; // Updated regex for power
@@ -47,9 +47,15 @@ function handleCalculation(expression) {
     // Special case for the integral of 1 / (1 - x^2) from -1 to 1
     if (integralPiRegex.test(expression)) {
       // Use nerdamer to solve the integral
-      const result = nerdamer('integrate(1/(1-x^2), x)').evaluate();
-      solution = result.toString();
-      explanation = 'This integral is a standard representation for the value of π, and its result is exactly π.';
+      try {
+        // Using nerdamer to perform symbolic integration
+        const result = nerdamer('integrate(1/(1-x^2), x)').evaluate();
+        solution = result.toString();
+        explanation = 'This integral is a standard representation for the value of π, and its result is exactly π.';
+      } catch (err) {
+        solution = 'Error';
+        explanation = 'Failed to evaluate the integral.';
+      }
     } else if (vietaRegex.test(expression)) {
       // Handle Vieta's formula approximation
       const iterations = parseInt(expression.match(vietaRegex)[1], 10);
