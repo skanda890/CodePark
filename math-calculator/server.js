@@ -27,8 +27,14 @@ app.get('/calculator', (req, res) => {
 // Function to handle calculations, including the question, solution, and explanation
 function handleCalculation(expression) {
   const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" and optional "^exponent"
-  const largePowerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent" form
+  const squareRegex = /square(\d+)/; // Match "square<number>"
+  const powerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent" form
   const assignmentRegex = /\(([^=]+)=([^=]+)\)\^([^=]+)/; // Match for assignment-like expressions (x=10)^999999
+  const factorialRegex = /(\d+)!/;
+  const permutationRegex = /(\d+)P(\d+)/;
+  const combinationRegex = /(\d+)C(\d+)/;
+  const logRegex = /log\((\d+)\)/;
+  const trigRegex = /(sin|cos|tan)\((\d+)\)/;
 
   try {
     let question = `What is the result of: ${expression}?`;
@@ -53,19 +59,66 @@ function handleCalculation(expression) {
       solution = Math.pow(sqrtValue, exponent); // Apply exponent to the square root
 
       explanation = `The square root of ${number} is calculated as √${number}, which is ${sqrtValue}. Then raising this value to the power of ${exponent} gives ${solution}.`;
-    } else if (largePowerRegex.test(expression)) {
-      // Handle large power expressions
-      const match = expression.match(largePowerRegex);
-      const base = parseInt(match[1], 10);
-      const exponent = parseInt(match[2], 10);
-
-      // For very large exponents, handle the overflow by estimating the result
-      if (exponent > 100000) {
-        solution = `1 followed by ${exponent} zeros`;
-        explanation = `${base}^${exponent} is extremely large and has ${exponent + 1} digits.`;
+    } else if (squareRegex.test(expression)) {
+      const number = parseFloat(expression.match(squareRegex)[1]);
+      solution = Math.pow(number, 2);
+      explanation = `The square of ${number} is ${solution}.`;
+    } else if (powerRegex.test(expression)) {
+      const match = expression.match(powerRegex);
+      const base = new Decimal(match[1]);
+      const exponent = new Decimal(match[2]);
+      
+      if (exponent.gt(1000)) {
+        // Handle extremely large exponents
+        const digits = Math.floor(Math.log10(base.toNumber()) * exponent.toNumber()) + 1;
+        solution = `1 followed by ${digits - 1} zeros`;
+        explanation = `${base}^${exponent} is extremely large and has ${digits} digits.`;
       } else {
-        solution = Math.pow(base, exponent);
+        solution = base.pow(exponent).toString();
         explanation = `${base}^${exponent} = ${solution}.`;
+      }
+    } else if (factorialRegex.test(expression)) {
+      const number = parseInt(expression.match(factorialRegex)[1], 10);
+      
+      if (number > 100) {
+        // Approximate large factorials
+        const approx = math.log10(math.factorial(number));
+        const digits = Math.floor(approx) + 1;
+        solution = `1 followed by ${digits - 1} zeros`;
+        explanation = `The factorial of ${number} is a very large number with ${digits} digits.`;
+      } else {
+        solution = math.factorial(number).toString();
+        explanation = `${number}! = ${solution}.`;
+      }
+    } else if (permutationRegex.test(expression)) {
+      const match = expression.match(permutationRegex);
+      const n = parseInt(match[1], 10);
+      const r = parseInt(match[2], 10);
+      solution = math.permutations(n, r).toString();
+      explanation = `nPr = ${n}! / (n - r)! = ${solution}.`;
+    } else if (combinationRegex.test(expression)) {
+      const match = expression.match(combinationRegex);
+      const n = parseInt(match[1], 10);
+      const r = parseInt(match[2], 10);
+      solution = math.combinations(n, r).toString();
+      explanation = `nCr = n! / (r!(n - r)!) = ${solution}.`;
+    } else if (logRegex.test(expression)) {
+      const number = parseFloat(expression.match(logRegex)[1]);
+      solution = math.log10(number).toString();
+      explanation = `log(${number}) = ${solution}.`;
+    } else if (trigRegex.test(expression)) {
+      const match = expression.match(trigRegex);
+      const func = match[1];
+      const angle = parseFloat(match[2]);
+      if (func === "sin") {
+        solution = math.sin(math.unit(angle, 'deg')).toString();
+        explanation = `sin(${angle}) = ${solution}.`;
+      } else if (func === "cos") {
+        solution = math.cos(math.unit(angle, 'deg')).toString();
+        explanation = `cos(${angle}) = ${solution}.`;
+      } else if (func === "tan") {
+        solution = math.tan(math.unit(angle, 'deg')).toString();
+        explanation = `tan(${angle}) = ${solution}.`;
       }
     } else {
       // Default evaluation if no specific case matches
