@@ -11,122 +11,90 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  π: Math.PI,
+  π: Math.PI
 });
 
-// Regex patterns to support various expressions
-const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?|√(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" or "√<number>" with optional "^exponent"
-const squareRegex = /square(\d+)/; // Match "square<number>"
-const powerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent"
-const assignmentRegex = /([^=]+)=([^=]+)\^([^=]+)/; // Match assignment-like expressions (x=10)^999999
-const factorialRegex = /(\d+)!/; // Match "number!"
-const permutationRegex = /(\d+)P(\d+)/; // Match "nPr"
-const combinationRegex = /(\d+)C(\d+)/; // Match "nCr"
-const logRegex = /log(\d+)/; // Match "log<number>"
-const trigRegex = /(sin|cos|tan)(\d+)/; // Match trigonometric functions
-const piRegex = /π/; // Match "π"
-
-// Route for the root URL
-app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to /calculator');
-});
+// Shorthand map for large number terms
+const shorthandMap = {
+  k: 1e3, // Thousand
+  thousand: 1e3,
+  lakh: 1e5, // South Asian notation
+  crore: 1e7,
+  million: 1e6,
+  billion: 1e9,
+  trillion: 1e12,
+  quadrillion: 1e15,
+  quintillion: 1e18,
+  sextillion: 1e21,
+  septillion: 1e24,
+  octillion: 1e27,
+  nonillion: 1e30,
+  decillion: 1e33,
+  undecillion: 1e36,
+  duodecillion: 1e39,
+  tredecillion: 1e42,
+  quattuordecillion: 1e45,
+  quindecillion: 1e48,
+  sexdecillion: 1e51,
+  septendecillion: 1e54,
+  octodecillion: 1e57,
+  novemdecillion: 1e60,
+  vigintillion: 1e63,
+  unvigintillion: 1e66,
+  duovigintillion: 1e69,
+  trevigintillion: 1e72,
+  quattuorvigintillion: 1e75,
+  quinvigintillion: 1e78,
+  sexvigintillion: 1e81,
+  septenvigintillion: 1e84,
+  octovigintillion: 1e87,
+  novemvigintillion: 1e90,
+  trigintillion: 1e93,
+  untrigintillion: 1e96,
+  duotrigintillion: 1e99,
+  googol: 1e100, // Special name for 10^100
+  centillion: 1e303 // Standard term for 10^300
+};
 
 // Serve the HTML file at a different route
 app.get('/calculator', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Function to handle calculations
+// Function to handle calculations, including the question, solution, and explanation
 function handleCalculation(expression) {
+  const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|unvigintillion|duovigintillion|trevigintillion|quattuorvigintillion|quinvigintillion|sexvigintillion|septenvigintillion|octovigintillion|novemvigintillion|trigintillion|untrigintillion|duotrigintillion|googol|centillion)/i;
+  const vietaRegex = /vieta\((\d+)\)/;
+  
   try {
     let question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
-    if (sqrtRegex.test(expression)) {
-      const match = expression.match(sqrtRegex);
-      const base = parseFloat(match[1] || match[4]);
-      const exponent = parseFloat(match[3] || match[6]) || 1;
-      const result = Math.pow(Math.sqrt(base), exponent);
-      solution = result.toString();
-      explanation = `The result of √${base} raised to the power of ${exponent} is ${solution}.`;
-    } else if (squareRegex.test(expression)) {
-      const number = parseFloat(expression.match(squareRegex)[1]);
-      solution = Math.pow(number, 2).toString();
-      explanation = `The square of ${number} is ${solution}.`;
-    } else if (powerRegex.test(expression)) {
-      const match = expression.match(powerRegex);
-      const base = new Decimal(match[1]);
-      const exponent = new Decimal(match[2]);
+    if (shorthandRegex.test(expression)) {
+      const match = expression.match(shorthandRegex);
+      const base = parseFloat(match[1]);
+      const term = match[3].toLowerCase();
 
-      if (exponent.gt(1000)) {
-        const digits = Math.floor(Math.log10(base.toNumber()) * exponent.toNumber()) + 1;
-        solution = `1 followed by ${digits - 1} zeros`;
-        explanation = `${base}^${exponent} is extremely large and has ${digits} digits.`;
+      if (shorthandMap[term]) {
+        solution = base * shorthandMap[term];
+        explanation = `The shorthand "${base}${term}" is equivalent to ${solution}.`;
       } else {
-        solution = base.pow(exponent).toString();
-        explanation = `${base}^${exponent} = ${solution}.`;
+        throw new Error('Unsupported shorthand term.');
       }
-    } else if (assignmentRegex.test(expression)) {
-      const match = expression.match(assignmentRegex);
-      const variable = match[1];
-      const value = parseFloat(match[2]);
-      const exponent = parseFloat(match[3]);
+    } else if (vietaRegex.test(expression)) {
+      const iterations = parseInt(expression.match(vietaRegex)[1], 10);
 
-      const base = new Decimal(value);
-      if (exponent > 1000) {
-        const digits = Math.floor(Math.log10(base.toNumber()) * exponent) + 1;
-        solution = `1 followed by ${digits - 1} zeros`;
-        explanation = `(${variable}=${value})^${exponent} has ${digits} digits.`;
-      } else {
-        solution = base.pow(exponent).toString();
-        explanation = `(${variable}=${value})^${exponent} = ${solution}.`;
+      let product = 1;
+      let term = Math.sqrt(0.5); // Initial term
+      for (let i = 1; i <= iterations; i++) {
+        product *= term;
+        term = Math.sqrt(0.5 + 0.5 * term); // Generate the next term
       }
-    } else if (factorialRegex.test(expression)) {
-      const number = parseInt(expression.match(factorialRegex)[1], 10);
-      if (number > 100) {
-        const approx = math.log10(math.factorial(number));
-        const digits = Math.floor(approx) + 1;
-        solution = `1 followed by ${digits - 1} zeros`;
-        explanation = `The factorial of ${number} is a very large number with ${digits} digits.`;
-      } else {
-        solution = math.factorial(number).toString();
-        explanation = `${number}! = ${solution}.`;
-      }
-    } else if (permutationRegex.test(expression)) {
-      const match = expression.match(permutationRegex);
-      const n = parseInt(match[1], 10);
-      const r = parseInt(match[2], 10);
-      solution = math.permutations(n, r).toString();
-      explanation = `nPr = ${n}! / (n - r)! = ${solution}.`;
-    } else if (combinationRegex.test(expression)) {
-      const match = expression.match(combinationRegex);
-      const n = parseInt(match[1], 10);
-      const r = parseInt(match[2], 10);
-      solution = math.combinations(n, r).toString();
-      explanation = `nCr = n! / (r!(n - r)!) = ${solution}.`;
-    } else if (logRegex.test(expression)) {
-      const number = parseFloat(expression.match(logRegex)[1]);
-      solution = math.log10(number).toString();
-      explanation = `log(${number}) = ${solution}.`;
-    } else if (trigRegex.test(expression)) {
-      const match = expression.match(trigRegex);
-      const func = match[1];
-      const angle = parseFloat(match[2]);
-      if (func === "sin") {
-        solution = math.sin(math.unit(angle, 'deg')).toString();
-        explanation = `sin(${angle}) = ${solution}.`;
-      } else if (func === "cos") {
-        solution = math.cos(math.unit(angle, 'deg')).toString();
-        explanation = `cos(${angle}) = ${solution}.`;
-      } else if (func === "tan") {
-        solution = math.tan(math.unit(angle, 'deg')).toString();
-        explanation = `tan(${angle}) = ${solution}.`;
-      }
-    } else if (piRegex.test(expression)) {
-      solution = Math.PI.toString();
-      explanation = `π is approximately equal to ${solution}.`;
+      solution = (2 / product).toFixed(10); // Multiply by 2 and format to 10 decimal places
+      explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`;
     } else {
+      // Default evaluation if no specific case matches
       solution = mathInstance.evaluate(expression).toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
@@ -136,7 +104,7 @@ function handleCalculation(expression) {
     return {
       question: `What is the result of: ${expression}?`,
       solution: 'Error',
-      explanation: 'Unsupported operation or calculation error.',
+      explanation: 'Unsupported operation or calculation error.'
     };
   }
 }
