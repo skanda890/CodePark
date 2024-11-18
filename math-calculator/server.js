@@ -2,6 +2,7 @@ const express = require('express');
 const math = require('mathjs');
 const path = require('path');
 const Decimal = require('decimal.js');
+
 const app = express();
 const port = 4000;
 
@@ -27,7 +28,7 @@ app.get('/calculator', (req, res) => {
 function handleCalculation(expression) {
   const sqrtRegex = /squareroot(\d+)/;
   const squareRegex = /square(\d+)/;
-  const powerRegex = /(\d+)p(\d+)/;
+  const powerRegex = /(\d+)\^(\d+)/; // Updated regex for power
   const factorialRegex = /(\d+)!/;
   const permutationRegex = /(\d+)P(\d+)/;
   const combinationRegex = /(\d+)C(\d+)/;
@@ -51,12 +52,29 @@ function handleCalculation(expression) {
       const match = expression.match(powerRegex);
       const base = new Decimal(match[1]);
       const exponent = new Decimal(match[2]);
-      solution = base.pow(exponent).toString();
-      explanation = `${base}^${exponent} = ${solution}.`;
+      
+      if (exponent.gt(1000)) {
+        // Handle extremely large exponents
+        const digits = Math.floor(Math.log10(base.toNumber()) * exponent.toNumber()) + 1;
+        solution = `1 followed by ${digits - 1} zeros`;
+        explanation = `${base}^${exponent} is extremely large and has ${digits} digits.`;
+      } else {
+        solution = base.pow(exponent).toString();
+        explanation = `${base}^${exponent} = ${solution}.`;
+      }
     } else if (factorialRegex.test(expression)) {
       const number = parseInt(expression.match(factorialRegex)[1], 10);
-      solution = math.factorial(number).toString();
-      explanation = `${number}! = ${solution}.`;
+      
+      if (number > 100) {
+        // Approximate large factorials
+        const approx = math.log10(math.factorial(number));
+        const digits = Math.floor(approx) + 1;
+        solution = `1 followed by ${digits - 1} zeros`;
+        explanation = `The factorial of ${number} is a very large number with ${digits} digits.`;
+      } else {
+        solution = math.factorial(number).toString();
+        explanation = `${number}! = ${solution}.`;
+      }
     } else if (permutationRegex.test(expression)) {
       const match = expression.match(permutationRegex);
       const n = parseInt(match[1], 10);
@@ -98,7 +116,7 @@ function handleCalculation(expression) {
     return {
       question: `What is the result of: ${expression}?`,
       solution: 'Error',
-      explanation: 'Unsupported operation or calculation error.'
+      explanation: 'Unsupported operation or calculation error.',
     };
   }
 }
