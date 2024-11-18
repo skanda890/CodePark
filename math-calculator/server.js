@@ -14,11 +14,11 @@ mathInstance.import({
   π: Math.PI
 });
 
-// Shorthand map for large number terms
+// Shorthand mapping for large numbers
 const shorthandMap = {
-  k: 1e3, // Thousand
+  k: 1e3,
   thousand: 1e3,
-  lakh: 1e5, // South Asian notation
+  lakh: 1e5,
   crore: 1e7,
   million: 1e6,
   billion: 1e9,
@@ -52,37 +52,42 @@ const shorthandMap = {
   trigintillion: 1e93,
   untrigintillion: 1e96,
   duotrigintillion: 1e99,
-  googol: 1e100, // Special name for 10^100
-  centillion: 1e303 // Standard term for 10^300
+  googol: 1e100,
+  centillion: 1e303
 };
+
+// Route for the root URL
+app.get('/', (req, res) => {
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
+});
 
 // Serve the HTML file at a different route
 app.get('/calculator', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Function to handle calculations, including the question, solution, and explanation
+// Function to handle calculations
 function handleCalculation(expression) {
-  const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|unvigintillion|duovigintillion|trevigintillion|quattuorvigintillion|quinvigintillion|sexvigintillion|septenvigintillion|octovigintillion|novemvigintillion|trigintillion|untrigintillion|duotrigintillion|googol|centillion)/i;
+  const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|unvigintillion|duovigintillion|trevigintillion|quattuorvigintillion|quinvigintillion|sexvigintillion|septenvigintillion|octovigintillion|novemvigintillion|trigintillion|untrigintillion|duotrigintillion|googol|centillion)/gi;
   const vietaRegex = /vieta\((\d+)\)/;
-  
+
   try {
     let question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
-    if (shorthandRegex.test(expression)) {
-      const match = expression.match(shorthandRegex);
-      const base = parseFloat(match[1]);
-      const term = match[3].toLowerCase();
-
-      if (shorthandMap[term]) {
-        solution = base * shorthandMap[term];
-        explanation = `The shorthand "${base}${term}" is equivalent to ${solution}.`;
+    // Preprocess shorthand terms in the expression
+    expression = expression.replace(shorthandRegex, (match, number, _, term) => {
+      const base = parseFloat(number);
+      const unit = term.toLowerCase();
+      if (shorthandMap[unit]) {
+        return base * shorthandMap[unit];
       } else {
         throw new Error('Unsupported shorthand term.');
       }
-    } else if (vietaRegex.test(expression)) {
+    });
+
+    if (vietaRegex.test(expression)) {
       const iterations = parseInt(expression.match(vietaRegex)[1], 10);
 
       let product = 1;
@@ -94,7 +99,7 @@ function handleCalculation(expression) {
       solution = (2 / product).toFixed(10); // Multiply by 2 and format to 10 decimal places
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`;
     } else {
-      // Default evaluation if no specific case matches
+      // Evaluate the processed expression
       solution = mathInstance.evaluate(expression).toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
