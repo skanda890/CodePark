@@ -2,6 +2,7 @@ const express = require('express');
 const math = require('mathjs');
 const path = require('path');
 const Decimal = require('decimal.js');
+const nerdamer = require('nerdamer');
 
 const app = express();
 const port = 4000;
@@ -45,7 +46,9 @@ function handleCalculation(expression) {
 
     // Special case for the integral of 1 / (1 - x^2) from -1 to 1
     if (integralPiRegex.test(expression)) {
-      solution = 'π';
+      // Use nerdamer to solve the integral
+      const result = nerdamer('integrate(1/(1-x^2), x)').evaluate();
+      solution = result.toString();
       explanation = 'This integral is a standard representation for the value of π, and its result is exactly π.';
     } else if (vietaRegex.test(expression)) {
       // Handle Vieta's formula approximation
