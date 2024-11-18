@@ -11,11 +11,11 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  π: Math.PI
+  π: Math.PI,
 });
 
-// Consolidated regex patterns
-const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?|√(\d+)(\^(-?\d+))?/; // "squareroot<number>" or "√<number>" with optional "^exponent"
+// Regex patterns to support various expressions
+const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?|√(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" or "√<number>" with optional "^exponent"
 const squareRegex = /square(\d+)/; // Match "square<number>"
 const powerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent"
 const assignmentRegex = /([^=]+)=([^=]+)\^([^=]+)/; // Match assignment-like expressions (x=10)^999999
