@@ -11,12 +11,24 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  π: Math.PI
+  π: Math.PI,
 });
+
+// Regex patterns to support various expressions
+const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?|√(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" or "√<number>" with optional "^exponent"
+const squareRegex = /square(\d+)/; // Match "square<number>"
+const powerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent"
+const assignmentRegex = /([^=]+)=([^=]+)\^([^=]+)/; // Match assignment-like expressions (x=10)^999999
+const factorialRegex = /(\d+)!/; // Match "number!"
+const permutationRegex = /(\d+)P(\d+)/; // Match "nPr"
+const combinationRegex = /(\d+)C(\d+)/; // Match "nCr"
+const logRegex = /log(\d+)/; // Match "log<number>"
+const trigRegex = /(sin|cos|tan)(\d+)/; // Match trigonometric functions
+const piRegex = /π/; // Match "π"
 
 // Route for the root URL
 app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to /calculator');
 });
 
 // Serve the HTML file at a different route
@@ -24,52 +36,30 @@ app.get('/calculator', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Function to handle calculations, including the question, solution, and explanation
+// Function to handle calculations
 function handleCalculation(expression) {
-  const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" and optional "^exponent"
-  const squareRegex = /square(\d+)/; // Match "square<number>"
-  const powerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent" form
-  const assignmentRegex = /\(([^=]+)=([^=]+)\)\^([^=]+)/; // Match for assignment-like expressions (x=10)^999999
-  const factorialRegex = /(\d+)!/;
-  const permutationRegex = /(\d+)P(\d+)/;
-  const combinationRegex = /(\d+)C(\d+)/;
-  const logRegex = /log\((\d+)\)/;
-  const trigRegex = /(sin|cos|tan)\((\d+)\)/;
-
   try {
     let question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
-    if (assignmentRegex.test(expression)) {
-      // Handle assignment-like expressions
-      const match = expression.match(assignmentRegex);
-      const base = parseInt(match[2], 10); // Extract the base
-      const exponent = parseInt(match[3], 10); // Extract the exponent
-      // Evaluate the base raised to the power of the exponent
-      solution = Math.pow(base, exponent);
-      explanation = `The result of (${match[1]}=${base})^${exponent} is ${solution}.`;
-    } else if (sqrtRegex.test(expression)) {
+    if (sqrtRegex.test(expression)) {
       const match = expression.match(sqrtRegex);
-      const number = parseFloat(match[1]); // Extract the number after "squareroot"
-      const exponent = match[3] ? parseFloat(match[3]) : 1; // Default to 1 if no exponent is provided
-
-      // Calculate the square root and apply the exponent
-      const sqrtValue = Math.sqrt(number);
-      solution = Math.pow(sqrtValue, exponent); // Apply exponent to the square root
-
-      explanation = `The square root of ${number} is calculated as √${number}, which is ${sqrtValue}. Then raising this value to the power of ${exponent} gives ${solution}.`;
+      const base = parseFloat(match[1] || match[4]);
+      const exponent = parseFloat(match[3] || match[6]) || 1;
+      const result = Math.pow(Math.sqrt(base), exponent);
+      solution = result.toString();
+      explanation = `The result of √${base} raised to the power of ${exponent} is ${solution}.`;
     } else if (squareRegex.test(expression)) {
       const number = parseFloat(expression.match(squareRegex)[1]);
-      solution = Math.pow(number, 2);
+      solution = Math.pow(number, 2).toString();
       explanation = `The square of ${number} is ${solution}.`;
     } else if (powerRegex.test(expression)) {
       const match = expression.match(powerRegex);
       const base = new Decimal(match[1]);
       const exponent = new Decimal(match[2]);
-      
+
       if (exponent.gt(1000)) {
-        // Handle extremely large exponents
         const digits = Math.floor(Math.log10(base.toNumber()) * exponent.toNumber()) + 1;
         solution = `1 followed by ${digits - 1} zeros`;
         explanation = `${base}^${exponent} is extremely large and has ${digits} digits.`;
@@ -77,11 +67,24 @@ function handleCalculation(expression) {
         solution = base.pow(exponent).toString();
         explanation = `${base}^${exponent} = ${solution}.`;
       }
+    } else if (assignmentRegex.test(expression)) {
+      const match = expression.match(assignmentRegex);
+      const variable = match[1];
+      const value = parseFloat(match[2]);
+      const exponent = parseFloat(match[3]);
+
+      const base = new Decimal(value);
+      if (exponent > 1000) {
+        const digits = Math.floor(Math.log10(base.toNumber()) * exponent) + 1;
+        solution = `1 followed by ${digits - 1} zeros`;
+        explanation = `(${variable}=${value})^${exponent} has ${digits} digits.`;
+      } else {
+        solution = base.pow(exponent).toString();
+        explanation = `(${variable}=${value})^${exponent} = ${solution}.`;
+      }
     } else if (factorialRegex.test(expression)) {
       const number = parseInt(expression.match(factorialRegex)[1], 10);
-      
       if (number > 100) {
-        // Approximate large factorials
         const approx = math.log10(math.factorial(number));
         const digits = Math.floor(approx) + 1;
         solution = `1 followed by ${digits - 1} zeros`;
@@ -120,8 +123,10 @@ function handleCalculation(expression) {
         solution = math.tan(math.unit(angle, 'deg')).toString();
         explanation = `tan(${angle}) = ${solution}.`;
       }
+    } else if (piRegex.test(expression)) {
+      solution = Math.PI.toString();
+      explanation = `π is approximately equal to ${solution}.`;
     } else {
-      // Default evaluation if no specific case matches
       solution = mathInstance.evaluate(expression).toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
