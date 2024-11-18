@@ -28,7 +28,7 @@ app.get('/calculator', (req, res) => {
 function handleCalculation(expression) {
   const sqrtRegex = /squareroot(\d+)(\^(-?\d+))?/; // Match "squareroot<number>" and optional "^exponent"
   const largePowerRegex = /(\d+)\^(\d+)/; // Match for "base^exponent" form
-  const assignmentRegex = /([^=]+)=([^=]+)\^([^=]+)/; // Match for assignment-like expressions (x=10)^999999
+  const assignmentRegex = /\(([^=]+)=([^=]+)\)\^([^=]+)/; // Match for assignment-like expressions (x=10)^999999
 
   try {
     let question = `What is the result of: ${expression}?`;
