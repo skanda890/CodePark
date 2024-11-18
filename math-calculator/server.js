@@ -34,25 +34,44 @@ function handleCalculation(expression) {
   const combinationRegex = /(\d+)C(\d+)/;
   const logRegex = /log\((\d+)\)/;
   const trigRegex = /(sin|cos|tan)\((\d+)\)/;
+  const vietaRegex = /vieta\((\d+)\)/; // Match "vieta(iterations)"
 
   try {
     let question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
-    if (sqrtRegex.test(expression)) {
+    // Vieta's formula for approximating π
+    if (vietaRegex.test(expression)) {
+      const iterations = parseInt(expression.match(vietaRegex)[1], 10);
+
+      let product = 1;
+      let term = Math.sqrt(0.5); // Initial term
+      for (let i = 1; i <= iterations; i++) {
+        product *= term;
+        term = Math.sqrt(0.5 + 0.5 * term); // Generate the next term
+      }
+      solution = (2 / product).toFixed(10); // Multiply by 2 and format to 10 decimal places
+      explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`;
+    } 
+    // Square root calculation
+    else if (sqrtRegex.test(expression)) {
       const number = parseFloat(expression.match(sqrtRegex)[1]);
       solution = Math.sqrt(number);
       explanation = `The square root of ${number} is calculated as √${number}, resulting in ${solution}.`;
-    } else if (squareRegex.test(expression)) {
+    } 
+    // Square calculation
+    else if (squareRegex.test(expression)) {
       const number = parseFloat(expression.match(squareRegex)[1]);
       solution = Math.pow(number, 2);
       explanation = `The square of ${number} is ${solution}.`;
-    } else if (powerRegex.test(expression)) {
+    } 
+    // Power calculation
+    else if (powerRegex.test(expression)) {
       const match = expression.match(powerRegex);
       const base = new Decimal(match[1]);
       const exponent = new Decimal(match[2]);
-      
+
       if (exponent.gt(1000)) {
         // Handle extremely large exponents
         const digits = Math.floor(Math.log10(base.toNumber()) * exponent.toNumber()) + 1;
@@ -62,9 +81,11 @@ function handleCalculation(expression) {
         solution = base.pow(exponent).toString();
         explanation = `${base}^${exponent} = ${solution}.`;
       }
-    } else if (factorialRegex.test(expression)) {
+    } 
+    // Factorial calculation
+    else if (factorialRegex.test(expression)) {
       const number = parseInt(expression.match(factorialRegex)[1], 10);
-      
+
       if (number > 100) {
         // Approximate large factorials
         const approx = math.log10(math.factorial(number));
@@ -75,23 +96,31 @@ function handleCalculation(expression) {
         solution = math.factorial(number).toString();
         explanation = `${number}! = ${solution}.`;
       }
-    } else if (permutationRegex.test(expression)) {
+    } 
+    // Permutation calculation
+    else if (permutationRegex.test(expression)) {
       const match = expression.match(permutationRegex);
       const n = parseInt(match[1], 10);
       const r = parseInt(match[2], 10);
       solution = math.permutations(n, r).toString();
       explanation = `nPr = ${n}! / (n - r)! = ${solution}.`;
-    } else if (combinationRegex.test(expression)) {
+    } 
+    // Combination calculation
+    else if (combinationRegex.test(expression)) {
       const match = expression.match(combinationRegex);
       const n = parseInt(match[1], 10);
       const r = parseInt(match[2], 10);
       solution = math.combinations(n, r).toString();
       explanation = `nCr = n! / (r!(n - r)!) = ${solution}.`;
-    } else if (logRegex.test(expression)) {
+    } 
+    // Logarithm calculation
+    else if (logRegex.test(expression)) {
       const number = parseFloat(expression.match(logRegex)[1]);
       solution = math.log10(number).toString();
       explanation = `log(${number}) = ${solution}.`;
-    } else if (trigRegex.test(expression)) {
+    } 
+    // Trigonometric calculation
+    else if (trigRegex.test(expression)) {
       const match = expression.match(trigRegex);
       const func = match[1];
       const angle = parseFloat(match[2]);
@@ -105,8 +134,9 @@ function handleCalculation(expression) {
         solution = math.tan(math.unit(angle, 'deg')).toString();
         explanation = `tan(${angle}) = ${solution}.`;
       }
-    } else {
-      // Default evaluation if no specific case matches
+    } 
+    // Default evaluation if no specific case matches
+    else {
       solution = mathInstance.evaluate(expression).toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
