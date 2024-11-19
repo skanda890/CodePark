@@ -8,13 +8,16 @@ const port = 4000;
 
 app.use(express.json());
 
-// Create a new Math.js instance and define π as a constant
+// Create a new Math.js instance
 const mathInstance = math.create(math.all);
+
+// Import π into the Math.js instance
 mathInstance.import({
-  π: Math.PI
+  π: Math.PI,
 });
 
-// Shorthand mapping for large numbers
+// Shorthand regex and map
+const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|googol|centillion)/gi;
 const shorthandMap = {
   k: 1e3,
   thousand: 1e3,
@@ -40,20 +43,8 @@ const shorthandMap = {
   octodecillion: 1e57,
   novemdecillion: 1e60,
   vigintillion: 1e63,
-  unvigintillion: 1e66,
-  duovigintillion: 1e69,
-  trevigintillion: 1e72,
-  quattuorvigintillion: 1e75,
-  quinvigintillion: 1e78,
-  sexvigintillion: 1e81,
-  septenvigintillion: 1e84,
-  octovigintillion: 1e87,
-  novemvigintillion: 1e90,
-  trigintillion: 1e93,
-  untrigintillion: 1e96,
-  duotrigintillion: 1e99,
   googol: 1e100,
-  centillion: 1e303
+  centillion: 1e300,
 };
 
 // Route for the root URL
@@ -61,22 +52,23 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
 });
 
-// Serve the HTML file at a different route
+// Serve the HTML file
 app.get('/calculator', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Function to handle calculations
 function handleCalculation(expression) {
-  const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|unvigintillion|duovigintillion|trevigintillion|quattuorvigintillion|quinvigintillion|sexvigintillion|septenvigintillion|octovigintillion|novemvigintillion|trigintillion|untrigintillion|duotrigintillion|googol|centillion)/gi;
-  const vietaRegex = /vieta\((\d+)\)/;
+  const sqrtRegex = /squareroot(\d+)/;
+  const squareRegex = /square(\d+)/;
+  const vietaRegex = /vieta\((\d+)\)/; // Vieta's formula regex
 
   try {
     let question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
-    // Preprocess shorthand terms in the expression
+    // Handle shorthand notation
     expression = expression.replace(shorthandRegex, (match, number, _, term) => {
       const base = parseFloat(number);
       const unit = term.toLowerCase();
@@ -87,19 +79,32 @@ function handleCalculation(expression) {
       }
     });
 
+    // Handle Vieta's formula
     if (vietaRegex.test(expression)) {
       const iterations = parseInt(expression.match(vietaRegex)[1], 10);
-
       let product = 1;
-      let term = Math.sqrt(0.5); // Initial term
+      let term = Math.sqrt(0.5);
       for (let i = 1; i <= iterations; i++) {
         product *= term;
-        term = Math.sqrt(0.5 + 0.5 * term); // Generate the next term
+        term = Math.sqrt(0.5 + 0.5 * term);
       }
-      solution = (2 / product).toFixed(10); // Multiply by 2 and format to 10 decimal places
+      solution = (2 / product).toFixed(10);
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`;
-    } else {
-      // Evaluate the processed expression
+    } 
+    // Handle square root
+    else if (sqrtRegex.test(expression)) {
+      const number = parseFloat(expression.match(sqrtRegex)[1]);
+      solution = Math.sqrt(number);
+      explanation = `The square root of ${number} is √${number}, resulting in ${solution}.`;
+    } 
+    // Handle square
+    else if (squareRegex.test(expression)) {
+      const number = parseFloat(expression.match(squareRegex)[1]);
+      solution = Math.pow(number, 2);
+      explanation = `The square of ${number} is ${solution}.`;
+    } 
+    // Default evaluation
+    else {
       solution = mathInstance.evaluate(expression).toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
@@ -109,7 +114,7 @@ function handleCalculation(expression) {
     return {
       question: `What is the result of: ${expression}?`,
       solution: 'Error',
-      explanation: 'Unsupported operation or calculation error.'
+      explanation: 'Unsupported operation or calculation error.',
     };
   }
 }
