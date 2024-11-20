@@ -8,12 +8,10 @@ const port = 4000;
 
 app.use(express.json());
 
-// Create a new Math.js instance
+// Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
-
-// Import π into the Math.js instance
 mathInstance.import({
-  π: Math.PI,
+  π: Math.PI
 });
 
 // Shorthand regex and map
@@ -44,18 +42,8 @@ const shorthandMap = {
   novemdecillion: 1e60,
   vigintillion: 1e63,
   googol: 1e100,
-  centillion: 1e300,
+  centillion: 1e300
 };
-
-// Route for the root URL
-app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
-});
-
-// Serve the HTML file
-app.get('/calculator', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
 
 // Function to handle calculations
 function handleCalculation(expression) {
@@ -78,6 +66,30 @@ function handleCalculation(expression) {
         throw new Error('Unsupported shorthand term.');
       }
     });
+
+    // Handle chained expressions like y=29-x=squareroot9
+    if (expression.includes('=')) {
+      const parts = expression.split('=');
+      const lastPart = parts.pop().trim(); // Solve the last part
+      let intermediateExpression = lastPart;
+
+      if (sqrtRegex.test(lastPart)) {
+        const number = parseFloat(lastPart.match(sqrtRegex)[1]);
+        intermediateExpression = Math.sqrt(number).toString();
+      } else if (squareRegex.test(lastPart)) {
+        const number = parseFloat(lastPart.match(squareRegex)[1]);
+        intermediateExpression = Math.pow(number, 2).toString();
+      } else {
+        intermediateExpression = mathInstance.evaluate(lastPart).toString();
+      }
+
+      // Back substitute intermediate results
+      let evaluatedExpression = parts.concat(intermediateExpression).join('=');
+      solution = mathInstance.evaluate(evaluatedExpression);
+      explanation = `The result of evaluating "${expression}" is ${solution}.`;
+
+      return { question, solution, explanation };
+    }
 
     // Handle Vieta's formula
     if (vietaRegex.test(expression)) {
@@ -119,7 +131,15 @@ function handleCalculation(expression) {
   }
 }
 
-// POST route for calculations
+// Routes
+app.get('/', (req, res) => {
+  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
+});
+
+app.get('/calculator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.post('/calculate', (req, res) => {
   const { expression } = req.body;
   const response = handleCalculation(expression);
