@@ -5,7 +5,7 @@ const app = express();
 const port = 5000;
 
 const DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
-const TRANSLATE_API_URL = 'https://libretranslate.com/translate';
+const TRANSLATE_API_URL = 'https://api.mymemory.translated.net/get';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,13 +20,8 @@ app.post('/define', async (req, res) => {
         // Translate the word to English if it's not already in English
         let translatedWord = word;
         if (lang !== 'en') {
-            const translateResponse = await axios.post(TRANSLATE_API_URL, {
-                q: word,
-                source: lang,
-                target: 'en',
-                format: 'text'
-            });
-            translatedWord = translateResponse.data.translatedText;
+            const translateResponse = await axios.get(`${TRANSLATE_API_URL}?q=${word}&langpair=${lang}|en`);
+            translatedWord = translateResponse.data.responseData.translatedText;
         }
 
         // Fetch the definition of the translated word
@@ -39,7 +34,7 @@ app.post('/define', async (req, res) => {
             console.error('Response status:', error.response.status);
             console.error('Response headers:', error.response.headers);
         }
-        res.status(500).json({ error: 'Error fetching definition' });
+        res.status(500).json({ error: error.response ? error.response.data : 'Error fetching definition' });
     }
 });
 
