@@ -2,7 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const path = require('path');
 const app = express();
-const port = 3000;
+const port = 5000;
 
 const API_URL = 'https://api.freedictionary.dev/api/v2/entries/en/';
 
