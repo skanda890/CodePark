@@ -1,14 +1,20 @@
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 const app = express();
 const port = 3000;
 
 const API_URL = 'https://api.freedictionary.dev/api/v2/entries/en/';
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/define/:word', async (req, res) => {
-    const word = req.params.word;
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.post('/define', async (req, res) => {
+    const { word } = req.body;
     try {
         const response = await axios.get(`${API_URL}${word}`);
         res.json(response.data);
