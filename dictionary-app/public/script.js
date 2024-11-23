@@ -22,6 +22,11 @@ function displayResult(data) {
         return;
     }
 
+    if (!Array.isArray(data) || data.length === 0) {
+        resultDiv.innerHTML = `<p>No definition found.</p>`;
+        return;
+    }
+
     const wordData = data[0];
     const phonetics = wordData.phonetics.map(p => p.text).join(', ');
     const meanings = wordData.meanings.map(meaning => {
