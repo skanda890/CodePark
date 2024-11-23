@@ -17,14 +17,14 @@ app.get('/', (req, res) => {
 app.post('/define', async (req, res) => {
     const { word, lang } = req.body;
     try {
-        // Translate the word to English if it's not already in English
+        // Translate the phrase to English if it's not already in English
         let translatedWord = word;
         if (lang !== 'en') {
-            const translateResponse = await axios.get(`${TRANSLATE_API_URL}?q=${word}&langpair=${lang}|en`);
+            const translateResponse = await axios.get(`${TRANSLATE_API_URL}?q=${encodeURIComponent(word)}&langpair=${lang}|en`);
             translatedWord = translateResponse.data.responseData.translatedText;
         }
 
-        // Fetch the definition of the translated word
+        // Fetch the definition of the translated word or phrase
         const response = await axios.get(`${DICTIONARY_API_URL}${translatedWord}`);
         res.json(response.data);
     } catch (error) {
