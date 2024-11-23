@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const port = 5000;
 
-const API_URL = 'https://api.freedictionary.dev/api/v2/entries/en/';
+const API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
