@@ -1,7 +1,7 @@
 document.getElementById('dictionary-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const word = document.getElementById('word').value;
-    const lang = document.getElementById('language').value;
+    const lang = document.getElementById('language-switcher').value;
     const response = await fetch('/define', {
         method: 'POST',
         headers: {
