@@ -1,12 +1,13 @@
 document.getElementById('dictionary-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const word = document.getElementById('word').value;
+    const lang = document.getElementById('language').value;
     const response = await fetch('/define', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ word })
+        body: JSON.stringify({ word, lang })
     });
     const data = await response.json();
     displayResult(data);
