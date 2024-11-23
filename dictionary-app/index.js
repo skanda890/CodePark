@@ -19,6 +19,7 @@ app.post('/define', async (req, res) => {
         const response = await axios.get(`${API_URL}${word}`);
         res.json(response.data);
     } catch (error) {
+        console.error('Error fetching definition:', error.message);
         res.status(500).json({ error: 'Error fetching definition' });
     }
 });
