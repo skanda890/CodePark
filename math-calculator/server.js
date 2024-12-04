@@ -11,7 +11,8 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  π: Math.PI
+  pi: Math.PI
+  π: Math.PI  
 });
 
 // Shorthand regex and map
