@@ -11,7 +11,6 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  pi: Math.PI,
   π: Math.PI
 });
 
