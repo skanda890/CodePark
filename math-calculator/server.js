@@ -117,7 +117,9 @@ function handleCalculation(expression) {
     } 
     // Default evaluation
     else {
-      solution = mathInstance.evaluate(expression).toString();
+      // Use Decimal.js for handling large numbers
+      const decimalResult = new Decimal(mathInstance.evaluate(expression));
+      solution = decimalResult.toString();
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
 
