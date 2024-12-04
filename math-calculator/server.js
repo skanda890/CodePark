@@ -119,7 +119,7 @@ function handleCalculation(expression) {
     else {
       // Use Decimal.js for handling large numbers
       const decimalResult = new Decimal(mathInstance.evaluate(expression));
-      solution = decimalResult.toString();
+      solution = decimalResult.toFixed(); // Use .toFixed() for a more readable format
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
     }
 
