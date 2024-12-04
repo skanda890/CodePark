@@ -14,6 +14,7 @@
     "decimal.js": "^10.4.3",
     "express": "^4.21.1",
     "mathjs": "^13.2.2",
+    "nerdamer": "^1.1.13",
     "readline-sync": "^1.4.10",
     "socket.io": "^4.8.1"
   },
