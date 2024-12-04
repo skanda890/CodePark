@@ -34,4 +34,49 @@ jobs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6.1.0
-      
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety
+        pip install truffleHog
+        curl -sSL https://github.com/zricethezav/gitleaks/releases/download/v8.2.1/gitleaks-linux-amd64.tar.gz | tar -xzf - -C /usr/local/bin gitleaks
+        npm install -g snyk
+        npm install -g @actions/core @actions/github
+
+    - name: Run Safety
+      run: |
+        safety check --full-report
+
+    - name: Run truffleHog
+      run: |
+        trufflehog filesystem --directory . --json | tee trufflehog_results.json
+
+    - name: Run Gitleaks
+      run: |
+        gitleaks detect --source . --report-format json --report-path gitleaks_results.json
+
+    - name: Run Snyk
+      run: |
+        snyk auth ${{ secrets.SNYK_TOKEN }}
+        snyk test
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: security-reports
+        path: |
+          trufflehog_results.json
+          gitleaks_results.json
