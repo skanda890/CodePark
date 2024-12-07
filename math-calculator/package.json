@@ -12,7 +12,7 @@
     "big.js": "^6.2.2",
     "crypto-js": "^4.2.0",
     "decimal.js": "^10.4.3",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "mathjs": "^13.2.2",
     "nerdamer": "^1.1.13",
     "readline-sync": "^1.4.10",
