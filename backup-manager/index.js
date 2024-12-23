@@ -52,29 +52,64 @@ async function restoreBackup(archivePath, options = {}) {
             return reject(new Error(`Archive not found: ${archivePath}`));
         }
 
-        if (!overwrite) {
+        const extract = unzipper.Extract({ path: destination });
+        fs.createReadStream(archivePath).pipe(extract);
+
+        extract.on('close', async () => {
             try {
-                const zip = new unzipper.Zip({ path: archivePath });
-                zip.on('ready', () => {
-                    for (const entry of zip.files) {
-                        const targetPath = path.join(destination, entry.path);
-                        if (fs.existsSync(targetPath)) {
-                            return reject(new Error(`File already exists: ${targetPath}. Use overwrite option.`));
-                        }
+                const configPath = path.join(destination, 'my_settings', 'config.txt');
+                const envPath = path.join(destination, '.env');
+                if (fs.existsSync(configPath)) {
+                    await mergeConfig(configPath, destination, overwrite);
+                }
+                if (fs.existsSync(envPath)) {
+                    if (!overwrite && fs.existsSync(path.join(path.dirname(configPath), path.basename(envPath)))) {
+                        throw new Error(`File already exists: ${path.join(path.dirname(configPath), path.basename(envPath))}. Use overwrite option.`);
                     }
-                    fs.createReadStream(archivePath).pipe(unzipper.Extract({ path: destination })).on('close', resolve).on('error', reject);
-                });
-                zip.on('error', reject);
-            } catch (err) {
-                reject(err);
+                    fs.copyFileSync(envPath, path.join(path.dirname(configPath), path.basename(envPath)))
+                    fs.rmSync(envPath)
+                }
+                console.log('Restore complete.');
+                resolve();
+            } catch (mergeError) {
+                reject(mergeError);
             }
-        } else {
-            if (!fs.existsSync(destination)) {
-                fs.mkdirSync(destination, { recursive: true });
-            }
-            fs.createReadStream(archivePath).pipe(unzipper.Extract({ path: destination })).on('close', resolve).on('error', reject);
-        }
+        });
+
+        extract.on('error', reject);
     });
+}
+
+async function mergeConfig(configPath, destination, overwrite) {
+    try {
+        let config = {};
+        if (fs.existsSync(configPath)) {
+            const configFile = fs.readFileSync(configPath, 'utf-8');
+            configFile.split('\n').forEach(line => {
+                const [key, value] = line.split('=').map(s => s.trim());
+                if (key && value) {
+                    config[key] = value;
+                }
+            });
+        }
+        const envPath = path.join(destination, '.env')
+        if (fs.existsSync(envPath)) {
+            const env = JSON.parse(fs.readFileSync(envPath, 'utf-8'))
+            for (const key in env) {
+                config[key] = env[key]
+            }
+        }
+
+        const newConfigContent = Object.entries(config).map(([key, value]) => `${key}=${value}`).join('\n');
+
+        if (!overwrite && fs.existsSync(configPath)) {
+            throw new Error(`File already exists: ${configPath}. Use overwrite option.`);
+        }
+
+        fs.writeFileSync(configPath, newConfigContent);
+    } catch (error) {
+        throw new Error(`Error merging config: ${error.message}`);
+    }
 }
 
 module.exports = { createBackup, restoreBackup };
