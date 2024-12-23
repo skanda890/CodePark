@@ -1,19 +1,20 @@
 {
   "name": "backup-manager",
   "version": "1.0.0",
+  "description": "A simple backup and restore utility",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "backup": "node examples/backup.js"
+    "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "SkandaBT",
+  "license": "MIT",
   "devDependencies": {
-    "archiver": "^7.0.1"
+    "archiver": "^5.3.1"
   },
   "dependencies": {
-    "inquirer": "^12.3.0",
+    "unzipper": "^0.10.11",
     "prompts": "^2.4.2"
   }
 }
