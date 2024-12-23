@@ -1,115 +1,79 @@
 const fs = require('fs');
-const archiver = require('archiver');
-const unzipper = require('unzipper');
 const path = require('path');
+const os = require('os');
+const { exec } = require('child_process');
+const util = require('util');
+const prompts = require('prompts');
 
-async function createBackup(options = {}) {
-    const {
-        backupDir = './backups',
-        outputFilename = 'backup.zip',
-        items = [],
-    } = options;
+const execPromise = util.promisify(exec);
 
-    if (!fs.existsSync(backupDir)) {
-        fs.mkdirSync(backupDir, { recursive: true });
-    }
-
-    const outputFilePath = path.join(backupDir, outputFilename);
-    const output = fs.createWriteStream(outputFilePath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
-
-    return new Promise((resolve, reject) => {
-        output.on('close', () => resolve(outputFilePath));
-        output.on('error', reject);
-        archive.on('error', reject);
-
-        for (const item of items) {
-            const itemPath = typeof item === 'string' ? item : item.path;
-            const archiveName = typeof item === 'string' ? path.basename(item) : (item.name || path.basename(item.path));
-            const resolvedPath = path.resolve(itemPath);
-
-            if (fs.existsSync(resolvedPath)) {
-                if (fs.statSync(resolvedPath).isDirectory()) {
-                    archive.directory(resolvedPath, archiveName);
-                } else {
-                    archive.file(resolvedPath, { name: archiveName });
+async function getInstalledApps() {
+    try {
+        let apps = [];
+        switch (process.platform) {
+            case 'win32':
+                const powershellCommand = `Get-WmiObject -Class Win32_Product | Select-Object -ExpandProperty Name`;
+                const { stdout: winApps } = await execPromise(`powershell.exe -Command "${powershellCommand}"`);
+                apps = winApps.trim().split('\r\n');
+                break;
+            case 'darwin':
+                const { stdout: macApps } = await execPromise('mdfind "kMDItemKind == \'Application\'"');
+                apps = macApps.trim().split('\n').map(appPath => path.basename(appPath));
+                break;
+            case 'linux':
+                try {
+                    const { stdout: linuxApps } = await execPromise('dpkg --get-selections | grep -v deinstall');
+                    apps = linuxApps.trim().split('\n').map(line => line.split('\t')[0]);
+                } catch (error) {
+                    console.warn("Could not retrieve installed apps using dpkg. Trying with ls.")
+                    const { stdout: linuxApps } = await execPromise('ls /usr/share/applications/');
+                    apps = linuxApps.trim().split('\n');
                 }
-            } else {
-                console.warn(`Path not found: ${itemPath}`);
-            }
+                break;
+            default:
+                console.log('Unsupported operating system for app listing.');
+                return [];
         }
-
-        archive.pipe(output);
-        archive.finalize();
-    });
+        return apps;
+    } catch (error) {
+        console.error('Error getting installed apps:', error);
+        return [];
+    }
 }
 
-async function restoreBackup(archivePath, options = {}) {
-    const { destination = '.', overwrite = false } = options;
-
-    return new Promise((resolve, reject) => {
-        if (!fs.existsSync(archivePath)) {
-            return reject(new Error(`Archive not found: ${archivePath}`));
-        }
-
-        const extract = unzipper.Extract({ path: destination });
-        fs.createReadStream(archivePath).pipe(extract);
-
-        extract.on('close', async () => {
-            try {
-                const configPath = path.join(destination, 'my_settings', 'config.txt');
-                const envPath = path.join(destination, '.env');
-                if (fs.existsSync(configPath)) {
-                    await mergeConfig(configPath, destination, overwrite);
-                }
-                if (fs.existsSync(envPath)) {
-                    if (!overwrite && fs.existsSync(path.join(path.dirname(configPath), path.basename(envPath)))) {
-                        throw new Error(`File already exists: ${path.join(path.dirname(configPath), path.basename(envPath))}. Use overwrite option.`);
-                    }
-                    fs.copyFileSync(envPath, path.join(path.dirname(configPath), path.basename(envPath)))
-                    fs.rmSync(envPath)
-                }
-                console.log('Restore complete.');
-                resolve();
-            } catch (mergeError) {
-                reject(mergeError);
-            }
+async function saveAppListToFile(appList) {
+    try {
+        const response = await prompts({
+            type: 'text',
+            name: 'filePath',
+            message: 'Enter the path to save the app list:',
+            initial: path.join(os.homedir(), 'installed_apps.txt'),
         });
 
-        extract.on('error', reject);
-    });
-}
-
-async function mergeConfig(configPath, destination, overwrite) {
-    try {
-        let config = {};
-        if (fs.existsSync(configPath)) {
-            const configFile = fs.readFileSync(configPath, 'utf-8');
-            configFile.split('\n').forEach(line => {
-                const [key, value] = line.split('=').map(s => s.trim());
-                if (key && value) {
-                    config[key] = value;
-                }
-            });
-        }
-        const envPath = path.join(destination, '.env')
-        if (fs.existsSync(envPath)) {
-            const env = JSON.parse(fs.readFileSync(envPath, 'utf-8'))
-            for (const key in env) {
-                config[key] = env[key]
-            }
+        if (!response.filePath) {
+            console.log("Save cancelled");
+            return;
         }
 
-        const newConfigContent = Object.entries(config).map(([key, value]) => `${key}=${value}`).join('\n');
+        fs.writeFileSync(response.filePath, appList.join('\n'));
+        console.log(`App list saved to: ${response.filePath}`);
 
-        if (!overwrite && fs.existsSync(configPath)) {
-            throw new Error(`File already exists: ${configPath}. Use overwrite option.`);
-        }
-
-        fs.writeFileSync(configPath, newConfigContent);
     } catch (error) {
-        throw new Error(`Error merging config: ${error.message}`);
+        console.error('Error saving app list:', error);
     }
 }
 
-module.exports = { createBackup, restoreBackup };
+async function main() {
+    try {
+        const installedApps = await getInstalledApps();
+        if (installedApps.length > 0) {
+            await saveAppListToFile(installedApps);
+        } else {
+            console.log("No installed apps found or error occurred.")
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+
+main();
