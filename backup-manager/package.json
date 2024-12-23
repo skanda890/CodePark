@@ -4,17 +4,9 @@
   "description": "A simple backup and restore utility",
   "main": "index.js",
   "scripts": {
-    "backup": "node examples/backup.js"
     "start": "node index.js"
   },
   "keywords": [],
   "author": "SkandaBT",
-  "license": "MIT",
-  "devDependencies": {
-    "archiver": "^5.3.1"
-  },
-  "dependencies": {
-    "unzipper": "^0.10.11",
-    "prompts": "^2.4.2"
-  }
+  "license": "MIT"
 }
