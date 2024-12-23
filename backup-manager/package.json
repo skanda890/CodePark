@@ -11,5 +11,9 @@
   "description": "",
   "devDependencies": {
     "archiver": "^7.0.1"
+  },
+  "dependencies": {
+    "inquirer": "^12.3.0",
+    "prompts": "^2.4.2"
   }
 }
