@@ -8,7 +8,37 @@ const prompts = require('prompts');
 const execPromise = util.promisify(exec);
 
 async function getInstalledApps() {
-    // ... (This function remains the same)
+    try {
+        let apps = [];
+        switch (process.platform) {
+            case 'win32':
+                const powershellCommand = `Get-WmiObject -Class Win32_Product | Select-Object -ExpandProperty Name`;
+                const { stdout: winApps } = await execPromise(`powershell.exe -Command "${powershellCommand}"`);
+                apps = winApps.trim().split('\r\n');
+                break;
+            case 'darwin':
+                const { stdout: macApps } = await execPromise('mdfind "kMDItemKind == \'Application\'"');
+                apps = macApps.trim().split('\n').map(appPath => path.basename(appPath));
+                break;
+            case 'linux':
+                try {
+                    const { stdout: linuxApps } = await execPromise('dpkg --get-selections | grep -v deinstall');
+                    apps = linuxApps.trim().split('\n').map(line => line.split('\t')[0]);
+                } catch (error) {
+                    console.warn("Could not retrieve installed apps using dpkg. Trying with ls.")
+                    const { stdout: linuxApps } = await execPromise('ls /usr/share/applications/');
+                    apps = linuxApps.trim().split('\n');
+                }
+                break;
+            default:
+                console.log('Unsupported operating system for app listing.');
+                return [];
+        }
+        return apps;
+    } catch (error) {
+        console.error('Error getting installed apps:', error);
+        return [];
+    }
 }
 
 function generateInstallCommands(appList) {
@@ -45,11 +75,21 @@ function generateInstallCommands(appList) {
 
 async function saveAppListToFile(appList, commands) {
     try {
+        const osType = process.platform; // Get OS type here
+        let defaultFileName = 'installed_apps_and_commands';
+        let fileExtension = '.txt';
+
+        if (osType === 'win32') {
+            fileExtension = '.bat'; // Use .bat for Windows batch files
+        } else if (osType === 'darwin' || osType === 'linux'){
+            fileExtension = '.sh'; // Use .sh for macOS/Linux shell scripts
+        }
+
         const response = await prompts({
             type: 'text',
             name: 'filePath',
             message: 'Enter the path to save the app list and commands:',
-            initial: path.join(os.homedir(), 'installed_apps_and_commands.txt'),
+            initial: path.join(os.homedir(), defaultFileName + fileExtension),
             validate: (input) => {
                 if (fs.existsSync(input) && fs.statSync(input).isDirectory()) {
                     return "Please enter a file path, not a directory.";
@@ -63,7 +103,6 @@ async function saveAppListToFile(appList, commands) {
             return;
         }
 
-        // Combine app list and commands with clear separators
         const fileContent = `Installed Applications:\n${appList.join('\n')}\n\n# Installation Commands:\n${commands.join('\n')}`;
 
         fs.writeFileSync(response.filePath, fileContent);
