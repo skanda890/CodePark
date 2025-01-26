@@ -3,9 +3,10 @@
 #include <ctime>
 #include <string>
 #include <vector>
-#include <cmath> // For pow, sqrt
+#include <cmath>
 #include <limits>
-#include <iomanip> // For setprecision
+#include <iomanip>
+#include <algorithm> // For std::shuffle
 
 using namespace std;
 
@@ -28,19 +29,15 @@ double generateRandomDouble(double min, double max) {
     return distrib(gen);
 }
 
-char generateRandomOperator(bool includeDivision = true) {
-    if (includeDivision) {
-        char operators[] = {'+', '-', '*', '/'};
-        return operators[generateRandomNumber(0, 3)];
-    } else {
-        char operators[] = {'+', '-', '*'};
-        return operators[generateRandomNumber(0, 2)];
-    }
-}
+// Question Structure
+struct Question {
+    string questionText;
+    double correctAnswer;
+};
 
-void askArithmeticQuestion(int difficulty) {
+// Function to generate arithmetic questions
+Question generateArithmeticQuestion(int difficulty) {
     double num1, num2;
-
     if (difficulty <= 2) {
         num1 = generateRandomNumber(1, 20 * difficulty);
         num2 = generateRandomNumber(1, 10 * difficulty);
@@ -49,7 +46,7 @@ void askArithmeticQuestion(int difficulty) {
         num2 = generateRandomDouble(1.0, 5.0 * difficulty);
     }
 
-    char op = generateRandomOperator(difficulty > 2);
+    char op = (difficulty > 2) ? "+-*/"[generateRandomNumber(0, 3)] : "+-*"[generateRandomNumber(0, 2)];
 
     double correctAnswer;
     switch (op) {
@@ -57,124 +54,80 @@ void askArithmeticQuestion(int difficulty) {
         case '-': correctAnswer = num1 - num2; break;
         case '*': correctAnswer = num1 * num2; break;
         case '/':
-            if (num2 == 0) { // Avoid division by zero
-                cout << "Division by zero is not allowed. Please try a different question.\n";
-                return;
-            }
+            while (num2 == 0) num2 = generateRandomDouble(1.0, 5.0 * difficulty);
             correctAnswer = num1 / num2;
             break;
-        default: cout << "Invalid operator generated.\n"; return;
     }
-
-    cout << fixed << setprecision(2); // Set precision for double output
-    cout << "What is " << num1 << " " << op << " " << num2 << "? ";
-    double userAnswer;
-    cin >> userAnswer;
-        while (cin.fail()) {
-        cout << "Invalid input. Please enter a number: ";
-        cin.clear();
-        clearInputBuffer();
-        cin >> userAnswer;
-    }
-
-    if (abs(userAnswer - correctAnswer) < 0.01) { // Check for near equality due to floating-point
-        cout << "Correct!\n";
-    } else {
-        cout << "Incorrect. The correct answer is " << correctAnswer << ".\n";
-    }
+    return {"What is " + to_string(num1) + " " + op + " " + to_string(num2) + "?", correctAnswer};
 }
 
-void askAlgebraQuestion(int difficulty) {
-    int x = generateRandomNumber(2, 5 + difficulty); // Increase range with difficulty
+// Function to generate algebra questions
+Question generateAlgebraQuestion(int difficulty) {
+    int x = generateRandomNumber(2, 5 + difficulty);
     int a = generateRandomNumber(5 * difficulty, 10 * difficulty);
     int b = generateRandomNumber(15 * difficulty, 30 * difficulty);
 
-    // Ensure the equation has an integer solution
-    if ((b - a) % x != 0) {
-        askAlgebraQuestion(difficulty); // Regenerate if not an integer solution
-        return;
+    while ((b - a) % x != 0) {
+        b = generateRandomNumber(15 * difficulty, 30 * difficulty);
     }
 
     int correctAnswer = (b - a) / x;
-
-    cout << "Solve for y: " << x << "y + " << a << " = " << b << "? ";
-    int userAnswer;
-    cin >> userAnswer;
-        while (cin.fail()) {
-        cout << "Invalid input. Please enter a number: ";
-        cin.clear();
-        clearInputBuffer();
-        cin >> userAnswer;
-    }
-
-    if (userAnswer == correctAnswer) {
-        cout << "Correct!\n";
-    } else {
-        cout << "Incorrect. The correct answer is " << correctAnswer << ".\n";
-    }
+    return {"Solve for y: " + to_string(x) + "y + " + to_string(a) + " = " + to_string(b) + "?", correctAnswer};
 }
 
-void askGeometryQuestion(int difficulty) {
+// Function to generate geometry questions
+Question generateGeometryQuestion(int difficulty) {
     double radius = generateRandomDouble(1.0 * difficulty, 5.0 * difficulty);
     double area = M_PI * pow(radius, 2);
-
-    cout << "What is the area of a circle with radius " << radius << "? ";
-    double userAnswer;
-    cin >> userAnswer;
-        while (cin.fail()) {
-        cout << "Invalid input. Please enter a number: ";
-        cin.clear();
-        clearInputBuffer();
-        cin >> userAnswer;
-    }
-
-    cout << fixed << setprecision(2);
-    if (abs(userAnswer - area) < 0.01) {
-        cout << "Correct!\n";
-    } else {
-        cout << "Incorrect. The correct answer is " << area << ".\n";
-    }
+    return {"What is the area of a circle with radius " + to_string(radius) + "?", area};
 }
 
 int main() {
     srand(time(0));
     cout << "Welcome to the Harder Math Quiz!\n";
 
-    int choice, difficulty;
-    do {
-        cout << "\nChoose a question type:\n";
-        cout << "1. Basic Arithmetic\n";
-        cout << "2. Simple Algebra\n";
-        cout << "3. Basic Geometry (Circle Area)\n";
-        cout << "0. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-                while (cin.fail()) {
-        cout << "Invalid input. Please enter a number: ";
-        cin.clear();
-        clearInputBuffer();
-        cin >> choice;
+    int numQuestions = 200;
+    vector<Question> questions;
+
+    // Generate all questions up front
+    for (int i = 0; i < numQuestions; ++i) {
+        int type = generateRandomNumber(1, 3); // 1: Arithmetic, 2: Algebra, 3: Geometry
+        int difficulty = generateRandomNumber(1, 5);
+        switch (type) {
+            case 1: questions.push_back(generateArithmeticQuestion(difficulty)); break;
+            case 2: questions.push_back(generateAlgebraQuestion(difficulty)); break;
+            case 3: questions.push_back(generateGeometryQuestion(difficulty)); break;
+        }
     }
 
-        if (choice != 0) {
-            cout << "Enter difficulty (1-5, 1 being easiest): ";
-            cin >> difficulty;
-                        while (cin.fail() || difficulty < 1 || difficulty > 5) {
-        cout << "Invalid input. Please enter a number between 1 and 5: ";
-        cin.clear();
-        clearInputBuffer();
-        cin >> difficulty;
-    }
+    // Shuffle the questions
+    shuffle(questions.begin(), questions.end(), default_random_engine(time(0)));
+
+    int correctAnswers = 0;
+    for (int i = 0; i < numQuestions; ++i) {
+        cout << "\nQuestion " << (i + 1) << ":\n";
+        cout << fixed << setprecision(2);
+        cout << questions[i].questionText << " ";
+
+        double userAnswer;
+        cin >> userAnswer;
+        while (cin.fail()) {
+            cout << "Invalid input. Please enter a number: ";
+            cin.clear();
+            clearInputBuffer();
+            cin >> userAnswer;
         }
 
-        switch (choice) {
-            case 1: askArithmeticQuestion(difficulty); break;
-            case 2: askAlgebraQuestion(difficulty); break;
-            case 3: askGeometryQuestion(difficulty); break;
-            case 0: cout << "Goodbye!\n"; break;
-            default: cout << "Invalid choice.\n"; break;
+        if (abs(userAnswer - questions[i].correctAnswer) < 0.01) {
+            cout << "Correct!\n";
+            correctAnswers++;
+        } else {
+            cout << "Incorrect. The correct answer is " << questions[i].correctAnswer << ".\n";
         }
-    } while (choice != 0);
+    }
+
+    cout << "\nQuiz complete!\n";
+    cout << "You scored " << correctAnswers << " out of " << numQuestions << ".\n";
 
     return 0;
 }
