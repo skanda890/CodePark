@@ -11,16 +11,26 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const BASE_URL = "https://api.github.com/users";
 
 /**
- * Fetch GitHub contributions for a user
+ * Fetch GitHub contributions for a user (with pagination)
  */
 async function fetchContributions(username) {
   console.log(chalk.blue`\nFetching contributions for ${username}...\n`);
 
   try {
     const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
-    const response = await axios.get(`${BASE_URL}/${username}/events`, { headers });
+    let page = 1;
+    let allEvents = [];
 
-    const contributions = response.data.filter(event => event.type === "PushEvent");
+    while (true) {
+      const response = await axios.get(`${BASE_URL}/${username}/events?per_page=100&page=${page}`, { headers });
+
+      if (response.data.length === 0) break; // Stop when no more events
+
+      allEvents = allEvents.concat(response.data);
+      page++; // Move to next page
+    }
+
+    const contributions = allEvents.filter(event => event.type === "PushEvent");
 
     if (contributions.length === 0) {
       console.log(chalk.red("No recent contributions found."));
