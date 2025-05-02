@@ -3,7 +3,8 @@
 const fs = require("fs").promises;
 const path = require("path");
 const { promisify } = require("util");
-const glob = promisify(require("glob"));
+const { glob } = require("glob");
+const globAsync = promisify(glob);
 const fetch = require("node-fetch");
 const semver = require("semver");
 const { execSync } = require("child_process");
@@ -12,7 +13,6 @@ const { program } = require("commander");
 program
   .name("update-deps")
   .description("Update all package.json dependencies to the latest versions (including pre-release) and auto-commit & push.")
-  // The default directory is set to "B:\CodePark".
   .option("-d, --dir <directory>", "Directory to scan", "B:\\CodePark")
   .parse(process.argv);
 
@@ -38,7 +38,7 @@ async function getLatestVersion(pkgName) {
   const data = await res.json();
   // Extract the available version numbers from data.versions
   const allVersions = Object.keys(data.versions);
-  // Find the highest version number (include pre-releases)
+  // Find the highest version number (including pre-releases)
   const maxVersion = semver.maxSatisfying(allVersions, "*", { includePrerelease: true });
   return maxVersion;
 }
@@ -103,7 +103,7 @@ async function processPackageJson(filePath) {
   try {
     // Search recursively for package.json files while ignoring those in node_modules.
     const pattern = "**/package.json";
-    const packageFiles = await glob(pattern, {
+    const packageFiles = await globAsync(pattern, {
       cwd: options.dir,
       ignore: "**/node_modules/**",
       absolute: true
