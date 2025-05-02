@@ -8,22 +8,25 @@ const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
 
 async function fetchBlogs(limit = 5) {
-  console.log(chalk.blue`\nFetching Canary Channel blog posts...\n`);
+  console.log(chalk.blue`\nFetching Canary Channel blog posts from the last 2 days...\n`);
 
   try {
     const feed = await parser.parseURL(FEED_URL);
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-    // Improved filtering: check multiple fields for "Canary Channel"
+    // Filter posts mentioning "Canary Channel" AND published within the last 2 days
     const canaryPosts = feed.items.filter(post =>
-      post.title?.toLowerCase().includes("canary channel") ||
+      (post.title?.toLowerCase().includes("canary channel") ||
       post.contentSnippet?.toLowerCase().includes("canary channel") ||
       post.categories?.some(category => category.toLowerCase().includes("canary channel")) ||
       post.content?.toLowerCase().includes("canary channel") ||
-      post.description?.toLowerCase().includes("canary channel") // Added description filtering
+      post.description?.toLowerCase().includes("canary channel")) &&
+      new Date(post.pubDate) >= twoDaysAgo // Check if post is within last 2 days
     );
 
     if (canaryPosts.length === 0) {
-      console.log(chalk.red("No recent posts found for Canary Channel."));
+      console.log(chalk.red("No recent Canary Channel posts found in the last 2 days."));
       return;
     }
 
@@ -41,7 +44,7 @@ async function fetchBlogs(limit = 5) {
 
 program
   .version("1.0.0")
-  .description("View recent Windows Insider blog posts (filtered for Canary Channel)")
+  .description("View recent Windows Insider blog posts (filtered for Canary Channel & last 2 days)")
   .option("-l, --limit <number>", "Number of posts to fetch", "5")
   .action((options) => fetchBlogs(parseInt(options.limit)));
 
