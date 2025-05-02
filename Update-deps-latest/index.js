@@ -2,13 +2,11 @@
 
 const fs = require("fs").promises;
 const path = require("path");
-const { promisify } = require("util");
-const { glob } = require("glob");
-const globAsync = promisify(glob);
 const fetch = require("node-fetch");
 const semver = require("semver");
 const { execSync } = require("child_process");
 const { program } = require("commander");
+const { glob } = require("glob"); // No need to promisify, glob now returns a Promise
 
 program
   .name("update-deps")
@@ -36,15 +34,13 @@ async function getLatestVersion(pkgName) {
     throw new Error(`Failed to fetch ${pkgName}: ${res.statusText}`);
   }
   const data = await res.json();
-  // Extract the available version numbers from data.versions
   const allVersions = Object.keys(data.versions);
-  // Find the highest version number (including pre-releases)
   const maxVersion = semver.maxSatisfying(allVersions, "*", { includePrerelease: true });
   return maxVersion;
 }
 
 /**
- * Update a dependency object (dependencies or devDependencies) with the latest version.
+ * Update dependencies or devDependencies with the latest versions.
  */
 async function updateDeps(deps) {
   if (!deps) return false;
@@ -54,7 +50,6 @@ async function updateDeps(deps) {
     try {
       const latest = await getLatestVersion(dep);
       if (latest && semver.valid(latest)) {
-        // Use semver.coerce to compare the current version with the latest one.
         const oldCoerced = semver.coerce(origVersion);
         if (oldCoerced && semver.lt(oldCoerced, latest)) {
           const newVersionFormatted = formatVersion(origVersion, latest);
@@ -73,7 +68,7 @@ async function updateDeps(deps) {
 }
 
 /**
- * Process a single package.json file: read its content, update its dependencies if needed, then write it back.
+ * Process a package.json file: read its content, update dependencies if needed, then write it back.
  */
 async function processPackageJson(filePath) {
   try {
@@ -85,7 +80,6 @@ async function processPackageJson(filePath) {
     const devDepUpdated = await updateDeps(pkg.devDependencies);
     updated = depUpdated || devDepUpdated;
 
-    // Write updates back to the file if any versions were updated.
     if (updated) {
       await fs.writeFile(filePath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
       console.log(`✓ Updated ${filePath}`);
@@ -101,9 +95,8 @@ async function processPackageJson(filePath) {
 
 (async function main() {
   try {
-    // Search recursively for package.json files while ignoring those in node_modules.
     const pattern = "**/package.json";
-    const packageFiles = await globAsync(pattern, {
+    const packageFiles = await glob(pattern, {
       cwd: options.dir,
       ignore: "**/node_modules/**",
       absolute: true
@@ -115,7 +108,6 @@ async function processPackageJson(filePath) {
     }
 
     let hasAnyUpdate = false;
-    // Process each discovered package.json file sequentially.
     for (const file of packageFiles) {
       const updated = await processPackageJson(file);
       if (updated) {
@@ -123,22 +115,18 @@ async function processPackageJson(filePath) {
       }
     }
 
-    // If updates were made, automatically commit and push the changes via Git.
     if (hasAnyUpdate) {
       console.log("\nRunning git commands to add, commit, and push changes...");
       try {
-        // Stage all changes.
         execSync("git add -A", { stdio: "inherit", cwd: options.dir });
-        // Commit the changes.
         execSync('git commit -m "chore: update dependencies to latest versions"', {
           stdio: "inherit",
           cwd: options.dir
         });
-        // Push to the current branch.
         execSync("git push", { stdio: "inherit", cwd: options.dir });
         console.log("✓ Git commit and push completed.");
       } catch (gitErr) {
-        console.error("Git commit or push failed (perhaps there were no changes to commit):", gitErr.message);
+        console.error("Git commit or push failed:", gitErr.message);
       }
     } else {
       console.log("No dependency updates were applied.");
