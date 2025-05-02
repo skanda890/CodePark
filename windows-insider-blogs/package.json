@@ -1,18 +1,16 @@
 {
   "name": "windows-insider-blogs",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI tool to fetch Windows Insider blog posts",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "winblogs": "./index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "chalk": "^5.4.1",
-    "commander": "^13.1.0",
-    "rss-parser": "^3.13.0"
-  }
+    "rss-parser": "^5.0.0",
+    "commander": "^10.0.0",
+    "chalk": "^5.0.0"
+  },
+  "author": "SkandaBT",
+  "license": "MIT"
 }
