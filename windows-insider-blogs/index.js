@@ -8,7 +8,7 @@ const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
 
 async function fetchBlogs(limit = 5) {
-  console.log(chalk.blue("\nFetching Windows Insider blog posts...\n"));
+  console.log(`\n${chalk.blue("Fetching Windows Insider blog posts...")}\n`);
   
   try {
     const feed = await parser.parseURL(FEED_URL);
