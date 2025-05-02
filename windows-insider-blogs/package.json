@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "CLI tool to fetch Windows Insider blog posts",
   "main": "index.js",
+  "type": "module",
   "bin": {
     "winblogs": "./index.js"
   },
