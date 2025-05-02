@@ -7,14 +7,15 @@ import chalk from "chalk";
 const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
 
-async function fetchBlogs({ canary }) {
-  console.log(chalk.blue`\nFetching Windows Insider blog posts...${canary ? " (Filtered for Canary Channel)" : ""}\n`);
+async function fetchBlogs({ canary, today }) {
+  console.log(chalk.blue`\nFetching Windows Insider blog posts...${canary ? " (Filtered for Canary Channel)" : ""}${today ? " (Filtered for today)" : ""}\n`);
 
   try {
     const feed = await parser.parseURL(FEED_URL);
+    const todayDate = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
 
-    // If the -c flag is passed, filter posts mentioning "Canary Channel"
     let posts = feed.items;
+
     if (canary) {
       posts = posts.filter(post =>
         post.title?.toLowerCase().includes("canary channel") ||
@@ -23,11 +24,15 @@ async function fetchBlogs({ canary }) {
         post.content?.toLowerCase().includes("canary channel") ||
         post.description?.toLowerCase().includes("canary channel")
       );
+    }
 
-      if (posts.length === 0) {
-        console.log(chalk.red("No recent Canary Channel posts found."));
-        return;
-      }
+    if (today) {
+      posts = posts.filter(post => new Date(post.pubDate).toISOString().split("T")[0] === todayDate);
+    }
+
+    if (posts.length === 0) {
+      console.log(chalk.red("No matching posts found."));
+      return;
     }
 
     posts.forEach((post, index) => {
@@ -46,6 +51,7 @@ program
   .version("1.0.0")
   .description("View recent Windows Insider blog posts")
   .option("-c, --canary", "Filter posts for Canary Channel")
+  .option("-t, --today", "Filter posts published today")
   .action((options) => fetchBlogs(options));
 
 program.parse(process.argv);
