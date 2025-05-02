@@ -7,7 +7,7 @@
     "winblogs": "./index.js"
   },
   "dependencies": {
-    "rss-parser": "^5.0.0",
+    "rss-parser": "^3.13.0",
     "commander": "^10.0.0",
     "chalk": "^5.0.0"
   },
