@@ -10,8 +10,38 @@ dotenv.config();
 const API_KEY = process.env.YOUTUBE_API_KEY;
 const youtube = google.youtube("v3");
 
-async function fetchVideos(channelId) {
-  console.log(chalk.blue`\nFetching latest videos and shorts...\n`);
+/**
+ * Convert YouTube channel name to channel ID
+ */
+async function getChannelId(channelName) {
+  try {
+    const response = await youtube.search.list({
+      key: API_KEY,
+      q: channelName,
+      part: "snippet",
+      type: "channel",
+      maxResults: 1,
+    });
+
+    const channel = response.data.items[0];
+    return channel?.id?.channelId || null;
+  } catch (err) {
+    console.error(chalk.red("Error fetching channel ID:"), err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch latest videos and shorts from the channel
+ */
+async function fetchVideos(channelName) {
+  console.log(chalk.blue`\nFetching latest videos for ${channelName}...\n`);
+
+  const channelId = await getChannelId(channelName);
+  if (!channelId) {
+    console.log(chalk.red("Could not find the channel."));
+    return;
+  }
 
   try {
     const response = await youtube.search.list({
@@ -44,13 +74,13 @@ async function fetchVideos(channelId) {
 program
   .version("1.0.0")
   .description("Fetch latest videos and shorts from a YouTube channel")
-  .option("-c, --channel <channelId>", "YouTube Channel ID")
+  .option("-n, --name <channelName>", "YouTube Channel Name")
   .action((options) => {
-    if (!options.channel) {
-      console.error(chalk.red("Please provide a YouTube Channel ID using -c <channelId>"));
+    if (!options.name) {
+      console.error(chalk.red("Please provide a YouTube Channel Name using -n <channelName>"));
       process.exit(1);
     }
-    fetchVideos(options.channel);
+    fetchVideos(options.name);
   });
 
 program.parse(process.argv);
