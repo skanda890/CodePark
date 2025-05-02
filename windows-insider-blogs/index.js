@@ -13,12 +13,13 @@ async function fetchBlogs(limit = 5) {
   try {
     const feed = await parser.parseURL(FEED_URL);
 
-    // Filter posts mentioning "Canary Channel" in multiple fields
+    // Improved filtering: check multiple fields for "Canary Channel"
     const canaryPosts = feed.items.filter(post =>
-      post.title.includes("Canary Channel") ||
-      (post.contentSnippet && post.contentSnippet.includes("Canary Channel")) ||
-      (post.categories && post.categories.some(category => category.includes("Canary Channel"))) ||
-      (post.content && post.content.includes("Canary Channel"))
+      post.title?.toLowerCase().includes("canary channel") ||
+      post.contentSnippet?.toLowerCase().includes("canary channel") ||
+      post.categories?.some(category => category.toLowerCase().includes("canary channel")) ||
+      post.content?.toLowerCase().includes("canary channel") ||
+      post.description?.toLowerCase().includes("canary channel") // Added description filtering
     );
 
     if (canaryPosts.length === 0) {
