@@ -8,28 +8,16 @@ const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
 
 async function fetchBlogs(limit = 5) {
-  console.log(chalk.blue("\nFetching Windows Insider blog posts (Canary Channel only)...\n"));
+  console.log(`\n${chalk.blue("Fetching Windows Insider blog posts...")}\n`);
 
   try {
     const feed = await parser.parseURL(FEED_URL);
-
-    // Filter only posts that mention "Canary Channel"
-    const canaryPosts = feed.items.filter(post =>
-      post.title.includes("Canary Channel") || (post.contentSnippet && post.contentSnippet.includes("Canary Channel"))
-    );
-
-    if (canaryPosts.length === 0) {
-      console.log(chalk.red("No recent posts found for Canary Channel."));
-      return;
-    }
-
-    canaryPosts.slice(0, limit).forEach((post, index) => {
+    feed.items.slice(0, limit).forEach((post, index) => {
       console.log(chalk.green.bold(`${index + 1}. ${post.title}`));
       console.log(chalk.yellow(post.link));
       console.log(chalk.gray(post.pubDate));
       console.log("");
     });
-
   } catch (err) {
     console.error(chalk.red("Error fetching blog posts:"), err.message);
   }
@@ -37,7 +25,7 @@ async function fetchBlogs(limit = 5) {
 
 program
   .version("1.0.0")
-  .description("View recent Windows Insider blog posts (filtered for Canary Channel)")
+  .description("View recent Windows Insider blog posts")
   .option("-l, --limit <number>", "Number of posts to fetch", "5")
   .action((options) => fetchBlogs(parseInt(options.limit)));
 
