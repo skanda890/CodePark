@@ -2,7 +2,7 @@
 
 const Parser = require("rss-parser");
 const { program } = require("commander");
-const chalk = require("chalk");
+import chalk from "chalk";
 
 const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
