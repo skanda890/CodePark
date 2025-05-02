@@ -12,7 +12,7 @@ async function fetchBlogs({ canary, today }) {
 
   try {
     const feed = await parser.parseURL(FEED_URL);
-    const todayDate = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const now = new Date();
 
     let posts = feed.items;
 
@@ -27,7 +27,10 @@ async function fetchBlogs({ canary, today }) {
     }
 
     if (today) {
-      posts = posts.filter(post => new Date(post.pubDate).toISOString().split("T")[0] === todayDate);
+      posts = posts.filter(post => {
+        const postDate = new Date(post.pubDate);
+        return now.toDateString() === postDate.toDateString();
+      });
     }
 
     if (posts.length === 0) {
