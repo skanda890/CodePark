@@ -4,7 +4,7 @@ import axios from "axios";
 import chalk from "chalk";
 import { JSDOM } from "jsdom";
 
-// Fetch basic GitHub profile info via API
+// Fetch GitHub profile info via API.
 async function getGitHubProfile(username) {
   try {
     const { data } = await axios.get(`https://api.github.com/users/${username}`);
@@ -14,7 +14,7 @@ async function getGitHubProfile(username) {
   }
 }
 
-// Fetch the README.md from the user's special repo (if available)
+// Fetch the actual README.md from the repository named after your username.
 async function getReadme(username) {
   const url = `https://raw.githubusercontent.com/${username}/${username}/main/README.md`;
   try {
@@ -25,7 +25,7 @@ async function getReadme(username) {
   }
 }
 
-// Scrape the user profile page for pinned repositories
+// Scrape the user profile page for pinned repositories.
 async function getPinnedRepos(username) {
   try {
     const { data } = await axios.get(`https://github.com/${username}`);
@@ -46,57 +46,85 @@ async function getPinnedRepos(username) {
   }
 }
 
-// Fetch the contribution graph for a given year and return both the text graph and total contributions.
+// Fetch the contribution graph for a given year, wrapping each cell in its own outline.
 async function getContributionGraph(username, year) {
-  // Build URL with year filter via from/to query parameters
+  // Build URL with year filter via from/to query parameters.
   const url = `https://github.com/users/${username}/contributions?from=${year}-01-01&to=${year}-12-31`;
   try {
     const { data } = await axios.get(url);
     const dom = new JSDOM(data);
     const squares = dom.window.document.querySelectorAll(".ContributionCalendar-day");
     let totalContributions = 0;
-    // Prepare 7 rows—one for each day (Sunday to Saturday)
-    let graphRows = Array(7).fill("").map(() => []);
-    // Define a mapping from "data-level" to a block style.
-    const blocks = [" ", "░", "▒", "▓", "█"];
+    // Initialize an array for 7 rows (one per weekday: Sunday to Saturday).
+    let graphRows = Array.from({ length: 7 }, () => []);
+    // Map each "data-level" to an appropriate Unicode block.
+    const blocks = [" ", "\u2591", "\u2592", "\u2593", "\u2588"];
+    
     squares.forEach((square, index) => {
       const level = parseInt(square.getAttribute("data-level")) || 0;
       const count = parseInt(square.getAttribute("data-count")) || 0;
       totalContributions += count;
       const weekDay = index % 7;
-      // Each day rendered as an outlined box. (E.g., [░])
-      graphRows[weekDay].push(chalk.green(`[${blocks[level]}]`));
+      // Create a cell as a small outlined box.
+      const cell = [
+        chalk.green("┌───┐"),
+        chalk.green(`│ ${blocks[level]} │`),
+        chalk.green("└───┘")
+      ];
+      graphRows[weekDay].push(cell);
     });
-    // Join each row into a string. (Rows correspond to same weekday across weeks.)
-    const graph = graphRows.map(row => row.join("")).join("\n");
-    return { graph, totalContributions };
+    
+    // Now join each row’s cells horizontally. Each cell has three lines.
+    let finalRows = [];
+    graphRows.forEach((rowCells) => {
+      // For each cell in the row, join the top lines, middle lines, and bottom lines.
+      const line1 = rowCells.map(cell => cell[0]).join(" ");
+      const line2 = rowCells.map(cell => cell[1]).join(" ");
+      const line3 = rowCells.map(cell => cell[2]).join(" ");
+      finalRows.push(line1 + "\n" + line2 + "\n" + line3);
+    });
+
+    // Join the rows by newlines (the top row corresponds to Sundays, etc.)
+    const finalGraph = finalRows.join("\n\n");
+    return { graph: finalGraph, totalContributions };
   } catch (error) {
     console.error(chalk.red("Error fetching contribution graph:"), error.message);
     return { graph: "", totalContributions: 0 };
   }
 }
 
-// (Optional) Extract contribution activity details – here we show a summary.
+// Summarize contribution activity details.
 async function getContributionActivity(username, year, totalContributions) {
-  // For simplicity, we use the total contributions value.
   return `Total Contributions in ${year}: ${totalContributions}`;
 }
 
-// Assemble and display the profile and related sections in styled boxes.
+// Helper: Create a boxed section with a title and its content.
+function createBox(title, content) {
+  const lines = content.split("\n");
+  let maxWidth = Math.max(title.length, ...lines.map(line => line.length));
+  const topBorder = "┌" + "─".repeat(maxWidth + 2) + "┐";
+  const titleLine = "│ " + title.padEnd(maxWidth) + " │";
+  const separator = "├" + "─".repeat(maxWidth + 2) + "┤";
+  const contentLines = lines.map(line => "│ " + line.padEnd(maxWidth) + " │").join("\n");
+  const bottomBorder = "└" + "─".repeat(maxWidth + 2) + "┘";
+  return `${topBorder}\n${titleLine}\n${separator}\n${contentLines}\n${bottomBorder}`;
+}
+
+// Assemble and display all sections.
 async function showProfile(username, year) {
   if (!username) {
     console.log(chalk.red("Please provide a GitHub username!"));
     return;
   }
-
   console.log(chalk.blue(`Fetching data for: ${username} ...`));
+
   const profile = await getGitHubProfile(username);
   const readme = await getReadme(username);
   const pinnedRepos = await getPinnedRepos(username);
   const { graph, totalContributions } = await getContributionGraph(username, year);
   const activitySummary = await getContributionActivity(username, year, totalContributions);
 
-  // Build the "Profile Overview" box.
+  // Profile Overview Box.
   const profileBox = `
 ┌─────────────────────────────────────────────┐
 │ GitHub Profile: ${profile.login.padEnd(33)}│
@@ -108,54 +136,24 @@ async function showProfile(username, year) {
 └─────────────────────────────────────────────┘
 `;
 
-  // Build the "README.md Summary" box (displaying only the first 5 lines).
-  const readmeLines = readme.split("\n").slice(0, 5).join("\n");
-  const readmeBox = `
-┌─────────────────────────────────────────────┐
-│ README.md Summary                           │
-├─────────────────────────────────────────────┤
-${readmeLines}
-└─────────────────────────────────────────────┘
-`;
+  // README.md Box (displaying the actual README.md file content).
+  const readmeBox = createBox("README.md", readme);
 
-  // Build the "Pinned Repositories" box.
-  let pinnedContent =
-    pinnedRepos.length > 0
-      ? pinnedRepos.map(repo => `• ${repo.name}: ${repo.description}`).join("\n")
-      : "No pinned repositories found.";
-  const pinnedBox = `
-┌─────────────────────────────────────────────┐
-│ Pinned Repositories                         │
-├─────────────────────────────────────────────┤
-${pinnedContent}
-└─────────────────────────────────────────────┘
-`;
+  // Pinned Repositories Box.
+  const pinnedContent = pinnedRepos.length > 0
+    ? pinnedRepos.map(repo => `• ${repo.name}: ${repo.description}`).join("\n")
+    : "No pinned repositories found.";
+  const pinnedBox = createBox("Pinned Repositories", pinnedContent);
 
-  // Build the "Contribution Activity" box.
-  const activityBox = `
-┌─────────────────────────────────────────────┐
-│ Contribution Activity (${year})             │
-├─────────────────────────────────────────────┤
-│ ${activitySummary.padEnd(43)}│
-└─────────────────────────────────────────────┘
-`;
+  // Contribution Activity Box.
+  const activityBox = createBox(`Contribution Activity (${year})`, activitySummary);
 
-  // Build the "Contribution Graph" box.
-  // Wrap the previously generated graph with a border.
-  const graphLines = graph.split("\n");
-  const graphWidth = graphLines[0].length;
-  const borderTop = chalk.blue("┌" + "─".repeat(graphWidth) + "┐");
-  const borderBottom = chalk.blue("└" + "─".repeat(graphWidth) + "┘");
-  const graphWithBorder = `${borderTop}\n${graphLines.map(line => chalk.blue("│") + line + chalk.blue("│")).join("\n")}\n${borderBottom}`;
-  const graphBox = `
-┌─────────────────────────────────────────────┐
-│ Contribution Graph (${year})                │
-├─────────────────────────────────────────────┤
-${graphWithBorder}
-└─────────────────────────────────────────────┘
-`;
+  // Contribution Graph Box.
+  // Instead of wrapping the entire graph, each cell is already outlined.
+  // We still add an overall title box around the graph.
+  const graphBox = createBox(`Contribution Graph (${year})`, graph);
 
-  // Print everything out.
+  // Print all sections.
   console.log(profileBox);
   console.log(readmeBox);
   console.log(pinnedBox);
