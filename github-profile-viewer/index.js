@@ -46,45 +46,48 @@ async function getPinnedRepos(username) {
   }
 }
 
-// Fetch the contribution graph for a given year, wrapping each cell in its own outline.
+// Fetch the contribution graph for the given year,
+// wrapping each cell in its own outline (mini-box) and computing total contributions.
 async function getContributionGraph(username, year) {
-  // Build URL with year filter via from/to query parameters.
+  // Use query parameters to fetch contributions only for the chosen year.
   const url = `https://github.com/users/${username}/contributions?from=${year}-01-01&to=${year}-12-31`;
   try {
     const { data } = await axios.get(url);
     const dom = new JSDOM(data);
     const squares = dom.window.document.querySelectorAll(".ContributionCalendar-day");
     let totalContributions = 0;
-    // Initialize an array for 7 rows (one per weekday: Sunday to Saturday).
+    // Create an array for 7 rows (one per weekday: Sunday to Saturday).
     let graphRows = Array.from({ length: 7 }, () => []);
-    // Map each "data-level" to an appropriate Unicode block.
+    // Map each "data-level" to a Unicode block (from light to heavy):
     const blocks = [" ", "\u2591", "\u2592", "\u2593", "\u2588"];
     
-    squares.forEach((square, index) => {
-      const level = parseInt(square.getAttribute("data-level")) || 0;
-      const count = parseInt(square.getAttribute("data-count")) || 0;
-      totalContributions += count;
-      const weekDay = index % 7;
-      // Create a cell as a small outlined box.
+    squares.forEach((square) => {
+      // Parse contribution level and count
+      const level = parseInt(square.getAttribute("data-level"), 10) || 0;
+      const count = parseInt(square.getAttribute("data-count"), 10);
+      totalContributions += isNaN(count) ? 0 : count;
+      
+      // Wrap each cell in its own outline.
       const cell = [
         chalk.green("┌───┐"),
         chalk.green(`│ ${blocks[level]} │`),
         chalk.green("└───┘")
       ];
+      
+      // The squares are arranged chronologically. Use modulo 7 to assign them to weekday rows.
+      const weekDay = (Array.from(squares).indexOf(square)) % 7;
       graphRows[weekDay].push(cell);
     });
     
-    // Now join each row’s cells horizontally. Each cell has three lines.
-    let finalRows = [];
-    graphRows.forEach((rowCells) => {
-      // For each cell in the row, join the top lines, middle lines, and bottom lines.
+    // Now, for each weekday row, join each cell's three lines horizontally.
+    const finalRows = graphRows.map((rowCells) => {
       const line1 = rowCells.map(cell => cell[0]).join(" ");
       const line2 = rowCells.map(cell => cell[1]).join(" ");
       const line3 = rowCells.map(cell => cell[2]).join(" ");
-      finalRows.push(line1 + "\n" + line2 + "\n" + line3);
+      return line1 + "\n" + line2 + "\n" + line3;
     });
-
-    // Join the rows by newlines (the top row corresponds to Sundays, etc.)
+    
+    // Join all weekday rows with a blank line between each row group.
     const finalGraph = finalRows.join("\n\n");
     return { graph: finalGraph, totalContributions };
   } catch (error) {
@@ -124,7 +127,7 @@ async function showProfile(username, year) {
   const { graph, totalContributions } = await getContributionGraph(username, year);
   const activitySummary = await getContributionActivity(username, year, totalContributions);
 
-  // Profile Overview Box.
+  // Build the Profile Overview Box.
   const profileBox = `
 ┌─────────────────────────────────────────────┐
 │ GitHub Profile: ${profile.login.padEnd(33)}│
@@ -136,24 +139,23 @@ async function showProfile(username, year) {
 └─────────────────────────────────────────────┘
 `;
 
-  // README.md Box (displaying the actual README.md file content).
+  // Create the README.md Box (with the actual README file content).
   const readmeBox = createBox("README.md", readme);
 
-  // Pinned Repositories Box.
+  // Create the Pinned Repositories Box.
   const pinnedContent = pinnedRepos.length > 0
     ? pinnedRepos.map(repo => `• ${repo.name}: ${repo.description}`).join("\n")
     : "No pinned repositories found.";
   const pinnedBox = createBox("Pinned Repositories", pinnedContent);
 
-  // Contribution Activity Box.
+  // Create the Contribution Activity Box.
   const activityBox = createBox(`Contribution Activity (${year})`, activitySummary);
 
-  // Contribution Graph Box.
-  // Instead of wrapping the entire graph, each cell is already outlined.
-  // We still add an overall title box around the graph.
+  // Create the Contribution Graph Box.
+  // Since each cell is already outlined, simply wrap the overall graph with an outer title box.
   const graphBox = createBox(`Contribution Graph (${year})`, graph);
 
-  // Print all sections.
+  // Output all sections.
   console.log(profileBox);
   console.log(readmeBox);
   console.log(pinnedBox);
@@ -165,4 +167,5 @@ async function showProfile(username, year) {
 const username = process.argv[2];
 const yearArg = process.argv[3];
 const year = yearArg ? yearArg : new Date().getFullYear().toString();
+
 showProfile(username, year);
