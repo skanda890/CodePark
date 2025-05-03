@@ -19,8 +19,15 @@ async function getContributionGraph(username) {
             graphRows[weekDay].push(chalk.green(colors[level]));
         });
 
-        // Render each row
-        return graphRows.map(row => row.join("")).join("\n");
+        // Create top and bottom borders
+        const width = graphRows[0].length;
+        const borderTop = chalk.blue("┌" + "─".repeat(width) + "┐");
+        const borderBottom = chalk.blue("└" + "─".repeat(width) + "┘");
+
+        // Render each row with side borders
+        const graph = graphRows.map(row => chalk.blue("│") + row.join("") + chalk.blue("│")).join("\n");
+
+        return `${borderTop}\n${graph}\n${borderBottom}`;
     } catch (error) {
         console.error(chalk.red("Error fetching contribution graph:", error.message));
     }
