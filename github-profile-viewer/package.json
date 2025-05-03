@@ -13,6 +13,7 @@
     "bin": {
         "gh-profile": "index.js"
     },
+    "type": "module",
     "author": "SkandaBT",
     "license": "MIT"
 }
