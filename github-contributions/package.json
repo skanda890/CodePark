@@ -1,18 +1,24 @@
 {
-  "name": "github-contributions",
+  "name": "github-profile-scraper",
   "version": "1.0.0",
-  "description": "CLI tool to fetch latest GitHub contributions for a user",
+  "description": "CLI tool to scrape GitHub profile contributions",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "ghcontrib": "./index.js"
+    "ghscrape": "./index.js"
   },
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.0.0",
     "chalk": "^5.4.1",
     "commander": "^10.0.1",
     "dotenv": "^16.0.0",
     "puppeteer": "^24.7.2"
+=======
+    "puppeteer": "^21.0.0",
+    "commander": "^10.0.0",
+    "chalk": "^5.0.0"
+>>>>>>> ab7903af97d20ece4b752d8e4940f10723c514b0
   },
   "author": "SkandaBT",
   "license": "MIT"
