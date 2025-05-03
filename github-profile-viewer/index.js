@@ -10,16 +10,17 @@ async function getContributionGraph(username) {
         const dom = new JSDOM(data);
         const squares = dom.window.document.querySelectorAll(".ContributionCalendar-day");
 
-        let graph = "";
+        let graphRows = Array(7).fill("").map(() => []); // 7 rows for each day of the week
+
         squares.forEach((square, index) => {
             const level = square.getAttribute("data-level") || 0;
             const colors = [" ", "░", "▒", "▓", "█"]; // Light to dark blocks
-            graph += chalk.green(colors[level]);
-
-            if ((index + 1) % 7 === 0) graph += "\n"; // New row every 7 days
+            const weekDay = index % 7;
+            graphRows[weekDay].push(chalk.green(colors[level]));
         });
 
-        return graph;
+        // Render each row
+        return graphRows.map(row => row.join("")).join("\n");
     } catch (error) {
         console.error(chalk.red("Error fetching contribution graph:", error.message));
     }
