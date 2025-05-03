@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import chalk from "chalk";
+import terminalImage from "terminal-image"; // To render the graph in terminal
 
 async function getGitHubProfile(username) {
     try {
@@ -33,12 +34,21 @@ async function showProfile(username) {
     const profile = await getGitHubProfile(username);
     if (!profile) return;
 
-    const graph = await getContributionGraph(username);
+    const graphUrl = await getContributionGraph(username);
 
     console.log(chalk.blue(`GitHub Profile: ${profile.login}`));
     console.log(chalk.green(`Followers: ${profile.followers}`));
-    console.log(chalk.cyan(`Profile URL: ${profile.html_url}`));
-    console.log(chalk.magenta(`Contribution Graph: ${graph}`));
+    console.log(chalk.yellow(`Public Repos: ${profile.public_repos}`));
+    console.log(chalk.cyan(`Bio: ${profile.bio || "No bio available"}`));
+    console.log(chalk.magenta(`Profile URL: ${profile.html_url}`));
+    console.log(chalk.magenta(`Contribution Graph: ${graphUrl}`));
+
+    // Optional: Render Graph in Terminal (If Image Rendering Works)
+    if (graphUrl.startsWith("https")) {
+        const response = await axios.get(graphUrl, { responseType: "arraybuffer" });
+        const image = await terminalImage.buffer(Buffer.from(response.data));
+        console.log(image);
+    }
 }
 
 const username = process.argv[2];
