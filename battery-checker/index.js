@@ -1,10 +1,10 @@
 const fetch = require("node-fetch");
 const ping = require("ping");
-const scanner = require("network-scanner");
+const { NmapScan } = require("node-nmap");
 
 async function getBatteryStatus(ip) {
     try {
-        const response = await fetch(`http://${ip}:PORT/battery`); // Adjust the PORT where the API exposes battery info
+        const response = await fetch(`http://${ip}:PORT/battery`); // Adjust PORT accordingly
         const data = await response.json();
         console.log(`Battery for ${ip}: ${data.level}%`);
     } catch (error) {
@@ -14,12 +14,15 @@ async function getBatteryStatus(ip) {
 
 async function getAllDevicesBattery() {
     console.log("Scanning network for active devices...");
-    const devices = await scanner.scan("192.168.1.1/24"); // Adjust subnet accordingly
-    for (const device of devices) {
-        if (await ping.promise.probe(device.ip)) {
-            await getBatteryStatus(device.ip);
+    const scan = new NmapScan("192.168.1.1/24", "-sn"); // Adjust subnet
+    scan.on("complete", async (devices) => {
+        for (const device of devices) {
+            if (await ping.promise.probe(device.ip)) {
+                await getBatteryStatus(device.ip);
+            }
         }
-    }
+    });
+    scan.startScan();
 }
 
 const command = process.argv[2];
