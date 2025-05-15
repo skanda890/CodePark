@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "npm start": "node index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "SkandaT",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "network-scanner": "^0.0.2",
