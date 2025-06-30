@@ -11,7 +11,7 @@
     "express": "^5.1.0",
     "https": "^1.0.0",
     "mongodb": "^6.16.0",
-    "nodemailer": "^7.0.3", 
+    "nodemailer": "^7.0.3",
     "sudoku-gen": "^1.0.2",
     "systeminformation": "^5.25.11"
   },
@@ -19,5 +19,15 @@
   "license": "MIT",
   "devDependencies": {
     "@tolgee/cli": "^2.10.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skanda890/CodePark.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/skanda890/CodePark/issues"
+  },
+  "homepage": "https://github.com/skanda890/CodePark#readme"
 }
