@@ -1,16 +1,15 @@
 {
   "name": "lightsearch",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Minimalist search-UI that hits Bing",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "live-server public --port=8080 --quiet",
+    "build": "echo \"Nothing to build—just static files!\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "live-server": "^1.2.0"
-  }
+    "live-server": "^1.2.2"
+  },
+  "author": "SkandaBT",
+  "license": "MIT"
 }
