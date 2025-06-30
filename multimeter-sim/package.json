@@ -1,15 +1,15 @@
 {
   "name": "multimeter-sim",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A CLI multimeter simulator for voltage, resistance, and continuity tests",
+  "main": "index.mjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.mjs"
   },
   "keywords": [],
   "author": "SkandaBT",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "chalk": "^5.4.1",
     "inquirer": "^12.6.3"
