@@ -1,5 +1,5 @@
 {
-  "name": "multimeter-sim",
+  "name": "multimeter-simulator",
   "version": "1.0.0",
   "description": "A CLI multimeter simulator for voltage, resistance, and continuity tests",
   "main": "index.mjs",
