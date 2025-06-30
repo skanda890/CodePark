@@ -1,5 +1,5 @@
 {
-  "name": "update-deps-latest",
+  "name": "update-dependencies-latest",
   "version": "1.0.0",
   "description": "Recursively update all package.json dependencies (including the root file) to the latest versions (including pre-release) and auto-commit the changes.",
   "main": "index.js",
