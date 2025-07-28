@@ -11,7 +11,7 @@
     "big-integer": "^1.6.52",
     "big.js": "^7.0.1",
     "crypto-js": "^4.2.0",
-    "decimal.js": "^10.5.0",
+    "decimal.js": "^10.6.0",
     "express": "^5.1.0",
     "mathjs": "^14.5.2",
     "nerdamer": "^1.1.13",
