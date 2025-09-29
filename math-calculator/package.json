@@ -13,7 +13,7 @@
     "crypto-js": "^4.2.0",
     "decimal.js": "^10.6.0",
     "express": "^5.1.0",
-    "mathjs": "^14.6.0",
+    "mathjs": "^14.7.0",
     "nerdamer": "^1.1.13",
     "readline-sync": "^1.4.10",
     "socket.io": "^4.8.1"
