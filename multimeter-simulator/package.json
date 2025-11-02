@@ -12,6 +12,6 @@
   "type": "module",
   "dependencies": {
     "chalk": "^5.4.1",
-    "inquirer": "^12.6.3"
+    "inquirer": "^12.9.6"
   }
 }
