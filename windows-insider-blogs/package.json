@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "rss-parser": "^3.13.0",
-    "commander": "^10.0.0",
+    "commander": "^14.0.1",
     "chalk": "^5.0.0"
   },
   "author": "SkandaBT",
