@@ -8,10 +8,10 @@
     "ytvideos": "./index.js"
   },
   "dependencies": {
-    "googleapis": "^112.0.0",
+    "googleapis": "^162.0.0",
     "commander": "^10.0.0",
     "chalk": "^5.0.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^17.2.3"
   },
   "author": "SkandaBT",
   "license": "MIT"
