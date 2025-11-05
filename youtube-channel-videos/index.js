@@ -52,7 +52,7 @@ async function fetchVideos(channelName) {
       maxResults: 10,
     });
 
-    const videos = response.data.items.filter(item => item.id.videoId);
+    const videos = response.data.items.filter((item) => item.id.videoId);
 
     if (videos.length === 0) {
       console.log(chalk.red("No recent videos found."));
@@ -61,11 +61,12 @@ async function fetchVideos(channelName) {
 
     videos.forEach((video, index) => {
       console.log(chalk.green.bold(`${index + 1}. ${video.snippet.title}`));
-      console.log(chalk.yellow(`https://www.youtube.com/watch?v=${video.id.videoId}`));
+      console.log(
+        chalk.yellow(`https://www.youtube.com/watch?v=${video.id.videoId}`),
+      );
       console.log(chalk.gray(video.snippet.publishedAt));
       console.log("");
     });
-
   } catch (err) {
     console.error(chalk.red("Error fetching videos:"), err.message);
   }
@@ -77,7 +78,11 @@ program
   .option("-n, --name <channelName>", "YouTube Channel Name")
   .action((options) => {
     if (!options.name) {
-      console.error(chalk.red("Please provide a YouTube Channel Name using -n <channelName>"));
+      console.error(
+        chalk.red(
+          "Please provide a YouTube Channel Name using -n <channelName>",
+        ),
+      );
       process.exit(1);
     }
     fetchVideos(options.name);

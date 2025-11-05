@@ -10,7 +10,9 @@ const { glob } = require("glob"); // No need to promisify, glob now returns a Pr
 
 program
   .name("update-deps")
-  .description("Update all package.json dependencies to the latest versions (including pre-release) and auto-commit & push.")
+  .description(
+    "Update all package.json dependencies to the latest versions (including pre-release) and auto-commit & push.",
+  )
   .option("-d, --dir <directory>", "Directory to scan", "B:\\CodePark")
   .parse(process.argv);
 
@@ -35,7 +37,9 @@ async function getLatestVersion(pkgName) {
   }
   const data = await res.json();
   const allVersions = Object.keys(data.versions);
-  const maxVersion = semver.maxSatisfying(allVersions, "*", { includePrerelease: true }); // Ensuring pre-releases are included
+  const maxVersion = semver.maxSatisfying(allVersions, "*", {
+    includePrerelease: true,
+  }); // Ensuring pre-releases are included
   return maxVersion;
 }
 
@@ -53,7 +57,9 @@ async function updateDeps(deps) {
         const oldCoerced = semver.coerce(origVersion);
         if (oldCoerced && semver.lt(oldCoerced, latest)) {
           const newVersionFormatted = formatVersion(origVersion, latest);
-          console.log(`Updating ${dep}: ${origVersion} -> ${newVersionFormatted}`);
+          console.log(
+            `Updating ${dep}: ${origVersion} -> ${newVersionFormatted}`,
+          );
           deps[dep] = newVersionFormatted;
           hasUpdated = true;
         }
@@ -99,7 +105,7 @@ async function processPackageJson(filePath) {
     const packageFiles = await glob(pattern, {
       cwd: options.dir,
       ignore: "**/node_modules/**",
-      absolute: true
+      absolute: true,
     });
 
     if (packageFiles.length === 0) {
@@ -119,10 +125,13 @@ async function processPackageJson(filePath) {
       console.log("\nRunning git commands to add, commit, and push changes...");
       try {
         execSync("git add -A", { stdio: "inherit", cwd: options.dir });
-        execSync('git commit -m "chore: update dependencies to latest versions"', {
-          stdio: "inherit",
-          cwd: options.dir
-        });
+        execSync(
+          'git commit -m "chore: update dependencies to latest versions"',
+          {
+            stdio: "inherit",
+            cwd: options.dir,
+          },
+        );
         execSync("git push", { stdio: "inherit", cwd: options.dir });
         console.log("✓ Git commit and push completed.");
       } catch (gitErr) {

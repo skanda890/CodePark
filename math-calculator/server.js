@@ -1,7 +1,7 @@
-const express = require('express');
-const math = require('mathjs');
-const path = require('path');
-const Decimal = require('decimal.js');
+const express = require("express");
+const math = require("mathjs");
+const path = require("path");
+const Decimal = require("decimal.js");
 
 const app = express();
 const port = 4000;
@@ -11,11 +11,12 @@ app.use(express.json());
 // Create a new Math.js instance and define π as a constant
 const mathInstance = math.create(math.all);
 mathInstance.import({
-  π: Math.PI
+  π: Math.PI,
 });
 
 // Shorthand regex and map
-const shorthandRegex = /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|googol|centillion)/gi;
+const shorthandRegex =
+  /(\d+(\.\d+)?)(k|thousand|lakh|crore|million|billion|trillion|quadrillion|quintillion|sextillion|septillion|octillion|nonillion|decillion|undecillion|duodecillion|tredecillion|quattuordecillion|quindecillion|sexdecillion|septendecillion|octodecillion|novemdecillion|vigintillion|googol|centillion)/gi;
 const shorthandMap = {
   k: 1e3,
   thousand: 1e3,
@@ -42,7 +43,7 @@ const shorthandMap = {
   novemdecillion: 1e60,
   vigintillion: 1e63,
   googol: 1e100,
-  centillion: 1e300
+  centillion: 1e300,
 };
 
 // Function to handle calculations
@@ -52,24 +53,27 @@ function handleCalculation(expression) {
   const vietaRegex = /vieta\((\d+)\)/; // Vieta's formula regex
 
   try {
-    let question = `What is the result of: ${expression}?`;
+    const question = `What is the result of: ${expression}?`;
     let solution;
     let explanation;
 
     // Handle shorthand notation
-    expression = expression.replace(shorthandRegex, (match, number, _, term) => {
-      const base = parseFloat(number);
-      const unit = term.toLowerCase();
-      if (shorthandMap[unit]) {
-        return base * shorthandMap[unit];
-      } else {
-        throw new Error('Unsupported shorthand term.');
-      }
-    });
+    expression = expression.replace(
+      shorthandRegex,
+      (match, number, _, term) => {
+        const base = parseFloat(number);
+        const unit = term.toLowerCase();
+        if (shorthandMap[unit]) {
+          return base * shorthandMap[unit];
+        } else {
+          throw new Error("Unsupported shorthand term.");
+        }
+      },
+    );
 
     // Handle chained expressions like y=29-x=squareroot9
-    if (expression.includes('=')) {
-      const parts = expression.split('=');
+    if (expression.includes("=")) {
+      const parts = expression.split("=");
       const lastPart = parts.pop().trim(); // Solve the last part
       let intermediateExpression = lastPart;
 
@@ -84,7 +88,9 @@ function handleCalculation(expression) {
       }
 
       // Back substitute intermediate results
-      let evaluatedExpression = parts.concat(intermediateExpression).join('=');
+      const evaluatedExpression = parts
+        .concat(intermediateExpression)
+        .join("=");
       solution = mathInstance.evaluate(evaluatedExpression);
       explanation = `The result of evaluating "${expression}" is ${solution}.`;
 
@@ -102,19 +108,19 @@ function handleCalculation(expression) {
       }
       solution = (2 / product).toFixed(10);
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`;
-    } 
+    }
     // Handle square root
     else if (sqrtRegex.test(expression)) {
       const number = parseFloat(expression.match(sqrtRegex)[1]);
       solution = Math.sqrt(number);
       explanation = `The square root of ${number} is √${number}, resulting in ${solution}.`;
-    } 
+    }
     // Handle square
     else if (squareRegex.test(expression)) {
       const number = parseFloat(expression.match(squareRegex)[1]);
       solution = Math.pow(number, 2);
       explanation = `The square of ${number} is ${solution}.`;
-    } 
+    }
     // Default evaluation
     else {
       // Use Decimal.js for handling large numbers
@@ -127,22 +133,24 @@ function handleCalculation(expression) {
   } catch (error) {
     return {
       question: `What is the result of: ${expression}?`,
-      solution: 'Error',
-      explanation: 'Unsupported operation or calculation error.',
+      solution: "Error",
+      explanation: "Unsupported operation or calculation error.",
     };
   }
 }
 
 // Routes
-app.get('/', (req, res) => {
-  res.send('Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator');
+app.get("/", (req, res) => {
+  res.send(
+    "Welcome to the Math Calculator API! You can visit the calculator by going to port 4000/calculator",
+  );
 });
 
-app.get('/calculator', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.get("/calculator", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.post('/calculate', (req, res) => {
+app.post("/calculate", (req, res) => {
   const { expression } = req.body;
   const response = handleCalculation(expression);
   res.json(response);

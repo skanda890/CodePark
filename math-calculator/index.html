@@ -1,46 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Math Calculator</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
     <div class="container mt-5">
-        <h1 class="text-center">Math Calculator</h1>
-        <form id="calcForm" class="mt-4">
-            <div class="form-group">
-                <label for="expression">Enter a mathematical expression:</label>
-                <input type="text" id="expression" name="expression" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Calculate</button>
-        </form>
-        <div class="mt-4">
-            <h2>Results:</h2>
-            <p><strong>Question:</strong> <span id="question"></span></p>
-            <p><strong>Solution:</strong> <span id="solution"></span></p>
-            <p><strong>Explanation:</strong> <span id="explanation"></span></p>
+      <h1 class="text-center">Math Calculator</h1>
+      <form id="calcForm" class="mt-4">
+        <div class="form-group">
+          <label for="expression">Enter a mathematical expression:</label>
+          <input
+            type="text"
+            id="expression"
+            name="expression"
+            class="form-control"
+            required
+          />
         </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          Calculate
+        </button>
+      </form>
+      <div class="mt-4">
+        <h2>Results:</h2>
+        <p><strong>Question:</strong> <span id="question"></span></p>
+        <p><strong>Solution:</strong> <span id="solution"></span></p>
+        <p><strong>Explanation:</strong> <span id="explanation"></span></p>
+      </div>
 
-        <script>
-            document.getElementById('calcForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                const expression = document.getElementById('expression').value;
-                const response = await fetch('/calculate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ expression })
-                });
-                const result = await response.json();
-                document.getElementById('question').textContent = result.question;
-                document.getElementById('solution').textContent = result.solution;
-                document.getElementById('explanation').textContent = result.explanation;
+      <script>
+        document
+          .getElementById("calcForm")
+          .addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const expression = document.getElementById("expression").value;
+            const response = await fetch("/calculate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ expression }),
             });
-        </script>
+            const result = await response.json();
+            document.getElementById("question").textContent = result.question;
+            document.getElementById("solution").textContent = result.solution;
+            document.getElementById("explanation").textContent =
+              result.explanation;
+          });
+      </script>
     </div>
-</body>
+  </body>
 </html>
