@@ -8,7 +8,9 @@ const parser = new Parser();
 const FEED_URL = "https://blogs.windows.com/feed/"; // Windows Insider Blog Feed
 
 async function fetchBlogs({ canary, today }) {
-  console.log(chalk.blue`\nFetching Windows Insider blog posts...${canary ? " (Filtered for Canary Channel)" : ""}${today ? " (Filtered for today)" : ""}\n`);
+  console.log(
+    chalk.blue`\nFetching Windows Insider blog posts...${canary ? " (Filtered for Canary Channel)" : ""}${today ? " (Filtered for today)" : ""}\n`,
+  );
 
   try {
     const feed = await parser.parseURL(FEED_URL);
@@ -17,17 +19,20 @@ async function fetchBlogs({ canary, today }) {
     let posts = feed.items;
 
     if (canary) {
-      posts = posts.filter(post =>
-        post.title?.toLowerCase().includes("canary channel") ||
-        post.contentSnippet?.toLowerCase().includes("canary channel") ||
-        post.categories?.some(category => category.toLowerCase().includes("canary channel")) ||
-        post.content?.toLowerCase().includes("canary channel") ||
-        post.description?.toLowerCase().includes("canary channel")
+      posts = posts.filter(
+        (post) =>
+          post.title?.toLowerCase().includes("canary channel") ||
+          post.contentSnippet?.toLowerCase().includes("canary channel") ||
+          post.categories?.some((category) =>
+            category.toLowerCase().includes("canary channel"),
+          ) ||
+          post.content?.toLowerCase().includes("canary channel") ||
+          post.description?.toLowerCase().includes("canary channel"),
       );
     }
 
     if (today) {
-      posts = posts.filter(post => {
+      posts = posts.filter((post) => {
         const postDate = new Date(post.pubDate);
         return now.toDateString() === postDate.toDateString();
       });
@@ -44,7 +49,6 @@ async function fetchBlogs({ canary, today }) {
       console.log(chalk.gray(post.pubDate));
       console.log("");
     });
-
   } catch (err) {
     console.error(chalk.red("Error fetching blog posts:"), err.message);
   }
