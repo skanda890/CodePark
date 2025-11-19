@@ -1,0 +1,51 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"            # JavaScript / Node.js
+    directory: "/"                      # Root directory of package.json
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "pip"            # Python
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "maven"          # Java / Maven
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gradle"         # Java / Gradle
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "nuget"          # .NET
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"         # Docker images
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions" # GitHub Actions workflows
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "bundler"        # Ruby
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "composer"       # PHP
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "terraform"      # Terraform
+    directory: "/"
+    schedule:
+      interval: "daily"
