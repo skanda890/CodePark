@@ -1,0 +1,17 @@
+{
+  "name": "Mech Arena Promo Code",
+  "version": "1.0.0",
+  "description": "MAPC",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "SkaandaBT",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2"
+  }
+}
