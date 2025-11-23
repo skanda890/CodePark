@@ -48,6 +48,8 @@ class Quiz:
             len(level_questions) for level_questions in self.questions.values()
         )
         print(f"\nQuiz completed! Your score: {self.score}/{total_questions}")
+
+
 if __name__ == "__main__":
     quiz = Quiz()
     quiz.start_quiz()
