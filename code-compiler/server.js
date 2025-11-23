@@ -1,10 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const compileRun = require('compile-run')
+const path = require('path')
 
 const app = express()
 app.use(bodyParser.json())
-app.use(express.static(__dirname))
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.post('/compile', (req, res) => {
   const { code, language } = req.body
