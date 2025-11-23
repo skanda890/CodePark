@@ -4,7 +4,7 @@
   "description": "MAPC",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node fetchPromoCodes.js"
   },
   "keywords": [],
   "author": "SkaandaBT",
