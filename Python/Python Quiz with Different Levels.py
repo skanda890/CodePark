@@ -42,7 +42,8 @@ class Quiz:
         print("Welcome to the Python Quiz!")
         for level in self.questions:
             self.display_question(level)
-        print(f"\nQuiz completed! Your score: {self.score}/{len(self.questions)}")
+        print(
+            f"\nQuiz completed! Your score: {self.score}/{len(self.questions)}")
 
 
 if __name__ == "__main__":
