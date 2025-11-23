@@ -23,7 +23,9 @@ const options = program.opts()
  */
 function formatVersion (oldVersion, newVersion) {
   const workspaceMatch = oldVersion.match(/^(workspace:)/)
-  const versionPart = workspaceMatch ? oldVersion.slice(workspaceMatch[1].length) : oldVersion
+  const versionPart = workspaceMatch
+    ? oldVersion.slice(workspaceMatch[1].length)
+    : oldVersion
   const prefixMatch = versionPart.match(/^([\^~])/)
   const prefix = `${workspaceMatch ? workspaceMatch[1] : ''}${prefixMatch ? prefixMatch[1] : ''}`
   return `${prefix}${newVersion}`
