@@ -6,6 +6,14 @@ const Decimal = require('decimal.js')
 const app = express()
 const port = 4000
 
+// Rate limiting middleware for /calculator
+const rateLimit = require('express-rate-limit')
+const calculatorLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the RateLimit-* headers
+  legacyHeaders: false // Disable the X-RateLimit-* headers
+})
 app.use(express.json())
 
 // Create a new Math.js instance and define π as a constant
@@ -146,7 +154,7 @@ app.get('/', (req, res) => {
   )
 })
 
-app.get('/calculator', (req, res) => {
+app.get('/calculator', calculatorLimiter, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
 })
 

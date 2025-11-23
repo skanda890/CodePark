@@ -16,7 +16,8 @@
     "mathjs": "^15.0.0",
     "nerdamer": "^1.1.13",
     "readline-sync": "^1.4.10",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "express-rate-limit": "^8.2.1"
   },
   "author": "SkandaBT",
   "license": "MIT"
