@@ -44,10 +44,10 @@ async function getLatestVersion(pkgName) {
   }
   const data = await res.json();
   const allVersions = Object.keys(data.versions);
-  const maxVersion = semver.maxSatisfying(allVersions, "*", {
-    includePrerelease: true,
-  }); // Ensuring pre-releases are included
-  return maxVersion;
+  return semver.maxSatisfying(allVersions, "*", {
+      includePrerelease: true,
+    });
+
 }
 
 /**
