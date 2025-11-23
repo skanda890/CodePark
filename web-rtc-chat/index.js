@@ -9,14 +9,12 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-
 app.use(express.static('public'))
-
 
 // Rate limiter for the root route
 const rootLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100 // limit each IP to 100 requests per windowMs
 })
 // Serve index.html
 app.get('/', rootLimiter, (req, res) => {
