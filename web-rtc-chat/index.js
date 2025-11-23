@@ -4,14 +4,27 @@ const socketIO = require('socket.io')
 const path = require('path')
 const CryptoJS = require('crypto-js')
 
+<<<<<<< HEAD
+=======
+const rateLimit = require('express-rate-limit')
+>>>>>>> deepsource-transform-d5bef993
 const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
 app.use(express.static('public'))
 
+// Rate limiter for the root route
+const rootLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+})
 // Serve index.html
+<<<<<<< HEAD
 app.get('/', (req, res) => {
+=======
+app.get('/', rootLimiter, (req, res) => {
+>>>>>>> deepsource-transform-d5bef993
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 

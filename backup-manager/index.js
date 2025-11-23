@@ -123,7 +123,11 @@ async function saveAppListToFile (appList, commands) {
       }
     })
 
+<<<<<<< HEAD
     if (!response.filePath) {
+=======
+    if (!response || !response.filePath) {
+>>>>>>> deepsource-transform-d5bef993
       console.log('Save cancelled')
       return
     }

@@ -42,8 +42,15 @@ class Quiz:
         print("Welcome to the Python Quiz!")
         for level in self.questions:
             self.display_question(level)
+<<<<<<< HEAD
         print(
             f"\nQuiz completed! Your score: {self.score}/{len(self.questions)}")
+=======
+        total_questions = sum(
+            len(level_questions) for level_questions in self.questions.values()
+        )
+        print(f"\nQuiz completed! Your score: {self.score}/{total_questions}")
+>>>>>>> deepsource-transform-d5bef993
 
 
 if __name__ == "__main__":

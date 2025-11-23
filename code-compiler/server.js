@@ -1,10 +1,18 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const compileRun = require('compile-run')
+<<<<<<< HEAD
 
 const app = express()
 app.use(bodyParser.json())
 app.use(express.static(__dirname))
+=======
+const path = require('path')
+
+const app = express()
+app.use(bodyParser.json())
+app.use(express.static(path.join(__dirname, 'public')))
+>>>>>>> deepsource-transform-d5bef993
 
 app.post('/compile', (req, res) => {
   const { code, language } = req.body
