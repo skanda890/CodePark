@@ -123,7 +123,7 @@ async function saveAppListToFile (appList, commands) {
       }
     })
 
-    if (!response.filePath) {
+    if (!response || !response.filePath) {
       console.log('Save cancelled')
       return
     }
