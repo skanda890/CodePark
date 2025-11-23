@@ -22,6 +22,8 @@ const options = program.opts()
  * Preserve the original prefix (like ^ or ~) when updating versions.
  */
 function formatVersion (oldVersion, newVersion) {
+  const prefixMatch = oldVersion.match(/^([\^~])/)
+  return prefixMatch ? `${prefixMatch[1]}${newVersion}` : newVersion
   const workspaceMatch = oldVersion.match(/^(workspace:)/)
   const versionPart = workspaceMatch
     ? oldVersion.slice(workspaceMatch[1].length)

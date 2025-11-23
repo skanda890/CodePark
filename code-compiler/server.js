@@ -10,6 +10,13 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.post('/compile', (req, res) => {
   const { code, language } = req.body
 
+
+const app = express()
+app.use(bodyParser.json())
+app.use(express.static(__dirname))
+
+app.post('/compile', (req, res) => {
+  const { code, language } = req.body
   let resultPromise
   if (language === 'javascript') {
     resultPromise = compileRun.node.runSource(code)

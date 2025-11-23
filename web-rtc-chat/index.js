@@ -17,7 +17,8 @@ const rootLimiter = rateLimit({
   max: 100 // limit each IP to 100 requests per windowMs
 })
 // Serve index.html
-app.get('/', rootLimiter, (req, res) => {
+
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 

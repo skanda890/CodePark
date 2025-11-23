@@ -122,8 +122,8 @@ async function saveAppListToFile (appList, commands) {
         return true
       }
     })
-
-    if (!response || !response.filePath) {
+   
+    if (!response.filePath) {
       console.log('Save cancelled')
       return
     }
