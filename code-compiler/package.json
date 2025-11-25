@@ -7,7 +7,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.1",
     "compile-run": "^2.3.4",
     "express": "^5.1.0"
   },
