@@ -9,7 +9,7 @@
   "dependencies": {
     "body-parser": "^2.2.1",
     "compile-run": "^2.3.4",
-    "express": "^5.2.0"
+    "express": "^5.2.1"
   },
   "author": "SkandaBT",
   "license": "MIT"
