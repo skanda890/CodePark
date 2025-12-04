@@ -22,14 +22,48 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() })
 })
 
-// Number guessing game endpoint
+// Number guessing game endpoints (start a game and check a guess)
+const games = new Map()
+
 app.get('/game/guess', (req, res) => {
+  const gameId = `${Date.now()}-${Math.floor(Math.random() * 1e9)}`
   const randomNumber = Math.floor(Math.random() * 100) + 1
+  // store the secret number for this gameId
+  games.set(gameId, randomNumber)
+  // auto-expire the game after 10 minutes to avoid unbounded memory growth
+  setTimeout(() => games.delete(gameId), 10 * 60 * 1000)
+
   res.json({
-    message:
-      'Number guessing game started! Try to guess a number between 1 and 100.',
-    hint: 'Use POST /game/check with {"guess": number} to check your guess'
+    message: 'Number guessing game started! Try to guess a number between 1 and 100.',
+    gameId,
+    hint: 'POST /game/check with {"gameId":"<gameId>","guess": number} to check your guess'
   })
+})
+
+app.post('/game/check', (req, res) => {
+  const { gameId, guess } = req.body || {}
+  if (!gameId || typeof guess === 'undefined') {
+    return res.status(400).json({ error: 'Missing gameId or guess in request body' })
+  }
+
+  const target = games.get(gameId)
+  if (typeof target === 'undefined') {
+    return res.status(404).json({ error: 'Game not found or already finished' })
+  }
+
+  const parsed = parseInt(guess, 10)
+  if (Number.isNaN(parsed)) {
+    return res.status(400).json({ error: 'Invalid guess, must be a number' })
+  }
+
+  if (parsed < target) {
+    return res.json({ result: 'too low' })
+  } else if (parsed > target) {
+    return res.json({ result: 'too high' })
+  } else {
+    games.delete(gameId)
+    return res.json({ result: 'correct' })
+  }
 })
 
 // Start server
