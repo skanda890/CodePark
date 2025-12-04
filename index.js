@@ -34,7 +34,8 @@ app.get('/game/guess', (req, res) => {
   setTimeout(() => games.delete(gameId), 10 * 60 * 1000)
 
   res.json({
-    message: 'Number guessing game started! Try to guess a number between 1 and 100.',
+    message:
+      'Number guessing game started! Try to guess a number between 1 and 100.',
     gameId,
     hint: 'POST /game/check with {"gameId":"<gameId>","guess": number} to check your guess'
   })
@@ -43,12 +44,16 @@ app.get('/game/guess', (req, res) => {
 app.post('/game/check', (req, res) => {
   const { gameId, guess } = req.body || {}
   if (!gameId || typeof guess === 'undefined') {
-    return res.status(400).json({ error: 'Missing gameId or guess in request body' })
+    return res
+      .status(400)
+      .json({ error: 'Missing gameId or guess in request body' })
   }
 
   const target = games.get(gameId)
   if (typeof target === 'undefined') {
-    return res.status(404).json({ error: 'Game not found or already finished' })
+    return res
+      .status(404)
+      .json({ error: 'Game not found or already finished' })
   }
 
   const parsed = parseInt(guess, 10)
