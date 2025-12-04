@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - 2024-12-04
 
 ### Fixed
+
 - Updated all dependencies to their latest stable versions
 - Removed unnecessary `https` package (Node.js built-in module)
 - Fixed Express server initialization - server now properly starts and listens
@@ -20,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Improved code structure in index.js with proper Express routes
 
 ### Changed
+
 - **axios**: ^1.9.0 → ^1.13.2 (security updates and bug fixes)
 - **mongodb**: ^6.16.0 → ^7.0.0 (major version update)
 - **nodemailer**: ^7.0.3 → ^7.0.0 (latest stable)
@@ -29,6 +31,7 @@ All notable changes to this project will be documented in this file.
 - Restructured index.js to properly use Express framework
 
 ### Added
+
 - Health check endpoint at `/health`
 - API endpoints for number guessing game
 - Graceful shutdown handling for Express server
@@ -37,6 +40,7 @@ All notable changes to this project will be documented in this file.
 - Module export for potential testing integration
 
 ### Security
+
 - Updated axios to patch known vulnerabilities
 - Updated all GitHub Actions to latest versions for security patches
 - Improved Gitleaks installation to use latest version (8.20.1)
@@ -45,6 +49,7 @@ All notable changes to this project will be documented in this file.
 ## Development Notes
 
 ### Breaking Changes
+
 - MongoDB driver updated to v7.0.0 - may require connection string updates
 - Express v5 is being used - some middleware signatures may have changed
 - Removed `https` from dependencies - use Node.js built-in `https` module directly
@@ -62,6 +67,7 @@ If you're updating from the previous version:
 ### Testing
 
 To test the server:
+
 ```bash
 # Start the Express server
 npm start
@@ -79,6 +85,7 @@ node index.js --game
 ## Previous Versions
 
 ### [1.0.0] - Initial Release
+
 - Basic npm project setup
 - Express server integration
 - Number guessing game CLI
