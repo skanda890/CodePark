@@ -3,7 +3,7 @@ const readline = require('readline')
 
 const app = express()
 const port = process.env.PORT || 3000
-let rl = null;
+const rl = null
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
