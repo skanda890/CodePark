@@ -1,9 +1,9 @@
 const express = require('express')
-const readline = require('readline')
+const { startCliGame } = require('./cliGame')
 
 const app = express()
 const port = process.env.PORT || 3000
-const rl = null
+
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -77,67 +77,29 @@ const server = app.listen(port, () => {
   console.log(`Health check: http://localhost:${port}/health`)
 })
 
+// Centralized shutdown helper
+function shutdown(code = 0) {
+  console.log('Shutting down HTTP server...')
+  server.close(() => {
+    console.log('HTTP server closed')
+    process.exit(code)
+  })
+}
+
 // CLI Number Guessing Game (only if running in interactive mode)
 if (process.stdin.isTTY && process.argv.includes('--game')) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
-
-  const randomNumber = Math.floor(Math.random() * 100) + 1
-  let attempts = 0
-
-  console.log('\n=== Welcome to the Number Guessing Game! ===')
-  console.log(
-    'I have selected a random number between 1 and 100. Can you guess it?\n'
-  )
-
-  const askQuestion = () => {
-    rl.question('Enter your guess: ', (answer) => {
-      const guess = parseInt(answer, 10)
-
-      if (isNaN(guess)) {
-        console.log('Please enter a valid number.')
-        askQuestion()
-      } else {
-        attempts += 1
-        if (guess < randomNumber) {
-          console.log('Too low! Try again.')
-          askQuestion()
-        } else if (guess > randomNumber) {
-          console.log('Too high! Try again.')
-          askQuestion()
-        } else {
-          console.log(
-            `\nCongratulations! You guessed the number in ${attempts} attempt(s).`
-          )
-          rl.close()
-          server.close(() => {
-            console.log('Server closed.')
-            process.exit(0)
-          })
-        }
-      }
-    })
-  }
-
-  askQuestion()
+  startCliGame(() => shutdown(0))
 }
 
-// Graceful shutdown
-function shutdown (signal) {
-  console.log(`${signal} signal received: closing HTTP server`)
-  if (server && typeof server.close === 'function') {
-    server.close(() => {
-      console.log('HTTP server closed')
-      process.exit(0)
-    })
-  } else {
-    process.exit(0)
-  }
-}
+// Graceful shutdown for both SIGTERM and SIGINT
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received')
+  shutdown(0)
+})
 
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received')
+  shutdown(0)
+})
 
 module.exports = app
