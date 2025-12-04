@@ -4,7 +4,7 @@ const readline = require('readline')
  * Starts an interactive CLI number guessing game.
  * @param {Function} onSuccess - Callback to invoke when the user wins.
  */
-function startCliGame(onSuccess) {
+function startCliGame (onSuccess) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

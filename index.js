@@ -125,7 +125,7 @@ if (process.stdin.isTTY && process.argv.includes('--game')) {
 }
 
 // Graceful shutdown
-function shutdown(signal) {
+function shutdown (signal) {
   console.log(`${signal} signal received: closing HTTP server`)
   if (server && typeof server.close === 'function') {
     server.close(() => {
