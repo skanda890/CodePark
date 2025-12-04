@@ -120,12 +120,19 @@ if (process.stdin.isTTY && process.argv.includes('--game')) {
 }
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server')
-  server.close(() => {
-    console.log('HTTP server closed')
+function shutdown(signal) {
+  console.log(`${signal} signal received: closing HTTP server`)
+  if (server && typeof server.close === 'function') {
+    server.close(() => {
+      console.log('HTTP server closed')
+      process.exit(0)
+    })
+  } else {
     process.exit(0)
-  })
-})
+  }
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
 
 module.exports = app
