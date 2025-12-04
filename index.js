@@ -78,7 +78,7 @@ const server = app.listen(port, () => {
 })
 
 // Centralized shutdown helper
-function shutdown(code = 0) {
+function shutdown (code = 0) {
   console.log('Shutting down HTTP server...')
   server.close(() => {
     console.log('HTTP server closed')
