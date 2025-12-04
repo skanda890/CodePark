@@ -90,26 +90,28 @@ if (process.stdin.isTTY && process.argv.includes('--game')) {
   const askQuestion = () => {
     rl.question('Enter your guess: ', (answer) => {
       const guess = parseInt(answer, 10)
-      attempts += 1
 
       if (isNaN(guess)) {
         console.log('Please enter a valid number.')
         askQuestion()
-      } else if (guess < randomNumber) {
-        console.log('Too low! Try again.')
-        askQuestion()
-      } else if (guess > randomNumber) {
-        console.log('Too high! Try again.')
-        askQuestion()
       } else {
-        console.log(
-          `\nCongratulations! You guessed the number in ${attempts} attempt(s).`
-        )
-        rl.close()
-        server.close(() => {
-          console.log('Server closed.')
-          process.exit(0)
-        })
+        attempts += 1
+        if (guess < randomNumber) {
+          console.log('Too low! Try again.')
+          askQuestion()
+        } else if (guess > randomNumber) {
+          console.log('Too high! Try again.')
+          askQuestion()
+        } else {
+          console.log(
+            `\nCongratulations! You guessed the number in ${attempts} attempt(s).`
+          )
+          rl.close()
+          server.close(() => {
+            console.log('Server closed.')
+            process.exit(0)
+          })
+        }
       }
     })
   }
