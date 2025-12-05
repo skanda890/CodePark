@@ -1,0 +1,152 @@
+name: Bleeding-Edge Dependency Update
+
+on:
+  schedule:
+    # Run daily at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run bleeding-edge updater
+        id: update
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            node scripts/update-to-bleeding-edge.js --dry-run --verbose
+          else
+            node scripts/update-to-bleeding-edge.js --verbose
+          fi
+        continue-on-error: false
+      
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet package.json package-lock.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run tests
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: npm test
+        continue-on-error: true
+      
+      - name: Run security audit
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: npm audit --audit-level=moderate || true
+      
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: '⬆️ chore(deps): Update to bleeding-edge versions'
+          title: '⬆️ Automated Bleeding-Edge Dependency Update'
+          body: |
+            ## 🚀 Automated Bleeding-Edge Update
+            
+            This PR updates dependencies to their latest pre-release versions.
+            
+            ### ⚠️ Important Notes
+            
+            - **Experimental**: These are pre-release versions and may contain bugs
+            - **Testing Required**: Thoroughly test before merging
+            - **Security**: Review npm audit output for vulnerabilities
+            - **Breaking Changes**: Check changelogs for breaking changes
+            
+            ### 📋 Changes
+            
+            Updated packages to `next`, `canary`, `beta`, or `alpha` tags where available.
+            
+            ### 🔍 Review Checklist
+            
+            - [ ] All tests pass
+            - [ ] No critical security vulnerabilities
+            - [ ] Application starts successfully
+            - [ ] Core features work as expected
+            - [ ] Breaking changes documented
+            
+            ### 🔄 Rollback Instructions
+            
+            If issues occur after merging:
+            ```bash
+            git revert HEAD
+            npm install
+            ```
+            
+            Or restore from backup:
+            ```bash
+            cp .package-backups/package-[timestamp].json package.json
+            npm install
+            ```
+            
+            ---
+            
+            🤖 This PR was automatically created by the bleeding-edge updater workflow.
+            
+            **Generated**: ${{ github.run_id }}
+            **Trigger**: ${{ github.event_name }}
+          branch: automated/bleeding-edge-update
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            experimental
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 📊 Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry Run**: ${{ github.event.inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changes Detected**: ${{ steps.check_changes.outputs.has_changes || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_changes.outputs.has_changes }}" = "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📦 Updated Files" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            git diff --name-only >> $GITHUB_STEP_SUMMARY || echo "No changes" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Bleeding-edge update failed!" >> $GITHUB_STEP_SUMMARY
+          echo "Check the logs for details." >> $GITHUB_STEP_SUMMARY
