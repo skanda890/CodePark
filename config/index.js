@@ -7,7 +7,7 @@ require('dotenv').config()
 
 module.exports = {
   // Server
-  port: parseInt(process.env.PORT, 10) || 3000,
+  port: (() => { const p = parseInt(process.env.PORT, 10); return Number.isNaN(p) ? 3000 : p; })(),
   host: process.env.HOST || 'localhost',
   nodeEnv: process.env.NODE_ENV || 'development',
   maxRequestSize: process.env.MAX_REQUEST_SIZE || '100kb',
