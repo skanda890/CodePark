@@ -3,7 +3,7 @@ const helmet = require('helmet')
 const compression = require('compression')
 const { v4: uuidv4 } = require('uuid')
 const logger = require('./config/logger')
-const { startCliGame } = require('./cliGame')
+const { startCliGame } = require('./games/cli/numberGuessing')
 const config = require('./config')
 
 // Middleware
@@ -15,7 +15,7 @@ const cacheMiddleware = require('./middleware/cache')
 
 // Routes
 const authRoutes = require('./routes/auth')
-const gameRoutes = require('./routes/game')
+const gameRoutes = require('./games/routes/gameRoutes')
 const healthRoutes = require('./routes/health')
 const metricsRoutes = require('./routes/metrics')
 
@@ -87,7 +87,7 @@ app.use(requestLogger)
 app.get('/', (req, res) => {
   res.json({
     name: 'CodePark API - BLEEDING EDGE EXPERIMENTAL',
-    version: '2.0.0',
+    version: '3.0.0-experimental',
     status: 'running',
     warning: 'This server uses experimental pre-release packages',
     features: {
@@ -95,7 +95,8 @@ app.get('/', (req, res) => {
       authentication: true,
       caching: config.cache.enabled,
       metrics: config.metrics.enabled,
-      compression: config.compression.enabled
+      compression: config.compression.enabled,
+      games: true
     },
     endpoints: {
       auth: '/api/v1/auth',
@@ -146,9 +147,8 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v2.0 (BLEEDING EDGE EXPERIMENTAL)')
-  logger.info('==============================================')
-  logger.info(`Server:        http://localhost:${port}`)
+  logger.info('🚀 CodePark Server v3.0-experimental (BLEEDING EDGE)')
+  logger.info('==============================================')  logger.info(`Server:        http://localhost:${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')
   logger.info(
@@ -166,6 +166,7 @@ const server = app.listen(port, async () => {
   logger.info(
     `Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`
   )
+  logger.info('🎮 Games:       Number Guessing (CLI & API)')
   logger.info('⚠️  WARNING:     Using experimental pre-release packages')
   logger.info('==============================================\n')
 
@@ -230,7 +231,12 @@ function shutdown (signal, code = 0) {
 
 // CLI Number Guessing Game (only if running in interactive mode)
 if (process.stdin.isTTY && process.argv.includes('--game')) {
-  startCliGame(() => shutdown('CLI_GAME_END', 0))
+  startCliGame({
+    onSuccess: (attempts, number) => {
+      logger.info(`Game won in ${attempts} attempts. Number was ${number}.`)
+      shutdown('CLI_GAME_END', 0)
+    }
+  })
 }
 
 // Graceful shutdown handlers
