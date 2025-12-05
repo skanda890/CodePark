@@ -25,7 +25,8 @@ if (-not (Test-Path $UpdateScript)) {
 $ErrorActionPreference = "Continue"
 
 $LogFile = "C:\Temp\codepark-update-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-$ProjectDir = Split-Path -Parent $PSScriptRoot
+$ScriptDir = Split-Path -Parent $PSScriptRoot
+$ProjectDir = Split-Path -Parent $ScriptDir
 $BackupDir = Join-Path $ProjectDir "backups"
 
 # Create temp directory if it doesn't exist
@@ -44,17 +45,16 @@ function Write-Log {
 Write-Log "========================================"
 Write-Log "CodePark Dependency Auto-Updater"
 Write-Log "Started: $(Get-Date)"
+Write-Log "Project Dir: $ProjectDir"
 Write-Log "========================================"
-
-# Default backup directory to auto-update/backups for cross-platform consistency
-if (-not $BackupDir) {
-    $BackupDir = Join-Path $ProjectDir "auto-update/backups"
-}
 
 # Create backup directory
 if (-not (Test-Path $BackupDir)) {
     New-Item -ItemType Directory -Path $BackupDir | Out-Null
 }
+
+# Change to project directory
+Set-Location $ProjectDir
 
 # Backup current package-lock.json
 $PackageLock = Join-Path $ProjectDir "package-lock.json"
@@ -63,9 +63,6 @@ if (Test-Path $PackageLock) {
     Copy-Item $PackageLock $BackupFile
     Write-Log "✅ Backed up package-lock.json to $BackupFile"
 }
-
-# Change to project directory
-Set-Location $ProjectDir
 
 # Remove old package-lock.json
 if (Test-Path $PackageLock) {
@@ -84,35 +81,44 @@ Write-Log ""
 Write-Log "📦 Installing latest 'next' versions..."
 Write-Log ""
 
-# Run npm install
+# Run npm install with proper error handling
+$NpmExitCode = 0
 try {
+    # Capture output and exit code separately
     $NpmOutput = npm install 2>&1
+    $NpmExitCode = $LASTEXITCODE
+    
     $NpmOutput | ForEach-Object { Write-Log $_ }
     
-    Write-Log ""
-    Write-Log "✅ Dependencies updated successfully!"
-    
-    # Show installed versions
-    Write-Log ""
-    Write-Log "📋 Installed versions:"
-    $ListOutput = npm list --depth=0 2>&1
-    $ListOutput | ForEach-Object { Write-Log $_ }
-    
-    # Security audit
-    Write-Log ""
-    Write-Log "🔒 Security audit:"
-    $AuditOutput = npm audit 2>&1
-    $AuditOutput | ForEach-Object { Write-Log $_ }
-    
-    # Clean up old backups (keep last 7 days)
-    Get-ChildItem $BackupDir -Filter "package-lock-*.json" | 
-        Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | 
-        Remove-Item -Force
-    Write-Log "🧹 Cleaned up old backups (kept last 7 days)"
+    if ($NpmExitCode -eq 0) {
+        Write-Log ""
+        Write-Log "✅ Dependencies updated successfully!"
+        
+        # Show installed versions
+        Write-Log ""
+        Write-Log "📋 Installed versions:"
+        $ListOutput = npm list --depth=0 2>&1
+        $ListOutput | ForEach-Object { Write-Log $_ }
+        
+        # Security audit
+        Write-Log ""
+        Write-Log "🔒 Security audit:"
+        $AuditOutput = npm audit 2>&1
+        $AuditOutput | ForEach-Object { Write-Log $_ }
+        
+        # Clean up old backups (keep last 7 days)
+        Get-ChildItem $BackupDir -Filter "package-lock-*.json" | 
+            Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | 
+            Remove-Item -Force
+        Write-Log "🧹 Cleaned up old backups (kept last 7 days)"
+    } else {
+        throw "npm install failed with exit code $NpmExitCode"
+    }
     
 } catch {
     Write-Log ""
     Write-Log "❌ Installation failed: $($_.Exception.Message)"
+    Write-Log "Exit Code: $NpmExitCode"
     
     # Restore latest backup
     $LatestBackup = Get-ChildItem $BackupDir -Filter "package-lock-*.json" | 
@@ -155,9 +161,9 @@ if ($ExistingTask) {
     Write-Host "🗑️ Removed old task" -ForegroundColor Yellow
 }
 
-# Create scheduled task action
+# Create scheduled task action with RemoteSigned policy (safer than Bypass)
 $Action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$UpdateScript`""
+    -Argument "-NoProfile -ExecutionPolicy RemoteSigned -File `"$UpdateScript`""
 
 # Create trigger (daily at 2 AM)
 $Trigger = New-ScheduledTaskTrigger -Daily -At 2am
@@ -169,21 +175,28 @@ $Settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -RunOnlyIfNetworkAvailable
 
-# Register the task
+# Register the task WITHOUT elevated privileges (more secure)
+# Removed -RunLevel Highest to reduce attack surface
 Register-ScheduledTask `
     -TaskName $TaskName `
     -Action $Action `
     -Trigger $Trigger `
     -Settings $Settings `
-    -Description "Daily auto-update for CodePark dependencies to latest 'next' versions" `
-    -RunLevel Highest
+    -Description "Daily auto-update for CodePark dependencies to latest 'next' versions"
 
 Write-Host ""
 Write-Host "✅ Scheduled task created successfully!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Task Name: $TaskName" -ForegroundColor Cyan
 Write-Host "Schedule: Daily at 2:00 AM" -ForegroundColor Cyan
+Write-Host "Run Level: Standard (non-elevated)" -ForegroundColor Cyan
+Write-Host "Execution Policy: RemoteSigned" -ForegroundColor Cyan
 Write-Host "Logs: C:\Temp\codepark-update-*.log" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Security Notes:" -ForegroundColor Yellow
+Write-Host "  - Task runs without elevation (reduced attack surface)" -ForegroundColor Gray
+Write-Host "  - Uses RemoteSigned policy (requires signed remote scripts)" -ForegroundColor Gray
+Write-Host "  - Only runs when network is available" -ForegroundColor Gray
 Write-Host ""
 Write-Host "To view the task:" -ForegroundColor Yellow
 Write-Host "  Get-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
