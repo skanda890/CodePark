@@ -1,0 +1,116 @@
+name: Security Audit - Experimental Packages
+
+on:
+  # Run on every push and PR
+  push:
+    branches: [ main, security-improvements ]
+  pull_request:
+    branches: [ main ]
+  
+  # Run daily to catch new vulnerabilities in pre-release packages
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  npm-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        id: audit
+        run: |
+          echo "Running npm audit..."
+          npm audit --json > audit-report.json || true
+          npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Check for critical vulnerabilities
+        run: |
+          echo "Checking for critical vulnerabilities..."
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical' audit-report.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high' audit-report.json)
+          
+          echo "Critical vulnerabilities: $CRITICAL"
+          echo "High vulnerabilities: $HIGH"
+          
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "⚠️ CRITICAL vulnerabilities found!"
+            exit 1
+          fi
+      
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+          retention-days: 30
+      
+      - name: Check outdated packages
+        run: |
+          echo "Checking for outdated pre-release packages..."
+          npm outdated || true
+  
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: true
+  
+  experimental-package-check:
+    name: Pre-release Package Monitoring
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check for pre-release versions
+        run: |
+          echo "🔬 Checking pre-release package versions..."
+          
+          # Extract packages using 'next' or 'latest'
+          EXPERIMENTAL=$(cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"')
+          
+          echo "⚠️ Experimental packages detected:"
+          echo "$EXPERIMENTAL"
+          
+          echo ""
+          echo "🚨 REMINDER: These packages use pre-release versions."
+          echo "Monitor security advisories regularly!"
+      
+      - name: Generate security summary
+        run: |
+          echo "## 🔒 Security Status Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Experimental Packages" >> $GITHUB_STEP_SUMMARY
+          echo "This project intentionally uses pre-release versions." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
