@@ -11,6 +11,7 @@ JWT_REFRESH_SECRET=<strong-random-refresh-secret>
 ```
 
 **Why?**
+
 - Access tokens exposed more frequently (every API call)
 - Refresh tokens stored longer term
 - Separate secrets limit blast radius of compromise
@@ -40,6 +41,7 @@ JWT_REFRESH_EXPIRY=30d  # 30 days (acceptable)
 ```
 
 **Trade-offs**:
+
 - Shorter = more secure, more refresh requests
 - Longer = less secure, better UX
 
@@ -54,6 +56,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 ```
 
 **Benefits**:
+
 - Distributed rate limiting across multiple servers
 - Persistent across restarts
 - Prevents coordinated attacks
@@ -65,6 +68,7 @@ REDIS_ENABLED=false
 ```
 
 **Limitations**:
+
 - Per-instance only
 - Lost on restart
 - Attackers can bypass by hitting different servers
@@ -90,12 +94,14 @@ ALLOWED_ORIGIN=*
 ### Sensitive Data
 
 **DO NOT cache**:
+
 - Authentication tokens
 - Personal information
 - Financial data
 - Session data
 
 **Safe to cache**:
+
 - Public game statistics
 - Leaderboards
 - Static content
@@ -119,16 +125,16 @@ helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'ws:', 'wss:']
-    }
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws:", "wss:"],
+    },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
-  }
-})
+    preload: true,
+  },
+});
 ```
 
 ## WebSocket Security
@@ -137,13 +143,15 @@ helmet({
 
 ```javascript
 // Option 1: Query parameter
-const ws = new WebSocket('ws://localhost:3000/ws?token=<jwt>');
+const ws = new WebSocket("ws://localhost:3000/ws?token=<jwt>");
 
 // Option 2: In initial message
-ws.send(JSON.stringify({
-  type: 'auth',
-  token: '<jwt>'
-}));
+ws.send(
+  JSON.stringify({
+    type: "auth",
+    token: "<jwt>",
+  }),
+);
 ```
 
 ### Message Validation
@@ -151,7 +159,7 @@ ws.send(JSON.stringify({
 Always validate incoming messages:
 
 ```javascript
-ws.on('message', (data) => {
+ws.on("message", (data) => {
   try {
     const message = JSON.parse(data);
     // Validate message structure
@@ -175,6 +183,7 @@ ws.on('message', (data) => {
 ### Production Secrets
 
 Use secret management:
+
 - AWS Secrets Manager
 - HashiCorp Vault
 - Kubernetes Secrets
@@ -195,11 +204,11 @@ Use secret management:
 
 ```javascript
 // Restrict health endpoints
-app.use('/health', ipWhitelist(['10.0.0.0/8']));
+app.use("/health", ipWhitelist(["10.0.0.0/8"]));
 
 // Or use separate internal port
 const internalApp = express();
-internalApp.use('/health', healthRoutes);
+internalApp.use("/health", healthRoutes);
 internalApp.listen(8080); // Internal only
 ```
 

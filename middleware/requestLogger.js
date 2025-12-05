@@ -3,10 +3,10 @@
  * Log all incoming requests with Pino
  */
 
-const logger = require('../config/logger');
+const logger = require('../config/logger')
 
-module.exports = function requestLogger(req, res, next) {
-  const start = Date.now();
+module.exports = function requestLogger (req, res, next) {
+  const start = Date.now()
 
   // Log request
   logger.info(
@@ -18,11 +18,11 @@ module.exports = function requestLogger(req, res, next) {
       userAgent: req.get('user-agent')
     },
     'Incoming request'
-  );
+  )
 
   // Log response when finished
   res.on('finish', () => {
-    const duration = Date.now() - start;
+    const duration = Date.now() - start
 
     const logData = {
       requestId: req.id,
@@ -31,14 +31,14 @@ module.exports = function requestLogger(req, res, next) {
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       contentLength: res.get('content-length') || 0
-    };
+    }
 
     if (res.statusCode >= 400) {
-      logger.warn(logData, 'Request completed with error');
+      logger.warn(logData, 'Request completed with error')
     } else {
-      logger.info(logData, 'Request completed');
+      logger.info(logData, 'Request completed')
     }
-  });
+  })
 
-  next();
-};
+  next()
+}
