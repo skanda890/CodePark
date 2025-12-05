@@ -31,7 +31,7 @@ class AuthService {
    */
   generateRefreshToken (payload) {
     try {
-      const secret = config.jwtRefreshSecret || config.jwtSecret;
+      const secret = config.jwtRefreshSecret || config.jwtSecret
       return jwt.sign(payload, secret, {
         expiresIn: config.jwtRefreshExpiry
       })
