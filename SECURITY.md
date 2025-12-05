@@ -6,8 +6,8 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 
 ## Supported Versions
 
-| Version | Support Status |
-| ------- | -------------- |
+| Version | Support Status  |
+| ------- | --------------- |
 | 1.0.x   | ✅ Experimental |
 
 ## Security Measures Implemented
@@ -27,6 +27,7 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 **Philosophy**: This project uses pre-release versions to stay on the cutting edge. This is intentional but requires:
 
 1. **Regular Monitoring**:
+
    ```bash
    npm run security-check
    npm audit
@@ -39,10 +40,11 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
    - Semgrep rules
 
 3. **Update Strategy**:
+
    ```bash
    # Update all experimental dependencies
    npm run update:experimental
-   
+
    # This will update to latest 'next' versions and run audit
    ```
 
@@ -84,11 +86,13 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 Using `next` and `latest` tags means:
 
 ✅ **Advantages**:
+
 - Access to newest features
 - Early bug fixes
 - Cutting-edge performance improvements
 
 ⚠️ **Risks**:
+
 - Potential instability
 - Breaking API changes
 - Undiscovered vulnerabilities
@@ -154,9 +158,9 @@ If you must use it:
 
 ## Version History
 
-| Date | Version | Changes |
-|------|---------|----------|
-| 2024-12-05 | 1.0.0 | Initial security implementation |
+| Date       | Version | Changes                         |
+| ---------- | ------- | ------------------------------- |
+| 2024-12-05 | 1.0.0   | Initial security implementation |
 
 ---
 
