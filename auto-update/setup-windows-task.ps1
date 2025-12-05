@@ -46,6 +46,11 @@ Write-Log "CodePark Dependency Auto-Updater"
 Write-Log "Started: $(Get-Date)"
 Write-Log "========================================"
 
+# Default backup directory to auto-update/backups for cross-platform consistency
+if (-not $BackupDir) {
+    $BackupDir = Join-Path $ProjectDir "auto-update/backups"
+}
+
 # Create backup directory
 if (-not (Test-Path $BackupDir)) {
     New-Item -ItemType Directory -Path $BackupDir | Out-Null
