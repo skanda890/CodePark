@@ -1,13 +1,13 @@
-# Welcome to CodePark v3! 🚀
+# Welcome to CodePark v2! 🚀
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org/)
 [![Experimental](https://img.shields.io/badge/status-experimental-orange)](https://github.com/skanda890/CodePark)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-CodePark is a **bleeding-edge experimental** project management and collaboration platform that pushes the boundaries of modern web development. It integrates cutting-edge technologies including AI/ML, real-time collaboration, GraphQL APIs, edge computing, and advanced observability—all running on the latest pre-release versions of npm packages.
+CodePark is a **bleeding-edge experimental** project management and collaboration platform that pushes the boundaries of modern web development. It integrates cutting-edge technologies, including AI/ML, real-time collaboration, GraphQL APIs, edge computing, and advanced observability—all running on the latest pre-release versions of npm packages.
 
-> ⚠️ **Experimental Notice**: This project intentionally uses `next` and `latest` pre-release versions for all dependencies. It's designed for developers who want to explore the cutting edge of Node.js capabilities. Use with caution in production.
+> ⚠️ **Experimental Notice**: This project intentionally uses `next` and `latest` pre-release versions for all dependencies. It's designed for developers who want to explore the cutting-edge of Node.js capabilities. Use with caution in production.
 
 ---
 
@@ -647,14 +647,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **RAM**: 2GB minimum, 4GB recommended
 - **Disk**: 1GB free space
 - **OS**: Windows, macOS, Linux
-
-### Support
-
-- 📧 Email: support@codepark.dev
-- 💬 Discord: [Join our server](https://discord.gg/codepark)
-- 🐦 Twitter: [@CodeParkDev](https://twitter.com/CodeParkDev)
-
----
 
 **Made with ❤️ by SkandaBT**
 
