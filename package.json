@@ -4,14 +4,13 @@
   "description": "A basic npm project with minimal dependencies",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
   },
   "dependencies": {
-    "axios": "^1.9.0",
+    "axios": "^1.7.9",
     "express": "^5.1.0",
-    "https": "^1.0.0",
-    "mongodb": "^6.16.0",
-    "nodemailer": "^7.0.3",
+    "mongodb": "^7.0.0",
+    "nodemailer": "^7.0.11",
     "sudoku-gen": "^1.0.2",
     "systeminformation": "^5.25.11"
   },
@@ -24,10 +23,18 @@
     "type": "git",
     "url": "git+https://github.com/skanda890/CodePark.git"
   },
-  "keywords": [],
+  "keywords": [
+    "npm",
+    "project",
+    "codepark"
+  ],
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/skanda890/CodePark/issues"
   },
-  "homepage": "https://github.com/skanda890/CodePark#readme"
+  "homepage": "https://github.com/skanda890/CodePark#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }
