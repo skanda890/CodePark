@@ -182,19 +182,19 @@ router.post(
  */
 router.get('/stats', (req, res) => {
   try {
-    const userGames = Array.from(games.values()).filter(
-      (game) => game.userId === req.user.userId
-    )
+    const userGames = Array.from(games.entries())
+      .filter(([, game]) => game.userId === req.user.userId)
+      .map(([gameId, game]) => ({
+        gameId,
+        createdAt: game.createdAt,
+        attempts: game.attempts
+      }))
 
     res.json({
       activeGames: userGames.length,
       totalActiveGames: games.size,
       maxGames: MAX_GAMES,
-      games: userGames.map((game) => ({
-        gameId: Array.from(games.entries()).find(([id, g]) => g === game)?.[0],
-        createdAt: game.createdAt,
-        attempts: game.attempts
-      }))
+      games: userGames
     })
   } catch (error) {
     logger.error({ err: error, requestId: req.id }, 'Error getting stats')
