@@ -47,32 +47,35 @@ NODE_ENV=production npm start
 
 Automatically applied to all responses:
 
-| Header | Purpose | Value |
-|--------|---------|-------|
-| `Content-Security-Policy` | Prevents XSS attacks | Restrictive CSP |
-| `Strict-Transport-Security` | Forces HTTPS | 1 year, includeSubDomains |
-| `X-Frame-Options` | Prevents clickjacking | SAMEORIGIN |
-| `X-Content-Type-Options` | Prevents MIME sniffing | nosniff |
-| `X-DNS-Prefetch-Control` | Controls DNS prefetching | off |
+| Header                      | Purpose                  | Value                     |
+| --------------------------- | ------------------------ | ------------------------- |
+| `Content-Security-Policy`   | Prevents XSS attacks     | Restrictive CSP           |
+| `Strict-Transport-Security` | Forces HTTPS             | 1 year, includeSubDomains |
+| `X-Frame-Options`           | Prevents clickjacking    | SAMEORIGIN                |
+| `X-Content-Type-Options`    | Prevents MIME sniffing   | nosniff                   |
+| `X-DNS-Prefetch-Control`    | Controls DNS prefetching | off                       |
 
 ### Rate Limiting
 
 Protects against abuse and DoS attacks:
 
 #### General API Rate Limit
+
 ```
 100 requests per 15 minutes per IP
 ```
 
 #### Game Creation Rate Limit
+
 ```
 20 games per 5 minutes per IP
 ```
 
 **Test rate limiting:**
+
 ```bash
 # This will eventually get rate limited
-for i in {1..105}; do 
+for i in {1..105}; do
   curl http://localhost:3000/health
   echo "Request $i"
 done
@@ -83,6 +86,7 @@ done
 All inputs are validated using `express-validator`:
 
 **Example - Game Check Endpoint:**
+
 ```javascript
 {
   "gameId": "string, required, non-empty",
@@ -91,12 +95,11 @@ All inputs are validated using `express-validator`:
 ```
 
 **Invalid requests return 400 with details:**
+
 ```json
 {
   "error": "Validation failed",
-  "details": [
-    "guess must be an integer between 1 and 100"
-  ]
+  "details": ["guess must be an integer between 1 and 100"]
 }
 ```
 
@@ -110,11 +113,13 @@ Prevents memory exhaustion:
 - **Auto-cleanup**: Expired games removed automatically
 
 **Monitor active games:**
+
 ```bash
 curl http://localhost:3000/health
 ```
 
 Response includes:
+
 ```json
 {
   "status": "healthy",
@@ -135,14 +140,14 @@ This project uses `next` and `latest` tags for:
 ✅ **Latest features** - Access newest functionality immediately  
 ✅ **Bug fixes** - Get fixes before stable release  
 ✅ **Performance** - Cutting-edge optimizations  
-✅ **Experimentation** - Test upcoming breaking changes  
+✅ **Experimentation** - Test upcoming breaking changes
 
 ### Risks
 
 ⚠️ **Instability** - Pre-release code may have bugs  
 ⚠️ **Breaking changes** - APIs may change without notice  
 ⚠️ **Security** - New vulnerabilities not yet discovered  
-⚠️ **Documentation** - Features may be undocumented  
+⚠️ **Documentation** - Features may be undocumented
 
 ### Mitigation Strategy
 
@@ -197,31 +202,33 @@ npm info express@next
 ⚠️ **Current Status**: No authentication
 
 **For production, add:**
+
 - JWT tokens
 - API keys
 - OAuth 2.0
 - Session management
 
 **Example with JWT:**
+
 ```javascript
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  
+  const token = req.headers["authorization"]?.split(" ")[1];
+
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ error: "No token provided" });
   }
-  
+
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
+    if (err) return res.status(403).json({ error: "Invalid token" });
     req.user = user;
     next();
   });
 };
 
 // Protect endpoints
-app.get('/game/guess', authenticateToken, (req, res) => {
+app.get("/game/guess", authenticateToken, (req, res) => {
   // ...
 });
 ```
@@ -231,22 +238,21 @@ app.get('/game/guess', authenticateToken, (req, res) => {
 **Current**: Allows all origins (`*`)
 
 **For production:**
+
 ```bash
 # In .env
 ALLOWED_ORIGIN=https://yourdomain.com
 ```
 
 **Or configure multiple origins:**
+
 ```javascript
-const allowedOrigins = [
-  'https://yourdomain.com',
-  'https://www.yourdomain.com'
-];
+const allowedOrigins = ["https://yourdomain.com", "https://www.yourdomain.com"];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
+    res.header("Access-Control-Allow-Origin", origin);
   }
   next();
 });
@@ -257,14 +263,15 @@ app.use((req, res, next) => {
 ⚠️ **Required for production!**
 
 **Option 1: Reverse Proxy (Recommended)**
+
 ```nginx
 server {
   listen 443 ssl http2;
   server_name yourdomain.com;
-  
+
   ssl_certificate /path/to/cert.pem;
   ssl_certificate_key /path/to/key.pem;
-  
+
   location / {
     proxy_pass http://localhost:3000;
     proxy_set_header Host $host;
@@ -274,13 +281,14 @@ server {
 ```
 
 **Option 2: Built-in HTTPS**
+
 ```javascript
-const https = require('https');
-const fs = require('fs');
+const https = require("https");
+const fs = require("fs");
 
 const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
+  key: fs.readFileSync("key.pem"),
+  cert: fs.readFileSync("cert.pem"),
 };
 
 https.createServer(options, app).listen(443);
@@ -295,6 +303,7 @@ https.createServer(options, app).listen(443);
 **Problem**: Unbounded data structures
 
 **Solution**: Implemented in this version
+
 - Max games limit
 - Automatic cleanup
 - TTL-based expiration
@@ -304,16 +313,17 @@ https.createServer(options, app).listen(443);
 **Problem**: Attackers using multiple IPs
 
 **Additional Protection**:
+
 ```javascript
 // Use X-Forwarded-For if behind proxy
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Or use Redis for distributed rate limiting
-const RedisStore = require('rate-limit-redis');
+const RedisStore = require("rate-limit-redis");
 
 const limiter = rateLimit({
   store: new RedisStore({
-    client: redisClient
+    client: redisClient,
   }),
   // ...
 });
@@ -326,6 +336,7 @@ const limiter = rateLimit({
 **Protection**: express-validator on all inputs
 
 **Best practices**:
+
 ```javascript
 // ✅ DO: Validate and sanitize
 body('email').isEmail().normalizeEmail(),
@@ -340,12 +351,13 @@ const query = `SELECT * FROM users WHERE id = ${req.body.id}`;
 **Problem**: Exposing stack traces in production
 
 **Solution**: Implemented
+
 ```javascript
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 res.json({
   error: "Internal server error",
-  message: isDevelopment ? err.message : "Something went wrong"
+  message: isDevelopment ? err.message : "Something went wrong",
 });
 ```
 
@@ -366,18 +378,20 @@ res.json({
 ### If a Dependency Has a Vulnerability
 
 1. **Check severity**:
+
    ```bash
    npm audit
    ```
 
 2. **For critical vulnerabilities**:
+
    ```bash
    # Try auto-fix first
    npm audit fix
-   
+
    # If that fails, force major version updates
    npm audit fix --force
-   
+
    # Last resort: manual update
    npm update <package-name>
    ```
@@ -453,23 +467,27 @@ node index.js > app.log 2>&1
 ## 🛡️ Defense in Depth
 
 ### Layer 1: Network
+
 - Firewall rules
 - DDoS protection (Cloudflare)
 - IP whitelisting
 
 ### Layer 2: Application (This Project)
+
 - Rate limiting ✅
 - Input validation ✅
 - Security headers ✅
 - Error handling ✅
 
 ### Layer 3: Data
+
 - Encryption at rest
 - Encryption in transit (HTTPS)
 - Access controls
 - Audit logging
 
 ### Layer 4: Monitoring
+
 - Security scanning ✅
 - Dependency checks ✅
 - Log analysis
@@ -480,18 +498,21 @@ node index.js > app.log 2>&1
 ## 📚 Additional Resources
 
 ### Security Guides
+
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [Express Security](https://expressjs.com/en/advanced/best-practice-security.html)
 - [NPM Security](https://docs.npmjs.com/about-security-audits)
 
 ### Tools
+
 - [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit)
 - [Snyk](https://snyk.io/)
 - [GitHub Security](https://github.com/security)
 - [OWASP ZAP](https://www.zaproxy.org/)
 
 ### Training
+
 - [Web Security Academy](https://portswigger.net/web-security)
 - [Node.js Security Course](https://nodejs.org/en/docs/guides/)
 
