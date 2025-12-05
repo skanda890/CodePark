@@ -38,7 +38,9 @@ function getGameOr404 (games, gameId, res) {
  * @returns {Object} Response object
  */
 function buildGuessResponse (gameData, guess, gameId, games) {
-  gameData.attempts++
+  if (typeof gameData.attempts !== 'number') {
+    gameData.attempts = 0
+  }
 
   if (guess === gameData.target) {
     // Correct guess - remove game
