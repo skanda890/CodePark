@@ -10,13 +10,13 @@
  * @param {Object} res - Express response object
  * @returns {Object|null} Game data or null if not found
  */
-function getGameOr404(games, gameId, res) {
-  const gameData = games.get(gameId);
+function getGameOr404 (games, gameId, res) {
+  const gameData = games.get(gameId)
   if (!gameData) {
-    res.status(404).json({ error: 'Game not found or already finished' });
-    return null;
+    res.status(404).json({ error: 'Game not found or already finished' })
+    return null
   }
-  return gameData;
+  return gameData
 }
 
 /**
@@ -27,33 +27,33 @@ function getGameOr404(games, gameId, res) {
  * @param {Map} games - The games Map
  * @returns {Object} Response object
  */
-function buildGuessResponse(gameData, parsed, gameId, games) {
-  gameData.attempts++;
+function buildGuessResponse (gameData, parsed, gameId, games) {
+  gameData.attempts++
 
   if (parsed < gameData.target) {
     return {
       result: 'too low',
       attempts: gameData.attempts
-    };
+    }
   }
-  
+
   if (parsed > gameData.target) {
     return {
       result: 'too high',
       attempts: gameData.attempts
-    };
+    }
   }
 
   // Correct guess - clean up and return success
-  games.delete(gameId);
+  games.delete(gameId)
   return {
     result: 'correct',
     attempts: gameData.attempts,
     message: `Congratulations! You guessed it in ${gameData.attempts} attempt(s)!`
-  };
+  }
 }
 
 module.exports = {
   getGameOr404,
   buildGuessResponse
-};
+}
