@@ -25,7 +25,7 @@ const websocketService = require('./services/websocket')
 const cacheService = require('./services/cache')
 
 const app = express()
-const port = config.port
+const {port} = config
 
 // Initialize metrics
 metricsService.init(app)
