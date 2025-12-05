@@ -1,4 +1,4 @@
-# Welcome to CodePark v3.0! 🚀
+# Welcome to CodePark v3! 🚀
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org/)
 [![Experimental](https://img.shields.io/badge/status-experimental-orange)](https://github.com/skanda890/CodePark)
