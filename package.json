@@ -1,33 +1,49 @@
 {
-  "name": "my-basic-npm-project",
-  "version": "1.0.0",
-  "description": "A basic npm project with minimal dependencies - BLEEDING EDGE EXPERIMENTAL",
+  "name": "codepark-advanced",
+  "version": "2.0.0",
+  "description": "CodePark - Advanced features with BLEEDING EDGE EXPERIMENTAL packages",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "cross-env NODE_ENV=development node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
     "game": "node index.js --game",
+    "test": "node --test tests/**/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage tests/**/*.test.js",
     "audit": "npm audit --audit-level=moderate",
     "audit:fix": "npm audit fix",
     "security-check": "npm audit && npm outdated",
-    "update:experimental": "npm update && npm audit"
+    "update:experimental": "npm update && npm audit",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,json,md}\""
   },
   "dependencies": {
     "axios": "next",
+    "compression": "next",
     "express": "next",
     "express-rate-limit": "next",
     "express-validator": "next",
     "helmet": "next",
+    "ioredis": "next",
+    "jsonwebtoken": "next",
     "mongodb": "next",
     "nodemailer": "next",
+    "pino": "next",
+    "pino-pretty": "next",
+    "prom-client": "next",
+    "rate-limit-redis": "next",
+    "redis": "next",
     "sudoku-gen": "latest",
-    "systeminformation": "next"
+    "systeminformation": "next",
+    "uuid": "next",
+    "ws": "next"
   },
   "author": "SkandaBT",
   "license": "MIT",
   "devDependencies": {
     "@tolgee/cli": "next",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "eslint": "next",
+    "prettier": "next"
   },
   "repository": {
     "type": "git",
@@ -40,7 +56,12 @@
     "experimental",
     "bleeding-edge",
     "next",
-    "pre-release"
+    "pre-release",
+    "websocket",
+    "jwt",
+    "redis",
+    "prometheus",
+    "advanced"
   ],
   "type": "commonjs",
   "bugs": {
@@ -48,13 +69,14 @@
   },
   "homepage": "https://github.com/skanda890/CodePark#readme",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "notes": {
     "experimental": "This project intentionally uses 'next' and 'latest' tags for cutting-edge experimental features",
     "security": "Run 'npm run security-check' regularly to monitor for vulnerabilities in pre-release versions",
     "stability": "Pre-release versions may contain bugs. Use with caution in production environments.",
-    "crossPlatform": "Uses cross-env for cross-platform NODE_ENV support (Windows, Mac, Linux)"
+    "crossPlatform": "Uses cross-env for cross-platform NODE_ENV support (Windows, Mac, Linux)",
+    "features": "v2.0 includes WebSocket, JWT auth, Redis caching, Prometheus metrics, and more"
   }
 }
