@@ -4,11 +4,20 @@
   "description": "A basic npm project with minimal dependencies - BLEEDING EDGE EXPERIMENTAL",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "game": "node index.js --game",
+    "audit": "npm audit --audit-level=moderate",
+    "audit:fix": "npm audit fix",
+    "security-check": "npm audit && npm outdated",
+    "update:experimental": "npm update && npm audit"
   },
   "dependencies": {
     "axios": "next",
     "express": "next",
+    "express-rate-limit": "next",
+    "express-validator": "next",
+    "helmet": "next",
     "mongodb": "next",
     "nodemailer": "next",
     "sudoku-gen": "latest",
@@ -28,7 +37,9 @@
     "project",
     "codepark",
     "experimental",
-    "bleeding-edge"
+    "bleeding-edge",
+    "next",
+    "pre-release"
   ],
   "type": "commonjs",
   "bugs": {
@@ -38,5 +49,10 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "notes": {
+    "experimental": "This project intentionally uses 'next' and 'latest' tags for cutting-edge experimental features",
+    "security": "Run 'npm run security-check' regularly to monitor for vulnerabilities in pre-release versions",
+    "stability": "Pre-release versions may contain bugs. Use with caution in production environments."
   }
 }
