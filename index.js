@@ -136,7 +136,7 @@ app.get('/game/guess', gameRateLimiter, (req, res) => {
     expiresIn: `${GAME_EXPIRY_MS / 60000} minutes`
   })
 })
-
+    gameRateLimiter,
 app.post(
   '/game/check',
   [
