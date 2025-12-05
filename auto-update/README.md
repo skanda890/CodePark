@@ -5,6 +5,7 @@ Automatically updates CodePark dependencies to the latest bleeding-edge versions
 ## 📋 Overview
 
 This system:
+
 - ✅ Runs **daily at 2:00 AM**
 - ✅ Removes `package-lock.json` and `node_modules`
 - ✅ Installs latest `next` versions (pre-release)
@@ -61,6 +62,7 @@ backups/                        # Created automatically
 ### Change Update Time
 
 **Linux/macOS (Cron):**
+
 ```bash
 # Edit crontab
 crontab -e
@@ -71,6 +73,7 @@ crontab -e
 ```
 
 **Windows (Task Scheduler):**
+
 ```powershell
 # Using Task Scheduler GUI:
 # 1. Open Task Scheduler
@@ -86,6 +89,7 @@ Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger $Trigger
 ### Change Update Frequency
 
 **Run every 12 hours (Linux/macOS):**
+
 ```bash
 crontab -e
 # Add:
@@ -93,6 +97,7 @@ crontab -e
 ```
 
 **Run twice daily (Windows):**
+
 ```powershell
 # Create additional trigger
 $Trigger1 = New-ScheduledTaskTrigger -Daily -At "2:00AM"
@@ -108,6 +113,7 @@ Register-ScheduledTask -TaskName "CodePark-Daily-Update" -Action $Action -Trigge
 ### View Logs
 
 **Linux/macOS:**
+
 ```bash
 # View latest update log
 ls -lt /tmp/codepark-update-*.log | head -n 1 | awk '{print $9}' | xargs cat
@@ -120,6 +126,7 @@ ls -lh /tmp/codepark-update-*.log
 ```
 
 **Windows:**
+
 ```powershell
 # View latest update log
 Get-ChildItem C:\Temp\codepark-update-*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | Get-Content
@@ -157,12 +164,14 @@ cat backups/package-lock-20241205-140000.json
 ### Test Update Script
 
 **Linux/macOS:**
+
 ```bash
 cd /path/to/CodePark
 ./auto-update/update-dependencies.sh
 ```
 
 **Windows:**
+
 ```powershell
 cd C:\path\to\CodePark
 .\auto-update\update-dependencies.ps1
@@ -171,12 +180,14 @@ cd C:\path\to\CodePark
 ### Run Scheduled Task Immediately
 
 **Linux/macOS:**
+
 ```bash
 # No direct "run now" for cron, just execute the script
 ./auto-update/update-dependencies.sh
 ```
 
 **Windows:**
+
 ```powershell
 Start-ScheduledTask -TaskName "CodePark-Daily-Update"
 ```
@@ -268,6 +279,7 @@ Get-Content C:\Temp\codepark-update-*.log -Tail 100
 ### Permission Issues
 
 **Linux/macOS:**
+
 ```bash
 # Make scripts executable
 chmod +x auto-update/*.sh
@@ -277,6 +289,7 @@ ls -la backups/
 ```
 
 **Windows:**
+
 ```powershell
 # Run PowerShell as Administrator
 # Check execution policy
@@ -328,14 +341,14 @@ find "$BACKUP_DIR" -name "package-lock-*.json" -mtime +30 -delete
 
 ## 📊 What Gets Updated
 
-| Package | Tag | Description |
-|---------|-----|-------------|
-| **axios** | `next` | HTTP client (pre-release) |
-| **express** | `next` | Web framework (experimental) |
-| **mongodb** | `next` | Database driver (beta) |
-| **nodemailer** | `next` | Email sender (cutting-edge) |
-| **systeminformation** | `next` | System metrics (latest) |
-| **@tolgee/cli** | `next` | i18n tooling (pre-release) |
+| Package               | Tag    | Description                  |
+| --------------------- | ------ | ---------------------------- |
+| **axios**             | `next` | HTTP client (pre-release)    |
+| **express**           | `next` | Web framework (experimental) |
+| **mongodb**           | `next` | Database driver (beta)       |
+| **nodemailer**        | `next` | Email sender (cutting-edge)  |
+| **systeminformation** | `next` | System metrics (latest)      |
+| **@tolgee/cli**       | `next` | i18n tooling (pre-release)   |
 
 ---
 
