@@ -3,8 +3,8 @@
  * High-performance JSON logger
  */
 
-const pino = require('pino');
-const config = require('./index');
+const pino = require('pino')
+const config = require('./index')
 
 const logger = pino({
   level: config.logging.level,
@@ -18,6 +18,6 @@ const logger = pino({
       }
     }
   })
-});
+})
 
-module.exports = logger;
+module.exports = logger

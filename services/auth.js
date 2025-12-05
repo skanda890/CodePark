@@ -3,9 +3,9 @@
  * Handles token generation and verification
  */
 
-const jwt = require('jsonwebtoken');
-const config = require('../config');
-const logger = require('../config/logger');
+const jwt = require('jsonwebtoken')
+const config = require('../config')
+const logger = require('../config/logger')
 
 class AuthService {
   /**
@@ -13,14 +13,14 @@ class AuthService {
    * @param {Object} payload - User data to encode
    * @returns {string} JWT token
    */
-  generateAccessToken(payload) {
+  generateAccessToken (payload) {
     try {
       return jwt.sign(payload, config.jwtSecret, {
         expiresIn: config.jwtExpiry
-      });
+      })
     } catch (error) {
-      logger.error({ err: error }, 'Error generating access token');
-      throw error;
+      logger.error({ err: error }, 'Error generating access token')
+      throw error
     }
   }
 
@@ -29,14 +29,14 @@ class AuthService {
    * @param {Object} payload - User data to encode
    * @returns {string} JWT refresh token
    */
-  generateRefreshToken(payload) {
+  generateRefreshToken (payload) {
     try {
       return jwt.sign(payload, config.jwtSecret, {
         expiresIn: config.jwtRefreshExpiry
-      });
+      })
     } catch (error) {
-      logger.error({ err: error }, 'Error generating refresh token');
-      throw error;
+      logger.error({ err: error }, 'Error generating refresh token')
+      throw error
     }
   }
 
@@ -45,12 +45,12 @@ class AuthService {
    * @param {string} token - JWT token to verify
    * @returns {Object} Decoded payload
    */
-  verifyToken(token) {
+  verifyToken (token) {
     try {
-      return jwt.verify(token, config.jwtSecret);
+      return jwt.verify(token, config.jwtSecret)
     } catch (error) {
-      logger.warn({ err: error }, 'Token verification failed');
-      throw error;
+      logger.warn({ err: error }, 'Token verification failed')
+      throw error
     }
   }
 
@@ -59,9 +59,9 @@ class AuthService {
    * @param {string} token - JWT token to decode
    * @returns {Object} Decoded payload
    */
-  decodeToken(token) {
-    return jwt.decode(token);
+  decodeToken (token) {
+    return jwt.decode(token)
   }
 }
 
-module.exports = new AuthService();
+module.exports = new AuthService()
