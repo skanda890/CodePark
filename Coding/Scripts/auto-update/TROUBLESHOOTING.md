@@ -9,6 +9,7 @@ Complete troubleshooting guide for CodePark's automated dependency update system
 ### 1. Task Not Running Automatically
 
 **Symptoms:**
+
 - No new log files in `C:\Temp`
 - Last run time shows old date
 - Dependencies not updating
@@ -24,7 +25,7 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 # Expected: Ready
 
 # Check last run
-Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" | 
+Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" |
   Select-Object LastRunTime, LastTaskResult, NextRunTime
 # LastTaskResult 0 = success, non-zero = error
 ```
@@ -32,21 +33,24 @@ Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" |
 **Solutions:**
 
 1. **Task doesn't exist:**
+
    ```powershell
    cd C:\path\to\CodePark\Coding\Scripts\auto-update
    .\setup-windows-task.ps1
    ```
 
 2. **Task is disabled:**
+
    ```powershell
    Enable-ScheduledTask -TaskName "CodePark-Daily-Update"
    ```
 
 3. **Wrong time zone:**
+
    ```powershell
    # Check system time
    Get-Date
-   
+
    # Update trigger to correct time
    $Trigger = New-ScheduledTaskTrigger -Daily -At "2:00AM"
    Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger $Trigger
@@ -61,6 +65,7 @@ Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" |
 ### 2. Permission/Execution Policy Errors
 
 **Symptoms:**
+
 ```
 File cannot be loaded because running scripts is disabled on this system
 ```
@@ -68,16 +73,19 @@ File cannot be loaded because running scripts is disabled on this system
 **Solutions:**
 
 1. **Check current policy:**
+
    ```powershell
    Get-ExecutionPolicy -List
    ```
 
 2. **Set RemoteSigned for current user:**
+
    ```powershell
    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
    ```
 
 3. **Temporary bypass (for testing only):**
+
    ```powershell
    PowerShell.exe -ExecutionPolicy Bypass -File .\update-dependencies.ps1
    ```
@@ -92,6 +100,7 @@ File cannot be loaded because running scripts is disabled on this system
 ### 3. npm Installation Failures
 
 **Symptoms:**
+
 - Log shows "Installation failed"
 - Exit code non-zero
 - Backup restored automatically
@@ -110,28 +119,30 @@ npm ping
 Test-NetConnection registry.npmjs.org -Port 443
 
 # View error in logs
-Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log | 
-  Sort-Object LastWriteTime -Descending | 
-  Select-Object -First 1).FullName | 
+Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1).FullName |
   Select-String "ERROR" -Context 5
 ```
 
 **Solutions:**
 
 1. **Network issues:**
+
    ```powershell
    # Test connectivity
    Test-Connection registry.npmjs.org
-   
+
    # Check proxy settings
    npm config get proxy
    npm config get https-proxy
-   
+
    # Clear npm cache
    npm cache clean --force
    ```
 
 2. **Corrupted package-lock.json:**
+
    ```powershell
    # Delete and regenerate
    Remove-Item package-lock.json
@@ -139,10 +150,11 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
    ```
 
 3. **Disk space issues:**
+
    ```powershell
    # Check free space
    Get-PSDrive C | Select-Object Used, Free
-   
+
    # Clean npm cache if needed
    npm cache clean --force
    ```
@@ -158,17 +170,20 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
 ### 4. No Logs Created
 
 **Symptoms:**
+
 - No files in `C:\Temp\codepark-update-*.log`
 - Can't verify if task ran
 
 **Solutions:**
 
 1. **Create temp directory:**
+
    ```powershell
    New-Item -ItemType Directory -Path C:\Temp -Force
    ```
 
 2. **Check write permissions:**
+
    ```powershell
    # Test write access
    "test" | Out-File C:\Temp\test.txt
@@ -176,10 +191,11 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
    ```
 
 3. **Use custom log directory:**
+
    ```powershell
    # Create custom directory
    New-Item -ItemType Directory -Path C:\CodeParkLogs -Force
-   
+
    # Update task to use custom directory
    # Edit task action argument to include:
    # -LogDir "C:\CodeParkLogs"
@@ -198,23 +214,26 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
 ### 5. Backups Not Working
 
 **Symptoms:**
+
 - No files in `backups/` directory
 - Rollback fails
 
 **Solutions:**
 
 1. **Check backup directory:**
+
    ```powershell
    cd C:\path\to\CodePark
-   
+
    # List backups
    Get-ChildItem .\backups\package-lock-*.json
-   
+
    # If directory doesn't exist, create it
    New-Item -ItemType Directory -Path .\backups -Force
    ```
 
 2. **Manual backup:**
+
    ```powershell
    # Create backup manually before update
    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -233,6 +252,7 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
 ### 6. Task Runs But Updates Fail
 
 **Symptoms:**
+
 - Task shows as "Running" or "Ready"
 - Log shows errors
 - Dependencies not updated
@@ -241,13 +261,13 @@ Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
 
 ```powershell
 # Check last result
-Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" | 
+Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" |
   Select-Object LastTaskResult
 # 0 = success, other = error code
 
 # View complete log
-$log = Get-ChildItem C:\Temp\codepark-update-*.log | 
-  Sort-Object LastWriteTime -Descending | 
+$log = Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending |
   Select-Object -First 1
 Get-Content $log.FullName
 ```
@@ -255,12 +275,14 @@ Get-Content $log.FullName
 **Solutions:**
 
 1. **Run manually to debug:**
+
    ```powershell
    cd C:\path\to\CodePark
    .\Coding\Scripts\auto-update\update-dependencies.ps1 -Verbose
    ```
 
 2. **Check script location:**
+
    ```powershell
    # Verify script exists
    Test-Path .\Coding\Scripts\auto-update\update-dependencies.ps1
@@ -277,41 +299,47 @@ Get-Content $log.FullName
 ### 7. Security Vulnerabilities After Update
 
 **Symptoms:**
+
 - Log shows high/critical vulnerabilities
 - Security audit fails
 
 **Solutions:**
 
 1. **Review audit results:**
+
    ```powershell
    cd C:\path\to\CodePark
    npm audit
    ```
 
 2. **Attempt automatic fix:**
+
    ```powershell
    npm audit fix
    ```
 
 3. **Force update to latest:**
+
    ```powershell
    npm audit fix --force
    ```
 
 4. **Check specific package:**
+
    ```powershell
-   npm audit --json | ConvertFrom-Json | 
+   npm audit --json | ConvertFrom-Json |
      Select-Object -ExpandProperty vulnerabilities
    ```
 
 5. **Rollback if critical:**
+
    ```powershell
    # Use backup from before update
-   $backup = Get-ChildItem .\backups\package-lock-*.json | 
-     Sort-Object LastWriteTime -Descending | 
-     Select-Object -First 2 | 
+   $backup = Get-ChildItem .\backups\package-lock-*.json |
+     Sort-Object LastWriteTime -Descending |
+     Select-Object -First 2 |
      Select-Object -Last 1
-   
+
    Copy-Item $backup.FullName .\package-lock.json
    npm ci
    ```
@@ -328,13 +356,13 @@ function Test-AutoUpdateSystem {
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
     Write-Host "System Diagnostic" -ForegroundColor Cyan
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-    
+
     # 1. Task exists?
     $task = Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinue
     if ($task) {
         Write-Host "✅ Task exists" -ForegroundColor Green
         Write-Host "   State: $($task.State)"
-        
+
         $info = Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update"
         Write-Host "   Last Run: $($info.LastRunTime)"
         Write-Host "   Next Run: $($info.NextRunTime)"
@@ -342,7 +370,7 @@ function Test-AutoUpdateSystem {
     } else {
         Write-Host "❌ Task not found" -ForegroundColor Red
     }
-    
+
     # 2. Script exists?
     $scriptPath = ".\Coding\Scripts\auto-update\update-dependencies.ps1"
     if (Test-Path $scriptPath) {
@@ -350,7 +378,7 @@ function Test-AutoUpdateSystem {
     } else {
         Write-Host "❌ Update script not found" -ForegroundColor Red
     }
-    
+
     # 3. npm available?
     try {
         $npmVersion = npm --version 2>$null
@@ -358,7 +386,7 @@ function Test-AutoUpdateSystem {
     } catch {
         Write-Host "❌ npm not found" -ForegroundColor Red
     }
-    
+
     # 4. Logs exist?
     $logs = Get-ChildItem C:\Temp\codepark-update-*.log -ErrorAction SilentlyContinue
     if ($logs) {
@@ -368,7 +396,7 @@ function Test-AutoUpdateSystem {
     } else {
         Write-Host "⚠️  No logs found" -ForegroundColor Yellow
     }
-    
+
     # 5. Backups exist?
     $backups = Get-ChildItem .\backups\package-lock-*.json -ErrorAction SilentlyContinue
     if ($backups) {
@@ -376,14 +404,14 @@ function Test-AutoUpdateSystem {
     } else {
         Write-Host "⚠️  No backups found" -ForegroundColor Yellow
     }
-    
+
     # 6. Project structure?
     if (Test-Path package.json) {
         Write-Host "✅ package.json exists" -ForegroundColor Green
     } else {
         Write-Host "❌ package.json not found" -ForegroundColor Red
     }
-    
+
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
 }
 
@@ -396,14 +424,14 @@ Test-AutoUpdateSystem
 
 ```powershell
 function Show-LatestErrors {
-    $log = Get-ChildItem C:\Temp\codepark-update-*.log | 
-        Sort-Object LastWriteTime -Descending | 
+    $log = Get-ChildItem C:\Temp\codepark-update-*.log |
+        Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
-    
+
     if ($log) {
         Write-Host "Latest log: $($log.Name)" -ForegroundColor Cyan
         Write-Host "━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-        Get-Content $log.FullName | Select-String "ERROR|WARNING" | 
+        Get-Content $log.FullName | Select-String "ERROR|WARNING" |
             ForEach-Object { Write-Host $_ -ForegroundColor $(if ($_ -match 'ERROR') { 'Red' } else { 'Yellow' }) }
     } else {
         Write-Host "No logs found" -ForegroundColor Red
@@ -455,6 +483,7 @@ cd C:\path\to\CodePark\Coding\Scripts\auto-update
 Include:
 
 1. **System info:**
+
    ```powershell
    Get-ComputerInfo | Select-Object OsName, OsVersion, OsArchitecture
    npm --version
@@ -462,6 +491,7 @@ Include:
    ```
 
 2. **Task info:**
+
    ```powershell
    Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Format-List *
    Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update"
