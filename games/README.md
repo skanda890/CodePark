@@ -22,6 +22,7 @@ games/
 **Players**: Single Player
 
 #### Description
+
 Guess a randomly selected number between 1 and 100. The game provides feedback ("too high" or "too low") until you find the correct number.
 
 #### CLI Usage
@@ -32,6 +33,7 @@ node index.js --game
 ```
 
 **Features**:
+
 - Interactive command-line interface
 - Real-time feedback
 - Attempt tracking
@@ -44,12 +46,14 @@ node index.js --game
 **Endpoints**:
 
 1. **Start Game**
+
    ```http
    GET /api/v1/game/start
    Authorization: Bearer <token>
    ```
-   
+
    Response:
+
    ```json
    {
      "message": "Number guessing game started!",
@@ -59,18 +63,20 @@ node index.js --game
    ```
 
 2. **Check Guess**
+
    ```http
    POST /api/v1/game/check
    Authorization: Bearer <token>
    Content-Type: application/json
-   
+
    {
      "gameId": "1234567890-123456789",
      "guess": 50
    }
    ```
-   
+
    Response:
+
    ```json
    {
      "result": "too_high",
@@ -81,12 +87,14 @@ node index.js --game
    ```
 
 3. **Get Statistics**
+
    ```http
    GET /api/v1/game/stats
    Authorization: Bearer <token>
    ```
-   
+
    Response:
+
    ```json
    {
      "activeGames": 2,
@@ -115,16 +123,17 @@ Game settings are configured in `config/index.js`:
 ```javascript
 module.exports = {
   game: {
-    expiryMinutes: 30,    // Game expiration time
-    maxGames: 1000,       // Maximum concurrent games
-    cleanupInterval: 60   // Cleanup interval in seconds
-  }
+    expiryMinutes: 30, // Game expiration time
+    maxGames: 1000, // Maximum concurrent games
+    cleanupInterval: 60, // Cleanup interval in seconds
+  },
 };
 ```
 
 ## Features
 
 ### CLI Game Features
+
 - ✅ Interactive prompt-based gameplay
 - ✅ Input validation
 - ✅ Attempt tracking
@@ -132,6 +141,7 @@ module.exports = {
 - ✅ Callbacks for success and attempts
 
 ### API Game Features
+
 - ✅ RESTful API endpoints
 - ✅ JWT authentication
 - ✅ Rate limiting
@@ -174,18 +184,22 @@ The game system exposes Prometheus metrics:
 ## Security
 
 ### Rate Limiting
+
 - Game endpoints have dedicated rate limiters
 - Prevents abuse and ensures fair resource usage
 
 ### Authentication
+
 - All API endpoints require JWT authentication
 - Users can only access their own games
 
 ### Input Validation
+
 - All inputs are validated using `express-validator`
 - Prevents injection attacks and malformed requests
 
 ### Game Isolation
+
 - Each user's games are isolated
 - Games automatically expire after configured time
 - Maximum game limit prevents resource exhaustion
@@ -205,7 +219,7 @@ The game system exposes Prometheus metrics:
 
 function startMyGame(options = {}) {
   // Game logic here
-  console.log('Welcome to My New Game!');
+  console.log("Welcome to My New Game!");
 }
 
 module.exports = { startMyGame };
@@ -225,6 +239,7 @@ curl -X GET http://localhost:3000/api/v1/game/start \
 ## Future Enhancements
 
 ### Planned Features
+
 - [ ] Multiplayer support
 - [ ] Leaderboards
 - [ ] Different difficulty levels
@@ -234,6 +249,7 @@ curl -X GET http://localhost:3000/api/v1/game/start \
 - [ ] More game types (Tic-Tac-Toe, Word Guessing, etc.)
 
 ### Game Ideas
+
 - **Sudoku Solver** - Using the `sudoku-gen` package
 - **Trivia Quiz** - General knowledge questions
 - **Word Scramble** - Unscramble words
@@ -254,6 +270,7 @@ When contributing game-related code:
 ## Support
 
 For questions or issues related to games:
+
 - 📧 Email: support@codepark.dev
 - 🐛 Issues: [GitHub Issues](https://github.com/skanda890/CodePark/issues)
 - 💬 Discord: [Join our server](https://discord.gg/codepark)
