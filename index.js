@@ -171,7 +171,7 @@ app.post(
     // Increment attempt counter
     gameData.attempts++
 
-    const target = gameData.target
+    const {target} = gameData
     const parsed = parseInt(guess, 10)
 
     if (parsed < target) {
