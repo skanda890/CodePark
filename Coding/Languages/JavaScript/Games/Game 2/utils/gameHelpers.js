@@ -45,7 +45,8 @@ function buildGuessResponse (gameData, guess, gameId, games) {
 }
 
 function isValidGuess (guess, min = 1, max = 100) {
-  return Number.isInteger(guess) && guess >= min && guess <= max
+  const n = Number(guess)
+  return Number.isInteger(n) && n >= min && n <= max
 }
 
 function calculateStats (games, userId) {
