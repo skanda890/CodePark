@@ -112,7 +112,9 @@ function startCliGame (options = {}) {
 
       // Call onAttempt callback if provided
       if (typeof config.onAttempt === 'function') {
-        config.onAttempt(attempts, guess, guess === randomNumber)
+        // Call with attempt number and guess (keep API consistent with example).
+        // If you prefer the `isCorrect` boolean, update docs/example instead.
+        config.onAttempt(attempts, guess)
       }
 
       if (shouldContinue) {
