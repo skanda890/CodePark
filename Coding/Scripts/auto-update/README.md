@@ -155,13 +155,13 @@ Cleanup-OldBackups -BackupLocation $BackupDir -DaysToKeep 14  # Keep 14 days ins
 
 ```powershell
 # Latest log file
-Get-ChildItem C:\Temp\codepark-update-*.log | 
-  Sort-Object LastWriteTime -Descending | 
-  Select-Object -First 1 | 
+Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1 |
   Get-Content
 
 # All logs (sorted by date)
-Get-ChildItem C:\Temp\codepark-update-*.log | 
+Get-ChildItem C:\Temp\codepark-update-*.log |
   Sort-Object LastWriteTime -Descending
 
 # Follow live log (while running)
@@ -255,7 +255,7 @@ The script automatically restores the latest backup if installation fails:
 
 ```powershell
 # List available backups
-Get-ChildItem .\backups\package-lock-*.json | 
+Get-ChildItem .\backups\package-lock-*.json |
   Sort-Object LastWriteTime -Descending |
   Format-Table Name, LastWriteTime, @{L='Size';E={"$([Math]::Round($_.Length/1KB,2)) KB"}}
 
@@ -295,17 +295,20 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 ### Task Not Running
 
 1. **Check if task exists:**
+
    ```powershell
    Get-ScheduledTask -TaskName "CodePark-Daily-Update"
    ```
 
 2. **Check task status:**
+
    ```powershell
    (Get-ScheduledTask -TaskName "CodePark-Daily-Update").State
    # Should be: Ready
    ```
 
 3. **Check last run result:**
+
    ```powershell
    Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" | Select-Object LastRunTime, LastTaskResult
    # LastTaskResult should be: 0 (success)
@@ -321,20 +324,23 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 ### Installation Failures
 
 1. **Check logs for errors:**
+
    ```powershell
-   Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log | 
-     Sort-Object LastWriteTime -Descending | 
-     Select-Object -First 1).FullName | 
+   Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
+     Sort-Object LastWriteTime -Descending |
+     Select-Object -First 1).FullName |
      Select-String "ERROR"
    ```
 
 2. **Test internet connectivity:**
+
    ```powershell
    npm ping
    Test-NetConnection registry.npmjs.org -Port 443
    ```
 
 3. **Test npm manually:**
+
    ```powershell
    cd C:\path\to\CodePark
    npm install --dry-run
@@ -348,11 +354,13 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 ### Permission Issues
 
 1. **Check execution policy:**
+
    ```powershell
    Get-ExecutionPolicy -List
    ```
 
 2. **Set RemoteSigned for current user:**
+
    ```powershell
    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
    ```
@@ -365,6 +373,7 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 ### Logs Not Created
 
 1. **Check temp directory exists:**
+
    ```powershell
    Test-Path C:\Temp
    # If false, create it:
@@ -427,12 +436,12 @@ Add to `update-dependencies.ps1`:
 # Discord webhook
 function Send-DiscordNotification {
     param([string]$Message, [string]$WebhookUrl)
-    
+
     $Payload = @{
         content = $Message
         username = "CodePark Bot"
     } | ConvertTo-Json
-    
+
     Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $Payload -ContentType 'application/json'
 }
 
@@ -480,18 +489,18 @@ npm view mongodb dist-tags.next
 
 ## 🎯 Task Configuration Summary
 
-| Setting              | Value                           |
-| -------------------- | ------------------------------- |
-| **Task Name**        | CodePark-Daily-Update           |
-| **Schedule**         | Daily at 2:00 AM                |
-| **Run Level**        | Standard (non-elevated)         |
-| **User**             | Current user                    |
-| **Execution Policy** | RemoteSigned                    |
-| **Max Runtime**      | 2 hours                         |
-| **Restart on Fail**  | Yes (3 attempts, 10 min delay)  |
-| **Hidden**           | Yes (runs silently)             |
-| **Network Required** | Yes                             |
-| **Logs**             | C:\Temp\codepark-update-*.log   |
+| Setting              | Value                          |
+| -------------------- | ------------------------------ |
+| **Task Name**        | CodePark-Daily-Update          |
+| **Schedule**         | Daily at 2:00 AM               |
+| **Run Level**        | Standard (non-elevated)        |
+| **User**             | Current user                   |
+| **Execution Policy** | RemoteSigned                   |
+| **Max Runtime**      | 2 hours                        |
+| **Restart on Fail**  | Yes (3 attempts, 10 min delay) |
+| **Hidden**           | Yes (runs silently)            |
+| **Network Required** | Yes                            |
+| **Logs**             | C:\Temp\codepark-update-\*.log |
 
 ---
 
