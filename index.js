@@ -135,8 +135,8 @@ app.get('/game/guess', gameRateLimiter, (req, res) => {
     hint: 'POST /game/check with {"gameId":"<gameId>","guess": number} to check your guess',
     expiresIn: `${GAME_EXPIRY_MS / 60000} minutes`
   })
-})
-    gameRateLimiter,
+});
+(gameRateLimiter,
 app.post(
   '/game/check',
   [
@@ -193,7 +193,7 @@ app.post(
       })
     }
   }
-)
+))
 
 // 404 handler
 app.use((req, res) => {
