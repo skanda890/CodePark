@@ -16,8 +16,20 @@ module.exports = {
   maxRequestSize: process.env.MAX_REQUEST_SIZE || '100kb',
 
   // Security
-  allowedOrigin: process.env.ALLOWED_ORIGIN || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('ALLOWED_ORIGIN must be set in production'); })() : '*'),
-  jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET must be set in production'); })() : 'change-this-in-production'),
+  allowedOrigin:
+    process.env.ALLOWED_ORIGIN ||
+    (process.env.NODE_ENV === 'production'
+      ? (() => {
+          throw new Error('ALLOWED_ORIGIN must be set in production')
+        })()
+      : '*'),
+  jwtSecret:
+    process.env.JWT_SECRET ||
+    (process.env.NODE_ENV === 'production'
+      ? (() => {
+          throw new Error('JWT_SECRET must be set in production')
+        })()
+      : 'change-this-in-production'),
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
   jwtRefreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
 
