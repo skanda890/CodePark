@@ -21,6 +21,7 @@ cd C:\path\to\CodePark\Coding\Scripts\auto-update
 ```
 
 **Example:**
+
 ```powershell
 cd C:\Users\Skanda\Projects\CodePark\Coding\Scripts\auto-update
 ```
@@ -74,6 +75,7 @@ cd C:\path\to\CodePark
 ```
 
 **Expected Output:**
+
 ```
 ========================================
 CodePark Dependency Auto-Updater
@@ -99,6 +101,7 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Get-ScheduledTaskInfo
 ```
 
 **Look for:**
+
 - `LastRunTime`: Should show recent time
 - `LastTaskResult`: Should be `0` (success)
 
@@ -106,13 +109,14 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Get-ScheduledTaskInfo
 
 ```powershell
 # Find latest log
-Get-ChildItem C:\Temp\codepark-update-*.log | 
-  Sort-Object LastWriteTime -Descending | 
-  Select-Object -First 1 | 
+Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1 |
   Get-Content
 ```
 
 **Look for:**
+
 ```
 [2024-12-05 18:00:45] [SUCCESS] Dependencies installed successfully
 ```
@@ -145,12 +149,12 @@ Get-ChildItem C:\Temp\codepark-update-*.log |
 
 ### Where to Find Everything
 
-| Item | Location |
-|------|----------|
-| **Logs** | `C:\Temp\codepark-update-*.log` |
-| **Backups** | `C:\path\to\CodePark\backups\` |
-| **Task** | Task Scheduler → Task Scheduler Library |
-| **Script** | `C:\path\to\CodePark\Coding\Scripts\auto-update\` |
+| Item        | Location                                          |
+| ----------- | ------------------------------------------------- |
+| **Logs**    | `C:\Temp\codepark-update-*.log`                   |
+| **Backups** | `C:\path\to\CodePark\backups\`                    |
+| **Task**    | Task Scheduler → Task Scheduler Library           |
+| **Script**  | `C:\path\to\CodePark\Coding\Scripts\auto-update\` |
 
 ---
 
@@ -164,14 +168,14 @@ Get-ChildItem C:\Temp\codepark-update-*.log |
 ✅ **Automatic Backups**: Last 7 days kept  
 ✅ **Auto-Rollback**: Restores on failure  
 ✅ **Hidden Execution**: Runs silently in background  
-✅ **Timeout Protection**: Max 2-hour runtime  
+✅ **Timeout Protection**: Max 2-hour runtime
 
 ### What to Monitor
 
 ⚠️ **Check logs after first run**  
 ⚠️ **Review security audit results**  
 ⚠️ **Test app after updates**  
-⚠️ **Keep backups for rollback**  
+⚠️ **Keep backups for rollback**
 
 ---
 
@@ -180,11 +184,13 @@ Get-ChildItem C:\Temp\codepark-update-*.log |
 ### Issue: "Script cannot be loaded"
 
 **Error:**
+
 ```
 File cannot be loaded because running scripts is disabled on this system.
 ```
 
 **Fix:**
+
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ```
@@ -192,12 +198,14 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ### Issue: "Task not found"
 
 **Error:**
+
 ```
 Get-ScheduledTask : No MSFT_ScheduledTask objects found
 ```
 
 **Fix:**
 Re-run setup script:
+
 ```powershell
 .\setup-windows-task.ps1
 ```
@@ -205,6 +213,7 @@ Re-run setup script:
 ### Issue: "Access denied"
 
 **Error:**
+
 ```
 Access is denied
 ```
@@ -216,6 +225,7 @@ Make sure PowerShell is running as Administrator
 
 **Fix:**
 Create temp directory manually:
+
 ```powershell
 New-Item -ItemType Directory -Path C:\Temp -Force
 ```
@@ -292,7 +302,7 @@ If you need to rollback to a previous state:
 
 ```powershell
 cd C:\path\to\CodePark
-Get-ChildItem .\backups\package-lock-*.json | 
+Get-ChildItem .\backups\package-lock-*.json |
   Sort-Object LastWriteTime -Descending |
   Format-Table Name, LastWriteTime
 ```
@@ -322,27 +332,35 @@ npm list --depth=0
 ## ❓ FAQ
 
 ### Q: Will this update my app while I'm using it?
+
 **A:** No, it runs at 2:00 AM when you're likely not using it. Plus, you can change the time.
 
 ### Q: What if an update breaks something?
+
 **A:** The script automatically rolls back on failure. You also have 7 days of backups.
 
 ### Q: Can I see what changed?
+
 **A:** Yes, check the log files in `C:\Temp` for detailed information.
 
 ### Q: Will this slow down my computer?
+
 **A:** No, it runs hidden in the background and only when network is available.
 
 ### Q: How much disk space do backups use?
+
 **A:** Each backup is ~50KB. 7 days = ~350KB total.
 
 ### Q: Can I run this on battery power?
+
 **A:** Yes, the task is configured to run even on battery.
 
 ### Q: Does this require admin rights?
+
 **A:** Setup requires admin, but the task runs without elevation.
 
 ### Q: How do I know if it's working?
+
 **A:** Check logs in `C:\Temp` or run manually with `Start-ScheduledTask`.
 
 ---
@@ -360,6 +378,7 @@ npm list --depth=0
 Your CodePark repository will now automatically stay on the bleeding edge with daily updates!
 
 **Next Steps:**
+
 - Monitor first few runs via logs
 - Adjust schedule if needed
 - Check for vulnerabilities in audit results
