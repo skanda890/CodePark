@@ -4,15 +4,15 @@
   "description": "A basic npm project with minimal dependencies",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.7.9",
-    "express": "^5.1.0",
+    "axios": "^1.13.2",
+    "express": "^5.0.1",
     "mongodb": "^7.0.0",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^6.9.15",
     "sudoku-gen": "^1.0.2",
-    "systeminformation": "^5.25.11"
+    "systeminformation": "^5.23.5"
   },
   "author": "SkandaBT",
   "license": "MIT",
