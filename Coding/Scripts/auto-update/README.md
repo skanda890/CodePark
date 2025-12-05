@@ -4,40 +4,44 @@ Automatically updates CodePark dependencies to the latest bleeding-edge versions
 
 ## 📋 Overview
 
-This system:
+This enhanced system:
 
-- ✅ Runs **daily at 2:00 AM**
+- ✅ Runs **daily at 2:00 AM** (customizable)
 - ✅ Removes `package-lock.json` and `node_modules`
 - ✅ Installs latest `next` versions (pre-release)
 - ✅ Backs up previous `package-lock.json`
-- ✅ Logs all operations
-- ✅ Auto-rollback on failure
+- ✅ **Enhanced logging** with color-coded severity levels
+- ✅ **Automatic rollback** on installation failure
+- ✅ **Security audit** after installation
+- ✅ **Smart error handling** with detailed diagnostics
+- ✅ **Dry-run mode** for testing
 - ✅ Cleans up old backups (keeps 7 days)
 
 ---
 
 ## 🚀 Quick Start
 
-### Linux / macOS
-
-```bash
-# Navigate to project root
-cd /path/to/CodePark
-
-# Run setup script
-chmod +x auto-update/setup-cron.sh
-./auto-update/setup-cron.sh
-```
-
-### Windows
+### Windows (Recommended)
 
 ```powershell
 # Open PowerShell as Administrator
-cd C:\path\to\CodePark
+cd C:\path\to\CodePark\Coding\Scripts\auto-update
 
 # Run setup script
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\auto-update\setup-windows-task.ps1
+.\setup-windows-task.ps1
+```
+
+That's it! The task will run daily at 2:00 AM automatically.
+
+### Linux / macOS
+
+```bash
+# Navigate to auto-update directory
+cd /path/to/CodePark/Coding/Scripts/auto-update
+
+# Run setup script
+chmod +x setup-cron.sh
+./setup-cron.sh
 ```
 
 ---
@@ -45,15 +49,71 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ## 📁 File Structure
 
 ```
-auto-update/
-├── update-dependencies.sh      # Linux/macOS update script
-├── setup-cron.sh               # Linux/macOS cron setup
-├── setup-windows-task.ps1      # Windows task setup
-└── README.md                   # This file
+Coding/Scripts/auto-update/
+├── update-dependencies.ps1      # Windows update script (NEW ✨)
+├── update-dependencies.sh       # Linux/macOS update script
+├── setup-windows-task.ps1       # Windows task setup (ENHANCED ✨)
+├── setup-cron.sh                # Linux/macOS cron setup
+└── README.md                    # This file
 
-backups/                        # Created automatically
-└── package-lock-*.json         # Backup files (last 7 days)
+backups/                         # Created automatically
+└── package-lock-*.json          # Backup files (last 7 days)
+
+C:\Temp/                         # Windows log directory
+└── codepark-update-*.log        # Detailed log files
 ```
+
+---
+
+## ✨ What's New in Enhanced Version
+
+### Windows PowerShell Script (`update-dependencies.ps1`)
+
+1. **🎯 Robust Error Handling**
+   - Prerequisite checks (npm, Node.js, project structure)
+   - Graceful failure with detailed error messages
+   - Automatic backup restoration on failure
+
+2. **📊 Enhanced Logging**
+   - Color-coded severity levels (INFO, SUCCESS, WARNING, ERROR, DEBUG)
+   - Timestamped entries for easy debugging
+   - Both console and file output
+
+3. **🔒 Security Features**
+   - Security audit after installation
+   - Vulnerability count and severity reporting
+   - RemoteSigned execution policy (safer than Bypass)
+
+4. **🧑‍💻 Developer-Friendly**
+   - Dry-run mode to preview changes
+   - Verbose mode for detailed output
+   - Custom log directory support
+   - Parameter-based configuration
+
+5. **🛠️ Improved Reliability**
+   - Execution time tracking
+   - Automatic cleanup of old backups
+   - Progress indicators
+   - Exit codes for monitoring
+
+### Task Scheduler Setup (`setup-windows-task.ps1`)
+
+1. **🔐 Security Improvements**
+   - Runs without elevation (reduced attack surface)
+   - Hidden window for silent operation
+   - Network availability check
+   - 2-hour timeout to prevent hanging
+
+2. **🔁 Resilience**
+   - Auto-restart on failure (up to 3 attempts)
+   - 10-minute retry interval
+   - Configurable schedule
+
+3. **📝 Better Documentation**
+   - Comprehensive usage instructions
+   - Task management commands
+   - Script testing examples
+   - Visual formatting with Unicode
 
 ---
 
@@ -61,49 +121,30 @@ backups/                        # Created automatically
 
 ### Change Update Time
 
-**Linux/macOS (Cron):**
-
-```bash
-# Edit crontab
-crontab -e
-
-# Change time (example: 3 AM instead of 2 AM)
-# Minute Hour Day Month Weekday Command
-0 3 * * * cd /path/to/CodePark && /path/to/update-dependencies.sh
-```
-
-**Windows (Task Scheduler):**
+**Windows:**
 
 ```powershell
-# Using Task Scheduler GUI:
-# 1. Open Task Scheduler
-# 2. Find "CodePark-Daily-Update"
-# 3. Right-click → Properties → Triggers → Edit
-# 4. Change time
+# Option 1: Re-run setup with custom time
+.\setup-windows-task.ps1 -Hour 3 -Minute 30  # 3:30 AM
 
-# Or via PowerShell:
-$Trigger = New-ScheduledTaskTrigger -Daily -At "3:00AM"
+# Option 2: Modify existing task
+$Trigger = New-ScheduledTaskTrigger -Daily -At "3:30AM"
 Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger $Trigger
 ```
 
-### Change Update Frequency
-
-**Run every 12 hours (Linux/macOS):**
+**Linux/macOS:**
 
 ```bash
 crontab -e
-# Add:
-0 2,14 * * * cd /path/to/CodePark && /path/to/update-dependencies.sh
+# Change: 0 2 * * * to: 0 3 * * *  (for 3 AM)
 ```
 
-**Run twice daily (Windows):**
+### Change Backup Retention
+
+Edit `update-dependencies.ps1` (line ~110):
 
 ```powershell
-# Create additional trigger
-$Trigger1 = New-ScheduledTaskTrigger -Daily -At "2:00AM"
-$Trigger2 = New-ScheduledTaskTrigger -Daily -At "2:00PM"
-$Action = (Get-ScheduledTask -TaskName "CodePark-Daily-Update").Actions[0]
-Register-ScheduledTask -TaskName "CodePark-Daily-Update" -Action $Action -Trigger @($Trigger1, $Trigger2) -Force
+Cleanup-OldBackups -BackupLocation $BackupDir -DaysToKeep 14  # Keep 14 days instead of 7
 ```
 
 ---
@@ -112,130 +153,135 @@ Register-ScheduledTask -TaskName "CodePark-Daily-Update" -Action $Action -Trigge
 
 ### View Logs
 
-**Linux/macOS:**
+```powershell
+# Latest log file
+Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1 |
+  Get-Content
 
-```bash
-# View latest update log
-ls -lt /tmp/codepark-update-*.log | head -n 1 | awk '{print $9}' | xargs cat
+# All logs (sorted by date)
+Get-ChildItem C:\Temp\codepark-update-*.log |
+  Sort-Object LastWriteTime -Descending
 
-# View cron log
-tail -f /tmp/codepark-cron.log
-
-# List all logs
-ls -lh /tmp/codepark-update-*.log
+# Follow live log (while running)
+Get-Content C:\Temp\codepark-update-*.log -Wait -Tail 50
 ```
 
-**Windows:**
+### Check Task Status
 
 ```powershell
-# View latest update log
-Get-ChildItem C:\Temp\codepark-update-*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | Get-Content
+# Task details
+Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Format-List *
 
-# List all logs
-Get-ChildItem C:\Temp\codepark-update-*.log | Sort-Object LastWriteTime -Descending
+# Last run result
+Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Get-ScheduledTaskInfo
+
+# Task history (from Event Viewer)
+Get-WinEvent -LogName 'Microsoft-Windows-TaskScheduler/Operational' |
+  Where-Object {$_.Message -like '*CodePark-Daily-Update*'} |
+  Select-Object -First 10 TimeCreated, Message
 ```
 
-### Check Current Versions
+### Security Audit Results
 
-```bash
-# See installed versions
-npm list --depth=0
+Logs show vulnerability counts:
 
-# Check what 'next' currently points to
-npm view axios dist-tags
-npm view express dist-tags
-npm view mongodb dist-tags
 ```
-
-### View Backups
-
-```bash
-# List backup files
-ls -lh backups/
-
-# View specific backup
-cat backups/package-lock-20241205-140000.json
+[2024-12-05 02:05:32] [INFO] Security vulnerabilities found:
+[2024-12-05 02:05:32] [ERROR]   Critical: 0
+[2024-12-05 02:05:32] [WARNING]   High: 2
+[2024-12-05 02:05:32] [INFO]   Moderate: 5
+[2024-12-05 02:05:32] [INFO]   Low: 1
 ```
 
 ---
 
-## 🧪 Manual Testing
+## 🧑‍💻 Testing & Development
 
-### Test Update Script
-
-**Linux/macOS:**
-
-```bash
-cd /path/to/CodePark
-./auto-update/update-dependencies.sh
-```
-
-**Windows:**
+### Test Update Script Manually
 
 ```powershell
 cd C:\path\to\CodePark
-.\auto-update\update-dependencies.ps1
+
+# Normal run
+.\Coding\Scripts\auto-update\update-dependencies.ps1
+
+# Dry run (no changes made)
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -DryRun
+
+# Verbose output
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -Verbose
+
+# Custom log directory
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -LogDir "D:\MyLogs"
+
+# Combine flags
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -DryRun -Verbose
 ```
 
 ### Run Scheduled Task Immediately
 
-**Linux/macOS:**
-
-```bash
-# No direct "run now" for cron, just execute the script
-./auto-update/update-dependencies.sh
-```
-
-**Windows:**
-
 ```powershell
 Start-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Monitor execution
+while ((Get-ScheduledTask -TaskName "CodePark-Daily-Update").State -eq 'Running') {
+    Write-Host "Task is running..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 5
+}
+Write-Host "Task completed!" -ForegroundColor Green
+
+# Check result
+Get-ScheduledTask -TaskName "CodePark-Daily-Update" | Get-ScheduledTaskInfo
 ```
 
 ---
 
 ## 🔄 Rollback
 
-### Manual Rollback to Backup
+### Automatic Rollback
 
-```bash
-# List backups
-ls -lh backups/
+The script automatically restores the latest backup if installation fails:
 
-# Restore specific backup
-cp backups/package-lock-20241205-140000.json package-lock.json
-npm ci  # Install exact versions from restored lock file
+```
+[2024-12-05 02:05:45] [ERROR] Installation failed: npm install failed with exit code 1
+[2024-12-05 02:05:45] [WARNING] Attempting to restore from backup...
+[2024-12-05 02:05:46] [SUCCESS] Restored backup: package-lock-20241205-020430.json
+[2024-12-05 02:05:47] [SUCCESS] Successfully restored to previous state
 ```
 
-### Rollback to Stable Versions
+### Manual Rollback
 
-```bash
-# Checkout commit with stable versions
-git checkout 298b21a
-npm install
+```powershell
+# List available backups
+Get-ChildItem .\backups\package-lock-*.json |
+  Sort-Object LastWriteTime -Descending |
+  Format-Table Name, LastWriteTime, @{L='Size';E={"$([Math]::Round($_.Length/1KB,2)) KB"}}
 
-# Or manually install stable
-npm install axios@1.7.9 express@5.0.1 mongodb@6.17.0 nodemailer@6.9.15 systeminformation@5.23.5
+# Restore specific backup
+Copy-Item .\backups\package-lock-20241205-020430.json .\package-lock.json -Force
+npm ci  # Install exact versions from restored lock file
 ```
 
 ---
 
 ## 🛑 Disable Auto-Updates
 
-### Linux/macOS
-
-```bash
-# Remove cron job
-crontab -l | grep -v 'update-dependencies.sh' | crontab -
-
-# Verify removal
-crontab -l
-```
-
-### Windows
+### Temporary Disable
 
 ```powershell
-# Remove scheduled task
+# Disable task (keeps configuration)
+Disable-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Re-enable later
+Enable-ScheduledTask -TaskName "CodePark-Daily-Update"
+```
+
+### Permanent Removal
+
+```powershell
+# Remove scheduled task completely
 Unregister-ScheduledTask -TaskName "CodePark-Daily-Update" -Confirm:$false
 
 # Verify removal
@@ -246,95 +292,161 @@ Get-ScheduledTask -TaskName "CodePark-Daily-Update" -ErrorAction SilentlyContinu
 
 ## 🐛 Troubleshooting
 
-### Updates Not Running
+### Task Not Running
 
-**Check if task/cron is active:**
+1. **Check if task exists:**
 
-```bash
-# Linux/macOS
-crontab -l | grep update-dependencies
+   ```powershell
+   Get-ScheduledTask -TaskName "CodePark-Daily-Update"
+   ```
 
-# Windows
-Get-ScheduledTask -TaskName "CodePark-Daily-Update"
-```
+2. **Check task status:**
 
-**Check logs for errors:**
+   ```powershell
+   (Get-ScheduledTask -TaskName "CodePark-Daily-Update").State
+   # Should be: Ready
+   ```
 
-```bash
-# Linux/macOS
-tail -100 /tmp/codepark-cron.log
+3. **Check last run result:**
 
-# Windows
-Get-Content C:\Temp\codepark-update-*.log -Tail 100
-```
+   ```powershell
+   Get-ScheduledTaskInfo -TaskName "CodePark-Daily-Update" | Select-Object LastRunTime, LastTaskResult
+   # LastTaskResult should be: 0 (success)
+   ```
+
+4. **View task history:**
+   ```powershell
+   Get-WinEvent -LogName 'Microsoft-Windows-TaskScheduler/Operational' |
+     Where-Object {$_.Message -like '*CodePark-Daily-Update*'} |
+     Select-Object -First 20 | Format-Table TimeCreated, Id, Message -Wrap
+   ```
 
 ### Installation Failures
 
-1. **Check internet connection**
-2. **Verify npm registry access**: `npm ping`
-3. **Check for npm errors**: Review log files
-4. **Try manual update**: Run update script directly
-5. **Restore backup**: Use most recent backup file
+1. **Check logs for errors:**
+
+   ```powershell
+   Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log |
+     Sort-Object LastWriteTime -Descending |
+     Select-Object -First 1).FullName |
+     Select-String "ERROR"
+   ```
+
+2. **Test internet connectivity:**
+
+   ```powershell
+   npm ping
+   Test-NetConnection registry.npmjs.org -Port 443
+   ```
+
+3. **Test npm manually:**
+
+   ```powershell
+   cd C:\path\to\CodePark
+   npm install --dry-run
+   ```
+
+4. **Check disk space:**
+   ```powershell
+   Get-PSDrive C | Select-Object Used, Free
+   ```
 
 ### Permission Issues
 
-**Linux/macOS:**
+1. **Check execution policy:**
 
-```bash
-# Make scripts executable
-chmod +x auto-update/*.sh
+   ```powershell
+   Get-ExecutionPolicy -List
+   ```
 
-# Check directory permissions
-ls -la backups/
-```
+2. **Set RemoteSigned for current user:**
 
-**Windows:**
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   ```
 
-```powershell
-# Run PowerShell as Administrator
-# Check execution policy
-Get-ExecutionPolicy
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
+3. **Check script file permissions:**
+   ```powershell
+   Get-Acl .\Coding\Scripts\auto-update\update-dependencies.ps1 | Format-List
+   ```
+
+### Logs Not Created
+
+1. **Check temp directory exists:**
+
+   ```powershell
+   Test-Path C:\Temp
+   # If false, create it:
+   New-Item -ItemType Directory -Path C:\Temp -Force
+   ```
+
+2. **Check write permissions:**
+   ```powershell
+   "test" | Out-File C:\Temp\test.txt
+   Remove-Item C:\Temp\test.txt
+   ```
 
 ---
 
 ## ⚙️ Advanced Configuration
 
-### Email Notifications (Linux/macOS)
+### Custom Schedule Examples
 
-Add email notification to cron:
+```powershell
+# Run every 12 hours
+$Trigger1 = New-ScheduledTaskTrigger -Daily -At "2:00AM"
+$Trigger2 = New-ScheduledTaskTrigger -Daily -At "2:00PM"
+$Action = (Get-ScheduledTask -TaskName "CodePark-Daily-Update").Actions[0]
+Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger @($Trigger1, $Trigger2)
 
-```bash
-# Install mailutils
-sudo apt-get install mailutils  # Ubuntu/Debian
-sudo yum install mailx          # RHEL/CentOS
+# Run weekly on Sunday at 3 AM
+$Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "3:00AM"
+Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger $Trigger
 
-# Modify cron entry
-crontab -e
-# Add MAILTO at top:
-MAILTO=your-email@example.com
-0 2 * * * cd /path/to/CodePark && /path/to/update-dependencies.sh
+# Run on startup (with 5-minute delay)
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Trigger.Delay = "PT5M"
+Set-ScheduledTask -TaskName "CodePark-Daily-Update" -Trigger $Trigger
 ```
 
-### Slack/Discord Notifications
+### Email Notifications (Windows)
 
-Add webhook call to update script:
+Add to end of `update-dependencies.ps1`:
 
-```bash
-# At end of update-dependencies.sh, add:
-curl -X POST "YOUR_WEBHOOK_URL" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "CodePark dependencies updated successfully!"}'
+```powershell
+# Send email notification
+$MailParams = @{
+    SmtpServer = "smtp.gmail.com"
+    Port = 587
+    UseSsl = $true
+    Credential = Get-Credential
+    From = "your-email@gmail.com"
+    To = "your-email@gmail.com"
+    Subject = "CodePark Update Completed"
+    Body = "Dependencies updated at $(Get-Date). Log: $LogFile"
+}
+Send-MailMessage @MailParams
 ```
 
-### Custom Backup Retention
+### Webhook Notifications
 
-Edit retention period in update script:
+Add to `update-dependencies.ps1`:
 
-```bash
-# Change from 7 days to 30 days:
-find "$BACKUP_DIR" -name "package-lock-*.json" -mtime +30 -delete
+```powershell
+# Discord webhook
+function Send-DiscordNotification {
+    param([string]$Message, [string]$WebhookUrl)
+
+    $Payload = @{
+        content = $Message
+        username = "CodePark Bot"
+    } | ConvertTo-Json
+
+    Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $Payload -ContentType 'application/json'
+}
+
+# Usage
+Send-DiscordNotification -Message "✅ CodePark dependencies updated!" -WebhookUrl "YOUR_WEBHOOK_URL"
 ```
 
 ---
@@ -350,28 +462,109 @@ find "$BACKUP_DIR" -name "package-lock-*.json" -mtime +30 -delete
 | **systeminformation** | `next` | System metrics (latest)      |
 | **@tolgee/cli**       | `next` | i18n tooling (pre-release)   |
 
+To see current `next` versions:
+
+```bash
+npm view axios dist-tags.next
+npm view express dist-tags.next
+npm view mongodb dist-tags.next
+```
+
 ---
 
 ## ⚠️ Important Notes
 
 1. **🔥 Bleeding-Edge**: You're using pre-release versions
 2. **🎲 Non-Deterministic**: Different versions on each update
-3. **🐛 Expect Bugs**: Pre-release = more bugs
+3. **🐛 Expect Bugs**: Pre-release = potentially unstable
 4. **📚 Check Logs**: Review logs after each update
 5. **💾 Backups Saved**: Last 7 days kept automatically
 6. **🔄 Auto-Rollback**: Restores backup on failure
-7. **🧪 Test After Update**: Verify app works after updates
+7. **🧑‍🔬 Test After Update**: Verify app works after updates
+8. **🔒 Security Audit**: Check for vulnerabilities in logs
+9. **🛡️ Non-Elevated**: Task runs without admin privileges
+10. **⏱️ Timeout**: Max 2-hour runtime to prevent hanging
+
+---
+
+## 🎯 Task Configuration Summary
+
+| Setting              | Value                          |
+| -------------------- | ------------------------------ |
+| **Task Name**        | CodePark-Daily-Update          |
+| **Schedule**         | Daily at 2:00 AM               |
+| **Run Level**        | Standard (non-elevated)        |
+| **User**             | Current user                   |
+| **Execution Policy** | RemoteSigned                   |
+| **Max Runtime**      | 2 hours                        |
+| **Restart on Fail**  | Yes (3 attempts, 10 min delay) |
+| **Hidden**           | Yes (runs silently)            |
+| **Network Required** | Yes                            |
+| **Logs**             | C:\Temp\codepark-update-\*.log |
+
+---
+
+## 🔗 Quick Reference Commands
+
+### Task Management
+
+```powershell
+# View task
+Get-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Run now
+Start-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Disable
+Disable-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Enable
+Enable-ScheduledTask -TaskName "CodePark-Daily-Update"
+
+# Remove
+Unregister-ScheduledTask -TaskName "CodePark-Daily-Update" -Confirm:$false
+```
+
+### Log Management
+
+```powershell
+# Latest log
+Get-ChildItem C:\Temp\codepark-update-*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | Get-Content
+
+# Errors only
+Get-Content (Get-ChildItem C:\Temp\codepark-update-*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName | Select-String "ERROR"
+
+# Clean old logs
+Get-ChildItem C:\Temp\codepark-update-*.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-30)} | Remove-Item
+```
+
+### Script Testing
+
+```powershell
+# Test (no changes)
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -DryRun
+
+# Test with verbose
+.\Coding\Scripts\auto-update\update-dependencies.ps1 -DryRun -Verbose
+
+# Full run
+.\Coding\Scripts\auto-update\update-dependencies.ps1
+```
 
 ---
 
 ## 🆘 Support
 
-**Issues?** Open an issue: https://github.com/skanda890/CodePark/issues
-
-**Questions?** Check logs first, then open a discussion.
+- **🐛 Issues**: [github.com/skanda890/CodePark/issues](https://github.com/skanda890/CodePark/issues)
+- **💬 Discussions**: [github.com/skanda890/CodePark/discussions](https://github.com/skanda890/CodePark/discussions)
+- **📚 Docs**: Check logs first, then open an issue
 
 ---
 
 ## 📝 License
 
-MIT - See main repository LICENSE file
+MIT - See [LICENSE](../../../LICENSE)
+
+---
+
+**Last Updated**: December 2024 | **Version**: 2.0 (Enhanced)
