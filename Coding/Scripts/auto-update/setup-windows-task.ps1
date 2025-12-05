@@ -1,214 +1,208 @@
 ##############################################
 # Setup Daily Windows Task for Auto-Updates
 # For Windows using Task Scheduler
+# Enhanced version with better configuration
 ##############################################
+
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$TaskName = "CodePark-Daily-Update",
+    
+    [Parameter(Mandatory=$false)]
+    [ValidateRange(0, 23)]
+    [int]$Hour = 2,
+    
+    [Parameter(Mandatory=$false)]
+    [ValidateRange(0, 59)]
+    [int]$Minute = 0,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Force = $false
+)
 
 $ErrorActionPreference = "Stop"
 
-$ProjectDir = Split-Path -Parent $PSScriptRoot
-$UpdateScript = Join-Path $ProjectDir "auto-update\update-dependencies.ps1"
-$TaskName = "CodePark-Daily-Update"
+# Get script locations
+$ScriptDir = $PSScriptRoot
+$ProjectDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)
+$UpdateScript = Join-Path $ScriptDir "update-dependencies.ps1"
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "CodePark Auto-Update Task Setup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if update script exists
-if (-not (Test-Path $UpdateScript)) {
-    # Create the PowerShell update script
-    $UpdateScriptContent = @'
-##############################################
-# Automated Daily Dependency Updater (Windows)
-##############################################
-
-$ErrorActionPreference = "Continue"
-
-$LogFile = "C:\Temp\codepark-update-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-$ScriptDir = Split-Path -Parent $PSScriptRoot
-$ProjectDir = Split-Path -Parent $ScriptDir
-$BackupDir = Join-Path $ProjectDir "backups"
-
-# Create temp directory if it doesn't exist
-if (-not (Test-Path "C:\Temp")) {
-    New-Item -ItemType Directory -Path "C:\Temp" | Out-Null
-}
-
-function Write-Log {
-    param($Message)
-    $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $LogMessage = "[$Timestamp] $Message"
-    Write-Host $LogMessage
-    Add-Content -Path $LogFile -Value $LogMessage
-}
-
-Write-Log "========================================"
-Write-Log "CodePark Dependency Auto-Updater"
-Write-Log "Started: $(Get-Date)"
-Write-Log "Project Dir: $ProjectDir"
-Write-Log "========================================"
-
-# Create backup directory
-if (-not (Test-Path $BackupDir)) {
-    New-Item -ItemType Directory -Path $BackupDir | Out-Null
-}
-
-# Change to project directory
-Set-Location $ProjectDir
-
-# Backup current package-lock.json
-$PackageLock = Join-Path $ProjectDir "package-lock.json"
-if (Test-Path $PackageLock) {
-    $BackupFile = Join-Path $BackupDir "package-lock-$(Get-Date -Format 'yyyyMMdd-HHmmss').json"
-    Copy-Item $PackageLock $BackupFile
-    Write-Log "✅ Backed up package-lock.json to $BackupFile"
-}
-
-# Remove old package-lock.json
-if (Test-Path $PackageLock) {
-    Remove-Item $PackageLock -Force
-    Write-Log "🗑️ Removed old package-lock.json"
-}
-
-# Remove node_modules
-$NodeModules = Join-Path $ProjectDir "node_modules"
-if (Test-Path $NodeModules) {
-    Write-Log "🗑️ Removing node_modules..."
-    Remove-Item $NodeModules -Recurse -Force
-}
-
-Write-Log ""
-Write-Log "📦 Installing latest 'next' versions..."
-Write-Log ""
-
-# Run npm install with proper error handling
-$NpmExitCode = 0
+# Check if running as Administrator
 try {
-    # Capture output and exit code separately
-    $NpmOutput = npm install 2>&1
-    $NpmExitCode = $LASTEXITCODE
-    
-    $NpmOutput | ForEach-Object { Write-Log $_ }
-    
-    if ($NpmExitCode -eq 0) {
-        Write-Log ""
-        Write-Log "✅ Dependencies updated successfully!"
-        
-        # Show installed versions
-        Write-Log ""
-        Write-Log "📋 Installed versions:"
-        $ListOutput = npm list --depth=0 2>&1
-        $ListOutput | ForEach-Object { Write-Log $_ }
-        
-        # Security audit
-        Write-Log ""
-        Write-Log "🔒 Security audit:"
-        $AuditOutput = npm audit 2>&1
-        $AuditOutput | ForEach-Object { Write-Log $_ }
-        
-        # Clean up old backups (keep last 7 days)
-        Get-ChildItem $BackupDir -Filter "package-lock-*.json" | 
-            Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | 
-            Remove-Item -Force
-        Write-Log "🧹 Cleaned up old backups (kept last 7 days)"
-    } else {
-        throw "npm install failed with exit code $NpmExitCode"
+    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Host "❌ This script must be run as Administrator!" -ForegroundColor Red
+        Write-Host "   Please right-click PowerShell and select 'Run as Administrator'" -ForegroundColor Yellow
+        exit 1
     }
-    
-} catch {
-    Write-Log ""
-    Write-Log "❌ Installation failed: $($_.Exception.Message)"
-    Write-Log "Exit Code: $NpmExitCode"
-    
-    # Restore latest backup
-    $LatestBackup = Get-ChildItem $BackupDir -Filter "package-lock-*.json" | 
-        Sort-Object LastWriteTime -Descending | 
-        Select-Object -First 1
-    
-    if ($LatestBackup) {
-        Copy-Item $LatestBackup.FullName $PackageLock
-        Write-Log "🔄 Restored backup: $($LatestBackup.Name)"
-        npm install 2>&1 | ForEach-Object { Write-Log $_ }
-    }
-    
+}
+catch {
+    Write-Host "❌ Could not verify administrator privileges" -ForegroundColor Red
     exit 1
 }
 
-Write-Log ""
-Write-Log "========================================"
-Write-Log "Completed: $(Get-Date)"
-Write-Log "Log saved to: $LogFile"
-Write-Log "========================================"
-
-exit 0
-'@
-    
-    $UpdateScriptContent | Out-File -FilePath $UpdateScript -Encoding UTF8
-    Write-Host "✅ Created update script" -ForegroundColor Green
+# Verify update script exists
+if (-not (Test-Path $UpdateScript)) {
+    Write-Host "❌ Update script not found: $UpdateScript" -ForegroundColor Red
+    Write-Host "   Expected location: Coding/Scripts/auto-update/update-dependencies.ps1" -ForegroundColor Yellow
+    exit 1
 }
+
+Write-Host "✅ Update script found: $UpdateScript" -ForegroundColor Green
+Write-Host "✅ Project directory: $ProjectDir" -ForegroundColor Green
+Write-Host ""
 
 # Check if task already exists
 $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 
 if ($ExistingTask) {
-    Write-Host "⚠️ Task '$TaskName' already exists!" -ForegroundColor Yellow
-    $Response = Read-Host "Do you want to replace it? (Y/N)"
-    if ($Response -ne "Y" -and $Response -ne "y") {
-        Write-Host "Aborted." -ForegroundColor Yellow
-        exit 0
+    Write-Host "⚠️  Task '$TaskName' already exists!" -ForegroundColor Yellow
+    
+    if (-not $Force) {
+        $Response = Read-Host "Do you want to replace it? (Y/N)"
+        if ($Response -ne "Y" -and $Response -ne "y") {
+            Write-Host "Aborted." -ForegroundColor Yellow
+            exit 0
+        }
     }
+    
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-    Write-Host "🗑️ Removed old task" -ForegroundColor Yellow
+    Write-Host "🗑️  Removed old task" -ForegroundColor Yellow
+    Write-Host ""
 }
 
-# Create scheduled task action with RemoteSigned policy (safer than Bypass)
-$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy RemoteSigned -File `"$UpdateScript`""
-
-# Create trigger (daily at 2 AM)
-$Trigger = New-ScheduledTaskTrigger -Daily -At 2am
-
-# Create settings
-$Settings = New-ScheduledTaskSettingsSet `
-    -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries `
-    -StartWhenAvailable `
-    -RunOnlyIfNetworkAvailable
-
-# Register the task WITHOUT elevated privileges (more secure)
-# Removed -RunLevel Highest to reduce attack surface
-Register-ScheduledTask `
-    -TaskName $TaskName `
-    -Action $Action `
-    -Trigger $Trigger `
-    -Settings $Settings `
-    -Description "Daily auto-update for CodePark dependencies to latest 'next' versions"
-
-Write-Host ""
-Write-Host "✅ Scheduled task created successfully!" -ForegroundColor Green
-Write-Host ""
-Write-Host "Task Name: $TaskName" -ForegroundColor Cyan
-Write-Host "Schedule: Daily at 2:00 AM" -ForegroundColor Cyan
-Write-Host "Run Level: Standard (non-elevated)" -ForegroundColor Cyan
-Write-Host "Execution Policy: RemoteSigned" -ForegroundColor Cyan
-Write-Host "Logs: C:\Temp\codepark-update-*.log" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Security Notes:" -ForegroundColor Yellow
-Write-Host "  - Task runs without elevation (reduced attack surface)" -ForegroundColor Gray
-Write-Host "  - Uses RemoteSigned policy (requires signed remote scripts)" -ForegroundColor Gray
-Write-Host "  - Only runs when network is available" -ForegroundColor Gray
-Write-Host ""
-Write-Host "To view the task:" -ForegroundColor Yellow
-Write-Host "  Get-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
-Write-Host ""
-Write-Host "To run the task manually:" -ForegroundColor Yellow
-Write-Host "  Start-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
-Write-Host ""
-Write-Host "To remove the task:" -ForegroundColor Yellow
-Write-Host "  Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false" -ForegroundColor Gray
-Write-Host ""
-Write-Host "To test the update script manually:" -ForegroundColor Yellow
-Write-Host "  cd $ProjectDir" -ForegroundColor Gray
-Write-Host "  .\auto-update\update-dependencies.ps1" -ForegroundColor Gray
-Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
+# Create scheduled task components
+try {
+    # Action: Run PowerShell with RemoteSigned policy
+    # Using -WindowStyle Hidden to run silently
+    $Action = New-ScheduledTaskAction `
+        -Execute "PowerShell.exe" `
+        -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$UpdateScript`""
+    
+    # Trigger: Daily at specified time
+    $Trigger = New-ScheduledTaskTrigger -Daily -At "$Hour`:$Minute"
+    
+    # Settings: Configure task behavior
+    $Settings = New-ScheduledTaskSettingsSet `
+        -AllowStartIfOnBatteries `
+        -DontStopIfGoingOnBatteries `
+        -StartWhenAvailable `
+        -RunOnlyIfNetworkAvailable `
+        -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
+        -RestartCount 3 `
+        -RestartInterval (New-TimeSpan -Minutes 10)
+    
+    # Principal: Run as current user (non-elevated for security)
+    $Principal = New-ScheduledTaskPrincipal `
+        -UserId $env:USERNAME `
+        -LogonType S4U `
+        -RunLevel Limited
+    
+    # Register the task
+    $Task = Register-ScheduledTask `
+        -TaskName $TaskName `
+        -Action $Action `
+        -Trigger $Trigger `
+        -Settings $Settings `
+        -Principal $Principal `
+        -Description "Daily auto-update for CodePark dependencies to latest versions. Runs at $Hour`:$($Minute.ToString('00')) daily."
+    
+    Write-Host "✅ Scheduled task created successfully!" -ForegroundColor Green
+    Write-Host ""
+    
+    # Display task configuration
+    Write-Host "Task Configuration:" -ForegroundColor Cyan
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "  Task Name:        $TaskName" -ForegroundColor White
+    Write-Host "  Schedule:         Daily at $Hour`:$($Minute.ToString('00'))" -ForegroundColor White
+    Write-Host "  Run Level:        Standard (non-elevated)" -ForegroundColor White
+    Write-Host "  User:             $env:USERNAME" -ForegroundColor White
+    Write-Host "  Execution Policy: RemoteSigned" -ForegroundColor White
+    Write-Host "  Max Runtime:      2 hours" -ForegroundColor White
+    Write-Host "  Restart on Fail:  Yes (3 attempts, 10 min interval)" -ForegroundColor White
+    Write-Host "  Logs:             C:\Temp\codepark-update-*.log" -ForegroundColor White
+    Write-Host "  Update Script:    $UpdateScript" -ForegroundColor White
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Security notes
+    Write-Host "Security Features:" -ForegroundColor Yellow
+    Write-Host "  ✓ Runs without elevation (reduced attack surface)" -ForegroundColor Gray
+    Write-Host "  ✓ Uses RemoteSigned policy (requires signed remote scripts)" -ForegroundColor Gray
+    Write-Host "  ✓ Only runs when network is available" -ForegroundColor Gray
+    Write-Host "  ✓ Hidden window (runs silently in background)" -ForegroundColor Gray
+    Write-Host "  ✓ Automatic restart on failure (up to 3 times)" -ForegroundColor Gray
+    Write-Host "  ✓ 2-hour timeout to prevent hanging" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Usage instructions
+    Write-Host "Task Management Commands:" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Gray
+    Write-Host "  View task details:" -ForegroundColor Cyan
+    Write-Host "    Get-ScheduledTask -TaskName '$TaskName' | Format-List *" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Run task immediately:" -ForegroundColor Cyan
+    Write-Host "    Start-ScheduledTask -TaskName '$TaskName'" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Disable task:" -ForegroundColor Cyan
+    Write-Host "    Disable-ScheduledTask -TaskName '$TaskName'" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Enable task:" -ForegroundColor Cyan
+    Write-Host "    Enable-ScheduledTask -TaskName '$TaskName'" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Remove task:" -ForegroundColor Cyan
+    Write-Host "    Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  View task history:" -ForegroundColor Cyan
+    Write-Host "    Get-WinEvent -LogName 'Microsoft-Windows-TaskScheduler/Operational' |" -ForegroundColor White
+    Write-Host "      Where-Object {`$_.Message -like '*$TaskName*'} | Select-Object -First 10" -ForegroundColor White
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Script usage
+    Write-Host "Update Script Usage:" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Gray
+    Write-Host "  Test manually:" -ForegroundColor Cyan
+    Write-Host "    cd `"$ProjectDir`"" -ForegroundColor White
+    Write-Host "    .\Coding\Scripts\auto-update\update-dependencies.ps1" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Dry run (no changes):" -ForegroundColor Cyan
+    Write-Host "    .\Coding\Scripts\auto-update\update-dependencies.ps1 -DryRun" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Verbose output:" -ForegroundColor Cyan
+    Write-Host "    .\Coding\Scripts\auto-update\update-dependencies.ps1 -Verbose" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Custom log location:" -ForegroundColor Cyan
+    Write-Host "    .\Coding\Scripts\auto-update\update-dependencies.ps1 -LogDir 'C:\MyLogs'" -ForegroundColor White
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Next steps
+    Write-Host "Next Steps:" -ForegroundColor Yellow
+    Write-Host "  1. Test the update script manually (optional but recommended)" -ForegroundColor Gray
+    Write-Host "  2. Check logs in C:\Temp after first run" -ForegroundColor Gray
+    Write-Host "  3. Monitor task execution in Task Scheduler" -ForegroundColor Gray
+    Write-Host "  4. Review backup files in: $ProjectDir\backups" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "Setup completed successfully!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Cyan
+    
+}
+catch {
+    Write-Host ""
+    Write-Host "❌ Failed to create scheduled task!" -ForegroundColor Red
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host ""
+    exit 1
+}
