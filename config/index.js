@@ -3,33 +3,19 @@
  * All environment variables and app settings
  */
 
-require('dotenv').config()
+require('dotenv').config();
 
 module.exports = {
   // Server
-  port: (() => {
-    const p = parseInt(process.env.PORT, 10)
-    return Number.isNaN(p) ? 3000 : p
-  })(),
+  port: parseInt(process.env.PORT, 10) || 3000,
   host: process.env.HOST || 'localhost',
   nodeEnv: process.env.NODE_ENV || 'development',
   maxRequestSize: process.env.MAX_REQUEST_SIZE || '100kb',
 
   // Security
-  allowedOrigin:
-    process.env.ALLOWED_ORIGIN ||
-    (process.env.NODE_ENV === 'production'
-      ? (() => {
-          throw new Error('ALLOWED_ORIGIN must be set in production')
-        })()
-      : '*'),
-  jwtSecret:
-    process.env.JWT_SECRET ||
-    (process.env.NODE_ENV === 'production'
-      ? (() => {
-          throw new Error('JWT_SECRET must be set in production')
-        })()
-      : 'change-this-in-production'),
+  allowedOrigin: process.env.ALLOWED_ORIGIN || '*',
+  jwtSecret: process.env.JWT_SECRET || 'change-this-in-production',
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '', // Optional separate refresh secret
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
   jwtRefreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
 
@@ -39,8 +25,7 @@ module.exports = {
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100
   },
   gameRateLimit: {
-    windowMs:
-      parseInt(process.env.GAME_RATE_LIMIT_WINDOW_MS, 10) || 5 * 60 * 1000,
+    windowMs: parseInt(process.env.GAME_RATE_LIMIT_WINDOW_MS, 10) || 5 * 60 * 1000,
     max: parseInt(process.env.GAME_RATE_LIMIT_MAX, 10) || 20
   },
 
@@ -68,7 +53,7 @@ module.exports = {
 
   // Metrics
   metrics: {
-    enabled: process.env.METRICS_ENABLED === 'true',
+    enabled: process.env.METRICS_ENABLED !== 'false',
     port: parseInt(process.env.METRICS_PORT, 10) || 9090
   },
 
@@ -95,4 +80,4 @@ module.exports = {
     enabled: process.env.CACHE_ENABLED !== 'false',
     ttl: parseInt(process.env.CACHE_TTL, 10) || 300
   }
-}
+};
