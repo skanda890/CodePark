@@ -1,23 +1,23 @@
 {
   "name": "my-basic-npm-project",
   "version": "1.0.0",
-  "description": "A basic npm project with minimal dependencies",
+  "description": "A basic npm project with minimal dependencies - BLEEDING EDGE EXPERIMENTAL",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.7.9",
-    "express": "^5.0.1",
-    "mongodb": "^6.17.0",
-    "nodemailer": "^6.9.15",
-    "sudoku-gen": "^1.0.2",
-    "systeminformation": "^5.23.5"
+    "axios": "next",
+    "express": "next",
+    "mongodb": "next",
+    "nodemailer": "next",
+    "sudoku-gen": "latest",
+    "systeminformation": "next"
   },
   "author": "SkandaBT",
   "license": "MIT",
   "devDependencies": {
-    "@tolgee/cli": "^2.10.2"
+    "@tolgee/cli": "next"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,9 @@
   "keywords": [
     "npm",
     "project",
-    "codepark"
+    "codepark",
+    "experimental",
+    "bleeding-edge"
   ],
   "type": "commonjs",
   "bugs": {
