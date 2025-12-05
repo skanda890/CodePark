@@ -22,20 +22,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Check for pre-release versions
-        run: |
-          echo "🔬 Checking pre-release package versions..."
-
-          # Extract packages using 'next' or 'latest'
-          EXPERIMENTAL=$(jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"' package.json)
-
-          if [ -n "$EXPERIMENTAL" ]; then
-            echo "⚠️ Experimental packages detected:"
-            echo "$EXPERIMENTAL"
-          else
-            echo "✅ No experimental packages detected."
-          fi
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -79,6 +66,23 @@ jobs:
         run: |
           echo "Checking for outdated pre-release packages..."
           npm outdated || true
+      
+      - name: Check for pre-release versions
+        run: |
+          echo "🔬 Checking pre-release package versions..."
+          
+          # Extract packages using 'next' or 'latest'
+          EXPERIMENTAL=$(cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"')
+          
+          if [ -n "$EXPERIMENTAL" ]; then
+            echo "⚠️ Experimental packages detected:"
+            echo "$EXPERIMENTAL"
+            echo ""
+            echo "🚨 REMINDER: These packages use pre-release versions."
+            echo "Monitor security advisories regularly!"
+          else
+            echo "✅ No experimental packages detected."
+          fi
   
   dependency-review:
     name: Dependency Review
@@ -110,20 +114,31 @@ jobs:
           # Extract packages using 'next' or 'latest'
           EXPERIMENTAL=$(cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"')
           
-          echo "⚠️ Experimental packages detected:"
-          echo "$EXPERIMENTAL"
-          
-          echo ""
-          echo "🚨 REMINDER: These packages use pre-release versions."
-          echo "Monitor security advisories regularly!"
+          if [ -n "$EXPERIMENTAL" ]; then
+            echo "⚠️ Experimental packages detected:"
+            echo "$EXPERIMENTAL"
+            echo ""
+            echo "🚨 REMINDER: These packages use pre-release versions."
+            echo "Monitor security advisories regularly!"
+          else
+            echo "✅ No experimental packages detected."
+          fi
       
       - name: Generate security summary
         run: |
           echo "## 🔒 Security Status Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Experimental Packages" >> $GITHUB_STEP_SUMMARY
-          echo "This project intentionally uses pre-release versions." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"' >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if there are experimental packages
+          EXPERIMENTAL=$(cat package.json | jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"')
+          
+          if [ -n "$EXPERIMENTAL" ]; then
+            echo "This project intentionally uses pre-release versions." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$EXPERIMENTAL" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No experimental packages detected." >> $GITHUB_STEP_SUMMARY
+          fi

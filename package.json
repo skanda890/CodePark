@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "NODE_ENV=development node index.js",
+    "dev": "cross-env NODE_ENV=development node index.js",
     "game": "node index.js --game",
     "audit": "npm audit --audit-level=moderate",
     "audit:fix": "npm audit fix",
@@ -26,7 +26,8 @@
   "author": "SkandaBT",
   "license": "MIT",
   "devDependencies": {
-    "@tolgee/cli": "next"
+    "@tolgee/cli": "next",
+    "cross-env": "^7.0.3"
   },
   "repository": {
     "type": "git",
@@ -53,6 +54,7 @@
   "notes": {
     "experimental": "This project intentionally uses 'next' and 'latest' tags for cutting-edge experimental features",
     "security": "Run 'npm run security-check' regularly to monitor for vulnerabilities in pre-release versions",
-    "stability": "Pre-release versions may contain bugs. Use with caution in production environments."
+    "stability": "Pre-release versions may contain bugs. Use with caution in production environments.",
+    "crossPlatform": "Uses cross-env for cross-platform NODE_ENV support (Windows, Mac, Linux)"
   }
 }
