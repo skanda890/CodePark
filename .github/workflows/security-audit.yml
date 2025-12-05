@@ -22,7 +22,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Check for pre-release versions
+        run: |
+          echo "🔬 Checking pre-release package versions..."
+
+          # Extract packages using 'next' or 'latest'
+          EXPERIMENTAL=$(jq -r '.dependencies | to_entries[] | select(.value == "next" or .value == "latest") | "\(.key): \(.value)"' package.json)
+
+          if [ -n "$EXPERIMENTAL" ]; then
+            echo "⚠️ Experimental packages detected:"
+            echo "$EXPERIMENTAL"
+          else
+            echo "✅ No experimental packages detected."
+          fi
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
