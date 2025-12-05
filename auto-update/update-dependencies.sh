@@ -5,16 +5,24 @@
 # Installs latest versions from 'next' tags
 ##############################################
 
-set -e  # Exit on error
+set -e          # Exit on error
+set -o pipefail # Fail pipeline if any command fails
+
+# Get project root directory (parent of auto-update/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 LOG_FILE="/tmp/codepark-update-$(date +%Y%m%d-%H%M%S).log"
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$PROJECT_DIR/backups"
 
 echo "========================================" | tee -a "$LOG_FILE"
 echo "CodePark Dependency Auto-Updater" | tee -a "$LOG_FILE"
 echo "Started: $(date)" | tee -a "$LOG_FILE"
+echo "Project Dir: $PROJECT_DIR" | tee -a "$LOG_FILE"
 echo "========================================" | tee -a "$LOG_FILE"
+
+# Change to project directory
+cd "$PROJECT_DIR"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
@@ -42,8 +50,14 @@ echo "" | tee -a "$LOG_FILE"
 echo "📦 Installing latest 'next' versions..." | tee -a "$LOG_FILE"
 echo "" | tee -a "$LOG_FILE"
 
-# Install dependencies (this will resolve 'next' to latest pre-release)
-if npm install 2>&1 | tee -a "$LOG_FILE"; then
+# Install dependencies with proper error detection
+# Separate npm command from tee to capture real exit code
+NPM_OUTPUT=$(mktemp)
+if npm install > "$NPM_OUTPUT" 2>&1; then
+    # Success path
+    cat "$NPM_OUTPUT" | tee -a "$LOG_FILE"
+    rm -f "$NPM_OUTPUT"
+    
     echo "" | tee -a "$LOG_FILE"
     echo "✅ Dependencies updated successfully!" | tee -a "$LOG_FILE"
     
@@ -62,6 +76,10 @@ if npm install 2>&1 | tee -a "$LOG_FILE"; then
     echo "🧹 Cleaned up old backups (kept last 7 days)" | tee -a "$LOG_FILE"
     
 else
+    # Failure path
+    cat "$NPM_OUTPUT" | tee -a "$LOG_FILE"
+    rm -f "$NPM_OUTPUT"
+    
     echo "" | tee -a "$LOG_FILE"
     echo "❌ Installation failed!" | tee -a "$LOG_FILE"
     
