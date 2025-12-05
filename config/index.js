@@ -56,7 +56,7 @@ module.exports = {
 
   // Metrics
   metrics: {
-    enabled: process.env.METRICS_ENABLED !== 'false',
+    enabled: process.env.METRICS_ENABLED === 'true',
     port: parseInt(process.env.METRICS_PORT, 10) || 9090
   },
 
