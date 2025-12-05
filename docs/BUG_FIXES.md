@@ -19,12 +19,14 @@ isAvailable() {
 ```
 
 **Issue**: The condition `this.memoryCache.size >= 0` is **always true** because:
+
 - `.size` property always returns a non-negative integer
 - Even an empty Map has `.size === 0`, which satisfies `>= 0`
 - This masks Redis connection failures
 - Health checks report cache as "healthy" even when Redis is down
 
 **Impact**:
+
 - `/health/ready` endpoint incorrectly reports cache status
 - Redis failures are hidden from monitoring systems
 - Operators cannot detect when cache is degraded
@@ -147,7 +149,8 @@ close() {
 }
 ```
 
-**Issue**: 
+**Issue**:
+
 - `setInterval` creates a timer but doesn't store the handle
 - Timer continues running after server shutdown
 - Holds references to `clients` Map and `wss` server
@@ -156,6 +159,7 @@ close() {
 - Memory leak and resource exhaustion
 
 **Impact**:
+
 - 💥 **Memory leak** - Timer references prevent GC
 - 💥 **Resource leak** - Timers accumulate on restart
 - 💥 **Unclean shutdown** - Process may hang
@@ -192,14 +196,14 @@ class WebSocketService {
       }
     }, config.websocket.heartbeatInterval);
 
-    logger.debug('WebSocket heartbeat started');
+    logger.debug("WebSocket heartbeat started");
   }
 
   stopHeartbeat() {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
-      logger.debug('WebSocket heartbeat stopped');
+      logger.debug("WebSocket heartbeat stopped");
     }
   }
 
@@ -210,12 +214,12 @@ class WebSocketService {
     // Then close connections
     if (this.wss) {
       for (const [clientId, ws] of this.clients.entries()) {
-        ws.close(1001, 'Server shutting down');
+        ws.close(1001, "Server shutting down");
       }
       this.clients.clear();
-      
+
       this.wss.close(() => {
-        logger.info('WebSocket server closed');
+        logger.info("WebSocket server closed");
       });
     }
   }
@@ -223,6 +227,7 @@ class WebSocketService {
 ```
 
 **Key Improvements**:
+
 1. ✅ **Store timer handle** in `this.heartbeatTimer`
 2. ✅ **Clear existing timer** before creating new one
 3. ✅ **Dedicated stop method** for cleanup
@@ -239,7 +244,7 @@ function shutdown(signal, code = 0) {
     if (config.websocket.enabled) {
       websocketService.close(); // Timer cleaned up here
     }
-    
+
     // ... other cleanup
     process.exit(code);
   });
@@ -261,17 +266,17 @@ function shutdown(signal, code = 0) {
 // BEFORE (BUGGY CODE)
 app.use((req, res) => {
   metricsService.recordHttpRequest(req, res, 404); // Manual recording
-  res.status(404).json({ error: 'Not found' });
+  res.status(404).json({ error: "Not found" });
 });
 
 // But metricsService.init(app) already does this:
 app.use((req, res, next) => {
-  res.on('finish', () => {
+  res.on("finish", () => {
     // Automated recording for ALL requests
     this.httpRequestTotal.inc({
       method: req.method,
       route: req.route?.path || req.path,
-      status_code: res.statusCode // Including 404s!
+      status_code: res.statusCode, // Including 404s!
     });
   });
   next();
@@ -279,6 +284,7 @@ app.use((req, res, next) => {
 ```
 
 **Issue**:
+
 - Automated middleware records ALL requests on `res.finish`
 - Manual call in 404 handler records again
 - Same labels: method + route + status_code
@@ -286,6 +292,7 @@ app.use((req, res, next) => {
 - Prometheus metrics show 2x actual 404s
 
 **Impact**:
+
 - 📉 **Inaccurate metrics** - 404s counted twice
 - 📉 **Wrong monitoring** - Alerts trigger incorrectly
 - 📉 **Bad decisions** - Based on wrong data
@@ -300,15 +307,16 @@ app.use((req, res) => {
   // Automated middleware already records this
   // No manual call needed
   res.status(404).json({
-    error: 'Endpoint not found',
+    error: "Endpoint not found",
     path: req.path,
     method: req.method,
-    requestId: req.id
+    requestId: req.id,
   });
 });
 ```
 
 **Why This Works**:
+
 - Automated middleware in `metricsService.init()` handles ALL HTTP responses
 - Runs on `res.finish` event (fires after response sent)
 - Captures correct status code automatically
@@ -320,7 +328,7 @@ app.use((req, res) => {
 // Use different metric name or label
 app.use((req, res) => {
   metricsService.record404(req); // Different metric entirely
-  res.status(404).json({ error: 'Not found' });
+  res.status(404).json({ error: "Not found" });
 });
 ```
 
@@ -341,12 +349,14 @@ JWT_REFRESH_SECRET=your-separate-refresh-secret-optional
 ```
 
 **Issue**:
+
 - Looks like a real secret
 - Users might not change it
 - Security scanners flag as exposed API key
 - Bad security practice in examples
 
 **Impact**:
+
 - 🔒 **Security risk** - Weak/reused secrets
 - 🔒 **Scanner alerts** - False positives in CI/CD
 - 🔒 **Bad examples** - Teaches poor security
@@ -373,6 +383,7 @@ JWT_REFRESH_SECRET=CHANGE-THIS-TO-A-DIFFERENT-STRONG-RANDOM-SECRET
 ```
 
 **Key Improvements**:
+
 1. ✅ **Clear placeholder** - Obviously not a real secret
 2. ✅ **Generation commands** - Exact commands to run
 3. ✅ **Security warnings** - Best practices listed
@@ -388,20 +399,20 @@ JWT_REFRESH_SECRET=CHANGE-THIS-TO-A-DIFFERENT-STRONG-RANDOM-SECRET
 
 ```javascript
 // Test script
-const WebSocketService = require('./services/websocket');
+const WebSocketService = require("./services/websocket");
 const ws = new WebSocketService();
 
 // Start heartbeat
 ws.startHeartbeat();
-console.log('Timer ID:', ws.heartbeatTimer); // Should have a value
+console.log("Timer ID:", ws.heartbeatTimer); // Should have a value
 
 // Stop heartbeat
 ws.stopHeartbeat();
-console.log('Timer ID:', ws.heartbeatTimer); // Should be null
+console.log("Timer ID:", ws.heartbeatTimer); // Should be null
 
 // Verify no timers left
 setTimeout(() => {
-  console.log('No timer running, process should exit');
+  console.log("No timer running, process should exit");
   process.exit(0);
 }, 1000);
 ```
@@ -476,7 +487,7 @@ class Service {
   }
 
   cleanup() {
-    this.timers.forEach(timer => clearInterval(timer));
+    this.timers.forEach((timer) => clearInterval(timer));
     this.timers = [];
   }
 }
@@ -519,7 +530,7 @@ class ResourceManager {
 
   async release() {
     await Promise.all(
-      this.resources.map(r => r.close?.() || Promise.resolve())
+      this.resources.map((r) => r.close?.() || Promise.resolve()),
     );
     this.resources = [];
   }
@@ -531,6 +542,7 @@ class ResourceManager {
 ## Changelog Summary
 
 ### Fixed
+
 - ✅ Cache availability check (Bug #1)
 - ✅ Refresh token verification (Bug #2)
 - ✅ WebSocket heartbeat timer leak (Bug #3)
@@ -538,12 +550,14 @@ class ResourceManager {
 - ✅ Hardcoded secrets in examples (Bug #5)
 
 ### Added
+
 - ➕ `stopHeartbeat()` method for WebSocket service
 - ➕ Proper timer cleanup in shutdown procedures
 - ➕ Secret generation instructions in .env.example
 - ➕ Security warnings in configuration
 
 ### Changed
+
 - 🔄 WebSocket close() now stops heartbeat first
 - 🔄 Removed manual 404 metrics recording
 - 🔄 Enhanced shutdown logging

@@ -1,6 +1,7 @@
 # CodePark API Documentation v2.0
 
 ## Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
@@ -10,6 +11,7 @@ http://localhost:3000/api/v1
 All game endpoints require JWT authentication.
 
 ### Get Token
+
 ```http
 POST /api/v1/auth/token
 Content-Type: application/json
@@ -20,6 +22,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -34,6 +37,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Access token expires in 24h (default)
 - Refresh token expires in 7d (default)
 - Store both tokens securely
@@ -41,6 +45,7 @@ Content-Type: application/json
 - Use refresh token to get new access token
 
 ### Refresh Token
+
 ```http
 POST /api/v1/auth/refresh
 Content-Type: application/json
@@ -51,6 +56,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -60,18 +66,21 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Call this before access token expires
 - Returns new access token only
 - Refresh token remains valid
 - **Fixed**: Now correctly verifies refresh token with proper secret
 
 ### Verify Token
+
 ```http
 GET /api/v1/auth/verify
 Authorization: Bearer your-token
 ```
 
 **Response (valid):**
+
 ```json
 {
   "valid": true,
@@ -83,6 +92,7 @@ Authorization: Bearer your-token
 ```
 
 **Response (invalid):**
+
 ```json
 {
   "valid": false,
@@ -93,12 +103,14 @@ Authorization: Bearer your-token
 ## Game Endpoints
 
 ### Start Game
+
 ```http
 GET /api/v1/game/start
 Authorization: Bearer your-token
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Number guessing game started! Guess a number between 1 and 100.",
@@ -109,6 +121,7 @@ Authorization: Bearer your-token
 ```
 
 ### Check Guess
+
 ```http
 POST /api/v1/game/check
 Authorization: Bearer your-token
@@ -121,6 +134,7 @@ Content-Type: application/json
 ```
 
 **Response (too low):**
+
 ```json
 {
   "result": "too low",
@@ -130,6 +144,7 @@ Content-Type: application/json
 ```
 
 **Response (too high):**
+
 ```json
 {
   "result": "too high",
@@ -139,6 +154,7 @@ Content-Type: application/json
 ```
 
 **Response (correct):**
+
 ```json
 {
   "result": "correct",
@@ -149,12 +165,14 @@ Content-Type: application/json
 ```
 
 ### Get Stats
+
 ```http
 GET /api/v1/game/stats
 Authorization: Bearer your-token
 ```
 
 **Response:**
+
 ```json
 {
   "activeGames": 2,
@@ -171,12 +189,14 @@ Authorization: Bearer your-token
 ```
 
 ### Cancel Game
+
 ```http
 DELETE /api/v1/game/:gameId
 Authorization: Bearer your-token
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Game cancelled successfully",
@@ -187,11 +207,13 @@ Authorization: Bearer your-token
 ## Health Endpoints
 
 ### General Health
+
 ```http
 GET /health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -218,17 +240,20 @@ GET /health
 ```
 
 **Cache Status Values**:
+
 - `ok` - Redis connected and working
 - `degraded` - Redis down, using in-memory fallback (NEW!)
 - `disabled` - Cache intentionally disabled
 - `error` - Cache completely unavailable
 
 ### Liveness Probe
+
 ```http
 GET /health/live
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -237,11 +262,13 @@ GET /health/live
 ```
 
 ### Readiness Probe
+
 ```http
 GET /health/ready
 ```
 
 **Response (ready):**
+
 ```json
 {
   "status": "ready",
@@ -255,6 +282,7 @@ GET /health/ready
 ```
 
 **Response (degraded):**
+
 ```json
 {
   "status": "degraded",
@@ -322,7 +350,7 @@ All errors follow this format:
 3. Token Expires
    API returns 401
    ↓
-   
+
 4. Refresh Token
    POST /api/v1/auth/refresh
    Body: { refreshToken }
@@ -343,6 +371,7 @@ All errors follow this format:
 See `.env.example` for all configuration options.
 
 **Key settings**:
+
 - `JWT_SECRET` - Access token secret
 - `JWT_REFRESH_SECRET` - Refresh token secret (optional, recommended)
 - `JWT_EXPIRY` - Access token lifetime (default: 24h)

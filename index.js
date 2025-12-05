@@ -1,37 +1,37 @@
-const express = require('express');
-const helmet = require('helmet');
-const compression = require('compression');
-const { v4: uuidv4 } = require('uuid');
-const logger = require('./config/logger');
-const { startCliGame } = require('./cliGame');
-const config = require('./config');
+const express = require('express')
+const helmet = require('helmet')
+const compression = require('compression')
+const { v4: uuidv4 } = require('uuid')
+const logger = require('./config/logger')
+const { startCliGame } = require('./cliGame')
+const config = require('./config')
 
 // Middleware
-const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter');
-const cors = require('./middleware/cors');
-const requestLogger = require('./middleware/requestLogger');
-const authMiddleware = require('./middleware/auth');
-const cacheMiddleware = require('./middleware/cache');
+const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter')
+const cors = require('./middleware/cors')
+const requestLogger = require('./middleware/requestLogger')
+const authMiddleware = require('./middleware/auth')
+const cacheMiddleware = require('./middleware/cache')
 
 // Routes
-const authRoutes = require('./routes/auth');
-const gameRoutes = require('./routes/game');
-const healthRoutes = require('./routes/health');
-const metricsRoutes = require('./routes/metrics');
+const authRoutes = require('./routes/auth')
+const gameRoutes = require('./routes/game')
+const healthRoutes = require('./routes/health')
+const metricsRoutes = require('./routes/metrics')
 
 // Services
-const metricsService = require('./services/metrics');
-const websocketService = require('./services/websocket');
-const cacheService = require('./services/cache');
+const metricsService = require('./services/metrics')
+const websocketService = require('./services/websocket')
+const cacheService = require('./services/cache')
 
-const app = express();
-const port = config.port;
+const app = express()
+const port = config.port
 
 // Initialize metrics
-metricsService.init(app);
+metricsService.init(app)
 
 // Trust proxy (for rate limiting behind reverse proxy)
-app.set('trust proxy', 1);
+app.set('trust proxy', 1)
 
 // Security Middleware - Helmet for HTTP headers
 app.use(
@@ -51,7 +51,7 @@ app.use(
       preload: true
     }
   })
-);
+)
 
 // Compression
 if (config.compression.enabled) {
@@ -60,28 +60,28 @@ if (config.compression.enabled) {
       level: config.compression.level,
       threshold: config.compression.threshold
     })
-  );
+  )
 }
 
 // Rate limiting
-app.use(rateLimiter);
+app.use(rateLimiter)
 
 // Body parsing middleware with size limits
-app.use(express.json({ limit: config.maxRequestSize }));
-app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }));
+app.use(express.json({ limit: config.maxRequestSize }))
+app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }))
 
 // CORS configuration
-app.use(cors(config.allowedOrigin));
+app.use(cors(config.allowedOrigin))
 
 // Request ID tracking
 app.use((req, res, next) => {
-  req.id = uuidv4();
-  res.setHeader('X-Request-ID', req.id);
-  next();
-});
+  req.id = uuidv4()
+  res.setHeader('X-Request-ID', req.id)
+  next()
+})
 
 // Request logging
-app.use(requestLogger);
+app.use(requestLogger)
 
 // API Routes
 app.get('/', (req, res) => {
@@ -105,16 +105,16 @@ app.get('/', (req, res) => {
       websocket: config.websocket.enabled ? config.websocket.path : null
     },
     documentation: 'https://github.com/skanda890/CodePark'
-  });
-});
+  })
+})
 
 // Mount routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/game', authMiddleware, gameRoutes);
-app.use('/health', healthRoutes);
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/game', authMiddleware, gameRoutes)
+app.use('/health', healthRoutes)
 
 if (config.metrics.enabled) {
-  app.use('/metrics', metricsRoutes);
+  app.use('/metrics', metricsRoutes)
 }
 
 // 404 handler
@@ -125,117 +125,127 @@ app.use((req, res) => {
     path: req.path,
     method: req.method,
     requestId: req.id
-  });
-});
+  })
+})
 
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
-  logger.error({ err, requestId: req.id }, 'Unhandled error');
+  logger.error({ err, requestId: req.id }, 'Unhandled error')
 
-  const isDevelopment = config.nodeEnv !== 'production';
+  const isDevelopment = config.nodeEnv !== 'production'
 
   res.status(err.status || 500).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
     requestId: req.id,
     ...(isDevelopment && { stack: err.stack })
-  });
-});
+  })
+})
 
 // Start server
 const server = app.listen(port, async () => {
   logger.info(`
-==============================================`);
-  logger.info(`🚀 CodePark Server v2.0 (BLEEDING EDGE EXPERIMENTAL)`);
-  logger.info(`==============================================`);
-  logger.info(`Server:        http://localhost:${port}`);
-  logger.info(`Environment:   ${config.nodeEnv}`);
-  logger.info(`API Version:   v1`);
-  logger.info(`WebSocket:     ${config.websocket.enabled ? 'Enabled' : 'Disabled'}`);
-  logger.info(`Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`);
-  logger.info(`Metrics:       ${config.metrics.enabled ? `http://localhost:${config.metrics.port}/metrics` : 'Disabled'}`);
-  logger.info(`Compression:   ${config.compression.enabled ? 'Enabled' : 'Disabled'}`);
-  logger.info(`Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`);
-  logger.info(`⚠️  WARNING:     Using experimental pre-release packages`);
-  logger.info(`==============================================\n`);
+==============================================`)
+  logger.info('🚀 CodePark Server v2.0 (BLEEDING EDGE EXPERIMENTAL)')
+  logger.info('==============================================')
+  logger.info(`Server:        http://localhost:${port}`)
+  logger.info(`Environment:   ${config.nodeEnv}`)
+  logger.info('API Version:   v1')
+  logger.info(
+    `WebSocket:     ${config.websocket.enabled ? 'Enabled' : 'Disabled'}`
+  )
+  logger.info(
+    `Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`
+  )
+  logger.info(
+    `Metrics:       ${config.metrics.enabled ? `http://localhost:${config.metrics.port}/metrics` : 'Disabled'}`
+  )
+  logger.info(
+    `Compression:   ${config.compression.enabled ? 'Enabled' : 'Disabled'}`
+  )
+  logger.info(
+    `Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`
+  )
+  logger.info('⚠️  WARNING:     Using experimental pre-release packages')
+  logger.info('==============================================\n')
 
   // Initialize cache service
   try {
-    await cacheService.connect();
-    logger.info('✅ Cache service connected');
+    await cacheService.connect()
+    logger.info('✅ Cache service connected')
   } catch (error) {
-    logger.warn('⚠️ Cache service unavailable, using in-memory fallback');
+    logger.warn('⚠️ Cache service unavailable, using in-memory fallback')
   }
 
   // Initialize WebSocket if enabled
   if (config.websocket.enabled) {
-    websocketService.init(server);
-    logger.info('✅ WebSocket service initialized');
+    websocketService.init(server)
+    logger.info('✅ WebSocket service initialized')
   }
 
   // Start metrics server if enabled
   if (config.metrics.enabled) {
-    metricsService.startServer();
+    metricsService.startServer()
   }
-});
+})
 
 // Centralized shutdown helper
-function shutdown(signal, code = 0) {
-  logger.info(`${signal} signal received. Starting graceful shutdown...`);
+function shutdown (signal, code = 0) {
+  logger.info(`${signal} signal received. Starting graceful shutdown...`)
 
   // Stop accepting new connections
   server.close(async () => {
-    logger.info('HTTP server closed');
-    logger.info('Cleaning up resources...');
+    logger.info('HTTP server closed')
+    logger.info('Cleaning up resources...')
 
     // Close WebSocket connections (includes stopping heartbeat timer)
     if (config.websocket.enabled) {
-      websocketService.close();
-      logger.info('WebSocket connections closed');
+      websocketService.close()
+      logger.info('WebSocket connections closed')
     }
 
     // Disconnect cache
     try {
-      await cacheService.disconnect();
-      logger.info('Cache service disconnected');
+      await cacheService.disconnect()
+      logger.info('Cache service disconnected')
     } catch (error) {
-      logger.error({ err: error }, 'Error disconnecting cache');
+      logger.error({ err: error }, 'Error disconnecting cache')
     }
 
     // Close metrics server
     if (config.metrics.enabled) {
-      metricsService.close();
+      metricsService.close()
     }
 
-    logger.info('Shutdown complete');
-    process.exit(code);
-  });
+    logger.info('Shutdown complete')
+    process.exit(code)
+  })
 
   // Force shutdown after 10 seconds
   setTimeout(() => {
-    logger.error('Forced shutdown after timeout');
-    process.exit(1);
-  }, 10000);
+    logger.error('Forced shutdown after timeout')
+    process.exit(1)
+  }, 10000)
 }
 
 // CLI Number Guessing Game (only if running in interactive mode)
 if (process.stdin.isTTY && process.argv.includes('--game')) {
-  startCliGame(() => shutdown('CLI_GAME_END', 0));
+  startCliGame(() => shutdown('CLI_GAME_END', 0))
 }
 
 // Graceful shutdown handlers
-process.on('SIGTERM', () => shutdown('SIGTERM', 0));
-process.on('SIGINT', () => shutdown('SIGINT', 0));
+process.on('SIGTERM', () => shutdown('SIGTERM', 0))
+process.on('SIGINT', () => shutdown('SIGINT', 0))
 
 // Handle uncaught errors
 process.on('uncaughtException', (err) => {
-  logger.fatal({ err }, 'Uncaught Exception');
-  shutdown('UNCAUGHT_EXCEPTION', 1);
-});
+  logger.fatal({ err }, 'Uncaught Exception')
+  shutdown('UNCAUGHT_EXCEPTION', 1)
+})
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.fatal({ reason, promise }, 'Unhandled Rejection');
-  shutdown('UNHANDLED_REJECTION', 1);
-});
+  logger.fatal({ reason, promise }, 'Unhandled Rejection')
+  shutdown('UNHANDLED_REJECTION', 1)
+})
 
-module.exports = app;
+module.exports = app
