@@ -1,6 +1,7 @@
 # CodePark API Documentation v2.0
 
 ## Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
@@ -10,6 +11,7 @@ http://localhost:3000/api/v1
 All game endpoints require JWT authentication.
 
 ### Get Token
+
 ```http
 POST /api/v1/auth/token
 Content-Type: application/json
@@ -20,6 +22,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -34,6 +37,7 @@ Content-Type: application/json
 ```
 
 ### Refresh Token
+
 ```http
 POST /api/v1/auth/refresh
 Content-Type: application/json
@@ -44,6 +48,7 @@ Content-Type: application/json
 ```
 
 ### Verify Token
+
 ```http
 GET /api/v1/auth/verify
 Authorization: Bearer your-token
@@ -52,12 +57,14 @@ Authorization: Bearer your-token
 ## Game Endpoints
 
 ### Start Game
+
 ```http
 GET /api/v1/game/start
 Authorization: Bearer your-token
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Number guessing game started! Guess a number between 1 and 100.",
@@ -68,6 +75,7 @@ Authorization: Bearer your-token
 ```
 
 ### Check Guess
+
 ```http
 POST /api/v1/game/check
 Authorization: Bearer your-token
@@ -80,6 +88,7 @@ Content-Type: application/json
 ```
 
 **Response (too low):**
+
 ```json
 {
   "result": "too low",
@@ -88,6 +97,7 @@ Content-Type: application/json
 ```
 
 **Response (too high):**
+
 ```json
 {
   "result": "too high",
@@ -96,6 +106,7 @@ Content-Type: application/json
 ```
 
 **Response (correct):**
+
 ```json
 {
   "result": "correct",
@@ -105,12 +116,14 @@ Content-Type: application/json
 ```
 
 ### Get Stats
+
 ```http
 GET /api/v1/game/stats
 Authorization: Bearer your-token
 ```
 
 **Response:**
+
 ```json
 {
   "activeGames": 2,
@@ -127,6 +140,7 @@ Authorization: Bearer your-token
 ```
 
 ### Cancel Game
+
 ```http
 DELETE /api/v1/game/:gameId
 Authorization: Bearer your-token
@@ -135,16 +149,19 @@ Authorization: Bearer your-token
 ## Health Endpoints
 
 ### General Health
+
 ```http
 GET /health
 ```
 
 ### Liveness Probe
+
 ```http
 GET /health/live
 ```
 
 ### Readiness Probe
+
 ```http
 GET /health/ready
 ```

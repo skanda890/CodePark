@@ -3,8 +3,8 @@
  * Prometheus metrics endpoint
  */
 
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 /**
  * GET /metrics
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
     endpoint: `http://localhost:${require('../config').metrics.port}/metrics`,
     format: 'Prometheus',
     documentation: 'https://prometheus.io/docs/instrumenting/exporters/'
-  });
-});
+  })
+})
 
-module.exports = router;
+module.exports = router

@@ -3,13 +3,13 @@
  * Redis-backed with in-memory fallback
  */
 
-const rateLimit = require('express-rate-limit');
-const RedisStore = require('rate-limit-redis');
-const Redis = require('ioredis');
-const config = require('../config');
-const logger = require('../config/logger');
+const rateLimit = require('express-rate-limit')
+const RedisStore = require('rate-limit-redis')
+const Redis = require('ioredis')
+const config = require('../config')
+const logger = require('../config/logger')
 
-let redisClient = null;
+let redisClient = null
 
 // Try to connect to Redis for rate limiting
 if (config.redis.enabled) {
@@ -19,18 +19,21 @@ if (config.redis.enabled) {
       port: config.redis.port,
       password: config.redis.password || undefined,
       db: config.redis.db
-    });
+    })
 
     redisClient.on('connect', () => {
-      logger.info('Redis rate limiter store connected');
-    });
+      logger.info('Redis rate limiter store connected')
+    })
 
     redisClient.on('error', (err) => {
-      logger.error({ err }, 'Redis rate limiter error');
-    });
+      logger.error({ err }, 'Redis rate limiter error')
+    })
   } catch (error) {
-    logger.warn({ err: error }, 'Redis rate limiter unavailable, using memory store');
-    redisClient = null;
+    logger.warn(
+      { err: error },
+      'Redis rate limiter unavailable, using memory store'
+    )
+    redisClient = null
   }
 }
 
@@ -47,7 +50,7 @@ const rateLimiter = rateLimit({
       prefix: 'rl:general:'
     })
   })
-});
+})
 
 // Game-specific rate limiter
 const gameRateLimiter = rateLimit({
@@ -62,9 +65,9 @@ const gameRateLimiter = rateLimit({
       prefix: 'rl:game:'
     })
   })
-});
+})
 
 module.exports = {
   rateLimiter,
   gameRateLimiter
-};
+}
