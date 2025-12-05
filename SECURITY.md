@@ -103,7 +103,7 @@ Using `next` and `latest` tags means:
 1. **Lock File**: We commit `package-lock.json` for reproducible builds
 2. **Regular Audits**: Automated security checks on every commit
 3. **Multiple Scanners**: Using several security tools for comprehensive coverage
-4. **Rapid Response**: Fast patching when vulnerabilities discovered
+4. **Rapid Response**: Fast patching when vulnerabilities are discovered
 
 ## Security Best Practices for Users
 
