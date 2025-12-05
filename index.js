@@ -1,19 +1,37 @@
-const express = require('express')
-const helmet = require('helmet')
-const rateLimit = require('express-rate-limit')
-const { body, validationResult } = require('express-validator')
-const { startCliGame } = require('./cliGame')
-const cors = require('./middleware/cors')
-const requestLogger = require('./middleware/requestLogger')
-const { getGameOr404, buildGuessResponse } = require('./utils/gameHelpers')
+const express = require('express');
+const helmet = require('helmet');
+const compression = require('compression');
+const { v4: uuidv4 } = require('uuid');
+const logger = require('./config/logger');
+const { startCliGame } = require('./cliGame');
+const config = require('./config');
 
-const app = express()
-const port = process.env.PORT || 3000
+// Middleware
+const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter');
+const cors = require('./middleware/cors');
+const requestLogger = require('./middleware/requestLogger');
+const authMiddleware = require('./middleware/auth');
+const cacheMiddleware = require('./middleware/cache');
 
-// Security Constants
-const MAX_GAMES = 1000 // Prevent memory exhaustion
-const GAME_EXPIRY_MS = 10 * 60 * 1000 // 10 minutes
-const MAX_REQUEST_SIZE = '100kb'
+// Routes
+const authRoutes = require('./routes/auth');
+const gameRoutes = require('./routes/game');
+const healthRoutes = require('./routes/health');
+const metricsRoutes = require('./routes/metrics');
+
+// Services
+const metricsService = require('./services/metrics');
+const websocketService = require('./services/websocket');
+const cacheService = require('./services/cache');
+
+const app = express();
+const port = config.port;
+
+// Initialize metrics
+metricsService.init(app);
+
+// Trust proxy (for rate limiting behind reverse proxy)
+app.set('trust proxy', 1);
 
 // Security Middleware - Helmet for HTTP headers
 app.use(
@@ -23,7 +41,8 @@ app.use(
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:']
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'ws:', 'wss:']
       }
     },
     hsts: {
@@ -32,214 +51,187 @@ app.use(
       preload: true
     }
   })
-)
+);
 
-// Rate limiting - Prevent DoS attacks
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false
-})
+// Compression
+if (config.compression.enabled) {
+  app.use(
+    compression({
+      level: config.compression.level,
+      threshold: config.compression.threshold
+    })
+  );
+}
 
-const gameRateLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 20, // Limit game creation to 20 per 5 minutes
-  message: 'Too many games started, please try again later.'
-})
-
-app.use(limiter)
+// Rate limiting
+app.use(rateLimiter);
 
 // Body parsing middleware with size limits
-app.use(express.json({ limit: MAX_REQUEST_SIZE }))
-app.use(express.urlencoded({ extended: true, limit: MAX_REQUEST_SIZE }))
+app.use(express.json({ limit: config.maxRequestSize }));
+app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }));
 
 // CORS configuration
-app.use(cors(process.env.ALLOWED_ORIGIN))
+app.use(cors(config.allowedOrigin));
+
+// Request ID tracking
+app.use((req, res, next) => {
+  req.id = uuidv4();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
 
 // Request logging
-app.use(requestLogger)
+app.use(requestLogger);
 
-// Basic route
+// API Routes
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to CodePark API - BLEEDING EDGE EXPERIMENTAL',
-    version: '1.0.0',
+    name: 'CodePark API - BLEEDING EDGE EXPERIMENTAL',
+    version: '2.0.0',
     status: 'running',
     warning: 'This server uses experimental pre-release packages',
+    features: {
+      websocket: config.websocket.enabled,
+      authentication: true,
+      caching: config.cache.enabled,
+      metrics: config.metrics.enabled,
+      compression: config.compression.enabled
+    },
     endpoints: {
+      auth: '/api/v1/auth',
+      game: '/api/v1/game',
       health: '/health',
-      startGame: 'GET /game/guess',
-      checkGuess: 'POST /game/check'
-    }
-  })
-})
+      metrics: config.metrics.enabled ? '/metrics' : null,
+      websocket: config.websocket.enabled ? config.websocket.path : null
+    },
+    documentation: 'https://github.com/skanda890/CodePark'
+  });
+});
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    activeGames: games.size,
-    uptime: process.uptime()
-  })
-})
+// Mount routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/game', authMiddleware, gameRoutes);
+app.use('/health', healthRoutes);
 
-// Number guessing game with memory management
-const games = new Map()
-
-// Clean up expired games periodically
-setInterval(() => {
-  const now = Date.now()
-  for (const [gameId, data] of games.entries()) {
-    if (now - data.createdAt > GAME_EXPIRY_MS) {
-      games.delete(gameId)
-      console.log(`Cleaned up expired game: ${gameId}`)
-    }
-  }
-}, 60 * 1000) // Run cleanup every minute
-
-app.get('/game/guess', gameRateLimiter, (req, res) => {
-  // Check if we've hit the game limit
-  if (games.size >= MAX_GAMES) {
-    return res.status(503).json({
-      error: 'Server capacity reached. Please try again later.',
-      activeGames: games.size
-    })
-  }
-
-  const gameId = `${Date.now()}-${Math.floor(Math.random() * 1e9)}`
-  const randomNumber = Math.floor(Math.random() * 100) + 1
-
-  // Store game data with metadata
-  games.set(gameId, {
-    target: randomNumber,
-    createdAt: Date.now(),
-    attempts: 0
-  })
-
-  res.json({
-    message:
-      'Number guessing game started! Try to guess a number between 1 and 100.',
-    gameId,
-    hint: 'POST /game/check with {"gameId":"<gameId>","guess": number} to check your guess',
-    expiresIn: `${GAME_EXPIRY_MS / 60000} minutes`
-  })
-})
-
-// Validation middleware for /game/check
-const validateGameCheck = [
-  body('gameId')
-    .isString()
-    .trim()
-    .notEmpty()
-    .withMessage('gameId must be a non-empty string'),
-  body('guess')
-    .isInt({ min: 1, max: 100 })
-    .withMessage('guess must be an integer between 1 and 100')
-]
-
-app.post('/game/check', gameRateLimiter, validateGameCheck, (req, res) => {
-  // Validate input
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      error: 'Validation failed',
-      details: errors.array().map((e) => e.msg)
-    })
-  }
-
-  const { gameId, guess } = req.body
-
-  // Get game or return 404
-  const gameData = getGameOr404(games, gameId, res)
-  if (!gameData) return
-
-  // Build and send response
-  const parsed = parseInt(guess, 10)
-  const response = buildGuessResponse(gameData, parsed, gameId, games)
-  return res.json(response)
-})
+if (config.metrics.enabled) {
+  app.use('/metrics', metricsRoutes);
+}
 
 // 404 handler
 app.use((req, res) => {
+  metricsService.recordHttpRequest(req, res, 404);
   res.status(404).json({
     error: 'Endpoint not found',
     path: req.path,
-    method: req.method
-  })
-})
+    method: req.method,
+    requestId: req.id
+  });
+});
 
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
-  console.error('[ERROR]', err.stack)
+  logger.error({ err, requestId: req.id }, 'Unhandled error');
+  metricsService.recordHttpRequest(req, res, err.status || 500);
 
-  // Don't leak error details in production
-  const isDevelopment = process.env.NODE_ENV !== 'production'
+  const isDevelopment = config.nodeEnv !== 'production';
 
   res.status(err.status || 500).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
+    requestId: req.id,
     ...(isDevelopment && { stack: err.stack })
-  })
-})
+  });
+});
 
 // Start server
-const server = app.listen(port, () => {
-  console.log('\n==============================================')
-  console.log('🚀 CodePark Server (BLEEDING EDGE EXPERIMENTAL)')
-  console.log('==============================================')
-  console.log(`Server running: http://localhost:${port}`)
-  console.log(`Health check:   http://localhost:${port}/health`)
-  console.log(`Environment:    ${process.env.NODE_ENV || 'development'}`)
-  console.log(`Max Games:      ${MAX_GAMES}`)
-  console.log('⚠️  WARNING: Using experimental pre-release packages')
-  console.log('==============================================\n')
-})
+const server = app.listen(port, async () => {
+  logger.info(`
+==============================================`);
+  logger.info(`🚀 CodePark Server v2.0 (BLEEDING EDGE EXPERIMENTAL)`);
+  logger.info(`==============================================`);
+  logger.info(`Server:        http://localhost:${port}`);
+  logger.info(`Environment:   ${config.nodeEnv}`);
+  logger.info(`API Version:   v1`);
+  logger.info(`WebSocket:     ${config.websocket.enabled ? 'Enabled' : 'Disabled'}`);
+  logger.info(`Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`);
+  logger.info(`Metrics:       ${config.metrics.enabled ? `http://localhost:${config.metrics.port}/metrics` : 'Disabled'}`);
+  logger.info(`Compression:   ${config.compression.enabled ? 'Enabled' : 'Disabled'}`);
+  logger.info(`Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`);
+  logger.info(`⚠️  WARNING:     Using experimental pre-release packages`);
+  logger.info(`==============================================\n`);
+
+  // Initialize cache service
+  try {
+    await cacheService.connect();
+    logger.info('✅ Cache service connected');
+  } catch (error) {
+    logger.warn('⚠️ Cache service unavailable, using in-memory fallback');
+  }
+
+  // Initialize WebSocket if enabled
+  if (config.websocket.enabled) {
+    websocketService.init(server);
+    logger.info('✅ WebSocket service initialized');
+  }
+
+  // Start metrics server if enabled
+  if (config.metrics.enabled) {
+    metricsService.startServer();
+  }
+});
 
 // Centralized shutdown helper
-function shutdown (signal, code = 0) {
-  console.log(`\n${signal} signal received. Starting graceful shutdown...`)
+function shutdown(signal, code = 0) {
+  logger.info(`${signal} signal received. Starting graceful shutdown...`);
 
   // Stop accepting new connections
-  server.close(() => {
-    console.log('HTTP server closed')
-    console.log('Cleaning up resources...')
+  server.close(async () => {
+    logger.info('HTTP server closed');
+    logger.info('Cleaning up resources...');
 
-    // Clear all games
-    games.clear()
-    console.log('Game data cleared')
+    // Close WebSocket connections
+    if (config.websocket.enabled) {
+      websocketService.close();
+      logger.info('WebSocket connections closed');
+    }
 
-    console.log('Shutdown complete')
-    process.exit(code)
-  })
+    // Disconnect cache
+    try {
+      await cacheService.disconnect();
+      logger.info('Cache service disconnected');
+    } catch (error) {
+      logger.error({ err: error }, 'Error disconnecting cache');
+    }
+
+    logger.info('Shutdown complete');
+    process.exit(code);
+  });
 
   // Force shutdown after 10 seconds
   setTimeout(() => {
-    console.error('Forced shutdown after timeout')
-    process.exit(1)
-  }, 10000)
+    logger.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
 }
 
 // CLI Number Guessing Game (only if running in interactive mode)
 if (process.stdin.isTTY && process.argv.includes('--game')) {
-  startCliGame(() => shutdown('CLI_GAME_END', 0))
+  startCliGame(() => shutdown('CLI_GAME_END', 0));
 }
 
 // Graceful shutdown handlers
-process.on('SIGTERM', () => shutdown('SIGTERM', 0))
-process.on('SIGINT', () => shutdown('SIGINT', 0))
+process.on('SIGTERM', () => shutdown('SIGTERM', 0));
+process.on('SIGINT', () => shutdown('SIGINT', 0));
 
 // Handle uncaught errors
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err)
-  shutdown('UNCAUGHT_EXCEPTION', 1)
-})
+  logger.fatal({ err }, 'Uncaught Exception');
+  shutdown('UNCAUGHT_EXCEPTION', 1);
+});
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason)
-  shutdown('UNHANDLED_REJECTION', 1)
-})
+  logger.fatal({ reason, promise }, 'Unhandled Rejection');
+  shutdown('UNHANDLED_REJECTION', 1);
+});
 
-module.exports = app
+module.exports = app;
