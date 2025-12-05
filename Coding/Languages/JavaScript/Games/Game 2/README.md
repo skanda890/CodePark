@@ -27,6 +27,7 @@ games/
 **Range**: Configurable (default: 1-100)
 
 #### Description
+
 Guess a randomly selected number within a configured range. The game provides intelligent feedback ("too high", "too low", "very close") until you find the correct number.
 
 #### CLI Usage
@@ -37,6 +38,7 @@ node index.js --game
 ```
 
 **Features**:
+
 - 🎨 Beautiful ASCII art interface
 - 📊 Attempt tracking
 - 🎯 Proximity hints ("very close", "getting warmer")
@@ -51,12 +53,14 @@ node index.js --game
 ##### Endpoints
 
 **1. Start Game**
+
 ```http
 GET /api/v1/game/start
 Authorization: Bearer <token>
 ```
 
 Response:
+
 ```json
 {
   "message": "Number guessing game started! Guess a number between 1 and 100.",
@@ -71,6 +75,7 @@ Response:
 ```
 
 **2. Check Guess**
+
 ```http
 POST /api/v1/game/check
 Authorization: Bearer <token>
@@ -83,6 +88,7 @@ Content-Type: application/json
 ```
 
 Responses:
+
 ```json
 // Too high
 {
@@ -108,12 +114,14 @@ Responses:
 ```
 
 **3. Get Statistics**
+
 ```http
 GET /api/v1/game/stats
 Authorization: Bearer <token>
 ```
 
 Response:
+
 ```json
 {
   "activeGames": 2,
@@ -136,12 +144,14 @@ Response:
 ```
 
 **4. Cancel Game**
+
 ```http
 DELETE /api/v1/game/:gameId
 Authorization: Bearer <token>
 ```
 
 Response:
+
 ```json
 {
   "message": "Game cancelled successfully",
@@ -156,19 +166,19 @@ Game settings are centralized in `games/config/gameConfig.js`:
 ```javascript
 module.exports = {
   numberGuessing: {
-    min: 1,                          // Minimum number
-    max: 100,                        // Maximum number
-    expiryMinutes: 30,               // Game expiration
-    maxGames: 1000,                  // Max concurrent games
-    cleanupIntervalSeconds: 60       // Cleanup frequency
+    min: 1, // Minimum number
+    max: 100, // Maximum number
+    expiryMinutes: 30, // Game expiration
+    maxGames: 1000, // Max concurrent games
+    cleanupIntervalSeconds: 60, // Cleanup frequency
   },
   general: {
-    enableWebSocket: true,           // Real-time notifications
-    enableMetrics: true,             // Prometheus metrics
-    enableStats: true,               // Statistics tracking
-    maxAttempts: 0,                  // 0 = unlimited
-    enableLeaderboards: false        // Future feature
-  }
+    enableWebSocket: true, // Real-time notifications
+    enableMetrics: true, // Prometheus metrics
+    enableStats: true, // Statistics tracking
+    maxAttempts: 0, // 0 = unlimited
+    enableLeaderboards: false, // Future feature
+  },
 };
 ```
 
@@ -178,14 +188,14 @@ The `games/utils/gameHelpers.js` module provides reusable functions:
 
 ```javascript
 const {
-  getGameOr404,              // Retrieve game or send 404
-  buildGuessResponse,        // Build guess result
-  isValidGuess,             // Validate guess range
-  calculateStats,           // Calculate user stats
-  generateRandomNumber,     // Generate random number
-  isGameExpired,           // Check expiration
-  cleanupExpiredGames      // Clean old games
-} = require('./games/utils/gameHelpers');
+  getGameOr404, // Retrieve game or send 404
+  buildGuessResponse, // Build guess result
+  isValidGuess, // Validate guess range
+  calculateStats, // Calculate user stats
+  generateRandomNumber, // Generate random number
+  isGameExpired, // Check expiration
+  cleanupExpiredGames, // Clean old games
+} = require("./games/utils/gameHelpers");
 ```
 
 ## 🌐 WebSocket Integration
@@ -193,6 +203,7 @@ const {
 When WebSocket is enabled, real-time events are broadcast:
 
 ### Game Started
+
 ```javascript
 {
   "type": "game:started",
@@ -206,6 +217,7 @@ When WebSocket is enabled, real-time events are broadcast:
 ```
 
 ### Guess Made
+
 ```javascript
 {
   "type": "game:guess",
@@ -218,6 +230,7 @@ When WebSocket is enabled, real-time events are broadcast:
 ```
 
 ### Game Cancelled
+
 ```javascript
 {
   "type": "game:cancelled",
@@ -246,22 +259,26 @@ Access metrics at: `http://localhost:9090/metrics`
 ## 🔒 Security
 
 ### Authentication
+
 - ✅ All API endpoints require JWT authentication
 - ✅ Users can only access their own games
 - ✅ Game ownership verified on all operations
 
 ### Rate Limiting
+
 - ✅ Dedicated game rate limiter (100 req/15min per IP)
 - ✅ Prevents abuse and ensures fair resource usage
 - ✅ Configurable per-game limits
 
 ### Input Validation
+
 - ✅ All inputs validated using `express-validator`
 - ✅ Range checking on guess values
 - ✅ Type validation on all parameters
 - ✅ SQL injection prevention via parameterized queries
 
 ### Resource Management
+
 - ✅ Automatic game expiration (configurable)
 - ✅ Maximum concurrent game limit
 - ✅ Periodic cleanup of expired games
@@ -277,20 +294,20 @@ Create a new file in `games/cli/`:
 
 ```javascript
 // games/cli/myNewGame.js
-const gameConfig = require('../config/gameConfig');
+const gameConfig = require("../config/gameConfig");
 
 function startMyGame(options = {}) {
-  console.log('🎮 Welcome to My New Game!');
+  console.log("🎮 Welcome to My New Game!");
   // Game logic here
 }
 
 function getGameInfo() {
   return {
-    name: 'My New Game',
-    description: 'Description here',
-    type: 'CLI',
-    difficulty: 'Medium',
-    players: 1
+    name: "My New Game",
+    description: "Description here",
+    type: "CLI",
+    difficulty: "Medium",
+    players: 1,
   };
 }
 
@@ -303,7 +320,7 @@ Add routes in `games/routes/` or extend existing routes:
 
 ```javascript
 // Add to games/routes/gameRoutes.js
-router.get('/my-game/start', authMiddleware, (req, res) => {
+router.get("/my-game/start", authMiddleware, (req, res) => {
   // Game start logic
 });
 ```
@@ -355,6 +372,7 @@ When contributing game code:
 ## 🚀 Future Enhancements
 
 ### Planned Features
+
 - [ ] Multiplayer support with real-time sync
 - [ ] Global and per-game leaderboards
 - [ ] Different difficulty levels
@@ -369,18 +387,21 @@ When contributing game code:
 ### Game Ideas
 
 #### Easy Difficulty
+
 - [x] **Number Guessing** - Current implementation
 - [ ] **Word Scramble** - Unscramble words
 - [ ] **Math Challenge** - Solve simple equations
 - [ ] **Memory Game** - Pattern matching
 
 #### Medium Difficulty
+
 - [ ] **Sudoku Solver** - Using `sudoku-gen` package
 - [ ] **Trivia Quiz** - General knowledge questions
 - [ ] **Hangman** - Word guessing with hints
 - [ ] **Blackjack** - Card game against dealer
 
 #### Hard Difficulty
+
 - [ ] **Chess** - Full chess implementation
 - [ ] **Poker** - Texas Hold'em variant
 - [ ] **Code Golf** - Shortest code challenges
@@ -389,6 +410,7 @@ When contributing game code:
 ## 📚 API Documentation
 
 For complete API documentation, see:
+
 - [API Reference](../docs/API.md)
 - [Authentication Guide](../docs/AUTHENTICATION.md)
 - [WebSocket Events](../docs/WEBSOCKET.md)
@@ -409,6 +431,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 ## 🐛 Reporting Issues
 
 Found a bug? Please report it:
+
 - 📧 Email: support@codepark.dev
 - 🐛 GitHub Issues: [Create Issue](https://github.com/skanda890/CodePark/issues/new)
 - 💬 Discord: [Join Server](https://discord.gg/codepark)
