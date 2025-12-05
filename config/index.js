@@ -3,7 +3,7 @@
  * All environment variables and app settings
  */
 
-require('dotenv').config();
+require('dotenv').config()
 
 module.exports = {
   // Server
@@ -25,7 +25,8 @@ module.exports = {
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100
   },
   gameRateLimit: {
-    windowMs: parseInt(process.env.GAME_RATE_LIMIT_WINDOW_MS, 10) || 5 * 60 * 1000,
+    windowMs:
+      parseInt(process.env.GAME_RATE_LIMIT_WINDOW_MS, 10) || 5 * 60 * 1000,
     max: parseInt(process.env.GAME_RATE_LIMIT_MAX, 10) || 20
   },
 
@@ -80,4 +81,4 @@ module.exports = {
     enabled: process.env.CACHE_ENABLED !== 'false',
     ttl: parseInt(process.env.CACHE_TTL, 10) || 300
   }
-};
+}

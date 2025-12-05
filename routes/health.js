@@ -3,19 +3,19 @@
  * Kubernetes-compatible liveness and readiness probes
  */
 
-const express = require('express');
-const router = express.Router();
-const cacheService = require('../services/cache');
-const websocketService = require('../services/websocket');
-const config = require('../config');
+const express = require('express')
+const router = express.Router()
+const cacheService = require('../services/cache')
+const websocketService = require('../services/websocket')
+const config = require('../config')
 
 /**
  * GET /health
  * General health check
  */
 router.get('/', (req, res) => {
-  const cacheStatus = cacheService.isAvailable();
-  
+  const cacheStatus = cacheService.isAvailable()
+
   const health = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -35,12 +35,14 @@ router.get('/', (req, res) => {
       status: cacheService.getHealthStatus()
     },
     connections: {
-      websocket: config.websocket.enabled ? websocketService.getConnectionCount() : 0
+      websocket: config.websocket.enabled
+        ? websocketService.getConnectionCount()
+        : 0
     }
-  };
+  }
 
-  res.json(health);
-});
+  res.json(health)
+})
 
 /**
  * GET /health/live
@@ -50,8 +52,8 @@ router.get('/live', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString()
-  });
-});
+  })
+})
 
 /**
  * GET /health/ready
@@ -62,42 +64,44 @@ router.get('/ready', async (req, res) => {
     server: 'ok',
     cache: 'unknown',
     websocket: 'unknown'
-  };
+  }
 
   // Check cache service
   try {
     if (config.cache.enabled) {
-      const status = cacheService.getHealthStatus();
-      checks.cache = status;
+      const status = cacheService.getHealthStatus()
+      checks.cache = status
     } else {
-      checks.cache = 'disabled';
+      checks.cache = 'disabled'
     }
   } catch (error) {
-    checks.cache = 'error';
+    checks.cache = 'error'
   }
 
   // Check WebSocket service
   try {
     if (config.websocket.enabled) {
-      checks.websocket = 'ok';
+      checks.websocket = 'ok'
     } else {
-      checks.websocket = 'disabled';
+      checks.websocket = 'disabled'
     }
   } catch (error) {
-    checks.websocket = 'error';
+    checks.websocket = 'error'
   }
 
   // Determine overall readiness
   // Service is ready if all checks are ok, disabled, or degraded
   // Service is not ready if any check has an error
-  const hasError = Object.values(checks).some((status) => status === 'error');
-  const hasDegradation = Object.values(checks).some((status) => status === 'degraded');
+  const hasError = Object.values(checks).some((status) => status === 'error')
+  const hasDegradation = Object.values(checks).some(
+    (status) => status === 'degraded'
+  )
 
   res.status(hasError ? 503 : 200).json({
     status: hasError ? 'not ready' : hasDegradation ? 'degraded' : 'ready',
     timestamp: new Date().toISOString(),
     checks
-  });
-});
+  })
+})
 
-module.exports = router;
+module.exports = router
