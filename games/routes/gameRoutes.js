@@ -1,40 +1,49 @@
 /**
  * Game Routes
  * Number guessing game API endpoints (requires authentication)
- *
+ * 
  * @module games/routes/gameRoutes
  */
 
-const express = require('express')
-const router = express.Router()
-const { body, validationResult } = require('express-validator')
-const { gameRateLimiter } = require('../../middleware/rateLimiter')
-const { getGameOr404, buildGuessResponse } = require('../../utils/gameHelpers')
-const metricsService = require('../../services/metrics')
-const websocketService = require('../../services/websocket')
-const logger = require('../../config/logger')
-const config = require('../../config')
+const express = require('express');
+const router = express.Router();
+const { body, validationResult } = require('express-validator');
+const { gameRateLimiter } = require('../../middleware/rateLimiter');
+const { 
+  getGameOr404, 
+  buildGuessResponse,
+  generateRandomNumber,
+  cleanupExpiredGames
+} = require('../utils/gameHelpers');
+const gameConfig = require('../config/gameConfig');
+const metricsService = require('../../services/metrics');
+const websocketService = require('../../services/websocket');
+const logger = require('../../config/logger');
+const config = require('../../config');
 
 // In-memory games store
-const games = new Map()
-const GAME_EXPIRY_MS = config.game.expiryMinutes * 60 * 1000
-const MAX_GAMES = config.game.maxGames
+const games = new Map();
+const GAME_EXPIRY_MS = gameConfig.numberGuessing.expiryMinutes * 60 * 1000;
+const MAX_GAMES = gameConfig.numberGuessing.maxGames;
 
 // Clean up expired games periodically
-setInterval(() => {
-  const now = Date.now()
-  for (const [gameId, data] of games.entries()) {
-    if (now - data.createdAt > GAME_EXPIRY_MS) {
-      games.delete(gameId)
-      logger.debug({ gameId }, 'Cleaned up expired game')
-    }
+const cleanupInterval = setInterval(() => {
+  const cleaned = cleanupExpiredGames(games, GAME_EXPIRY_MS);
+  if (cleaned > 0) {
+    logger.info({ cleanedGames: cleaned }, 'Cleaned up expired games');
   }
-  metricsService.updateActiveGames(games.size)
-}, 60 * 1000)
+  metricsService.updateActiveGames(games.size);
+}, gameConfig.numberGuessing.cleanupIntervalSeconds * 1000);
+
+// Export cleanup function for graceful shutdown
+function stopCleanup() {
+  clearInterval(cleanupInterval);
+  logger.info('Game cleanup interval stopped');
+}
 
 /**
  * GET /api/v1/game/start
- * Start a new game
+ * Start a new number guessing game
  */
 router.get('/start', gameRateLimiter, (req, res) => {
   try {
@@ -44,12 +53,16 @@ router.get('/start', gameRateLimiter, (req, res) => {
         error: 'Server capacity reached',
         message: 'Too many active games. Please try again later.',
         activeGames: games.size,
+        maxGames: MAX_GAMES,
         requestId: req.id
-      })
+      });
     }
 
-    const gameId = `${Date.now()}-${Math.floor(Math.random() * 1e9)}`
-    const randomNumber = Math.floor(Math.random() * 100) + 1
+    const gameId = `${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
+    const randomNumber = generateRandomNumber(
+      gameConfig.numberGuessing.min,
+      gameConfig.numberGuessing.max
+    );
 
     // Store game data
     games.set(gameId, {
@@ -58,43 +71,50 @@ router.get('/start', gameRateLimiter, (req, res) => {
       attempts: 0,
       userId: req.user.userId,
       username: req.user.username
-    })
+    });
 
-    metricsService.updateActiveGames(games.size)
+    metricsService.updateActiveGames(games.size);
 
     logger.info(
       { gameId, username: req.user.username, requestId: req.id },
       'Game started'
-    )
+    );
 
     // Broadcast to WebSocket
-    if (config.websocket.enabled) {
+    if (gameConfig.general.enableWebSocket && config.websocket.enabled) {
       websocketService.broadcastToUser(req.user.userId, {
         type: 'game:started',
         gameId,
-        message: 'New game started'
-      })
+        message: 'New game started',
+        config: {
+          min: gameConfig.numberGuessing.min,
+          max: gameConfig.numberGuessing.max
+        }
+      });
     }
 
     res.json({
-      message:
-        'Number guessing game started! Guess a number between 1 and 100.',
+      message: `Number guessing game started! Guess a number between ${gameConfig.numberGuessing.min} and ${gameConfig.numberGuessing.max}.`,
       gameId,
-      expiresIn: `${config.game.expiryMinutes} minutes`,
+      expiresIn: `${gameConfig.numberGuessing.expiryMinutes} minutes`,
+      config: {
+        min: gameConfig.numberGuessing.min,
+        max: gameConfig.numberGuessing.max
+      },
       hint: 'POST /api/v1/game/check with your guess'
-    })
+    });
   } catch (error) {
-    logger.error({ err: error, requestId: req.id }, 'Error starting game')
+    logger.error({ err: error, requestId: req.id }, 'Error starting game');
     res.status(500).json({
       error: 'Failed to start game',
       requestId: req.id
-    })
+    });
   }
-})
+});
 
 /**
  * POST /api/v1/game/check
- * Check a guess
+ * Check a guess for the number guessing game
  */
 router.post(
   '/check',
@@ -106,26 +126,29 @@ router.post(
       .notEmpty()
       .withMessage('gameId is required'),
     body('guess')
-      .isInt({ min: 1, max: 100 })
-      .withMessage('guess must be between 1 and 100')
+      .isInt({ 
+        min: gameConfig.numberGuessing.min, 
+        max: gameConfig.numberGuessing.max 
+      })
+      .withMessage(`guess must be between ${gameConfig.numberGuessing.min} and ${gameConfig.numberGuessing.max}`)
   ],
   (req, res) => {
     try {
       // Validate input
-      const errors = validationResult(req)
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({
           error: 'Validation failed',
           details: errors.array().map((e) => e.msg),
           requestId: req.id
-        })
+        });
       }
 
-      const { gameId, guess } = req.body
+      const { gameId, guess } = req.body;
 
       // Get game or return 404
-      const gameData = getGameOr404(games, gameId, res)
-      if (!gameData) return
+      const gameData = getGameOr404(games, gameId, res);
+      if (!gameData) return;
 
       // Check if user owns this game
       if (gameData.userId !== req.user.userId) {
@@ -133,16 +156,16 @@ router.post(
           error: 'Forbidden',
           message: 'You can only play your own games',
           requestId: req.id
-        })
+        });
       }
 
       // Build and send response
-      const parsed = parseInt(guess, 10)
-      const response = buildGuessResponse(gameData, parsed, gameId, games)
+      const parsed = parseInt(guess, 10);
+      const response = buildGuessResponse(gameData, parsed, gameId, games);
 
       // Update metrics
       if (response.result === 'correct') {
-        metricsService.updateActiveGames(games.size)
+        metricsService.updateActiveGames(games.size);
       }
 
       logger.info(
@@ -151,32 +174,34 @@ router.post(
           username: req.user.username,
           guess,
           result: response.result,
+          attempts: response.attempts,
           requestId: req.id
         },
         'Guess checked'
-      )
+      );
 
       // Broadcast to WebSocket
-      if (config.websocket.enabled) {
+      if (gameConfig.general.enableWebSocket && config.websocket.enabled) {
         websocketService.broadcastToUser(req.user.userId, {
           type: 'game:guess',
           gameId,
           guess,
           result: response.result,
-          attempts: response.attempts
-        })
+          attempts: response.attempts,
+          isWin: response.result === 'correct'
+        });
       }
 
-      res.json(response)
+      res.json(response);
     } catch (error) {
-      logger.error({ err: error, requestId: req.id }, 'Error checking guess')
+      logger.error({ err: error, requestId: req.id }, 'Error checking guess');
       res.status(500).json({
         error: 'Failed to check guess',
         requestId: req.id
-      })
+      });
     }
   }
-)
+);
 
 /**
  * GET /api/v1/game/stats
@@ -189,23 +214,29 @@ router.get('/stats', (req, res) => {
       .map(([gameId, game]) => ({
         gameId,
         createdAt: game.createdAt,
-        attempts: game.attempts
-      }))
+        attempts: game.attempts,
+        timeRemaining: Math.max(0, GAME_EXPIRY_MS - (Date.now() - game.createdAt))
+      }));
 
     res.json({
       activeGames: userGames.length,
       totalActiveGames: games.size,
       maxGames: MAX_GAMES,
+      config: {
+        min: gameConfig.numberGuessing.min,
+        max: gameConfig.numberGuessing.max,
+        expiryMinutes: gameConfig.numberGuessing.expiryMinutes
+      },
       games: userGames
-    })
+    });
   } catch (error) {
-    logger.error({ err: error, requestId: req.id }, 'Error getting stats')
+    logger.error({ err: error, requestId: req.id }, 'Error getting stats');
     res.status(500).json({
       error: 'Failed to get stats',
       requestId: req.id
-    })
+    });
   }
-})
+});
 
 /**
  * DELETE /api/v1/game/:gameId
@@ -213,14 +244,15 @@ router.get('/stats', (req, res) => {
  */
 router.delete('/:gameId', (req, res) => {
   try {
-    const { gameId } = req.params
-    const gameData = games.get(gameId)
+    const { gameId } = req.params;
+    const gameData = games.get(gameId);
 
     if (!gameData) {
       return res.status(404).json({
         error: 'Game not found',
+        message: 'This game does not exist or has expired',
         requestId: req.id
-      })
+      });
     }
 
     // Check ownership
@@ -229,28 +261,39 @@ router.delete('/:gameId', (req, res) => {
         error: 'Forbidden',
         message: 'You can only cancel your own games',
         requestId: req.id
-      })
+      });
     }
 
-    games.delete(gameId)
-    metricsService.updateActiveGames(games.size)
+    games.delete(gameId);
+    metricsService.updateActiveGames(games.size);
 
     logger.info(
       { gameId, username: req.user.username, requestId: req.id },
       'Game cancelled'
-    )
+    );
+
+    // Broadcast to WebSocket
+    if (gameConfig.general.enableWebSocket && config.websocket.enabled) {
+      websocketService.broadcastToUser(req.user.userId, {
+        type: 'game:cancelled',
+        gameId,
+        message: 'Game cancelled'
+      });
+    }
 
     res.json({
       message: 'Game cancelled successfully',
       gameId
-    })
+    });
   } catch (error) {
-    logger.error({ err: error, requestId: req.id }, 'Error cancelling game')
+    logger.error({ err: error, requestId: req.id }, 'Error cancelling game');
     res.status(500).json({
       error: 'Failed to cancel game',
       requestId: req.id
-    })
+    });
   }
-})
+});
 
-module.exports = router
+// Export router and cleanup function
+module.exports = router;
+module.exports.stopCleanup = stopCleanup;
