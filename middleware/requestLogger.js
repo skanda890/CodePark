@@ -1,13 +1,44 @@
 /**
- * Request logging middleware
- * Logs all incoming requests with timestamp and IP
- *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * Request Logger Middleware
+ * Log all incoming requests with Pino
  */
-module.exports = function requestLogger (req, res, next) {
-  const timestamp = new Date().toISOString()
-  console.log(`[${timestamp}] ${req.method} ${req.path} - IP: ${req.ip}`)
-  next()
-}
+
+const logger = require('../config/logger');
+
+module.exports = function requestLogger(req, res, next) {
+  const start = Date.now();
+
+  // Log request
+  logger.info(
+    {
+      requestId: req.id,
+      method: req.method,
+      url: req.url,
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent')
+    },
+    'Incoming request'
+  );
+
+  // Log response when finished
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+
+    const logData = {
+      requestId: req.id,
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      contentLength: res.get('content-length') || 0
+    };
+
+    if (res.statusCode >= 400) {
+      logger.warn(logData, 'Request completed with error');
+    } else {
+      logger.info(logData, 'Request completed');
+    }
+  });
+
+  next();
+};
