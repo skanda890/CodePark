@@ -142,7 +142,7 @@ Retrieve and display BIOS information from Windows systems.
   - Social media integration
 
 - [ ] **Achievements & Stats**
-  - Unlock-able achievements
+  - Unlockable achievements
   - Comprehensive statistics
   - Play time tracking
   - Favorite games analytics
