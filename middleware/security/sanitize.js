@@ -8,10 +8,17 @@
  * @param {string} value - String to sanitize
  * @returns {string} Sanitized string
  */
-const sanitizeString = (value) =>
-  value
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/(['"`; ])/g, '') // Remove SQL injection attempts
+const sanitizeString = (value) => {
+  // Remove HTML tags by repeatedly applying the regex until no change occurs
+  let prev;
+  let result = value;
+  do {
+    prev = result;
+    result = result.replace(/<[^>]*>/g, '');
+  } while (result !== prev);
+  // Remove potentially dangerous SQL characters
+  return result.replace(/(['"`; ])/g, '');
+};
 
 /**
  * Recursively sanitize an object
