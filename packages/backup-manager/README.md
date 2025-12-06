@@ -25,19 +25,19 @@ npm install
 ### AWS S3
 
 ```javascript
-const manager = new CloudStorageManager('aws', {
+const manager = new CloudStorageManager("aws", {
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
-  bucket: 'my-backup-bucket',
-  region: 'us-east-1'
+  bucket: "my-backup-bucket",
+  region: "us-east-1",
 });
 ```
 
 ### Local Storage
 
 ```javascript
-const manager = new CloudStorageManager('local', {
-  storagePath: '/path/to/backup/storage'
+const manager = new CloudStorageManager("local", {
+  storagePath: "/path/to/backup/storage",
 });
 ```
 
@@ -46,17 +46,17 @@ const manager = new CloudStorageManager('local', {
 ### Upload
 
 ```javascript
-const CloudStorageManager = require('./src/backup-manager');
+const CloudStorageManager = require("./src/backup-manager");
 
-const manager = new CloudStorageManager('aws', {
+const manager = new CloudStorageManager("aws", {
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
-  bucket: 'backups'
+  bucket: "backups",
 });
 
-await manager.upload('data.zip', 'backups/2025-12-06/data.zip', {
+await manager.upload("data.zip", "backups/2025-12-06/data.zip", {
   compress: true,
-  password: 'secure-password'
+  password: "secure-password",
 });
 ```
 
@@ -64,16 +64,16 @@ await manager.upload('data.zip', 'backups/2025-12-06/data.zip', {
 
 ```javascript
 await manager.download(
-  'backups/2025-12-06/data.zip',
-  'restore/data.zip',
-  'secure-password'
+  "backups/2025-12-06/data.zip",
+  "restore/data.zip",
+  "secure-password",
 );
 ```
 
 ### List Backups
 
 ```javascript
-const backups = await manager.listBackups('backups/2025-12-06/');
+const backups = await manager.listBackups("backups/2025-12-06/");
 console.log(backups);
 ```
 

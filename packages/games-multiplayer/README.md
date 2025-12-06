@@ -69,25 +69,25 @@ npm start
 ## Example Usage
 
 ```javascript
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
-const socket = io('http://localhost:3000', {
+const socket = io("http://localhost:3000", {
   auth: {
-    token: 'your-jwt-token'
-  }
+    token: "your-jwt-token",
+  },
 });
 
-socket.on('connect', () => {
-  console.log('Connected!');
-  socket.emit('join_room', 'room-123');
+socket.on("connect", () => {
+  console.log("Connected!");
+  socket.emit("join_room", "room-123");
 });
 
-socket.on('game_started', (data) => {
-  console.log('Game started!', data.gameState);
+socket.on("game_started", (data) => {
+  console.log("Game started!", data.gameState);
 });
 
-socket.on('game_update', (data) => {
-  console.log('Game updated:', data);
+socket.on("game_update", (data) => {
+  console.log("Game updated:", data);
 });
 ```
 

@@ -34,7 +34,7 @@ docker --version
 ## Usage
 
 ```javascript
-const CodeCompiler = require('./src/compiler');
+const CodeCompiler = require("./src/compiler");
 
 const compiler = new CodeCompiler();
 
@@ -44,10 +44,10 @@ print(sum([1, 2, 3, 4, 5]))
 `;
 
 try {
-  const result = await compiler.compile(pythonCode, 'python');
-  console.log('Result:', result);
+  const result = await compiler.compile(pythonCode, "python");
+  console.log("Result:", result);
 } catch (err) {
-  console.error('Compilation Error:', err.message);
+  console.error("Compilation Error:", err.message);
 }
 ```
 

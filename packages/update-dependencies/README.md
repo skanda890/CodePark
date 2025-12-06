@@ -40,7 +40,7 @@ node src/cli.js scan /path/to/project -html -json
 ### Programmatic
 
 ```javascript
-const Scanner = require('./src/scanner');
+const Scanner = require("./src/scanner");
 
 const scanner = new Scanner(process.cwd());
 await scanner.runAudit();
@@ -53,6 +53,7 @@ await scanner.generateJSONReport();
 ### HTML Report
 
 Beautiful, interactive HTML report showing:
+
 - Vulnerability summary (critical, high, medium, low)
 - Detailed vulnerability table
 - CVSS scores and CVE links

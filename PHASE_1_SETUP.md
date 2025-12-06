@@ -92,6 +92,7 @@ npm install
 ```
 
 **Edit `.env`**:
+
 ```env
 PORT=3000
 JWT_SECRET=your-secret-key
@@ -99,6 +100,7 @@ REDIS_URL=redis://localhost:6379
 ```
 
 **Start Redis**:
+
 ```bash
 # Using Docker
 docker run -d -p 6379:6379 redis:7-alpine
@@ -108,6 +110,7 @@ brew services start redis
 ```
 
 **Development**:
+
 ```bash
 npm run dev   # With auto-reload
 ```
@@ -128,6 +131,7 @@ dotnet run
 ```
 
 **Output Files**:
+
 - `bios_audit_log.json` - Change history
 - `bios_baseline.json` - Baseline configuration
 
@@ -147,6 +151,7 @@ node src/cli.js scan . -html -json
 ```
 
 **Output Files**:
+
 - `security-report.html` - Visual report
 - `security-report.json` - Machine-readable
 
@@ -161,6 +166,7 @@ npm install
 ```
 
 **Edit `.env`**:
+
 ```env
 AWS_ACCESS_KEY=your-key
 AWS_SECRET_KEY=your-secret
@@ -267,7 +273,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm run bootstrap
       - run: npm run lint
       - run: npm test -- --coverage
@@ -278,13 +284,13 @@ jobs:
 
 ## Module Status
 
-| Module | Status | Tests | Docs | Ready |
-|--------|--------|-------|------|-------|
-| Games Multiplayer | 🔧 WIP | ❌ | ✅ | 🔴 |
-| BIOS Monitor | 🔧 WIP | ❌ | ✅ | 🔴 |
-| Security Scanner | 🔧 WIP | ❌ | ✅ | 🔴 |
-| Backup Manager | 🔧 WIP | ❌ | ✅ | 🔴 |
-| Code Compiler | 🔧 WIP | ❌ | ✅ | 🔴 |
+| Module            | Status | Tests | Docs | Ready |
+| ----------------- | ------ | ----- | ---- | ----- |
+| Games Multiplayer | 🔧 WIP | ❌    | ✅   | 🔴    |
+| BIOS Monitor      | 🔧 WIP | ❌    | ✅   | 🔴    |
+| Security Scanner  | 🔧 WIP | ❌    | ✅   | 🔴    |
+| Backup Manager    | 🔧 WIP | ❌    | ✅   | 🔴    |
+| Code Compiler     | 🔧 WIP | ❌    | ✅   | 🔴    |
 
 **Legend**: ❌ = Not Done, 🔧 = In Progress, ✅ = Complete
 

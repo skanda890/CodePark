@@ -19,7 +19,7 @@ const greet = (name) => {
 };
 
 // Avoid
-var greet = function(name) {
+var greet = function (name) {
   console.log("Hello, " + name + "!");
 };
 ```
@@ -54,6 +54,7 @@ type(scope): description
 **Types**: feat, fix, docs, style, refactor, perf, test, chore
 
 **Examples**:
+
 ```
 feat(games): add room matchmaking
 fix(compiler): handle execution timeout
@@ -87,13 +88,13 @@ test(backup): add S3 upload tests
 ### Unit Tests
 
 ```javascript
-describe('GameRoom', () => {
-  it('should add player to room', () => {
-    const room = new GameRoom('room-1');
-    const player = { id: 1, name: 'Alice' };
-    
+describe("GameRoom", () => {
+  it("should add player to room", () => {
+    const room = new GameRoom("room-1");
+    const player = { id: 1, name: "Alice" };
+
     room.addPlayer(player);
-    
+
     expect(room.players).toHaveLength(1);
     expect(room.players[0]).toEqual(player);
   });

@@ -1,94 +1,103 @@
 // security-scanner.js - Automated npm vulnerability detection
-const { execSync } = require('child_process');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+const { execSync } = require('child_process')
+const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
 
 class SecurityScanner {
-  constructor(projectPath) {
-    this.projectPath = projectPath;
-    this.auditResults = null;
-    this.cveData = new Map();
-    this.cache = new Map();
+  constructor (projectPath) {
+    this.projectPath = projectPath
+    this.auditResults = null
+    this.cveData = new Map()
+    this.cache = new Map()
   }
-  
+
   /**
    * Run npm audit and collect vulnerability data
    */
-  async runAudit() {
+  async runAudit () {
     try {
-      console.log('Running npm audit...');
+      console.log('Running npm audit...')
       const result = execSync('npm audit --json', {
         cwd: this.projectPath,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe']
-      });
-      
-      this.auditResults = JSON.parse(result);
-      console.log(`✓ Audit complete: ${this.auditResults.metadata.vulnerabilities.total} vulnerabilities found`);
-      return this.auditResults;
+      })
+
+      this.auditResults = JSON.parse(result)
+      console.log(
+        `✓ Audit complete: ${this.auditResults.metadata.vulnerabilities.total} vulnerabilities found`
+      )
+      return this.auditResults
     } catch (err) {
       // npm audit exits with non-zero if vulnerabilities found
       try {
-        this.auditResults = JSON.parse(err.stdout);
-        console.log(`✓ Audit complete: ${this.auditResults.metadata.vulnerabilities.total} vulnerabilities found`);
-        return this.auditResults;
+        this.auditResults = JSON.parse(err.stdout)
+        console.log(
+          `✓ Audit complete: ${this.auditResults.metadata.vulnerabilities.total} vulnerabilities found`
+        )
+        return this.auditResults
       } catch {
-        throw new Error('Failed to parse npm audit results');
+        throw new Error('Failed to parse npm audit results')
       }
     }
   }
-  
+
   /**
    * Fetch CVE details from NVD API
    */
-  async fetchCVEDetails(vuln) {
-    const cveId = vuln.cve || vuln.id;
-    if (!cveId) return null;
-    if (this.cveData.has(cveId)) return this.cveData.get(cveId);
-    
+  async fetchCVEDetails (vuln) {
+    const cveId = vuln.cve || vuln.id
+    if (!cveId) return null
+    if (this.cveData.has(cveId)) return this.cveData.get(cveId)
+
     try {
       // Check cache first
       if (this.cache.has(cveId)) {
-        return this.cache.get(cveId);
+        return this.cache.get(cveId)
       }
-      
+
       const response = await axios.get(
         `https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=${cveId}`,
         { timeout: 5000 }
-      );
-      
-      if (!response.data.vulnerabilities || response.data.vulnerabilities.length === 0) {
-        return null;
+      )
+
+      if (
+        !response.data.vulnerabilities ||
+        response.data.vulnerabilities.length === 0
+      ) {
+        return null
       }
-      
-      const vulnData = response.data.vulnerabilities[0].cve;
+
+      const vulnData = response.data.vulnerabilities[0].cve
       const cveData = {
         id: cveId,
-        cvssScore: vulnData.metrics?.cvssMetricV3?.[0]?.cvssData?.baseScore || 'N/A',
-        description: vulnData.descriptions?.[0]?.value || 'No description available',
-        references: vulnData.references?.map(r => r.url) || [],
+        cvssScore:
+          vulnData.metrics?.cvssMetricV3?.[0]?.cvssData?.baseScore || 'N/A',
+        description:
+          vulnData.descriptions?.[0]?.value || 'No description available',
+        references: vulnData.references?.map((r) => r.url) || [],
         publishedDate: vulnData.published || 'Unknown'
-      };
-      
-      this.cveData.set(cveId, cveData);
-      this.cache.set(cveId, cveData);
-      return cveData;
+      }
+
+      this.cveData.set(cveId, cveData)
+      this.cache.set(cveId, cveData)
+      return cveData
     } catch (err) {
-      console.warn(`⚠ Error fetching CVE ${cveId}: ${err.message}`);
-      return null;
+      console.warn(`⚠ Error fetching CVE ${cveId}: ${err.message}`)
+      return null
     }
   }
-  
+
   /**
    * Generate comprehensive vulnerability report
    */
-  async generateReport() {
+  async generateReport () {
     if (!this.auditResults) {
-      await this.runAudit();
+      await this.runAudit()
     }
-    
-    const vulnerabilities = this.auditResults.vulnerabilities || {};
+
+    const vulnerabilities = this.auditResults.vulnerabilities || {}
     const reportData = {
       timestamp: new Date().toISOString(),
       projectPath: this.projectPath,
@@ -98,44 +107,44 @@ class SecurityScanner {
       medium: this.auditResults.metadata.vulnerabilities.medium,
       low: this.auditResults.metadata.vulnerabilities.low,
       vulnerabilities: []
-    };
-    
+    }
+
     // Fetch CVE details for all vulnerabilities
-    console.log('\nFetching CVE details...');
+    console.log('\nFetching CVE details...')
     for (const [pkgName, vuln] of Object.entries(vulnerabilities)) {
-      const cveDetails = await this.fetchCVEDetails(vuln);
-      
+      const cveDetails = await this.fetchCVEDetails(vuln)
+
       reportData.vulnerabilities.push({
         package: pkgName,
         severity: vuln.severity,
         range: vuln.range,
         fixAvailable: vuln.fixAvailable ? 'Yes' : 'No',
         cve: cveDetails
-      });
+      })
     }
-    
+
     // Sort by severity
     reportData.vulnerabilities.sort((a, b) => {
-      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      return severityOrder[a.severity] - severityOrder[b.severity];
-    });
-    
-    return reportData;
+      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 }
+      return severityOrder[a.severity] - severityOrder[b.severity]
+    })
+
+    return reportData
   }
-  
+
   /**
    * Generate HTML report
    */
-  async generateHTMLReport() {
-    const report = await this.generateReport();
-    
+  async generateHTMLReport () {
+    const report = await this.generateReport()
+
     const severityColors = {
       critical: '#d32f2f',
       high: '#f57c00',
       medium: '#fbc02d',
       low: '#388e3c'
-    };
-    
+    }
+
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,7 +222,9 @@ class SecurityScanner {
           </tr>
         </thead>
         <tbody>
-          ${report.vulnerabilities.map(v => `
+          ${report.vulnerabilities
+            .map(
+              (v) => `
             <tr>
               <td>${v.package}</td>
               <td><span class="severity ${v.severity}">${v.severity.toUpperCase()}</span></td>
@@ -221,7 +232,9 @@ class SecurityScanner {
               <td>${v.cve?.cvssScore || 'N/A'}</td>
               <td>${v.fixAvailable}</td>
             </tr>
-          `).join('')}
+          `
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -233,25 +246,25 @@ class SecurityScanner {
     </div>
   </div>
 </body>
-</html>`;
-    
-    const reportPath = path.join(this.projectPath, 'security-report.html');
-    fs.writeFileSync(reportPath, html);
-    console.log(`\n✓ Report saved to: ${reportPath}`);
-    
-    return reportPath;
+</html>`
+
+    const reportPath = path.join(this.projectPath, 'security-report.html')
+    fs.writeFileSync(reportPath, html)
+    console.log(`\n✓ Report saved to: ${reportPath}`)
+
+    return reportPath
   }
-  
+
   /**
    * Generate JSON report
    */
-  async generateJSONReport() {
-    const report = await this.generateReport();
-    const reportPath = path.join(this.projectPath, 'security-report.json');
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    console.log(`✓ JSON report saved to: ${reportPath}`);
-    return reportPath;
+  async generateJSONReport () {
+    const report = await this.generateReport()
+    const reportPath = path.join(this.projectPath, 'security-report.json')
+    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
+    console.log(`✓ JSON report saved to: ${reportPath}`)
+    return reportPath
   }
 }
 
-module.exports = SecurityScanner;
+module.exports = SecurityScanner
