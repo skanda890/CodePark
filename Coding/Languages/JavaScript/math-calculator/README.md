@@ -6,7 +6,6 @@ A secure, high-precision mathematical calculator API with support for extremely 
 
 This project uses the **latest stable and pre-release versions** of all dependencies for maximum performance, security, and features:
 
-
 - **Express v5.2.1** - Latest Express 5 with Promise support and enhanced routing
 - **Helmet v8.1.0** - Latest security headers with improved CSP
 - **MathJS v15.1.0** - Latest with performance optimizations
@@ -30,6 +29,7 @@ npm run audit
 ## Features
 
 ### 🔢 Large Number Support
+
 - **Arbitrary Precision**: Uses Decimal.js with 1000-digit precision
 - **Googolplex Support**: Handles 10^10^100 and even larger numbers
 - **Tower Exponentiation**: Supports power towers like `10^10^googolplex`
@@ -65,6 +65,7 @@ npm run audit
 ## Installation
 
 ### Requirements
+
 - **Node.js**: >= 18.0.0 (for Express 5 compatibility)
 - **npm**: >= 9.0.0
 
@@ -89,7 +90,6 @@ npm outdated
 
 ### Start the Server
 
-
 ```bash
 # Development mode
 
@@ -108,39 +108,42 @@ The server runs on `http://localhost:4000` by default (configurable via `PORT` e
 
 ### API Endpoints
 
-
 #### `GET /`
+
 Welcome message
 
 #### `GET /calculator`
+
 Serves the HTML calculator interface
 
 #### `POST /calculate`
+
 Performs mathematical calculations
 
-
 **Request Body:**
+
 ```json
 {
-
   "expression": "10^10^googol"
 }
 ```
 
 **Response:**
+
 ```json
 {
   "question": "What is the result of: 10^10^googol?",
   "solution": "Infinity (Computational representation impossible)",
   "explanation": "This is 10 raised to the power of googolplex (10^10^100), an incomprehensibly large number that cannot be computed or stored.\n\nRepresentation: 10^googolplex\n\nThis number is so large it exceeds the storage capacity of any computer system ever built or conceivable."
-
 }
 ```
 
 #### `GET /health`
+
 Health check endpoint
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -151,6 +154,7 @@ Health check endpoint
 ## Examples
 
 ### Basic Operations
+
 ```javascript
 // Standard arithmetic
 "2 + 2"; // 4
@@ -244,13 +248,12 @@ Common errors:
 
 ### Dependencies (Latest Versions)
 
-
-| Package | Version | Purpose |
-|---------|---------|----------|
-| express | ^5.2.1 | Web framework (Express 5 with Promise support) |
-| helmet | ^8.1.0 | Security headers (latest CSP improvements) |
-| mathjs | ^15.1.0 | Mathematical expression parser (performance optimized) |
-| decimal.js | ^10.4.3 | Arbitrary-precision arithmetic |
+| Package    | Version | Purpose                                                |
+| ---------- | ------- | ------------------------------------------------------ |
+| express    | ^5.2.1  | Web framework (Express 5 with Promise support)         |
+| helmet     | ^8.1.0  | Security headers (latest CSP improvements)             |
+| mathjs     | ^15.1.0 | Mathematical expression parser (performance optimized) |
+| decimal.js | ^10.4.3 | Arbitrary-precision arithmetic                         |
 
 | axios | ^1.7.9 | HTTP client |
 | socket.io | ^4.8.1 | Real-time communication |
@@ -267,9 +270,10 @@ Common errors:
 ✅ **Performance**: Optimizations and improvements  
 ✅ **Features**: Access to newest capabilities  
 ✅ **Compatibility**: Better Node.js 18+ integration  
-✅ **Express 5**: Promise-based middleware, better error handling  
+✅ **Express 5**: Promise-based middleware, better error handling
 
 ### Precision Configuration
+
 ```javascript
 Decimal.set({
   precision: 1000, // Support up to 1000 digits
@@ -315,8 +319,8 @@ Decimal.set({
 - 📝 Added auto-update npm scripts
 
 ### v1.0.0
-- Initial release with basic calculator functionality
 
+- Initial release with basic calculator functionality
 
 ## Maintenance
 
@@ -348,6 +352,7 @@ npm run audit
 ## Contributing
 
 Contributions are welcome! Please ensure:
+
 1. Security best practices are maintained
 2. All inputs are validated and sanitized
 3. Large number handling is tested
