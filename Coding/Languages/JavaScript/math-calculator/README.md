@@ -6,6 +6,7 @@ A secure, high-precision mathematical calculator API with support for extremely 
 
 This project uses the **latest stable and pre-release versions** of all dependencies for maximum performance, security, and features:
 
+
 - **Express v5.2.1** - Latest Express 5 with Promise support and enhanced routing
 - **Helmet v8.1.0** - Latest security headers with improved CSP
 - **MathJS v15.1.0** - Latest with performance optimizations
@@ -32,7 +33,7 @@ npm run audit
 - **Arbitrary Precision**: Uses Decimal.js with 1000-digit precision
 - **Googolplex Support**: Handles 10^10^100 and even larger numbers
 - **Tower Exponentiation**: Supports power towers like `10^10^googolplex`
-- **Named Large Numbers**: 
+- **Named Large Numbers**:
   - googol (10^100)
   - googolplex (10^googol)
   - centillion (10^303)
@@ -41,8 +42,9 @@ npm run audit
   - Moser's number (conceptual)
 
 ### 🔐 Security Features
+
 - **Input Validation**: Comprehensive sanitization to prevent injection attacks
-- **Rate Limiting**: 
+- **Rate Limiting**:
   - 100 requests per 15 minutes (general)
   - 20 calculations per minute (compute-intensive)
 - **Helmet.js v8.1.0**: Latest security headers protection
@@ -51,7 +53,8 @@ npm run audit
 - **Request Size Limiting**: 100KB maximum request body
 
 ### 🧮 Mathematical Operations
-- Basic arithmetic (+, -, *, /, ^)
+
+- Basic arithmetic (+, -, \*, /, ^)
 - Square roots: `squareroot(n)`
 - Squares: `square(n)`
 - Vieta's formula: `vieta(iterations)` - approximates π
@@ -86,20 +89,25 @@ npm outdated
 
 ### Start the Server
 
+
 ```bash
 # Development mode
+
 npm run dev
 
 # Production mode
+
 npm run prod
 
 # Default
+
 npm start
 ```
 
 The server runs on `http://localhost:4000` by default (configurable via `PORT` environment variable).
 
 ### API Endpoints
+
 
 #### `GET /`
 Welcome message
@@ -110,9 +118,11 @@ Serves the HTML calculator interface
 #### `POST /calculate`
 Performs mathematical calculations
 
+
 **Request Body:**
 ```json
 {
+
   "expression": "10^10^googol"
 }
 ```
@@ -123,6 +133,7 @@ Performs mathematical calculations
   "question": "What is the result of: 10^10^googol?",
   "solution": "Infinity (Computational representation impossible)",
   "explanation": "This is 10 raised to the power of googolplex (10^10^100), an incomprehensibly large number that cannot be computed or stored.\n\nRepresentation: 10^googolplex\n\nThis number is so large it exceeds the storage capacity of any computer system ever built or conceivable."
+
 }
 ```
 
@@ -142,53 +153,58 @@ Health check endpoint
 ### Basic Operations
 ```javascript
 // Standard arithmetic
-"2 + 2"                    // 4
-"100 * 50"                 // 5000
-"2^10"                     // 1024
+"2 + 2"; // 4
+"100 * 50"; // 5000
+"2^10"; // 1024
 
 // Square root and square
-"squareroot16"             // 4
-"square12"                 // 144
+"squareroot16"; // 4
+"square12"; // 144
 ```
 
 ### Large Numbers with Shorthand
+
 ```javascript
-"5googol"                  // 5 * 10^100
-"2.5million"               // 2500000
-"10billion + 5billion"     // 15000000000
-"3googol * 2"              // 6 * 10^100
+"5googol"; // 5 * 10^100
+"2.5million"; // 2500000
+"10billion + 5billion"; // 15000000000
+"3googol * 2"; // 6 * 10^100
 ```
 
 ### Tower Exponentiation
+
 ```javascript
 // Computable power tower
-"2^2^3"                    // 256 (2^8)
+"2^2^3"; // 256 (2^8)
 
 // Extremely large (returns description)
-"10^10^100"                // Googolplex (special handling)
-"10^10^googol"             // Beyond googolplex
-"10^10^googolplex"         // Incomprehensibly large
+"10^10^100"; // Googolplex (special handling)
+"10^10^googol"; // Beyond googolplex
+"10^10^googolplex"; // Incomprehensibly large
 ```
 
 ### Special Functions
+
 ```javascript
 // Vieta's formula (approximates π)
-"vieta(10)"                // ~3.141592653
-"vieta(100)"               // Higher precision π approximation
+"vieta(10)"; // ~3.141592653
+"vieta(100)"; // Higher precision π approximation
 
 // Chained expressions
-"y=29-x=squareroot9"       // Evaluates to 26
+"y=29-x=squareroot9"; // Evaluates to 26
 ```
 
 ### Scientific Notation
+
 ```javascript
-"1e100"                    // 10^100 (googol)
-"1e308"                    // Near maximum standard float
+"1e100"; // 10^100 (googol)
+"1e308"; // Near maximum standard float
 ```
 
 ## Security Considerations
 
 ### Protected Against
+
 - ✅ Code injection attacks
 - ✅ ReDoS (Regular Expression Denial of Service)
 - ✅ Request flooding / DoS
@@ -197,7 +213,9 @@ Health check endpoint
 - ✅ XSS attacks (via CSP headers)
 
 ### Input Sanitization
+
 The calculator automatically:
+
 - Removes dangerous characters: `; < > { } [ ] \`
 - Blocks suspicious patterns: `require()`, `import`, `eval()`, `function()`, etc.
 - Limits expression length to prevent memory exhaustion
@@ -216,6 +234,7 @@ The calculator provides detailed error messages:
 ```
 
 Common errors:
+
 - `Expression too long`: Exceeds 10,000 character limit
 - `Expression contains potentially unsafe patterns`: Security validation failed
 - `Unsupported shorthand term`: Unknown number name
@@ -225,12 +244,14 @@ Common errors:
 
 ### Dependencies (Latest Versions)
 
+
 | Package | Version | Purpose |
 |---------|---------|----------|
 | express | ^5.2.1 | Web framework (Express 5 with Promise support) |
 | helmet | ^8.1.0 | Security headers (latest CSP improvements) |
 | mathjs | ^15.1.0 | Mathematical expression parser (performance optimized) |
 | decimal.js | ^10.4.3 | Arbitrary-precision arithmetic |
+
 | axios | ^1.7.9 | HTTP client |
 | socket.io | ^4.8.1 | Real-time communication |
 | express-rate-limit | ^8.2.1 | Rate limiting middleware |
@@ -250,15 +271,16 @@ Common errors:
 
 ### Precision Configuration
 ```javascript
-Decimal.set({ 
-  precision: 1000,              // Support up to 1000 digits
+Decimal.set({
+  precision: 1000, // Support up to 1000 digits
   rounding: Decimal.ROUND_HALF_UP,
   toExpNeg: -1000,
-  toExpPos: 1000
-})
+  toExpPos: 1000,
+});
 ```
 
 ### Rate Limiting
+
 ```javascript
 // General endpoints: 100 requests per 15 minutes
 // /calculate endpoint: 20 requests per minute
@@ -274,6 +296,7 @@ Decimal.set({
 ## Version History
 
 ### v2.0.0 (Current - December 2025)
+
 - ✨ Added support for googolplex and larger undefined numbers
 - ✨ Implemented tower exponentiation (power towers)
 - 🔒 **Updated to latest/pre-release versions of all dependencies**
@@ -287,11 +310,13 @@ Decimal.set({
 - 📈 Improved Decimal.js precision to 1000 digits
 - 🎯 Added health check endpoint
 - 🎯 Graceful shutdown handling
+
 - 📝 Comprehensive error messages
 - 📝 Added auto-update npm scripts
 
 ### v1.0.0
 - Initial release with basic calculator functionality
+
 
 ## Maintenance
 

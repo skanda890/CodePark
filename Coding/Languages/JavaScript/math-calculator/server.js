@@ -9,15 +9,17 @@ const app = express()
 const port = process.env.PORT || 4000
 
 // Security middleware - Helmet for security headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-    },
-  },
-}))
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"]
+      }
+    }
+  })
+)
 
 // Rate limiting middleware for all endpoints
 const limiter = rateLimit({
@@ -41,7 +43,7 @@ app.use(limiter)
 app.use(express.json({ limit: '100kb' })) // Limit request body size
 
 // Configure Decimal.js for arbitrary precision
-Decimal.set({ 
+Decimal.set({
   precision: 1000, // Support up to 1000 digits
   rounding: Decimal.ROUND_HALF_UP,
   toExpNeg: -1000,
@@ -91,27 +93,29 @@ const shorthandMap = {
   googolplex: 'GOOGOLPLEX', // Special marker for 10^googol
   centillion: new Decimal('1e303'),
   skewes: 'SKEWES', // Special marker for Skewes' number
-  moser: 'MOSER', // Special marker for Moser's number  
+  moser: 'MOSER', // Special marker for Moser's number
   grahams: 'GRAHAMS' // Special marker for Graham's number
 }
 
 // Input validation and sanitization
-function validateAndSanitizeExpression(expression) {
+function validateAndSanitizeExpression (expression) {
   if (!expression || typeof expression !== 'string') {
     throw new Error('Invalid expression: must be a non-empty string')
   }
-  
+
   // Limit expression length to prevent DoS
   const MAX_LENGTH = 10000
   if (expression.length > MAX_LENGTH) {
-    throw new Error(`Expression too long: maximum ${MAX_LENGTH} characters allowed`)
+    throw new Error(
+      `Expression too long: maximum ${MAX_LENGTH} characters allowed`
+    )
   }
-  
+
   // Remove potentially dangerous characters while preserving math symbols
   const sanitized = expression
     .replace(/[;<>{}\[\]\\]/g, '') // Remove dangerous characters
     .trim()
-  
+
   // Check for suspicious patterns
   const dangerousPatterns = [
     /require\s*\(/i,
@@ -123,18 +127,18 @@ function validateAndSanitizeExpression(expression) {
     /\$\{/,
     /`/
   ]
-  
+
   for (const pattern of dangerousPatterns) {
     if (pattern.test(sanitized)) {
       throw new Error('Expression contains potentially unsafe patterns')
     }
   }
-  
+
   return sanitized
 }
 
 // Function to handle tower exponentiation (power towers)
-function evaluateTowerExponentiation(base, exponentExpression) {
+function evaluateTowerExponentiation (base, exponentExpression) {
   try {
     // Handle special large number cases
     if (exponentExpression === 'GOOGOLPLEX') {
@@ -145,10 +149,18 @@ function evaluateTowerExponentiation(base, exponentExpression) {
         approximation: 'Infinity (Computational representation impossible)'
       }
     }
-    
-    if (exponentExpression === 'SKEWES' || exponentExpression === 'MOSER' || exponentExpression === 'GRAHAMS') {
-      const name = exponentExpression === 'SKEWES' ? "Skewes' number" : 
-                   exponentExpression === 'MOSER' ? "Moser's number" : "Graham's number"
+
+    if (
+      exponentExpression === 'SKEWES' ||
+      exponentExpression === 'MOSER' ||
+      exponentExpression === 'GRAHAMS'
+    ) {
+      const name =
+        exponentExpression === 'SKEWES'
+          ? "Skewes' number"
+          : exponentExpression === 'MOSER'
+            ? "Moser's number"
+            : "Graham's number"
       return {
         isSpecial: true,
         representation: `${base}^${exponentExpression.toLowerCase()}`,
@@ -156,13 +168,13 @@ function evaluateTowerExponentiation(base, exponentExpression) {
         approximation: 'Infinity (Beyond computational limits)'
       }
     }
-    
+
     // Try to evaluate the exponent
     const exponent = new Decimal(exponentExpression)
-    
+
     // Check if result would be too large
     const logResult = exponent.times(Decimal.log10(base))
-    
+
     if (logResult.gt(1000)) {
       return {
         isSpecial: true,
@@ -171,12 +183,12 @@ function evaluateTowerExponentiation(base, exponentExpression) {
         approximation: `~10^${exponent.times(Decimal.log10(base)).toFixed(2)}`
       }
     }
-    
+
     // Calculate if reasonable
     const result = new Decimal(base).pow(exponent)
     return {
       isSpecial: false,
-      result: result
+      result
     }
   } catch (error) {
     throw new Error(`Error evaluating tower exponentiation: ${error.message}`)
@@ -184,7 +196,7 @@ function evaluateTowerExponentiation(base, exponentExpression) {
 }
 
 // Function to handle calculations
-function handleCalculation(expression) {
+function handleCalculation (expression) {
   const sqrtRegex = /squareroot(\d+)/
   const squareRegex = /square(\d+)/
   const vietaRegex = /vieta\((\d+)\)/ // Vieta's formula regex
@@ -193,7 +205,7 @@ function handleCalculation(expression) {
   try {
     // Validate and sanitize input
     expression = validateAndSanitizeExpression(expression)
-    
+
     const question = `What is the result of: ${expression}?`
     let solution
     let explanation
@@ -201,8 +213,10 @@ function handleCalculation(expression) {
     // Handle tower exponentiation (e.g., 10^10^googolplex)
     const towerMatch = expression.match(towerRegex)
     if (towerMatch) {
-      const [fullMatch, base, firstExp, secondExp] = towerMatch[0].match(/(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/)
-      
+      const [fullMatch, base, firstExp, secondExp] = towerMatch[0].match(
+        /(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/
+      )
+
       // First evaluate middle exponent
       let middleResult
       if (shorthandMap[secondExp.toLowerCase()]) {
@@ -213,11 +227,13 @@ function handleCalculation(expression) {
           middleResult = new Decimal(firstExp).pow(shorthandValue).toString()
         }
       } else {
-        middleResult = new Decimal(firstExp).pow(new Decimal(secondExp)).toString()
+        middleResult = new Decimal(firstExp)
+          .pow(new Decimal(secondExp))
+          .toString()
       }
-      
+
       const towerResult = evaluateTowerExponentiation(base, middleResult)
-      
+
       if (towerResult.isSpecial) {
         solution = towerResult.approximation
         explanation = `${towerResult.description}\n\nRepresentation: ${towerResult.representation}\n\nThis number is so large it exceeds the storage capacity of any computer system ever built or conceivable.`
@@ -225,7 +241,7 @@ function handleCalculation(expression) {
         solution = towerResult.result.toFixed()
         explanation = `The tower exponentiation ${fullMatch} evaluates to ${solution}.`
       }
-      
+
       return { question, solution, explanation }
     }
 
@@ -236,7 +252,7 @@ function handleCalculation(expression) {
         const base = new Decimal(number)
         const unit = term.toLowerCase()
         const multiplier = shorthandMap[unit]
-        
+
         if (multiplier) {
           if (typeof multiplier === 'string') {
             // Handle special undefined numbers
@@ -245,7 +261,9 @@ function handleCalculation(expression) {
             } else if (multiplier === 'SKEWES') {
               return `10^(10^(10^34) * ${number})`
             } else if (multiplier === 'MOSER' || multiplier === 'GRAHAMS') {
-              throw new Error(`${term} is beyond computational representation. Use in power tower notation for description.`)
+              throw new Error(
+                `${term} is beyond computational representation. Use in power tower notation for description.`
+              )
             }
           }
           return base.times(multiplier).toString()
@@ -271,7 +289,9 @@ function handleCalculation(expression) {
         intermediateExpression = mathInstance.evaluate(lastPart).toString()
       }
 
-      const evaluatedExpression = parts.concat(intermediateExpression).join('=')
+      const evaluatedExpression = parts
+        .concat(intermediateExpression)
+        .join('=')
       solution = mathInstance.evaluate(evaluatedExpression).toString()
       explanation = `The result of evaluating "${expression}" is ${solution}.`
 
@@ -281,19 +301,21 @@ function handleCalculation(expression) {
     // Handle Vieta's formula
     if (vietaRegex.test(expression)) {
       const iterations = parseInt(expression.match(vietaRegex)[1], 10)
-      
+
       if (iterations > 1000) {
-        throw new Error('Vieta iterations limited to 1000 for performance reasons')
+        throw new Error(
+          'Vieta iterations limited to 1000 for performance reasons'
+        )
       }
-      
+
       let product = new Decimal(1)
       let term = new Decimal(0.5).sqrt()
-      
+
       for (let i = 1; i <= iterations; i++) {
         product = product.times(term)
         term = new Decimal(0.5).plus(new Decimal(0.5).times(term)).sqrt()
       }
-      
+
       solution = new Decimal(2).div(product).toFixed(Math.min(50, iterations))
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`
     }
@@ -317,7 +339,7 @@ function handleCalculation(expression) {
         // Use Decimal.js for handling large numbers
         const evalResult = mathInstance.evaluate(expression)
         const decimalResult = new Decimal(evalResult.toString())
-        
+
         // Check if number is too large to represent
         if (!decimalResult.isFinite()) {
           solution = 'Infinity'
@@ -356,7 +378,7 @@ app.get('/calculator', (req, res) => {
 app.post('/calculate', calculateLimiter, (req, res) => {
   try {
     const { expression } = req.body
-    
+
     if (!expression) {
       return res.status(400).json({
         question: 'Invalid request',
@@ -364,7 +386,7 @@ app.post('/calculate', calculateLimiter, (req, res) => {
         explanation: 'Expression field is required'
       })
     }
-    
+
     const response = handleCalculation(expression)
     res.json(response)
   } catch (error) {
@@ -390,9 +412,12 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err)
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    message:
+      process.env.NODE_ENV === 'development'
+        ? err.message
+        : 'Something went wrong'
   })
 })
 

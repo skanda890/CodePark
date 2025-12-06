@@ -45,30 +45,35 @@ The math-calculator implements comprehensive input validation:
 ## Known Vulnerabilities Fixed in v2.0.0
 
 ### 1. Code Injection Prevention
+
 **Issue**: Previous version didn't sanitize user inputs before evaluation  
 **Fix**: Implemented comprehensive input validation and sanitization  
 **Severity**: High  
 **Status**: ✅ Fixed
 
 ### 2. Denial of Service Protection
+
 **Issue**: No limits on expression length or calculation complexity  
 **Fix**: Added 10,000 character limit and rate limiting  
 **Severity**: Medium  
 **Status**: ✅ Fixed
 
 ### 3. Missing Security Headers
+
 **Issue**: No security headers in HTTP responses  
 **Fix**: Integrated helmet.js for comprehensive security headers  
 **Severity**: Medium  
 **Status**: ✅ Fixed
 
 ### 4. Rate Limiting Gaps
+
 **Issue**: Rate limiting only applied to one endpoint  
 **Fix**: Applied rate limiting to all endpoints with stricter limits for /calculate  
 **Severity**: Medium  
 **Status**: ✅ Fixed
 
 ### 5. Unsafe Error Messages
+
 **Issue**: Error messages could leak internal implementation details  
 **Fix**: Sanitized error messages, hide internal details in production  
 **Severity**: Low  
@@ -127,14 +132,14 @@ We follow responsible disclosure practices:
 server {
     listen 443 ssl http2;
     server_name calculator.example.com;
-    
+
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
-    
+
     # Security headers (additional to helmet.js)
     add_header X-Frame-Options "DENY" always;
     add_header X-Content-Type-Options "nosniff" always;
-    
+
     location / {
         proxy_pass http://localhost:4000;
         proxy_set_header X-Real-IP $remote_addr;
@@ -191,12 +196,14 @@ Subscribe to security updates:
 ## Contact
 
 For security concerns, contact:
+
 - Email: [9980056379Skanda@gmail.com](mailto:9980056379Skanda@gmail.com)
 - GitHub: [@skanda890](https://github.com/skanda890)
 
 ## Attribution
 
 We appreciate responsible security researchers. Security contributors will be acknowledged in:
+
 - CHANGELOG.md
 - Security advisory (if applicable)
 - Contributors list
