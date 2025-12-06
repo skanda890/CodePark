@@ -227,7 +227,7 @@ class SecurityScanner {
               (v) => `
             <tr>
               <td>${v.package}</td>
-              <td><span class="severity ${v.severity}">${v.severity.toUpperCase()}</span></td>
+              <td><span class="severity ${v.severity || 'unknown'}">${(v.severity || 'N/A').toUpperCase()}</span></td>
               <td>${v.cve?.id || 'N/A'}</td>
               <td>${v.cve?.cvssScore || 'N/A'}</td>
               <td>${v.fixAvailable}</td>
