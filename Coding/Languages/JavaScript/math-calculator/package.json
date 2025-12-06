@@ -6,21 +6,26 @@
   "scripts": {
     "start": "node server.js",
     "dev": "NODE_ENV=development node server.js",
-    "prod": "NODE_ENV=production node server.js"
+    "prod": "NODE_ENV=production node server.js",
+    "update:latest": "npm update && npm install express@latest helmet@latest mathjs@latest axios@latest socket.io@latest decimal.js@latest express-rate-limit@latest",
+    "audit": "npm audit && npm audit fix"
   },
   "dependencies": {
-    "axios": "^1.13.1",
+    "axios": "^1.7.9",
     "big-integer": "^1.6.52",
     "big.js": "^7.0.1",
     "crypto-js": "^4.2.0",
-    "decimal.js": "^10.6.0",
+    "decimal.js": "^10.4.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
-    "helmet": "^8.0.0",
-    "mathjs": "^15.0.0",
+    "helmet": "^8.1.0",
+    "mathjs": "^15.1.0",
     "nerdamer": "^1.1.13",
     "readline-sync": "^1.4.10",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
   },
   "keywords": [
     "math",
@@ -28,11 +33,24 @@
     "large-numbers",
     "googolplex",
     "tower-exponentiation",
-    "arbitrary-precision"
+    "arbitrary-precision",
+    "express5",
+    "cutting-edge",
+    "latest"
   ],
   "author": "SkandaBT",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skanda890/CodePark.git",
+    "directory": "Coding/Languages/JavaScript/math-calculator"
+  },
+  "bugs": {
+    "url": "https://github.com/skanda890/CodePark/issues"
+  },
+  "homepage": "https://github.com/skanda890/CodePark#readme"
 }
