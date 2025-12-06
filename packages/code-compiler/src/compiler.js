@@ -93,8 +93,9 @@ class CodeCompiler {
       }
 
       // Wait for completion
+      const waitPromise = container.wait(); // standard dockerode wait for container exit
       const result = await Promise.race([
-        container.wait({ condition: 'next-exit' }),
+        waitPromise,
         new Promise((resolve) => {
           setTimeout(() => resolve({ StatusCode: 124 }), timeout)
         })
