@@ -66,11 +66,13 @@ CodePark follows a **layered microservices architecture** with edge computing ca
 **Purpose**: Reduce latency by serving content from locations closest to users.
 
 **Technologies**:
+
 - Cloudflare Workers (serverless edge compute)
 - WebAssembly (WASM) modules for high-performance operations
 - Edge caching (static assets, API responses)
 
 **Responsibilities**:
+
 - Static asset delivery (CDN)
 - Edge computing for lightweight operations
 - DDoS protection and rate limiting
@@ -78,6 +80,7 @@ CodePark follows a **layered microservices architecture** with edge computing ca
 - Geographic routing
 
 **Benefits**:
+
 - <50ms latency for edge operations
 - Global distribution without infrastructure management
 - Automatic scaling based on demand
@@ -90,12 +93,14 @@ CodePark follows a **layered microservices architecture** with edge computing ca
 **Purpose**: Unified entry point for all client requests.
 
 **Technologies**:
+
 - Express.js (HTTP server)
 - Apollo Server v4 (GraphQL)
 - Socket.IO (WebSocket)
 - Express-GraphQL (hybrid endpoints)
 
 **Responsibilities**:
+
 - Request routing and load balancing
 - Authentication and authorization
 - Rate limiting and throttling
@@ -106,6 +111,7 @@ CodePark follows a **layered microservices architecture** with edge computing ca
 **API Types**:
 
 #### REST API
+
 ```javascript
 GET    /api/v1/projects          # List projects
 POST   /api/v1/projects          # Create project
@@ -115,6 +121,7 @@ DELETE /api/v1/projects/:id      # Delete project
 ```
 
 #### GraphQL API
+
 ```graphql
 query GetProjects {
   projects {
@@ -133,14 +140,19 @@ query GetProjects {
 ```
 
 #### WebSocket Events
+
 ```javascript
 // Client → Server
-socket.emit('code-change', { projectId, content });
-socket.emit('cursor-move', { position, userId });
+socket.emit("code-change", { projectId, content });
+socket.emit("cursor-move", { position, userId });
 
 // Server → Client
-socket.on('code-update', (data) => { /* ... */ });
-socket.on('user-joined', (user) => { /* ... */ });
+socket.on("code-update", (data) => {
+  /* ... */
+});
+socket.on("user-joined", (user) => {
+  /* ... */
+});
 ```
 
 ---
@@ -152,12 +164,14 @@ socket.on('user-joined', (user) => { /* ... */ });
 **Components**:
 
 #### AI/ML Module
+
 - **TensorFlow.js**: Model inference (code completion, bug prediction)
 - **Natural**: NLP for text analysis
 - **Compromise**: Language understanding
 - **Sentiment**: Code review sentiment analysis
 
 **Use Cases**:
+
 - Code completion suggestions
 - Bug prediction from commit history
 - Code quality scoring
@@ -165,25 +179,28 @@ socket.on('user-joined', (user) => { /* ... */ });
 - Automated code review
 
 #### Job Queue (BullMQ)
+
 - Asynchronous task processing
 - Background jobs (email, notifications)
 - Scheduled tasks (data cleanup, reports)
 - Retry logic with exponential backoff
 
 **Queue Types**:
+
 ```javascript
 // High priority queue (user-facing)
-const criticalQueue = new Queue('critical', { 
-  defaultJobOptions: { priority: 1 } 
+const criticalQueue = new Queue("critical", {
+  defaultJobOptions: { priority: 1 },
 });
 
 // Low priority queue (background tasks)
-const backgroundQueue = new Queue('background', { 
-  defaultJobOptions: { priority: 10 } 
+const backgroundQueue = new Queue("background", {
+  defaultJobOptions: { priority: 10 },
 });
 ```
 
 #### Event Streaming (Kafka)
+
 - Real-time event processing
 - Audit logging
 - Analytics pipeline
@@ -196,6 +213,7 @@ const backgroundQueue = new Queue('background', {
 **Purpose**: Enable collaborative features and live updates.
 
 **Technologies**:
+
 - **Socket.IO**: Bidirectional WebSocket communication
 - **Yjs**: Conflict-free Replicated Data Types (CRDT)
 - **y-websocket**: WebSocket provider for Yjs
@@ -203,23 +221,26 @@ const backgroundQueue = new Queue('background', {
 **Features**:
 
 #### Live Collaboration
+
 ```javascript
-const Y = require('yjs');
+const Y = require("yjs");
 const ydoc = new Y.Doc();
-const ytext = ydoc.getText('shared-code');
+const ytext = ydoc.getText("shared-code");
 
 // Multiple users editing simultaneously
-ytext.insert(0, 'function hello() {');
+ytext.insert(0, "function hello() {");
 // No conflicts, automatic merging
 ```
 
 #### Presence System
+
 - Online/offline status
 - Active cursors
 - User locations in documents
 - Typing indicators
 
 #### Real-Time Notifications
+
 - Instant alerts for mentions
 - Code review updates
 - Build status changes
@@ -234,12 +255,14 @@ ytext.insert(0, 'function hello() {');
 **Technologies**:
 
 #### MongoDB (Primary Database)
+
 - **Use Case**: Document storage for projects, users, files
 - **Schema**: Flexible JSON documents
 - **Scaling**: Replica sets and sharding
 - **Indexing**: Compound indexes for performance
 
 **Example Schema**:
+
 ```javascript
 {
   _id: ObjectId,
@@ -261,11 +284,13 @@ ytext.insert(0, 'function hello() {');
 ```
 
 #### Redis (Cache & Session Store)
+
 - **Use Case**: Session management, caching, pub/sub
 - **Data Structures**: Strings, Hashes, Lists, Sets, Sorted Sets
 - **Persistence**: RDB snapshots + AOF logs
 
 **Caching Strategy**:
+
 ```javascript
 // Cache-aside pattern
 const data = await redis.get(key);
@@ -276,12 +301,14 @@ if (!data) {
 ```
 
 #### Prisma ORM
+
 - Type-safe database access
 - Auto-generated TypeScript types
 - Migration management
 - Connection pooling
 
 **Example Model**:
+
 ```prisma
 model Project {
   id            String   @id @default(cuid())
@@ -295,6 +322,7 @@ model Project {
 ```
 
 #### Apache Kafka
+
 - Event streaming platform
 - High-throughput message processing
 - Event sourcing and CQRS patterns
@@ -308,25 +336,27 @@ model Project {
 **Technologies**:
 
 #### OpenTelemetry
+
 - Distributed tracing across services
 - Context propagation
 - Automatic instrumentation
 
 **Trace Example**:
+
 ```javascript
-const tracer = trace.getTracer('codepark');
+const tracer = trace.getTracer("codepark");
 
 async function processRequest(req) {
-  const span = tracer.startSpan('process-request');
-  span.setAttribute('user.id', req.user.id);
-  
+  const span = tracer.startSpan("process-request");
+  span.setAttribute("user.id", req.user.id);
+
   try {
     // ... processing ...
     span.setStatus({ code: SpanStatusCode.OK });
   } catch (error) {
-    span.setStatus({ 
+    span.setStatus({
       code: SpanStatusCode.ERROR,
-      message: error.message 
+      message: error.message,
     });
   } finally {
     span.end();
@@ -335,21 +365,24 @@ async function processRequest(req) {
 ```
 
 #### Prometheus
+
 - Time-series metrics collection
 - Custom business metrics
 - Alerting rules
 
 **Metrics**:
+
 ```javascript
 const httpRequestDuration = new Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.1, 0.5, 1, 2, 5]
+  name: "http_request_duration_seconds",
+  help: "Duration of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.1, 0.5, 1, 2, 5],
 });
 ```
 
 #### Sentry
+
 - Error tracking and reporting
 - Performance monitoring
 - Release tracking
@@ -362,6 +395,7 @@ const httpRequestDuration = new Histogram({
 ### Authentication & Authorization
 
 **Flow**:
+
 ```
 1. User Login
    ↓
@@ -375,6 +409,7 @@ const httpRequestDuration = new Histogram({
 ```
 
 **JWT Structure**:
+
 ```javascript
 {
   "access_token": {
@@ -393,8 +428,9 @@ const httpRequestDuration = new Histogram({
 ```
 
 **Two-Factor Authentication**:
+
 ```javascript
-const speakeasy = require('speakeasy');
+const speakeasy = require("speakeasy");
 
 // Setup
 const secret = speakeasy.generateSecret();
@@ -403,9 +439,9 @@ const qrCode = await QRCode.toDataURL(secret.otpauth_url);
 // Verification
 const verified = speakeasy.totp.verify({
   secret: user.mfaSecret,
-  encoding: 'base32',
+  encoding: "base32",
   token: userProvidedToken,
-  window: 1
+  window: 1,
 });
 ```
 
@@ -416,18 +452,19 @@ const verified = speakeasy.totp.verify({
 **Tier-based Limits**:
 
 | Tier       | Requests/Min | Burst | WebSocket Connections |
-|------------|--------------|-------|-----------------------|
+| ---------- | ------------ | ----- | --------------------- |
 | Anonymous  | 60           | 10    | 5                     |
 | Free User  | 300          | 30    | 20                    |
 | Pro User   | 1,200        | 100   | 100                   |
 | Enterprise | Unlimited    | 500   | 1,000                 |
 
 **Implementation**:
+
 ```javascript
 const rateLimiter = new RateLimiterService({
-  windowMs: 60 * 1000,  // 1 minute
+  windowMs: 60 * 1000, // 1 minute
   max: (req) => getTierLimit(req.user),
-  keyGenerator: (req) => req.user?.id || req.ip
+  keyGenerator: (req) => req.user?.id || req.ip,
 });
 ```
 
@@ -442,19 +479,20 @@ const rateLimiter = new RateLimiterService({
 3. **Database Cache**: Query result cache (Prisma)
 
 **Cache Invalidation**:
+
 ```javascript
 // Write-through cache
 async function updateProject(id, data) {
   await database.update(id, data);
   await cache.del(`project:${id}`);
-  await cache.del('projects:list');
+  await cache.del("projects:list");
 }
 
 // Cache-aside (lazy loading)
 async function getProject(id) {
   const cached = await cache.get(`project:${id}`);
   if (cached) return cached;
-  
+
   const project = await database.findById(id);
   await cache.setex(`project:${id}`, 300, project);
   return project;
@@ -575,26 +613,26 @@ spec:
         app: codepark-api
     spec:
       containers:
-      - name: api
-        image: codepark/api:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
+        - name: api
+          image: codepark/api:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
 ```
 
 ### Docker Compose (Development)
 
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   api:
     build: .
@@ -607,14 +645,14 @@ services:
     depends_on:
       - mongo
       - redis
-  
+
   mongo:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-  
+
   redis:
     image: redis:latest
     ports:
@@ -631,16 +669,19 @@ volumes:
 ### Horizontal Scaling
 
 **Stateless Application Servers**:
+
 - Multiple API server instances behind load balancer
 - Session stored in Redis (shared state)
 - No server affinity required
 
 **Database Scaling**:
+
 - MongoDB sharding for data distribution
 - Read replicas for read-heavy workloads
 - Separate analytics database
 
 **Redis Scaling**:
+
 - Redis Cluster for data partitioning
 - Separate Redis instances for different use cases:
   - Session store
@@ -651,16 +692,18 @@ volumes:
 ### Performance Optimizations
 
 **Connection Pooling**:
+
 ```javascript
 const pool = {
   min: 10,
   max: 100,
   acquireTimeoutMillis: 30000,
-  idleTimeoutMillis: 30000
+  idleTimeoutMillis: 30000,
 };
 ```
 
 **Database Indexing**:
+
 ```javascript
 // Compound indexes for common queries
 db.projects.createIndex({ ownerId: 1, createdAt: -1 });
@@ -669,18 +712,23 @@ db.projects.createIndex({ name: "text" });
 ```
 
 **Query Optimization**:
+
 ```javascript
 // Use projection to limit fields
-db.projects.find(
-  { ownerId: userId },
-  { name: 1, createdAt: 1, _id: 1 }
-);
+db.projects.find({ ownerId: userId }, { name: 1, createdAt: 1, _id: 1 });
 
 // Use aggregation for complex queries
 db.projects.aggregate([
   { $match: { ownerId: userId } },
-  { $lookup: { from: 'users', localField: 'collaborators', foreignField: '_id', as: 'collaboratorData' } },
-  { $project: { name: 1, collaboratorCount: { $size: '$collaborators' } } }
+  {
+    $lookup: {
+      from: "users",
+      localField: "collaborators",
+      foreignField: "_id",
+      as: "collaboratorData",
+    },
+  },
+  { $project: { name: 1, collaboratorCount: { $size: "$collaborators" } } },
 ]);
 ```
 
@@ -691,24 +739,28 @@ db.projects.aggregate([
 ### Defense in Depth
 
 **Layer 1: Edge Protection**
+
 - DDoS protection (Cloudflare)
 - WAF rules
 - Bot detection
 - Geographic filtering
 
 **Layer 2: API Gateway**
+
 - Rate limiting
 - Input validation
 - JWT verification
 - CORS policies
 
 **Layer 3: Application**
+
 - Authentication (JWT + 2FA)
 - Authorization (RBAC)
 - Data encryption (at rest and in transit)
 - Secure headers (Helmet.js)
 
 **Layer 4: Data**
+
 - Encrypted connections (TLS 1.3)
 - Field-level encryption
 - Regular backups
@@ -717,21 +769,23 @@ db.projects.aggregate([
 ### Security Headers
 
 ```javascript
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
     },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 ```
 
 ---
@@ -741,6 +795,7 @@ app.use(helmet({
 ### Key Metrics
 
 **Application Metrics**:
+
 - Request rate (req/sec)
 - Response time (p50, p95, p99)
 - Error rate (%)
@@ -748,12 +803,14 @@ app.use(helmet({
 - AI inference time
 
 **Infrastructure Metrics**:
+
 - CPU usage (%)
 - Memory usage (MB)
 - Disk I/O (IOPS)
 - Network bandwidth (Mbps)
 
 **Business Metrics**:
+
 - Active users (DAU/MAU)
 - Projects created
 - Collaboration sessions
@@ -772,7 +829,7 @@ groups:
           severity: critical
         annotations:
           summary: "High error rate detected"
-      
+
       - alert: HighResponseTime
         expr: histogram_quantile(0.95, http_request_duration_seconds) > 2
         for: 10m
@@ -785,6 +842,7 @@ groups:
 ### Logging Strategy
 
 **Log Levels**:
+
 - **ERROR**: Application errors, exceptions
 - **WARN**: Potential issues, deprecated usage
 - **INFO**: Important events, state changes
@@ -792,15 +850,16 @@ groups:
 - **TRACE**: Very detailed tracing information
 
 **Structured Logging**:
+
 ```javascript
-const logger = require('pino')({
-  level: process.env.LOG_LEVEL || 'info',
+const logger = require("pino")({
+  level: process.env.LOG_LEVEL || "info",
   formatters: {
-    level: (label) => ({ level: label })
-  }
+    level: (label) => ({ level: label }),
+  },
 });
 
-logger.info({ userId, projectId, action: 'create' }, 'Project created');
+logger.info({ userId, projectId, action: "create" }, "Project created");
 ```
 
 ---
@@ -810,33 +869,39 @@ logger.info({ userId, projectId, action: 'create' }, 'Project created');
 ### Backup Strategy
 
 **Database Backups**:
+
 - Full backup: Daily at 2 AM UTC
 - Incremental backup: Every 6 hours
 - Retention: 30 days
 - Off-site storage: AWS S3 / Google Cloud Storage
 
 **Redis Backups**:
+
 - RDB snapshots: Every hour
 - AOF logs: Continuous
 - Retention: 7 days
 
 **Recovery Time Objectives**:
+
 - **RTO** (Recovery Time Objective): < 1 hour
 - **RPO** (Recovery Point Objective): < 15 minutes
 
 ### High Availability
 
 **Application Tier**:
+
 - Multi-zone deployment
 - Auto-scaling groups
 - Health checks and auto-recovery
 
 **Database Tier**:
+
 - MongoDB replica set (3 nodes minimum)
 - Automatic failover
 - Read preference: primaryPreferred
 
 **Cache Tier**:
+
 - Redis Cluster with sentinel
 - Automatic failover
 - Multi-AZ deployment
@@ -881,7 +946,7 @@ mongo codepark --eval "db.migrations.deleteOne({version: '20231201120000'})"
 ### Planned Features
 
 - **Service Mesh** (Istio/Linkerd): Advanced traffic management
-- **GraphQL Federation**: Distributed schema composition  
+- **GraphQL Federation**: Distributed schema composition
 - **Event Sourcing**: Complete audit trail with event replay
 - **ML Model Versioning**: A/B testing for AI models
 - **Multi-Region Deployment**: Global distribution
@@ -890,16 +955,19 @@ mongo codepark --eval "db.migrations.deleteOne({version: '20231201120000'})"
 ### Technology Radar
 
 **Adopt**:
+
 - Bun runtime (alternative to Node.js)
 - Deno for edge functions
 - SolidJS for frontend
 
 **Trial**:
+
 - tRPC (type-safe APIs)
 - Temporal (workflow orchestration)
 - Vector databases (Pinecone, Weaviate)
 
 **Assess**:
+
 - Web3 integration
 - Quantum-resistant cryptography
 - Federated learning
