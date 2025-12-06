@@ -138,7 +138,6 @@ class SecurityScanner {
   async generateHTMLReport () {
     const report = await this.generateReport()
 
-
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
