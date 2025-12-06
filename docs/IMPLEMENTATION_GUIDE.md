@@ -45,15 +45,15 @@ MFA_ISSUER=CodePark
 ### Setup
 
 ```javascript
-const MetricsService = require('./services/MetricsService');
-const { Server } = require('socket.io');
+const MetricsService = require("./services/MetricsService");
+const { Server } = require("socket.io");
 
 const metricsService = new MetricsService();
 
 // Register collectors
-metricsService.registerCollector('api-response-time', { aggregation: 'avg' });
-metricsService.registerCollector('database-query-time', { aggregation: 'avg' });
-metricsService.registerCollector('user-activity', { aggregation: 'count' });
+metricsService.registerCollector("api-response-time", { aggregation: "avg" });
+metricsService.registerCollector("database-query-time", { aggregation: "avg" });
+metricsService.registerCollector("user-activity", { aggregation: "count" });
 
 // Start streaming (requires Socket.IO)
 const io = new Server(server);
@@ -67,9 +67,9 @@ metricsService.startStreaming(io);
 const startTime = Date.now();
 // ... perform operation
 const duration = Date.now() - startTime;
-metricsService.record('api-response-time', duration, {
+metricsService.record("api-response-time", duration, {
   endpoint: req.path,
-  method: req.method
+  method: req.method,
 });
 ```
 
@@ -77,15 +77,15 @@ metricsService.record('api-response-time', duration, {
 
 ```javascript
 // Client-side Socket.IO connection
-const socket = io('http://localhost:3000');
+const socket = io("http://localhost:3000");
 
-socket.on('metrics:snapshot', (data) => {
-  console.log('Initial metrics:', data);
+socket.on("metrics:snapshot", (data) => {
+  console.log("Initial metrics:", data);
   updateDashboard(data);
 });
 
-socket.on('metrics:update', (data) => {
-  console.log('Metrics update:', data);
+socket.on("metrics:update", (data) => {
+  console.log("Metrics update:", data);
   updateDashboard(data);
 });
 ```
@@ -95,47 +95,44 @@ socket.on('metrics:update', (data) => {
 ### Multi-Factor Authentication
 
 ```javascript
-const MFAService = require('./services/MFAService');
-const mfaService = new MFAService({ issuer: 'CodePark' });
+const MFAService = require("./services/MFAService");
+const mfaService = new MFAService({ issuer: "CodePark" });
 
 // Setup MFA for user
-app.post('/api/auth/mfa/setup', async (req, res) => {
+app.post("/api/auth/mfa/setup", async (req, res) => {
   const userId = req.user.id;
   const setup = await mfaService.setupMFA(userId, {
-    email: req.user.email
+    email: req.user.email,
   });
-  
+
   // Save secret to database
   await User.updateOne(
     { _id: userId },
-    { 
+    {
       mfaSecret: setup.secret,
       mfaBackupCodes: setup.backupCodes,
-      mfaEnabled: false // User must verify first
-    }
+      mfaEnabled: false, // User must verify first
+    },
   );
-  
+
   res.json({
     qrCode: setup.qrCode,
-    backupCodes: setup.backupCodes
+    backupCodes: setup.backupCodes,
   });
 });
 
 // Verify and enable MFA
-app.post('/api/auth/mfa/verify', async (req, res) => {
+app.post("/api/auth/mfa/verify", async (req, res) => {
   const { token } = req.body;
   const user = await User.findById(req.user.id);
-  
+
   const isValid = mfaService.verify(user.mfaSecret, token);
-  
+
   if (isValid) {
-    await User.updateOne(
-      { _id: req.user.id },
-      { mfaEnabled: true }
-    );
+    await User.updateOne({ _id: req.user.id }, { mfaEnabled: true });
     res.json({ success: true });
   } else {
-    res.status(400).json({ error: 'Invalid token' });
+    res.status(400).json({ error: "Invalid token" });
   }
 });
 ```
@@ -143,24 +140,24 @@ app.post('/api/auth/mfa/verify', async (req, res) => {
 ### Rate Limiting
 
 ```javascript
-const RateLimiterService = require('./services/RateLimiterService');
+const RateLimiterService = require("./services/RateLimiterService");
 
 // Global rate limiter
 const globalLimiter = new RateLimiterService({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 100,
 });
 
-app.use('/api/', globalLimiter.middleware());
+app.use("/api/", globalLimiter.middleware());
 
 // Endpoint-specific rate limiter
 const authLimiter = new RateLimiterService({
   windowMs: 15 * 60 * 1000,
   max: 5,
-  message: 'Too many login attempts'
+  message: "Too many login attempts",
 });
 
-app.post('/api/auth/login', authLimiter.middleware(), loginHandler);
+app.post("/api/auth/login", authLimiter.middleware(), loginHandler);
 ```
 
 ## API Improvements
@@ -168,23 +165,23 @@ app.post('/api/auth/login', authLimiter.middleware(), loginHandler);
 ### Webhook System
 
 ```javascript
-const webhookRoutes = require('./routes/webhooks');
-app.use('/api/webhooks', webhookRoutes);
+const webhookRoutes = require("./routes/webhooks");
+app.use("/api/webhooks", webhookRoutes);
 
 // Dispatch events
-const { webhookService } = require('./routes/webhooks');
+const { webhookService } = require("./routes/webhooks");
 
 // When a user is created
-await webhookService.dispatch('user.created', {
+await webhookService.dispatch("user.created", {
   userId: user.id,
   email: user.email,
-  createdAt: user.createdAt
+  createdAt: user.createdAt,
 });
 
 // When a project is updated
-await webhookService.dispatch('project.updated', {
+await webhookService.dispatch("project.updated", {
   projectId: project.id,
-  changes: changedFields
+  changes: changedFields,
 });
 ```
 
@@ -193,20 +190,20 @@ await webhookService.dispatch('project.updated', {
 Create `graphql/subscriptions.js`:
 
 ```javascript
-const { PubSub } = require('graphql-subscriptions');
+const { PubSub } = require("graphql-subscriptions");
 const pubsub = new PubSub();
 
 const subscriptions = {
   projectUpdated: {
     subscribe: (_, { projectId }) => {
       return pubsub.asyncIterator([`PROJECT_UPDATED_${projectId}`]);
-    }
-  }
+    },
+  },
 };
 
 // Trigger subscription when project updates
 pubsub.publish(`PROJECT_UPDATED_${projectId}`, {
-  projectUpdated: updatedProject
+  projectUpdated: updatedProject,
 });
 
 module.exports = { subscriptions, pubsub };
@@ -217,12 +214,12 @@ module.exports = { subscriptions, pubsub };
 ### Connection Pooling
 
 ```javascript
-const DatabaseConfig = require('./config/database');
+const DatabaseConfig = require("./config/database");
 
 const dbConfig = new DatabaseConfig({
   uri: process.env.MONGODB_URI,
   minPoolSize: 10,
-  maxPoolSize: 100
+  maxPoolSize: 100,
 });
 
 await dbConfig.connect();
@@ -231,23 +228,23 @@ await dbConfig.connect();
 ### Caching Middleware
 
 ```javascript
-const CacheMiddleware = require('./middleware/cacheMiddleware');
+const CacheMiddleware = require("./middleware/cacheMiddleware");
 
 const cache = new CacheMiddleware({
   defaultTTL: 300, // 5 minutes
-  redisUrl: process.env.REDIS_URL
+  redisUrl: process.env.REDIS_URL,
 });
 
 await cache.connect();
 
 // Apply to routes
-app.get('/api/users', cache.middleware(60), getUsersHandler);
-app.get('/api/projects', cache.middleware(300), getProjectsHandler);
+app.get("/api/users", cache.middleware(60), getUsersHandler);
+app.get("/api/projects", cache.middleware(300), getProjectsHandler);
 
 // Invalidate cache on updates
-app.put('/api/users/:id', async (req, res) => {
+app.put("/api/users/:id", async (req, res) => {
   // Update user
-  await cache.invalidate('GET:/api/users*');
+  await cache.invalidate("GET:/api/users*");
   res.json({ success: true });
 });
 ```
@@ -257,27 +254,31 @@ app.put('/api/users/:id', async (req, res) => {
 ### Setup
 
 ```javascript
-const NotificationService = require('./services/NotificationService');
-const { exampleHandlers } = require('./services/NotificationService');
+const NotificationService = require("./services/NotificationService");
+const { exampleHandlers } = require("./services/NotificationService");
 
 const notificationService = new NotificationService();
 
 // Register channels
-notificationService.registerChannel('email', exampleHandlers.email);
-notificationService.registerChannel('push', exampleHandlers.push);
-notificationService.registerChannel('in-app', exampleHandlers['in-app']);
+notificationService.registerChannel("email", exampleHandlers.email);
+notificationService.registerChannel("push", exampleHandlers.push);
+notificationService.registerChannel("in-app", exampleHandlers["in-app"]);
 
 // Send notifications
-await notificationService.notify(userId, {
-  title: 'Welcome to CodePark!',
-  body: 'Thank you for joining us.',
-  priority: 'high'
-}, ['email', 'in-app']);
+await notificationService.notify(
+  userId,
+  {
+    title: "Welcome to CodePark!",
+    body: "Thank you for joining us.",
+    priority: "high",
+  },
+  ["email", "in-app"],
+);
 
 // Bulk notifications
 await notificationService.notifyBulk([
-  { userId: 'user1', message: { title: 'Update 1' } },
-  { userId: 'user2', message: { title: 'Update 2' } }
+  { userId: "user1", message: { title: "Update 1" } },
+  { userId: "user2", message: { title: "Update 2" } },
 ]);
 ```
 
@@ -333,15 +334,15 @@ npm test -- --coverage
 module.exports = {
   database: {
     poolSize: { min: 20, max: 200 },
-    autoIndex: false // Disable for performance
+    autoIndex: false, // Disable for performance
   },
   cache: {
-    defaultTTL: 600 // 10 minutes
+    defaultTTL: 600, // 10 minutes
   },
   rateLimiter: {
     windowMs: 15 * 60 * 1000,
-    max: 1000 // Higher for production
-  }
+    max: 1000, // Higher for production
+  },
 };
 ```
 
@@ -349,12 +350,12 @@ module.exports = {
 
 ```javascript
 // Setup monitoring endpoints
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     database: dbConfig.getStats(),
     cache: cache.getStats(),
-    metrics: metricsService.getSnapshot()
+    metrics: metricsService.getSnapshot(),
   });
 });
 ```
@@ -362,5 +363,6 @@ app.get('/health', (req, res) => {
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: https://github.com/skanda890/CodePark/issues
 - Discussions: https://github.com/skanda890/CodePark/discussions

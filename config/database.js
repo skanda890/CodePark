@@ -3,12 +3,15 @@
  * Connection pooling and optimization settings
  */
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 class DatabaseConfig {
-  constructor(options = {}) {
+  constructor (options = {}) {
     this.options = {
-      uri: options.uri || process.env.MONGODB_URI || 'mongodb://localhost:27017/codepark',
+      uri:
+        options.uri ||
+        process.env.MONGODB_URI ||
+        'mongodb://localhost:27017/codepark',
       poolSize: {
         min: options.minPoolSize || 10,
         max: options.maxPoolSize || 100
@@ -21,15 +24,15 @@ class DatabaseConfig {
       retryWrites: options.retryWrites !== false,
       w: options.writeConcern || 'majority',
       ...options
-    };
+    }
 
-    this.connection = null;
+    this.connection = null
   }
 
   /**
    * Connect to database with pooling
    */
-  async connect() {
+  async connect () {
     try {
       const connectionOptions = {
         // Connection Pool Settings
@@ -49,45 +52,50 @@ class DatabaseConfig {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         autoIndex: process.env.NODE_ENV !== 'production', // Disable in production
-        
+
         // Monitoring
         family: 4 // Use IPv4, skip trying IPv6
-      };
+      }
 
-      this.connection = await mongoose.connect(this.options.uri, connectionOptions);
+      this.connection = await mongoose.connect(
+        this.options.uri,
+        connectionOptions
+      )
 
-      console.log('[Database] Connected successfully');
-      console.log(`[Database] Pool size: ${this.options.poolSize.min}-${this.options.poolSize.max}`);
+      console.log('[Database] Connected successfully')
+      console.log(
+        `[Database] Pool size: ${this.options.poolSize.min}-${this.options.poolSize.max}`
+      )
 
-      this._setupEventListeners();
+      this._setupEventListeners()
 
-      return this.connection;
+      return this.connection
     } catch (error) {
-      console.error('[Database] Connection error:', error.message);
-      throw error;
+      console.error('[Database] Connection error:', error.message)
+      throw error
     }
   }
 
   /**
    * Disconnect from database
    */
-  async disconnect() {
+  async disconnect () {
     if (this.connection) {
-      await mongoose.disconnect();
-      console.log('[Database] Disconnected');
+      await mongoose.disconnect()
+      console.log('[Database] Disconnected')
     }
   }
 
   /**
    * Get connection statistics
    */
-  getStats() {
+  getStats () {
     if (!this.connection) {
-      return { connected: false };
+      return { connected: false }
     }
 
-    const db = mongoose.connection.db;
-    const stats = mongoose.connection.readyState;
+    const db = mongoose.connection.db
+    const stats = mongoose.connection.readyState
 
     return {
       connected: stats === 1,
@@ -96,7 +104,7 @@ class DatabaseConfig {
       port: mongoose.connection.port,
       name: mongoose.connection.name,
       models: Object.keys(mongoose.models).length
-    };
+    }
   }
 
   /**
@@ -104,56 +112,56 @@ class DatabaseConfig {
    * @param {Object} schema - Mongoose schema
    * @param {Array} indexes - Index definitions
    */
-  createIndexes(schema, indexes) {
-    indexes.forEach(index => {
-      schema.index(index.fields, index.options || {});
-    });
+  createIndexes (schema, indexes) {
+    indexes.forEach((index) => {
+      schema.index(index.fields, index.options || {})
+    })
   }
 
   /**
    * Setup connection event listeners
    */
-  _setupEventListeners() {
+  _setupEventListeners () {
     mongoose.connection.on('connected', () => {
-      console.log('[Database] Mongoose connected');
-    });
+      console.log('[Database] Mongoose connected')
+    })
 
     mongoose.connection.on('error', (err) => {
-      console.error('[Database] Mongoose error:', err);
-    });
+      console.error('[Database] Mongoose error:', err)
+    })
 
     mongoose.connection.on('disconnected', () => {
-      console.log('[Database] Mongoose disconnected');
-    });
+      console.log('[Database] Mongoose disconnected')
+    })
 
     mongoose.connection.on('reconnected', () => {
-      console.log('[Database] Mongoose reconnected');
-    });
+      console.log('[Database] Mongoose reconnected')
+    })
 
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      await this.disconnect();
-      process.exit(0);
-    });
+      await this.disconnect()
+      process.exit(0)
+    })
   }
 
   /**
    * Get readable ready state text
    */
-  _getReadyStateText(state) {
+  _getReadyStateText (state) {
     const states = {
       0: 'disconnected',
       1: 'connected',
       2: 'connecting',
       3: 'disconnecting'
-    };
-    return states[state] || 'unknown';
+    }
+    return states[state] || 'unknown'
   }
 }
 
 // Connection Pool Helper
 class ConnectionPool {
-  constructor(options = {}) {
+  constructor (options = {}) {
     this.options = {
       min: options.min || 10,
       max: options.max || 100,
@@ -161,16 +169,16 @@ class ConnectionPool {
       idleTimeoutMillis: options.idleTimeoutMillis || 30000,
       connectionTimeoutMillis: options.connectionTimeoutMillis || 2000,
       ...options
-    };
+    }
   }
 
   /**
    * Get pool configuration
    */
-  getConfig() {
-    return this.options;
+  getConfig () {
+    return this.options
   }
 }
 
-module.exports = DatabaseConfig;
-module.exports.ConnectionPool = ConnectionPool;
+module.exports = DatabaseConfig
+module.exports.ConnectionPool = ConnectionPool

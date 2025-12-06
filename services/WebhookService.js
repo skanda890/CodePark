@@ -3,23 +3,23 @@
  * Implements webhook CRUD operations and event dispatching
  */
 
-const axios = require('axios');
-const crypto = require('crypto');
-const EventEmitter = require('events');
+const axios = require('axios')
+const crypto = require('crypto')
+const EventEmitter = require('events')
 
 class WebhookService extends EventEmitter {
-  constructor(options = {}) {
-    super();
+  constructor (options = {}) {
+    super()
     this.options = {
       timeout: options.timeout || 5000,
       retries: options.retries || 3,
       retryDelay: options.retryDelay || 1000,
       secretKey: options.secretKey || process.env.WEBHOOK_SECRET_KEY,
       ...options
-    };
+    }
 
-    this.webhooks = new Map();
-    this.deliveryQueue = [];
+    this.webhooks = new Map()
+    this.deliveryQueue = []
   }
 
   /**
@@ -27,7 +27,7 @@ class WebhookService extends EventEmitter {
    * @param {Object} webhookData - Webhook configuration
    * @returns {Object} Created webhook
    */
-  create(webhookData) {
+  create (webhookData) {
     const webhook = {
       id: this._generateId(),
       url: webhookData.url,
@@ -40,16 +40,16 @@ class WebhookService extends EventEmitter {
       deliveryCount: 0,
       lastDeliveryAt: null,
       lastDeliveryStatus: null
-    };
-
-    if (!this._validateWebhook(webhook)) {
-      throw new Error('Invalid webhook configuration');
     }
 
-    this.webhooks.set(webhook.id, webhook);
-    this.emit('webhook:created', webhook);
+    if (!this._validateWebhook(webhook)) {
+      throw new Error('Invalid webhook configuration')
+    }
 
-    return webhook;
+    this.webhooks.set(webhook.id, webhook)
+    this.emit('webhook:created', webhook)
+
+    return webhook
   }
 
   /**
@@ -57,8 +57,8 @@ class WebhookService extends EventEmitter {
    * @param {string} id - Webhook ID
    * @returns {Object|null} Webhook or null if not found
    */
-  get(id) {
-    return this.webhooks.get(id) || null;
+  get (id) {
+    return this.webhooks.get(id) || null
   }
 
   /**
@@ -66,18 +66,18 @@ class WebhookService extends EventEmitter {
    * @param {Object} filters - Filter options
    * @returns {Array} Webhooks matching filters
    */
-  list(filters = {}) {
-    let webhooks = Array.from(this.webhooks.values());
+  list (filters = {}) {
+    let webhooks = Array.from(this.webhooks.values())
 
     if (filters.active !== undefined) {
-      webhooks = webhooks.filter(w => w.active === filters.active);
+      webhooks = webhooks.filter((w) => w.active === filters.active)
     }
 
     if (filters.event) {
-      webhooks = webhooks.filter(w => w.events.includes(filters.event));
+      webhooks = webhooks.filter((w) => w.events.includes(filters.event))
     }
 
-    return webhooks;
+    return webhooks
   }
 
   /**
@@ -86,11 +86,11 @@ class WebhookService extends EventEmitter {
    * @param {Object} updates - Fields to update
    * @returns {Object} Updated webhook
    */
-  update(id, updates) {
-    const webhook = this.webhooks.get(id);
-    
+  update (id, updates) {
+    const webhook = this.webhooks.get(id)
+
     if (!webhook) {
-      throw new Error(`Webhook '${id}' not found`);
+      throw new Error(`Webhook '${id}' not found`)
     }
 
     const updatedWebhook = {
@@ -99,16 +99,16 @@ class WebhookService extends EventEmitter {
       id: webhook.id, // Prevent ID change
       createdAt: webhook.createdAt, // Prevent creation time change
       updatedAt: new Date().toISOString()
-    };
-
-    if (!this._validateWebhook(updatedWebhook)) {
-      throw new Error('Invalid webhook configuration');
     }
 
-    this.webhooks.set(id, updatedWebhook);
-    this.emit('webhook:updated', updatedWebhook);
+    if (!this._validateWebhook(updatedWebhook)) {
+      throw new Error('Invalid webhook configuration')
+    }
 
-    return updatedWebhook;
+    this.webhooks.set(id, updatedWebhook)
+    this.emit('webhook:updated', updatedWebhook)
+
+    return updatedWebhook
   }
 
   /**
@@ -116,17 +116,17 @@ class WebhookService extends EventEmitter {
    * @param {string} id - Webhook ID
    * @returns {boolean} Success status
    */
-  delete(id) {
-    const webhook = this.webhooks.get(id);
-    
+  delete (id) {
+    const webhook = this.webhooks.get(id)
+
     if (!webhook) {
-      return false;
+      return false
     }
 
-    this.webhooks.delete(id);
-    this.emit('webhook:deleted', { id, webhook });
+    this.webhooks.delete(id)
+    this.emit('webhook:deleted', { id, webhook })
 
-    return true;
+    return true
   }
 
   /**
@@ -134,11 +134,11 @@ class WebhookService extends EventEmitter {
    * @param {string} id - Webhook ID
    * @returns {Promise<Object>} Delivery result
    */
-  async test(id) {
-    const webhook = this.webhooks.get(id);
-    
+  async test (id) {
+    const webhook = this.webhooks.get(id)
+
     if (!webhook) {
-      throw new Error(`Webhook '${id}' not found`);
+      throw new Error(`Webhook '${id}' not found`)
     }
 
     const testPayload = {
@@ -148,9 +148,9 @@ class WebhookService extends EventEmitter {
         message: 'This is a test webhook delivery',
         webhookId: id
       }
-    };
+    }
 
-    return await this._deliver(webhook, testPayload);
+    return await this._deliver(webhook, testPayload)
   }
 
   /**
@@ -159,35 +159,40 @@ class WebhookService extends EventEmitter {
    * @param {Object} data - Event data
    * @returns {Promise<Array>} Delivery results
    */
-  async dispatch(eventName, data) {
-    const webhooks = Array.from(this.webhooks.values())
-      .filter(w => w.active && w.events.includes(eventName));
+  async dispatch (eventName, data) {
+    const webhooks = Array.from(this.webhooks.values()).filter(
+      (w) => w.active && w.events.includes(eventName)
+    )
 
     if (webhooks.length === 0) {
-      return [];
+      return []
     }
 
     const payload = {
       event: eventName,
       timestamp: new Date().toISOString(),
       data
-    };
+    }
 
     const results = await Promise.allSettled(
-      webhooks.map(webhook => this._deliver(webhook, payload))
-    );
+      webhooks.map((webhook) => this._deliver(webhook, payload))
+    )
 
-    this.emit('event:dispatched', { eventName, webhookCount: webhooks.length, results });
+    this.emit('event:dispatched', {
+      eventName,
+      webhookCount: webhooks.length,
+      results
+    })
 
-    return results;
+    return results
   }
 
   /**
    * Private: Deliver payload to webhook
    */
-  async _deliver(webhook, payload, attempt = 1) {
+  async _deliver (webhook, payload, attempt = 1) {
     try {
-      const signature = this._generateSignature(payload, webhook.secret);
+      const signature = this._generateSignature(payload, webhook.secret)
 
       const response = await axios.post(webhook.url, payload, {
         timeout: this.options.timeout,
@@ -198,88 +203,91 @@ class WebhookService extends EventEmitter {
           'X-Webhook-Event': payload.event,
           'User-Agent': 'CodePark-Webhook/1.0'
         }
-      });
+      })
 
       // Update webhook stats
-      webhook.deliveryCount++;
-      webhook.lastDeliveryAt = new Date().toISOString();
-      webhook.lastDeliveryStatus = 'success';
+      webhook.deliveryCount++
+      webhook.lastDeliveryAt = new Date().toISOString()
+      webhook.lastDeliveryStatus = 'success'
 
-      this.emit('webhook:delivered', { webhook, payload, response: response.data });
+      this.emit('webhook:delivered', {
+        webhook,
+        payload,
+        response: response.data
+      })
 
       return {
         success: true,
         webhookId: webhook.id,
         statusCode: response.status,
         attempt
-      };
-
+      }
     } catch (error) {
       // Retry logic
       if (attempt < this.options.retries) {
-        await new Promise(resolve => 
+        await new Promise((resolve) =>
           setTimeout(resolve, this.options.retryDelay * attempt)
-        );
-        return this._deliver(webhook, payload, attempt + 1);
+        )
+        return this._deliver(webhook, payload, attempt + 1)
       }
 
-      webhook.lastDeliveryAt = new Date().toISOString();
-      webhook.lastDeliveryStatus = 'failed';
+      webhook.lastDeliveryAt = new Date().toISOString()
+      webhook.lastDeliveryStatus = 'failed'
 
-      this.emit('webhook:failed', { webhook, payload, error: error.message });
+      this.emit('webhook:failed', { webhook, payload, error: error.message })
 
       return {
         success: false,
         webhookId: webhook.id,
         error: error.message,
         attempt
-      };
+      }
     }
   }
 
   /**
    * Private: Validate webhook configuration
    */
-  _validateWebhook(webhook) {
+  _validateWebhook (webhook) {
     if (!webhook.url || typeof webhook.url !== 'string') {
-      return false;
+      return false
     }
 
     try {
-      new URL(webhook.url);
+      new URL(webhook.url)
     } catch {
-      return false;
+      return false
     }
 
     if (!Array.isArray(webhook.events)) {
-      return false;
+      return false
     }
 
-    return true;
+    return true
   }
 
   /**
    * Private: Generate webhook ID
    */
-  _generateId() {
-    return 'wh_' + crypto.randomBytes(16).toString('hex');
+  _generateId () {
+    return 'wh_' + crypto.randomBytes(16).toString('hex')
   }
 
   /**
    * Private: Generate webhook secret
    */
-  _generateSecret() {
-    return crypto.randomBytes(32).toString('hex');
+  _generateSecret () {
+    return crypto.randomBytes(32).toString('hex')
   }
 
   /**
    * Private: Generate HMAC signature for payload
    */
-  _generateSignature(payload, secret) {
-    const hmac = crypto.createHmac('sha256', secret);
-    hmac.update(JSON.stringify(payload));
-    return hmac.digest('hex');
+  _generateSignature (payload, secret) {
+    const hmac = crypto.createHmac('sha256', secret)
+    hmac.update(JSON.stringify(payload))
+    return hmac.digest('hex')
   }
 }
 
-module.exports = WebhookService;
+module.exports = WebhookService

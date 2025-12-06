@@ -23,26 +23,31 @@ tests/
 ## Running Tests
 
 ### All Tests
+
 ```bash
 npm test
 ```
 
 ### Unit Tests Only
+
 ```bash
 npm run test:unit
 ```
 
 ### Integration Tests Only
+
 ```bash
 npm run test:integration
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:watch
 ```
 
 ### Coverage Report
+
 ```bash
 npm test -- --coverage
 ```
@@ -52,17 +57,17 @@ npm test -- --coverage
 ### Unit Test Example
 
 ```javascript
-const ServiceName = require('../../services/ServiceName');
+const ServiceName = require("../../services/ServiceName");
 
-describe('ServiceName', () => {
+describe("ServiceName", () => {
   let service;
 
   beforeEach(() => {
     service = new ServiceName();
   });
 
-  describe('methodName', () => {
-    test('should do something', () => {
+  describe("methodName", () => {
+    test("should do something", () => {
       const result = service.methodName();
       expect(result).toBe(expected);
     });
@@ -73,14 +78,14 @@ describe('ServiceName', () => {
 ### Integration Test Example
 
 ```javascript
-const request = require('supertest');
-const app = require('../../index');
+const request = require("supertest");
+const app = require("../../index");
 
-describe('API Endpoint', () => {
-  test('POST /api/resource', async () => {
+describe("API Endpoint", () => {
+  test("POST /api/resource", async () => {
     const response = await request(app)
-      .post('/api/resource')
-      .send({ data: 'test' })
+      .post("/api/resource")
+      .send({ data: "test" })
       .expect(201);
 
     expect(response.body.success).toBe(true);
@@ -97,6 +102,7 @@ describe('API Endpoint', () => {
 ## Continuous Integration
 
 Tests are automatically run on:
+
 - Pull requests
 - Commits to main branch
 - Pre-deployment
