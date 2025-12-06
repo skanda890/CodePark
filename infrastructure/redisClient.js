@@ -1,4 +1,4 @@
-const Redis = require('ioredis');
+const Redis = require('ioredis')
 
 /**
  * Centralized Redis Client
@@ -13,51 +13,51 @@ const redis = new Redis({
   maxRetriesPerRequest: 3,
   enableReadyCheck: true,
   retryStrategy: (times) => {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
+    const delay = Math.min(times * 50, 2000)
+    return delay
   },
   reconnectOnError: (err) => {
-    const targetError = 'READONLY';
+    const targetError = 'READONLY'
     if (err.message.includes(targetError)) {
       // Only reconnect on READONLY errors
-      return true;
+      return true
     }
-    return false;
-  },
-});
+    return false
+  }
+})
 
 // Handle Redis connection events
 redis.on('connect', () => {
-  console.log('[Redis] Connected to Redis server');
-});
+  console.log('[Redis] Connected to Redis server')
+})
 
 redis.on('ready', () => {
-  console.log('[Redis] Redis client ready');
-});
+  console.log('[Redis] Redis client ready')
+})
 
 redis.on('error', (err) => {
-  console.error('[Redis] Connection error:', err.message);
-});
+  console.error('[Redis] Connection error:', err.message)
+})
 
 redis.on('close', () => {
-  console.warn('[Redis] Connection closed');
-});
+  console.warn('[Redis] Connection closed')
+})
 
 redis.on('reconnecting', () => {
-  console.log('[Redis] Reconnecting...');
-});
+  console.log('[Redis] Reconnecting...')
+})
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('[Redis] Closing Redis connection...');
-  await redis.quit();
-  process.exit(0);
-});
+  console.log('[Redis] Closing Redis connection...')
+  await redis.quit()
+  process.exit(0)
+})
 
 process.on('SIGTERM', async () => {
-  console.log('[Redis] Closing Redis connection...');
-  await redis.quit();
-  process.exit(0);
-});
+  console.log('[Redis] Closing Redis connection...')
+  await redis.quit()
+  process.exit(0)
+})
 
-module.exports = redis;
+module.exports = redis
