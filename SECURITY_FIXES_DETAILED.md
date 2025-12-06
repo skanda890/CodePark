@@ -17,20 +17,23 @@ This final pass addresses configuration validation, connection handling, code co
 ### 1. **Redis Connection with lazyConnect and Invalid Options**
 
 **Problem**:
+
 ```javascript
 const redis = new Redis({
-  lazyConnect: true,           // ✗ Defers connection to first use
-  commandTimeout: 5000         // ✗ Not a standard ioredis option
-})
+  lazyConnect: true, // ✗ Defers connection to first use
+  commandTimeout: 5000, // ✗ Not a standard ioredis option
+});
 ```
 
 **Impact**:
+
 - Connection errors happen at request time, not startup
 - `commandTimeout` silently ignored (not a documented option)
 - `connectTimeout` and `maxRetriesPerRequest` not configured
 - Runtime failures instead of fail-fast behavior
 
 **Fix**:
+
 - Removed `lazyConnect: true` to connect immediately on init
 - Replaced `commandTimeout` with documented options:
   - `connectTimeout: 5000` - connection establishment timeout
@@ -47,36 +50,40 @@ const redis = new Redis({
 ### 2. **Empty or Misconfigured allowedOrigins**
 
 **Problem**:
+
 ```javascript
-const allowedOrigins = ''  // Empty!
+const allowedOrigins = ""; // Empty!
 const allowedOriginsList = allowedOrigins
-  .split(',')
-  .map(o => o.trim())
-  .filter(o => o)  // Result: []
+  .split(",")
+  .map((o) => o.trim())
+  .filter((o) => o); // Result: []
 
 // Later:
-const firstOrigin = allowedOriginsList[0]  // undefined!
-res.setHeader('Access-Control-Allow-Origin', firstOrigin)  // Invalid header
+const firstOrigin = allowedOriginsList[0]; // undefined!
+res.setHeader("Access-Control-Allow-Origin", firstOrigin); // Invalid header
 ```
 
 **Impact**:
+
 - Silent failure with undefined behavior
 - HTTP headers become invalid
 - Logs show `undefined` origin (confusing debugging)
 - App appears to work but CORS silently fails
 
 **Fix**:
+
 ```javascript
 if (allowedOriginsList.length === 0) {
   logger.error(
-    'CORS configuration error: allowedOrigins is empty. ' +
-    'Using default: http://localhost:3000'
-  )
-  allowedOriginsList = ['http://localhost:3000']
+    "CORS configuration error: allowedOrigins is empty. " +
+      "Using default: http://localhost:3000",
+  );
+  allowedOriginsList = ["http://localhost:3000"];
 }
 ```
 
-**Result**: 
+**Result**:
+
 - Empty config detected at middleware init
 - Clear error message in logs
 - Safe fallback to localhost for development
@@ -91,37 +98,40 @@ if (allowedOriginsList.length === 0) {
 **Problem**: Multiple nested conditionals, repeated field checks, hard to test
 
 **Original**:
+
 ```javascript
 for (const key in obj) {
-  if (textFieldsToEscape.includes(key) && typeof value === 'string') {
-    obj[key] = escape(value)
-    continue
+  if (textFieldsToEscape.includes(key) && typeof value === "string") {
+    obj[key] = escape(value);
+    continue;
   }
   if (Array.isArray(value)) {
     obj[key] = value.map((item) => {
-      if (textFieldsToEscape.includes(key) && typeof item === 'string') {
-        return escape(item)
+      if (textFieldsToEscape.includes(key) && typeof item === "string") {
+        return escape(item);
       }
-      return item
-    })
+      return item;
+    });
   }
-  if (typeof value === 'object' && value !== null) {
-    sanitizeObject(value, key)  // Repeated logic
+  if (typeof value === "object" && value !== null) {
+    sanitizeObject(value, key); // Repeated logic
   }
 }
 ```
 
 **Refactored**: Extracted pure predicate + generic walker
+
 ```javascript
 const shouldEscapeField = (key, value) =>
-  textFieldsToEscape.includes(key) && typeof value === 'string'
+  textFieldsToEscape.includes(key) && typeof value === "string";
 
 const sanitizeNode = (node, parentKey = null) => {
   // Single responsibility: traverse and apply decision
-}
+};
 ```
 
 **Benefits**:
+
 - Single recursive walker (no duplicated traversal)
 - Small, testable `shouldEscapeField()` predicate
 - Easy to extend: just add field names
@@ -139,6 +149,7 @@ const sanitizeNode = (node, parentKey = null) => {
 **Refactored**: Separated into pure decision + middleware interpretation
 
 **decideCors()** - Pure function:
+
 ```javascript
 function decideCors({ origin, isProd, allowedOrigins }) {
   // Returns: { allowOrigin, allowCredentials, reason }
@@ -148,22 +159,25 @@ function decideCors({ origin, isProd, allowedOrigins }) {
 ```
 
 **Middleware**: Interprets decision
+
 ```javascript
-const decision = decideCors({ origin, isProd, allowedOrigins })
+const decision = decideCors({ origin, isProd, allowedOrigins });
 
 switch (decision.reason) {
-  case 'no-origin-prod':
-    logger.info('CORS: Request without origin')
-    break
-  case 'unauthorized':
-    logger.warn({ origin }, 'CORS: Unauthorized origin')
-    break
+  case "no-origin-prod":
+    logger.info("CORS: Request without origin");
+    break;
+  case "unauthorized":
+    logger.warn({ origin }, "CORS: Unauthorized origin");
+    break;
 }
 
-if (decision.allowOrigin) res.setHeader('Access-Control-Allow-Origin', decision.allowOrigin)
+if (decision.allowOrigin)
+  res.setHeader("Access-Control-Allow-Origin", decision.allowOrigin);
 ```
 
 **Benefits**:
+
 - `decideCors()` is pure, easily testable
 - Logging policy is explicit and local
 - Flat control flow (no nested if/else)
@@ -177,21 +191,24 @@ if (decision.allowOrigin) res.setHeader('Access-Control-Allow-Origin', decision.
 ### 5. **CORS Configuration Format Mismatch**
 
 **Problem**:
+
 ```javascript
 // config/index.js
-allowedOrigin: '*'  // Single string
+allowedOrigin: "*"; // Single string
 
 // middleware/cors.js
-const list = allowedOrigins.split(',')  // ✗ '*'.split(',') = ['*']
+const list = allowedOrigins.split(","); // ✗ '*'.split(',') = ['*']
 // Now matching 'http://localhost:3000' against ['*'] fails!
 ```
 
 **Impact**:
+
 - `'*'` is treated as a literal origin to match
 - Real origins like `http://localhost:3000` never match
 - Wildcards don't work as expected
 
 **Fix**:
+
 - Changed `config.allowedOrigin` to `allowedOrigins` (plural, clearer)
 - Updated default to: `'http://localhost:3000,http://localhost:3001'`
 - Updated variable names throughout for consistency
@@ -206,36 +223,41 @@ const list = allowedOrigins.split(',')  // ✗ '*'.split(',') = ['*']
 ### 6. **Authentication Rate Limit Too Aggressive**
 
 **Problem**:
+
 ```javascript
 auth: createRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 3  // ✗ Only 3 attempts per 15 minutes
-})
+  max: 3, // ✗ Only 3 attempts per 15 minutes
+});
 ```
 
 **Impact**:
+
 - Below industry standards (NIST/OWASP recommend 5-10)
 - Legitimate users with typos get locked out
 - No progressive controls (backoff, lockout notification)
 - User frustration, support burden
 
 **Fix**:
+
 ```javascript
 auth: createRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 5,  // ✅ Industry standard
-  skipSuccessfulRequests: true,  // Don't count successes
-  skipFailedRequests: false       // Count failures
-})
+  max: 5, // ✅ Industry standard
+  skipSuccessfulRequests: true, // Don't count successes
+  skipFailedRequests: false, // Count failures
+});
 ```
 
 **Future Enhancement**:
+
 ```javascript
 // TODO: Consider implementing exponential backoff and account lockout
 // for progressive authentication controls
 ```
 
-**Result**: 
+**Result**:
+
 - Matches industry standards
 - Legitimate users have reasonable retry window
 - Still protects against brute force (288 max attempts/day)
@@ -248,20 +270,23 @@ auth: createRateLimiter({
 ### 7. **Localhost Debug References Removed**
 
 **Problem**:
+
 ```javascript
-logger.info(`Server:        http://localhost:${port}`)  // ✗ Debug code
-logger.info(`Metrics:       http://localhost:${config.metrics.port}/metrics`)
+logger.info(`Server:        http://localhost:${port}`); // ✗ Debug code
+logger.info(`Metrics:       http://localhost:${config.metrics.port}/metrics`);
 ```
 
 **Impact**:
+
 - Docker/Kubernetes containers can't resolve localhost
 - Multi-instance deployments see incorrect URLs
 - Suggests debug code in production
 
 **Fix**:
+
 ```javascript
-logger.info(`Server:        Running on port ${port}`)          // ✅ Generic
-logger.info(`Metrics:       Available on /metrics endpoint`)   // ✅ Generic
+logger.info(`Server:        Running on port ${port}`); // ✅ Generic
+logger.info(`Metrics:       Available on /metrics endpoint`); // ✅ Generic
 ```
 
 **Result**: Logs work with any deployment (Docker, K8s, bare metal)
@@ -273,12 +298,14 @@ logger.info(`Metrics:       Available on /metrics endpoint`)   // ✅ Generic
 ### 8. **Test Example Syntax Error**
 
 **Problem**:
+
 ```bash
 # Lua syntax in bash block
 local response = http.get('http://localhost:3000')
 ```
 
 **Fix**:
+
 ```bash
 # Correct bash/curl syntax
 curl -I http://localhost:3000
@@ -315,12 +342,14 @@ LOG_LEVEL=info
 ## Verification Checklist
 
 ### Redis Connection
+
 - [ ] App starts without connection delays
 - [ ] Redis errors logged during startup (not at request time)
 - [ ] Connection pool maintained with keep-alive
 - [ ] Proper timeout on connection failures
 
 ### CORS Configuration
+
 - [ ] Empty config detected with error log
 - [ ] Fallback to sensible default
 - [ ] Comma-separated origins parsed correctly
@@ -328,12 +357,14 @@ LOG_LEVEL=info
 - [ ] Non-browser clients proceed regardless
 
 ### Rate Limiting
+
 - [ ] Auth limiter allows 5 attempts per 15 minutes
 - [ ] Websocket limiter expires keys after 60 seconds
 - [ ] General API limiter expires keys after 15 minutes
 - [ ] Rate limit keys match their respective windows
 
 ### Input Sanitization
+
 - [ ] Only designated text fields escaped
 - [ ] User IDs remain unchanged
 - [ ] Base64 data not corrupted
@@ -341,6 +372,7 @@ LOG_LEVEL=info
 - [ ] Arrays under allowlisted keys sanitized
 
 ### Security Headers
+
 - [ ] CSP contains no invalid nonce placeholders
 - [ ] Helmet config centralized (no duplication)
 - [ ] HSTS, X-Frame-Options, X-Content-Type-Options set
@@ -351,9 +383,10 @@ LOG_LEVEL=info
 ## Testing Commands
 
 ### Rate Limiting
+
 ```bash
 # Auth limiter (5 per 15 min)
-for i in {1..6}; do 
+for i in {1..6}; do
   curl -X POST http://localhost:3000/api/v1/auth/login \
     -H 'Content-Type: application/json' \
     -d '{"email":"test","password":"test"}'
@@ -362,6 +395,7 @@ done
 ```
 
 ### CORS Validation
+
 ```bash
 # Non-browser client (no Origin)
 curl http://localhost:3000/api/v1/game
@@ -373,6 +407,7 @@ curl -H 'Origin: http://evil.com' http://localhost:3000/api/v1/game -i
 ```
 
 ### Sanitization
+
 ```bash
 curl -X POST http://localhost:3000/api/v1/game \
   -H 'Content-Type: application/json' \
@@ -384,6 +419,7 @@ curl -X POST http://localhost:3000/api/v1/game \
 ```
 
 ### Security Headers
+
 ```bash
 curl -I http://localhost:3000/ | grep -E 'Content-Security|X-Frame|X-Content-Type|Strict-Transport'
 # Should show all security headers
@@ -393,33 +429,36 @@ curl -I http://localhost:3000/ | grep -E 'Content-Security|X-Frame|X-Content-Typ
 
 ## Summary Table
 
-| # | Issue | Category | Severity | Status |
-|---|-------|----------|----------|--------|
-| 1 | Redis lazyConnect + invalid options | Connection | 🟠 Medium | ✅ |
-| 2 | Empty allowedOrigins validation | Config | 🟠 Medium | ✅ |
-| 3 | Sanitization complexity | Code Quality | 🟠 Medium | ✅ |
-| 4 | decideCors mixed concerns | Code Quality | 🟠 Medium | ✅ |
-| 5 | CORS format mismatch | Config | 🟠 Medium | ✅ |
-| 6 | Auth limiter too strict | Security | 🟠 Medium | ✅ |
-| 7 | Localhost debug refs | Code Quality | 🟢 Low | ✅ |
-| 8 | Test example syntax | Documentation | 🟢 Low | ✅ |
+| #   | Issue                               | Category      | Severity  | Status |
+| --- | ----------------------------------- | ------------- | --------- | ------ |
+| 1   | Redis lazyConnect + invalid options | Connection    | 🟠 Medium | ✅     |
+| 2   | Empty allowedOrigins validation     | Config        | 🟠 Medium | ✅     |
+| 3   | Sanitization complexity             | Code Quality  | 🟠 Medium | ✅     |
+| 4   | decideCors mixed concerns           | Code Quality  | 🟠 Medium | ✅     |
+| 5   | CORS format mismatch                | Config        | 🟠 Medium | ✅     |
+| 6   | Auth limiter too strict             | Security      | 🟠 Medium | ✅     |
+| 7   | Localhost debug refs                | Code Quality  | 🟢 Low    | ✅     |
+| 8   | Test example syntax                 | Documentation | 🟢 Low    | ✅     |
 
 ---
 
 ## Future Enhancements
 
 ### Progressive Authentication Controls
+
 - Exponential backoff on failed attempts
 - Temporary account lockout (15-30 min)
 - Email notifications
 - Admin unlock mechanism
 
 ### CSP Nonce Implementation
+
 - Per-request nonce generation
 - Injection into `<style>` and `<link>` tags
 - Dynamic CSP header building
 
 ### Redis HA
+
 - Redis Sentinel support
 - Redis Cluster support
 - Connection pooling
