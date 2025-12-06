@@ -125,10 +125,7 @@ const createRateLimiter = (options = {}) => {
     legacyHeaders: false,
     skip: (req) => req.path === '/health',
     handler: (req, res) => {
-      logger.warn(
-        { ip: req.ip, path: req.path },
-        'Rate limit exceeded'
-      )
+      logger.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded')
       res.status(429).json({
         error: 'Too many requests',
         message: 'Please try again later'
@@ -179,7 +176,10 @@ const rateLimiters = {
  */
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001')
+    const allowedOrigins = (
+      process.env.ALLOWED_ORIGINS ||
+      'http://localhost:3000,http://localhost:3001'
+    )
       .split(',')
       .map((o) => o.trim())
 
@@ -357,7 +357,14 @@ const hppProtection = (req, res, next) => {
 const sanitizeInput = (req, res, next) => {
   // Field names that are expected to contain user-facing text which will be rendered
   // in HTML contexts. Adjust this list as needed for your application.
-  const textFieldsToEscape = ['message', 'content', 'title', 'description', 'comment', 'bio']
+  const textFieldsToEscape = [
+    'message',
+    'content',
+    'title',
+    'description',
+    'comment',
+    'bio'
+  ]
 
   const sanitizeValue = (value) => {
     if (typeof value === 'string') {
