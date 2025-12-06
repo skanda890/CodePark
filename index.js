@@ -155,7 +155,7 @@ const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
   logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
-  logger.info('==============================================')  
+  logger.info('==============================================')
   logger.info(`Server:        http://localhost:${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')

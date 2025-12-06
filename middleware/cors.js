@@ -11,7 +11,9 @@ const logger = require('../config/logger')
  * @param {string} allowedOrigins - Comma-separated allowed origins
  * @returns {Function} Express middleware
  */
-module.exports = function createCorsMiddleware (allowedOrigins = 'http://localhost:3000') {
+module.exports = function createCorsMiddleware (
+  allowedOrigins = 'http://localhost:3000'
+) {
   return (req, res, next) => {
     const origin = req.headers.origin
     const allowedOriginsList = allowedOrigins.split(',').map((o) => o.trim())
@@ -19,7 +21,10 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
 
     // SECURITY: In production, reject requests without origin
     if (nodeEnv === 'production' && !origin) {
-      logger.warn({ path: req.path }, 'CORS: Request without origin in production')
+      logger.warn(
+        { path: req.path },
+        'CORS: Request without origin in production'
+      )
       return res.status(403).json({
         error: 'CORS policy violation',
         message: 'Origin header required'

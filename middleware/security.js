@@ -106,10 +106,7 @@ const createRateLimiter = (options = {}) => {
       expiry: 15 * 60
     }),
     handler: (req, res) => {
-      logger.warn(
-        { ip: req.ip, path: req.path },
-        'Rate limit exceeded'
-      )
+      logger.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded')
       res.status(429).json({
         error: 'Too many requests',
         message: 'Please try again later',
@@ -147,7 +144,10 @@ const rateLimiters = {
  */
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001')
+    const allowedOrigins = (
+      process.env.ALLOWED_ORIGINS ||
+      'http://localhost:3000,http://localhost:3001'
+    )
       .split(',')
       .map((o) => o.trim())
 
@@ -169,7 +169,12 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-CSRF-Token'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Request-ID',
+    'X-CSRF-Token'
+  ],
   exposedHeaders: [
     'X-Request-ID',
     'X-RateLimit-Limit',
@@ -327,7 +332,11 @@ const sanitizeInput = (req, res, next) => {
     for (const key in obj) {
       if (typeof obj[key] === 'string') {
         obj[key] = sanitizeValue(obj[key])
-      } else if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+      } else if (
+        typeof obj[key] === 'object' &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
         sanitizeObject(obj[key])
       } else if (Array.isArray(obj[key])) {
         obj[key] = obj[key].map((item) =>

