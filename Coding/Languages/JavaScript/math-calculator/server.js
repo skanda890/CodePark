@@ -338,8 +338,7 @@ function evaluateTowerExponentiation (base, exponentExpr) {
 function calculateCore (expression) {
   // ✅ FIX #4: FLEXIBLE REGEX PATTERNS
   // Now matches: squareroot(100), √100, √(100), 5.5^2, etc
-  const sqrtRegex =
-    /squareroot\s*\(([\d.]+)\)|√\s*\(([\d.]+)\)|√\s*([\d.]+)/i
+  const sqrtRegex = /squareroot\s*\(([\d.]+)\)|√\s*\(([\d.]+)\)|√\s*([\d.]+)/i
   const squareRegex =
     /square\s*\(([\d.]+)\)|\(([\d.]+)\)\s*\^\s*2|([\d.]+)\s*\^\s*2/i
   const vietaRegex = /vieta\s*\(\s*(\d+)\s*\)/
