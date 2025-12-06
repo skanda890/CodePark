@@ -136,7 +136,7 @@ const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
   logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
-  logger.info('==============================================')  
+  logger.info('==============================================')
   logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')
@@ -147,7 +147,7 @@ const server = app.listen(port, async () => {
     `Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`
   )
   if (config.metrics.enabled) {
-    logger.info(`Metrics:       Available on /metrics endpoint`)
+    logger.info('Metrics:       Available on /metrics endpoint')
   } else {
     logger.info('Metrics:       Disabled')
   }

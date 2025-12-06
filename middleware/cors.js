@@ -25,7 +25,11 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
     return {
       // Return null for origin - browser will see no CORS headers
       // Server-to-server/app-to-app calls proceed normally
-      log: { level: 'info', msg: 'CORS: Request without origin in production', ctx: { path } }
+      log: {
+        level: 'info',
+        msg: 'CORS: Request without origin in production',
+        ctx: { path }
+      }
     }
   }
 
@@ -34,7 +38,11 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
     return {
       allowOrigin: origin,
       allowCredentials: true,
-      log: { level: 'debug', msg: 'CORS: Request from allowed origin', ctx: { origin } }
+      log: {
+        level: 'debug',
+        msg: 'CORS: Request from allowed origin',
+        ctx: { origin }
+      }
     }
   }
 
@@ -43,7 +51,11 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
     return {
       allowOrigin: allowedOrigins[0],
       allowCredentials: false,
-      log: { level: 'debug', msg: 'CORS: Development mode, allowing first whitelisted origin', ctx: { origin: allowedOrigins[0] } }
+      log: {
+        level: 'debug',
+        msg: 'CORS: Development mode, allowing first whitelisted origin',
+        ctx: { origin: allowedOrigins[0] }
+      }
     }
   }
 
@@ -52,12 +64,18 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
     return {
       // Return null - browser won't see CORS headers, request will fail in browser
       // Non-browser clients unaffected
-      log: { level: 'warn', msg: 'CORS: Request from unauthorized origin', ctx: { origin, path } }
+      log: {
+        level: 'warn',
+        msg: 'CORS: Request from unauthorized origin',
+        ctx: { origin, path }
+      }
     }
   }
 
   // Fallback: no credentials, no origin header
-  return { log: { level: 'debug', msg: 'CORS: Default fallback', ctx: { path } } }
+  return {
+    log: { level: 'debug', msg: 'CORS: Default fallback', ctx: { path } }
+  }
 }
 
 /**
@@ -65,7 +83,9 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
  * @param {string} allowedOrigins - Comma-separated allowed origins (env var or config)
  * @returns {Function} Express middleware
  */
-module.exports = function createCorsMiddleware (allowedOrigins = 'http://localhost:3000') {
+module.exports = function createCorsMiddleware (
+  allowedOrigins = 'http://localhost:3000'
+) {
   const allowedOriginsList = allowedOrigins
     .split(',')
     .map((o) => o.trim())
@@ -77,10 +97,18 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
     const origin = req.headers.origin
 
     // Get CORS decision
-    const decision = decideCors({ origin, env, allowedOrigins: allowedOriginsList, path: req.path })
+    const decision = decideCors({
+      origin,
+      env,
+      allowedOrigins: allowedOriginsList,
+      path: req.path
+    })
 
     // Log if present (only info/warn/error level, not debug in production)
-    if (decision.log && !(decision.log.level === 'debug' && env === 'production')) {
+    if (
+      decision.log &&
+      !(decision.log.level === 'debug' && env === 'production')
+    ) {
       logger[decision.log.level](decision.log.ctx, decision.log.msg)
     }
 
@@ -94,7 +122,10 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
     }
 
     // Fixed headers: always set, independent of origin decision
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+    )
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-Token'
