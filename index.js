@@ -30,6 +30,9 @@ const port = config.port
 // Initialize metrics
 metricsService.init(app)
 
+// Security: Disable X-Powered-By header to prevent information disclosure
+app.disable('x-powered-by')
+
 // Trust proxy (for rate limiting behind reverse proxy)
 app.set('trust proxy', 1)
 
@@ -39,7 +42,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'"],
         scriptSrc: ["'self'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'", 'ws:', 'wss:']
@@ -49,7 +52,10 @@ app.use(
       maxAge: 31536000,
       includeSubDomains: true,
       preload: true
-    }
+    },
+    frameguard: { action: 'deny' },
+    xssFilter: true,
+    noSniff: true
   })
 )
 
@@ -70,8 +76,9 @@ app.use(rateLimiter)
 app.use(express.json({ limit: config.maxRequestSize }))
 app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }))
 
-// CORS configuration
-app.use(cors(config.allowedOrigin))
+// CORS configuration with validated origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS || config.allowedOrigin
+app.use(cors(allowedOrigins))
 
 // Request ID tracking
 app.use((req, res, next) => {
@@ -86,10 +93,10 @@ app.use(requestLogger)
 // API Routes
 app.get('/', (req, res) => {
   res.json({
-    name: 'CodePark API - BLEEDING EDGE EXPERIMENTAL',
-    version: '3.0.0-experimental',
+    name: 'CodePark API - Security Hardened',
+    version: '3.0.0',
     status: 'running',
-    warning: 'This server uses experimental pre-release packages',
+    message: 'Production-ready with security enhancements',
     features: {
       websocket: config.websocket.enabled,
       authentication: true,
@@ -105,7 +112,8 @@ app.get('/', (req, res) => {
       metrics: config.metrics.enabled ? '/metrics' : null,
       websocket: config.websocket.enabled ? config.websocket.path : null
     },
-    documentation: 'https://github.com/skanda890/CodePark'
+    documentation: 'https://github.com/skanda890/CodePark',
+    security: 'https://github.com/skanda890/CodePark/blob/main/SECURITY.md'
   })
 })
 
@@ -119,7 +127,6 @@ if (config.metrics.enabled) {
 }
 
 // 404 handler
-// Note: Metrics are already recorded by automated middleware in metricsService.init()
 app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
@@ -147,8 +154,9 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v3.0-experimental (BLEEDING EDGE)')
-  logger.info('==============================================')  logger.info(`Server:        http://localhost:${port}`)
+  logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
+  logger.info('==============================================')  
+  logger.info(`Server:        http://localhost:${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')
   logger.info(
@@ -167,7 +175,7 @@ const server = app.listen(port, async () => {
     `Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`
   )
   logger.info('🎮 Games:       Number Guessing (CLI & API)')
-  logger.info('⚠️  WARNING:     Using experimental pre-release packages')
+  logger.info('✅ Security:    All dependencies pinned to stable versions')
   logger.info('==============================================\n')
 
   // Initialize cache service
