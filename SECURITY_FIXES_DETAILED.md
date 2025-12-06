@@ -88,7 +88,7 @@ const rateLimiters = {
 
 **Impact**:
 
-- Websocket clients hit with 1-minute window but blocked for 15 minutes
+- WebSocket clients hit with 1-minute window but blocked for 15 minutes
 - Redis memory waste with stale keys
 - Unpredictable rate limit behavior
 
