@@ -1,5 +1,4 @@
 const express = require('express')
-const helmet = require('helmet')
 const compression = require('compression')
 const { v4: uuidv4 } = require('uuid')
 const logger = require('./config/logger')
@@ -8,6 +7,7 @@ const config = require('./config')
 
 // Middleware
 const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter')
+const { helmetConfig } = require('./middleware/security')
 const cors = require('./middleware/cors')
 const requestLogger = require('./middleware/requestLogger')
 const authMiddleware = require('./middleware/auth')
@@ -36,28 +36,9 @@ app.disable('x-powered-by')
 // Trust proxy (for rate limiting behind reverse proxy)
 app.set('trust proxy', 1)
 
-// Security Middleware - Helmet for HTTP headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'ws:', 'wss:']
-      }
-    },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true
-    },
-    frameguard: { action: 'deny' },
-    xssFilter: true,
-    noSniff: true
-  })
-)
+// Security Middleware - Use centralized Helmet config from middleware/security.js
+// This ensures consistent CSP and headers across the application
+app.use(helmetConfig)
 
 // Compression
 if (config.compression.enabled) {
@@ -155,8 +136,8 @@ const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
   logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
-  logger.info('==============================================')
-  logger.info(`Server:        http://localhost:${port}`)
+  logger.info('==============================================')  
+  logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')
   logger.info(
@@ -165,9 +146,11 @@ const server = app.listen(port, async () => {
   logger.info(
     `Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`
   )
-  logger.info(
-    `Metrics:       ${config.metrics.enabled ? `http://localhost:${config.metrics.port}/metrics` : 'Disabled'}`
-  )
+  if (config.metrics.enabled) {
+    logger.info(`Metrics:       Available on /metrics endpoint`)
+  } else {
+    logger.info('Metrics:       Disabled')
+  }
   logger.info(
     `Compression:   ${config.compression.enabled ? 'Enabled' : 'Disabled'}`
   )
