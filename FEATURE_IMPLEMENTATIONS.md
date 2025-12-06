@@ -19,9 +19,11 @@
 ## Real-Time Monitoring Dashboard
 
 ### Overview
+
 Implement a unified analytics dashboard that monitors all CodePark modules in real-time.
 
 ### Technical Stack
+
 - **Frontend**: React with D3.js for visualizations
 - **Backend**: Node.js with Express and WebSocket support
 - **Database**: MongoDB for metrics storage
@@ -33,18 +35,19 @@ Implement a unified analytics dashboard that monitors all CodePark modules in re
 // Example: Setting up real-time metrics
 const setupMetrics = async () => {
   const metricsService = new MetricsService();
-  
+
   // Initialize collectors
-  metricsService.registerCollector('api-response-time');
-  metricsService.registerCollector('database-query-time');
-  metricsService.registerCollector('user-activity');
-  
+  metricsService.registerCollector("api-response-time");
+  metricsService.registerCollector("database-query-time");
+  metricsService.registerCollector("user-activity");
+
   // Start real-time streaming
   metricsService.startStreaming(io);
 };
 ```
 
 ### Key Features
+
 - Live performance metrics
 - Historical data analysis
 - Alert thresholds
@@ -64,9 +67,9 @@ const mfaService = new MFAService();
 
 // Initialize MFA for user
 await mfaService.setupMFA(userId, {
-  method: 'totp', // time-based one-time password
-  issuer: 'CodePark',
-  window: 1
+  method: "totp", // time-based one-time password
+  issuer: "CodePark",
+  window: 1,
 });
 
 // Verify MFA token
@@ -80,11 +83,11 @@ const rateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   handler: (req, res) => {
-    res.status(429).json({ error: 'Too many requests' });
-  }
+    res.status(429).json({ error: "Too many requests" });
+  },
 });
 
-app.use('/api/', rateLimiter);
+app.use("/api/", rateLimiter);
 ```
 
 ---
@@ -108,9 +111,9 @@ POST   /api/webhooks/:id/test     - Test webhook
 
 ```javascript
 const webhook = await client.webhooks.create({
-  url: 'https://example.com/webhook',
-  events: ['user.created', 'project.updated'],
-  active: true
+  url: "https://example.com/webhook",
+  events: ["user.created", "project.updated"],
+  active: true,
 });
 ```
 
@@ -155,22 +158,22 @@ const pool = new ConnectionPool({
 ```javascript
 const cacheMiddleware = async (req, res, next) => {
   const key = `${req.method}:${req.url}`;
-  
+
   // Check cache
   const cached = await redis.get(key);
   if (cached) {
     return res.json(JSON.parse(cached));
   }
-  
+
   // Store original res.json
   const originalJson = res.json.bind(res);
-  
+
   // Override res.json to cache results
   res.json = (data) => {
     redis.setex(key, 300, JSON.stringify(data)); // 5 min cache
     return originalJson(data);
   };
-  
+
   next();
 };
 ```
@@ -186,28 +189,28 @@ class NotificationService {
   constructor() {
     this.channels = new Map();
   }
-  
+
   // Register notification channel
   registerChannel(name, handler) {
     this.channels.set(name, handler);
   }
-  
+
   // Send notification
-  async notify(userId, message, channels = ['email', 'in-app']) {
-    const promises = channels.map(channel => {
+  async notify(userId, message, channels = ["email", "in-app"]) {
+    const promises = channels.map((channel) => {
       const handler = this.channels.get(channel);
       if (handler) return handler(userId, message);
     });
-    
+
     return Promise.all(promises);
   }
 }
 
 // Usage
 const notificationService = new NotificationService();
-notificationService.registerChannel('email', sendEmailNotification);
-notificationService.registerChannel('push', sendPushNotification);
-notificationService.registerChannel('in-app', sendInAppNotification);
+notificationService.registerChannel("email", sendEmailNotification);
+notificationService.registerChannel("push", sendPushNotification);
+notificationService.registerChannel("in-app", sendInAppNotification);
 ```
 
 ---
@@ -215,16 +218,19 @@ notificationService.registerChannel('in-app', sendInAppNotification);
 ## Testing Strategy
 
 ### Unit Tests
+
 ```bash
 npm run test:unit
 ```
 
 ### Integration Tests
+
 ```bash
 npm run test:integration
 ```
 
 ### E2E Tests
+
 ```bash
 npm run test:e2e
 ```
@@ -242,5 +248,6 @@ npm run test:e2e
 ## Support & Issues
 
 For implementation questions or issues:
+
 - Create an issue: https://github.com/skanda890/CodePark/issues
 - Join discussions: https://github.com/skanda890/CodePark/discussions
