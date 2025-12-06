@@ -45,8 +45,10 @@ module.exports = function createCorsMiddleware (
         { origin, path: req.path },
         'CORS: Request from unauthorized origin'
       )
-      // Still add CORS headers but don't authorize
-      res.setHeader('Access-Control-Allow-Origin', 'null')
+      // SECURITY: Do not set 'Access-Control-Allow-Origin' to 'null' for unauthorized origins,
+      // and do NOT include credentials header for such cases.
+      // Optionally, you could send 403 or just not set CORS headers at all.
+      // For now, do not set origin or credentials headers here.
     }
 
     res.setHeader(
