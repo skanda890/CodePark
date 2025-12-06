@@ -8,12 +8,15 @@ require('dotenv').config()
 module.exports = {
   // Server
   port: parseInt(process.env.PORT, 10) || 3000,
-  host: process.env.HOST || 'localhost',
+  host: process.env.HOST || '0.0.0.0', // FIXED: Use 0.0.0.0 for production (not localhost)
   nodeEnv: process.env.NODE_ENV || 'development',
   maxRequestSize: process.env.MAX_REQUEST_SIZE || '100kb',
 
   // Security
-  allowedOrigin: process.env.ALLOWED_ORIGIN || '*',
+  // FIXED: Changed to ALLOWED_ORIGINS (comma-separated) with sensible default
+  allowedOrigin:
+    process.env.ALLOWED_ORIGINS ||
+    'http://localhost:3000,http://localhost:3001',
   jwtSecret: process.env.JWT_SECRET || 'change-this-in-production',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '', // Optional separate refresh secret
   jwtExpiry: process.env.JWT_EXPIRY || '24h',

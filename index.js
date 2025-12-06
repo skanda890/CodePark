@@ -1,5 +1,4 @@
 const express = require('express')
-const helmet = require('helmet')
 const compression = require('compression')
 const { v4: uuidv4 } = require('uuid')
 const logger = require('./config/logger')
@@ -8,6 +7,7 @@ const config = require('./config')
 
 // Middleware
 const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter')
+const { helmetConfig } = require('./middleware/security')
 const cors = require('./middleware/cors')
 const requestLogger = require('./middleware/requestLogger')
 const authMiddleware = require('./middleware/auth')
@@ -30,28 +30,15 @@ const port = config.port
 // Initialize metrics
 metricsService.init(app)
 
+// Security: Disable X-Powered-By header to prevent information disclosure
+app.disable('x-powered-by')
+
 // Trust proxy (for rate limiting behind reverse proxy)
 app.set('trust proxy', 1)
 
-// Security Middleware - Helmet for HTTP headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'ws:', 'wss:']
-      }
-    },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true
-    }
-  })
-)
+// Security Middleware - Use centralized Helmet config from middleware/security.js
+// This ensures consistent CSP and headers across the application
+app.use(helmetConfig)
 
 // Compression
 if (config.compression.enabled) {
@@ -70,8 +57,9 @@ app.use(rateLimiter)
 app.use(express.json({ limit: config.maxRequestSize }))
 app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }))
 
-// CORS configuration
-app.use(cors(config.allowedOrigin))
+// CORS configuration with validated origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS || config.allowedOrigin
+app.use(cors(allowedOrigins))
 
 // Request ID tracking
 app.use((req, res, next) => {
@@ -86,10 +74,10 @@ app.use(requestLogger)
 // API Routes
 app.get('/', (req, res) => {
   res.json({
-    name: 'CodePark API - BLEEDING EDGE EXPERIMENTAL',
-    version: '3.0.0-experimental',
+    name: 'CodePark API - Security Hardened',
+    version: '3.0.0',
     status: 'running',
-    warning: 'This server uses experimental pre-release packages',
+    message: 'Production-ready with security enhancements',
     features: {
       websocket: config.websocket.enabled,
       authentication: true,
@@ -105,7 +93,8 @@ app.get('/', (req, res) => {
       metrics: config.metrics.enabled ? '/metrics' : null,
       websocket: config.websocket.enabled ? config.websocket.path : null
     },
-    documentation: 'https://github.com/skanda890/CodePark'
+    documentation: 'https://github.com/skanda890/CodePark',
+    security: 'https://github.com/skanda890/CodePark/blob/main/SECURITY.md'
   })
 })
 
@@ -119,7 +108,6 @@ if (config.metrics.enabled) {
 }
 
 // 404 handler
-// Note: Metrics are already recorded by automated middleware in metricsService.init()
 app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
@@ -147,8 +135,9 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v3.0-experimental (BLEEDING EDGE)')
-  logger.info('==============================================')  logger.info(`Server:        http://localhost:${port}`)
+  logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
+  logger.info('==============================================')
+  logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
   logger.info('API Version:   v1')
   logger.info(
@@ -157,9 +146,11 @@ const server = app.listen(port, async () => {
   logger.info(
     `Redis:         ${config.redis.enabled ? 'Enabled' : 'In-Memory'}`
   )
-  logger.info(
-    `Metrics:       ${config.metrics.enabled ? `http://localhost:${config.metrics.port}/metrics` : 'Disabled'}`
-  )
+  if (config.metrics.enabled) {
+    logger.info('Metrics:       Available on /metrics endpoint')
+  } else {
+    logger.info('Metrics:       Disabled')
+  }
   logger.info(
     `Compression:   ${config.compression.enabled ? 'Enabled' : 'Disabled'}`
   )
@@ -167,7 +158,7 @@ const server = app.listen(port, async () => {
     `Cache:         ${config.cache.enabled ? 'Enabled' : 'Disabled'}`
   )
   logger.info('🎮 Games:       Number Guessing (CLI & API)')
-  logger.info('⚠️  WARNING:     Using experimental pre-release packages')
+  logger.info('✅ Security:    All dependencies pinned to stable versions')
   logger.info('==============================================\n')
 
   // Initialize cache service
