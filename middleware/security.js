@@ -131,7 +131,8 @@ const corsOptions = {
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback(new Error('Not allowed by CORS'))
+      // Cleanly reject disallowed origins without triggering a 500 error
+      callback(null, false)
     }
   },
   credentials: true,
