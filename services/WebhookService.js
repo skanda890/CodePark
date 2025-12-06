@@ -295,11 +295,12 @@ class WebhookService extends EventEmitter {
   _generateSecret () {
     return crypto.randomBytes(32).toString('hex')
   }
+
   /**
    * SSRF defense for webhook URLs
    * Returns true if the hostname resolves to public IP and is not localhost, loopback, or private
    */
-  async _isAllowedWebhookUrl(parsedUrl) {
+  async _isAllowedWebhookUrl (parsedUrl) {
     const hostname = parsedUrl.hostname
     // Disallow any localhost-style names
     const forbiddenHostnames = new Set(['localhost', '127.0.0.1', '::1'])
@@ -330,7 +331,7 @@ class WebhookService extends EventEmitter {
     return true
   }
 
-  _isForbiddenAddress(ip) {
+  _isForbiddenAddress (ip) {
     // IPv4
     if (net.isIPv4(ip)) {
       // 127.0.0.0/8 loopback
@@ -353,7 +354,14 @@ class WebhookService extends EventEmitter {
       // fc00::/7 unique local address
       if (ip.startsWith('fc') || ip.startsWith('fd')) return true
       // fe80::/10 link-local
-      if (ip.startsWith('fe8') || ip.startsWith('fe9') || ip.startsWith('fea') || ip.startsWith('feb')) return true
+      if (
+        ip.startsWith('fe8') ||
+        ip.startsWith('fe9') ||
+        ip.startsWith('fea') ||
+        ip.startsWith('feb')
+      ) {
+        return true
+      }
     }
     return false
   }
