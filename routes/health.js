@@ -1,107 +1,308 @@
-/**
- * Health Check Routes
- * Kubernetes-compatible liveness and readiness probes
- */
-
 const express = require('express')
 const router = express.Router()
-const cacheService = require('../services/cache')
-const websocketService = require('../services/websocket')
-const config = require('../config')
+const os = require('os')
+const { version } = require('../package.json')
 
 /**
- * GET /health
- * General health check
+ * Health Check Routes
+ * Provides system status, dependency health, and metrics
+ */
+
+// Store application start time
+const startTime = Date.now()
+
+/**
+ * Basic Health Check
+ * @route GET /health
+ * @returns {object} Basic health status
  */
 router.get('/', (req, res) => {
-  const cacheStatus = cacheService.isAvailable()
-
-  const health = {
+  res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version: '2.0.0',
-    environment: config.nodeEnv,
-    features: {
-      websocket: config.websocket.enabled,
-      redis: config.redis.enabled,
-      metrics: config.metrics.enabled,
-      caching: config.cache.enabled,
-      compression: config.compression.enabled
-    },
-    cache: {
-      mode: cacheStatus.mode,
-      degraded: cacheStatus.degraded,
-      status: cacheService.getHealthStatus()
-    },
-    connections: {
-      websocket: config.websocket.enabled
-        ? websocketService.getConnectionCount()
-        : 0
-    }
-  }
-
-  res.json(health)
+    version
+  })
 })
 
 /**
- * GET /health/live
- * Liveness probe - is the app running?
+ * Detailed Health Check
+ * @route GET /health/detailed
+ * @returns {object} Comprehensive system status
  */
-router.get('/live', (req, res) => {
-  res.json({
-    status: 'ok',
+router.get('/detailed', async (req, res) => {
+  const healthChecks = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    application: {
+      name: 'CodePark',
+      version,
+      environment: process.env.NODE_ENV || 'development',
+      nodeVersion: process.version,
+      uptime: process.uptime(),
+      startTime: new Date(startTime).toISOString()
+    },
+    system: {
+      platform: os.platform(),
+      arch: os.arch(),
+      hostname: os.hostname(),
+      cpus: os.cpus().length,
+      totalMemory: formatBytes(os.totalmem()),
+      freeMemory: formatBytes(os.freemem()),
+      usedMemory: formatBytes(os.totalmem() - os.freemem()),
+      memoryUsage: {
+        heapUsed: formatBytes(process.memoryUsage().heapUsed),
+        heapTotal: formatBytes(process.memoryUsage().heapTotal),
+        external: formatBytes(process.memoryUsage().external),
+        rss: formatBytes(process.memoryUsage().rss)
+      },
+      loadAverage: os.loadavg()
+    },
+    dependencies: {}
+  }
+
+  // Check MongoDB connection
+  try {
+    if (global.mongoClient && global.mongoClient.topology) {
+      const isConnected = global.mongoClient.topology.isConnected()
+      healthChecks.dependencies.mongodb = {
+        status: isConnected ? 'healthy' : 'unhealthy',
+        message: isConnected ? 'Connected' : 'Disconnected'
+      }
+    } else {
+      healthChecks.dependencies.mongodb = {
+        status: 'unknown',
+        message: 'MongoDB client not initialized'
+      }
+    }
+  } catch (error) {
+    healthChecks.dependencies.mongodb = {
+      status: 'error',
+      message: error.message
+    }
+  }
+
+  // Check Redis connection
+  try {
+    if (global.redisClient) {
+      const pingResult = await global.redisClient.ping().catch(() => null)
+      healthChecks.dependencies.redis = {
+        status: pingResult === 'PONG' ? 'healthy' : 'unhealthy',
+        message: pingResult === 'PONG' ? 'Connected' : 'Disconnected'
+      }
+    } else {
+      healthChecks.dependencies.redis = {
+        status: 'unknown',
+        message: 'Redis client not initialized'
+      }
+    }
+  } catch (error) {
+    healthChecks.dependencies.redis = {
+      status: 'error',
+      message: error.message
+    }
+  }
+
+  // Check Kafka connection (if enabled)
+  try {
+    if (process.env.ENABLE_KAFKA === 'true' && global.kafkaProducer) {
+      healthChecks.dependencies.kafka = {
+        status: 'healthy',
+        message: 'Connected'
+      }
+    } else {
+      healthChecks.dependencies.kafka = {
+        status: 'disabled',
+        message: 'Kafka not enabled'
+      }
+    }
+  } catch (error) {
+    healthChecks.dependencies.kafka = {
+      status: 'error',
+      message: error.message
+    }
+  }
+
+  // Determine overall status
+  const hasUnhealthyDependency = Object.values(healthChecks.dependencies).some(
+    (dep) => dep.status === 'unhealthy' || dep.status === 'error'
+  )
+
+  if (hasUnhealthyDependency) {
+    healthChecks.status = 'degraded'
+  }
+
+  const statusCode = healthChecks.status === 'healthy' ? 200 : 503
+  res.status(statusCode).json(healthChecks)
+})
+
+/**
+ * Readiness Probe
+ * @route GET /health/ready
+ * @returns {object} Readiness status for Kubernetes
+ */
+router.get('/ready', async (req, res) => {
+  const checks = {
+    mongodb: false,
+    redis: false
+  }
+
+  // Check critical dependencies
+  try {
+    if (global.mongoClient && global.mongoClient.topology) {
+      checks.mongodb = global.mongoClient.topology.isConnected()
+    }
+  } catch (error) {
+    checks.mongodb = false
+  }
+
+  try {
+    if (global.redisClient) {
+      const pingResult = await global.redisClient.ping().catch(() => null)
+      checks.redis = pingResult === 'PONG'
+    }
+  } catch (error) {
+    checks.redis = false
+  }
+
+  // App is ready if at least MongoDB is connected
+  const isReady = checks.mongodb
+
+  res.status(isReady ? 200 : 503).json({
+    ready: isReady,
+    checks,
     timestamp: new Date().toISOString()
   })
 })
 
 /**
- * GET /health/ready
- * Readiness probe - is the app ready to serve traffic?
+ * Liveness Probe
+ * @route GET /health/live
+ * @returns {object} Liveness status for Kubernetes
  */
-router.get('/ready', async (req, res) => {
-  const checks = {
-    server: 'ok',
-    cache: 'unknown',
-    websocket: 'unknown'
-  }
-
-  // Check cache service
-  try {
-    if (config.cache.enabled) {
-      const status = cacheService.getHealthStatus()
-      checks.cache = status
-    } else {
-      checks.cache = 'disabled'
-    }
-  } catch (error) {
-    checks.cache = 'error'
-  }
-
-  // Check WebSocket service
-  try {
-    if (config.websocket.enabled) {
-      checks.websocket = 'ok'
-    } else {
-      checks.websocket = 'disabled'
-    }
-  } catch (error) {
-    checks.websocket = 'error'
-  }
-
-  // Determine overall readiness
-  // Service is ready if all checks are ok, disabled, or degraded
-  // Service is not ready if any check has an error
-  const hasError = Object.values(checks).some((status) => status === 'error')
-  const hasDegradation = Object.values(checks).some(
-    (status) => status === 'degraded'
-  )
-
-  res.status(hasError ? 503 : 200).json({
-    status: hasError ? 'not ready' : hasDegradation ? 'degraded' : 'ready',
+router.get('/live', (req, res) => {
+  // Simple check - if we can respond, we're alive
+  res.status(200).json({
+    alive: true,
     timestamp: new Date().toISOString(),
-    checks
+    uptime: process.uptime()
   })
 })
+
+/**
+ * Startup Probe
+ * @route GET /health/startup
+ * @returns {object} Startup status for Kubernetes
+ */
+router.get('/startup', (req, res) => {
+  // Check if application has been running for at least 5 seconds
+  const isStarted = process.uptime() > 5
+
+  res.status(isStarted ? 200 : 503).json({
+    started: isStarted,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  })
+})
+
+/**
+ * Metrics Summary
+ * @route GET /health/metrics
+ * @returns {object} Application metrics
+ */
+router.get('/metrics', (req, res) => {
+  const metrics = {
+    timestamp: new Date().toISOString(),
+    process: {
+      uptime: process.uptime(),
+      pid: process.pid,
+      ppid: process.ppid,
+      platform: process.platform,
+      nodeVersion: process.version,
+      memory: {
+        heapUsed: process.memoryUsage().heapUsed,
+        heapTotal: process.memoryUsage().heapTotal,
+        external: process.memoryUsage().external,
+        rss: process.memoryUsage().rss,
+        arrayBuffers: process.memoryUsage().arrayBuffers
+      },
+      cpu: process.cpuUsage()
+    },
+    system: {
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem(),
+      loadAverage: os.loadavg(),
+      cpus: os.cpus().length,
+      uptime: os.uptime()
+    }
+  }
+
+  res.status(200).json(metrics)
+})
+
+/**
+ * Version Information
+ * @route GET /health/version
+ * @returns {object} Application version and build info
+ */
+router.get('/version', (req, res) => {
+  res.status(200).json({
+    application: 'CodePark',
+    version,
+    nodeVersion: process.version,
+    environment: process.env.NODE_ENV || 'development',
+    buildDate: process.env.BUILD_DATE || 'unknown',
+    gitCommit: process.env.GIT_COMMIT || 'unknown',
+    gitBranch: process.env.GIT_BRANCH || 'unknown'
+  })
+})
+
+/**
+ * Security Status
+ * @route GET /health/security
+ * @returns {object} Security configuration status
+ */
+router.get('/security', (req, res) => {
+  const securityStatus = {
+    helmet: process.env.ENABLE_HELMET === 'true',
+    rateLimiting: process.env.ENABLE_RATE_LIMITING === 'true',
+    cors: process.env.ENABLE_CORS === 'true',
+    csrfProtection: process.env.ENABLE_CSRF_PROTECTION === 'true',
+    hppProtection: process.env.ENABLE_HPP_PROTECTION === 'true',
+    inputSanitization: process.env.ENABLE_INPUT_SANITIZATION === 'true',
+    twoFactorAuth: process.env.ENABLE_2FA === 'true',
+    sessionSecure: process.env.SESSION_SECURE === 'true',
+    strictSSL: process.env.REDIS_TLS === 'true'
+  }
+
+  const securityScore = Object.values(securityStatus).filter(Boolean).length
+  const totalChecks = Object.keys(securityStatus).length
+
+  res.status(200).json({
+    status: securityScore === totalChecks ? 'optimal' : 'needs-improvement',
+    score: `${securityScore}/${totalChecks}`,
+    features: securityStatus,
+    recommendations:
+      securityScore < totalChecks
+        ? [
+            'Enable all security features in production',
+            'Set SESSION_SECURE=true when using HTTPS',
+            'Enable CSRF protection for state-changing operations',
+            'Consider enabling 2FA for enhanced security'
+          ]
+        : ['All security features are enabled']
+  })
+})
+
+/**
+ * Helper function to format bytes
+ */
+function formatBytes (bytes) {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
 
 module.exports = router
