@@ -10,15 +10,15 @@
  */
 const sanitizeString = (value) => {
   // Remove HTML tags by repeatedly applying the regex until no change occurs
-  let prev;
-  let result = value;
+  let prev
+  let result = value
   do {
-    prev = result;
-    result = result.replace(/<[^>]*>/g, '');
-  } while (result !== prev);
+    prev = result
+    result = result.replace(/<[^>]*>/g, '')
+  } while (result !== prev)
   // Remove potentially dangerous SQL characters
-  return result.replace(/(['"`; ])/g, '');
-};
+  return result.replace(/(['"`; ])/g, '')
+}
 
 /**
  * Recursively sanitize an object
