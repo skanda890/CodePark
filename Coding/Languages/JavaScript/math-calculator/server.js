@@ -319,14 +319,15 @@ function handleCalculation (expr) {
   const towerRegex = /(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/g
 
   try {
-    // Check cache first
-    const cached = getCachedResult(expr)
+    const expression = validateAndSanitizeExpression(expr)
+
+    // Check cache using the sanitized expression to avoid Buffer.from on non-strings
+    const cached = getCachedResult(expression)
     if (cached) {
-      logger.debug('Cache hit for expression', { expr: expr.substring(0, 50) })
+      logger.debug('Cache hit for expression', { expr: expression.substring(0, 50) })
       return cached
     }
 
-    const expression = validateAndSanitizeExpression(expr)
     const question = `What is the result of: ${expression}?`
     let solution, explanation
 
