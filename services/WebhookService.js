@@ -6,6 +6,8 @@
 const axios = require('axios')
 const crypto = require('crypto')
 const EventEmitter = require('events')
+const dns = require('dns').promises
+const net = require('net')
 
 class WebhookService extends EventEmitter {
   constructor (options = {}) {
@@ -27,7 +29,7 @@ class WebhookService extends EventEmitter {
    * @param {Object} webhookData - Webhook configuration
    * @returns {Object} Created webhook
    */
-  create (webhookData) {
+  async create (webhookData) {
     const webhook = {
       id: this._generateId(),
       url: webhookData.url,
@@ -42,7 +44,8 @@ class WebhookService extends EventEmitter {
       lastDeliveryStatus: null
     }
 
-    if (!this._validateWebhook(webhook)) {
+    // Await async validation
+    if (!(await this._validateWebhook(webhook))) {
       throw new Error('Invalid webhook configuration')
     }
 
@@ -86,7 +89,7 @@ class WebhookService extends EventEmitter {
    * @param {Object} updates - Fields to update
    * @returns {Object} Updated webhook
    */
-  update (id, updates) {
+  async update (id, updates) {
     const webhook = this.webhooks.get(id)
 
     if (!webhook) {
@@ -101,7 +104,8 @@ class WebhookService extends EventEmitter {
       updatedAt: new Date().toISOString()
     }
 
-    if (!this._validateWebhook(updatedWebhook)) {
+    // Await async validation
+    if (!(await this._validateWebhook(updatedWebhook))) {
       throw new Error('Invalid webhook configuration')
     }
 
@@ -248,14 +252,26 @@ class WebhookService extends EventEmitter {
   /**
    * Private: Validate webhook configuration
    */
-  _validateWebhook (webhook) {
+  async _validateWebhook (webhook) {
     if (!webhook.url || typeof webhook.url !== 'string') {
       return false
     }
 
+    let parsed
     try {
-      new URL(webhook.url)
+      parsed = new URL(webhook.url)
     } catch {
+      return false
+    }
+
+    // Protocol restriction
+    if (!['https:', 'http:'].includes(parsed.protocol)) {
+      return false
+    }
+
+    // SSRF defense: disallow localhost, loopback, and private networks
+    const allowedProtocols = ['https:', 'http:']
+    if (!(await this._isAllowedWebhookUrl(parsed))) {
       return false
     }
 
@@ -278,6 +294,68 @@ class WebhookService extends EventEmitter {
    */
   _generateSecret () {
     return crypto.randomBytes(32).toString('hex')
+  }
+  /**
+   * SSRF defense for webhook URLs
+   * Returns true if the hostname resolves to public IP and is not localhost, loopback, or private
+   */
+  async _isAllowedWebhookUrl(parsedUrl) {
+    const hostname = parsedUrl.hostname
+    // Disallow any localhost-style names
+    const forbiddenHostnames = new Set(['localhost', '127.0.0.1', '::1'])
+    if (forbiddenHostnames.has(hostname)) {
+      return false
+    }
+
+    // If it's already an IP, check address type
+    if (net.isIP(hostname)) {
+      if (this._isForbiddenAddress(hostname)) {
+        return false
+      }
+      return true
+    }
+
+    // Otherwise, resolve all addresses for the hostname and check them
+    try {
+      const addresses = await dns.lookup(hostname, { all: true })
+      for (const addr of addresses) {
+        if (this._isForbiddenAddress(addr.address)) {
+          return false
+        }
+      }
+    } catch (e) {
+      // DNS errors mean we treat as invalid
+      return false
+    }
+    return true
+  }
+
+  _isForbiddenAddress(ip) {
+    // IPv4
+    if (net.isIPv4(ip)) {
+      // 127.0.0.0/8 loopback
+      if (ip.startsWith('127.')) return true
+      // 10.0.0.0/8 private
+      if (ip.startsWith('10.')) return true
+      // 172.16.0.0 - 172.31.255.255 private
+      const first = Number(ip.split('.')[0])
+      const second = Number(ip.split('.')[1])
+      if (first === 172 && second >= 16 && second <= 31) return true
+      // 192.168.0.0/16 private
+      if (ip.startsWith('192.168.')) return true
+      // 169.254.0.0/16 link-local
+      if (ip.startsWith('169.254.')) return true
+    }
+    // IPv6
+    if (net.isIPv6(ip)) {
+      // ::1/128 loopback
+      if (ip === '::1') return true
+      // fc00::/7 unique local address
+      if (ip.startsWith('fc') || ip.startsWith('fd')) return true
+      // fe80::/10 link-local
+      if (ip.startsWith('fe8') || ip.startsWith('fe9') || ip.startsWith('fea') || ip.startsWith('feb')) return true
+    }
+    return false
   }
 
   /**

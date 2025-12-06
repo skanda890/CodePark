@@ -15,7 +15,7 @@ const webhookService = new WebhookService()
  */
 router.post('/', async (req, res) => {
   try {
-    const webhook = webhookService.create(req.body)
+    const webhook = await webhookService.create(req.body)
     res.status(201).json({
       success: true,
       data: webhook
@@ -91,7 +91,7 @@ router.get('/:id', (req, res) => {
  */
 router.put('/:id', async (req, res) => {
   try {
-    const webhook = webhookService.update(req.params.id, req.body)
+    const webhook = await webhookService.update(req.params.id, req.body)
     res.json({
       success: true,
       data: webhook
