@@ -56,7 +56,7 @@ node index.js --game
 
 ```http
 GET /api/v1/game/start
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 ```
 
 Response:
@@ -78,7 +78,7 @@ Response:
 
 ```http
 POST /api/v1/game/check
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 Content-Type: application/json
 
 {
@@ -117,7 +117,7 @@ Responses:
 
 ```http
 GET /api/v1/game/stats
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 ```
 
 Response:
@@ -147,7 +147,7 @@ Response:
 
 ```http
 DELETE /api/v1/game/:gameId
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
 ```
 
 Response:
@@ -158,6 +158,8 @@ Response:
   "gameId": "1733425200000-123456789"
 }
 ```
+
+**⚠️ Security Note**: Never commit actual JWT tokens to version control. Always use placeholders like `YOUR_JWT_TOKEN_HERE` in documentation.
 
 ## ⚙️ Configuration
 
@@ -344,12 +346,13 @@ myNewGame: {
 node index.js --game
 
 # Test API endpoints (requires authentication)
+# Note: Replace YOUR_JWT_TOKEN_HERE with actual token from /api/v1/auth/login
 curl -X GET http://localhost:3000/api/v1/game/start \
-  -H "Authorization: Bearer <your-token>"
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
 
 # Check guess
 curl -X POST http://localhost:3000/api/v1/game/check \
-  -H "Authorization: Bearer <your-token>" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{"gameId": "123", "guess": 50}'
 ```
