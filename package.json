@@ -1,38 +1,53 @@
 {
   "name": "codepark",
-  "version": "1.0.0",
-  "description": "Comprehensive development toolkit and utilities platform",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "version": "2.0.0",
+  "description": "Code playground with enhanced features",
+  "main": "index.js",
   "scripts": {
-    "bootstrap": "npm install --workspaces",
-    "build": "npm run build --workspaces",
-    "test": "npm test --workspaces",
-    "test:coverage": "npm run test:coverage --workspaces",
-    "lint": "npm run lint --workspaces",
-    "start:all": "npm run start --workspaces",
-    "start:games": "cd packages/games-multiplayer && npm start",
-    "start:bios": "cd packages/bios-info && dotnet run",
-    "start:security": "cd packages/update-dependencies && npm start",
-    "start:backup": "cd packages/backup-manager && npm start",
-    "start:compiler": "cd packages/code-compiler && npm start"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "express": "latest",
+    "mongoose": "latest",
+    "redis": "latest",
+    "axios": "latest",
+    "speakeasy": "latest",
+    "qrcode": "latest",
+    "socket.io": "latest",
+    "dotenv": "latest",
+    "cors": "latest",
+    "helmet": "latest"
+  },
+  "devDependencies": {
+    "jest": "latest",
+    "supertest": "latest",
+    "nodemon": "latest",
+    "eslint": "latest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   },
   "keywords": [
-    "codepark",
-    "toolkit",
-    "utilities",
-    "games",
-    "bios",
-    "security",
-    "backup",
-    "compiler"
+    "code",
+    "playground",
+    "monitoring",
+    "webhooks",
+    "mfa"
   ],
-  "author": "CodePark Contributors",
-  "license": "MIT",
-  "devDependencies": {
-    "eslint": "^8.33.0",
-    "jest": "^29.3.1"
-  }
+  "author": "skanda890",
+  "license": "MIT"
 }
