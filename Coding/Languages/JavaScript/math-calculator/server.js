@@ -55,7 +55,7 @@ const logger = {
 const calculationCache = new Map()
 
 function cacheKey (expr) {
-  return Buffer.from(expr).toString('base64')
+  return Buffer.from(String(expr)).toString('base64')
 }
 
 function getCachedResult (expr) {
