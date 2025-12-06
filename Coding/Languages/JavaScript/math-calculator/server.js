@@ -44,9 +44,21 @@ const logger = {
   error: (msg, data = {}) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${msg}`, data)
   },
-  debug: (msg, data = {}) => {
+  debug: (...args) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[DEBUG] ${new Date().toISOString()} - ${msg}`, data)
+      // Insert timestamp into the format string, preserving the placeholders for user data.
+      if (args.length > 0) {
+        const ts = `[DEBUG] ${new Date().toISOString()} -`
+        if (typeof args[0] === 'string') {
+          // Combine timestamp with the original format string
+          args[0] = `${ts} ${args[0]}`
+        } else {
+          args.unshift(ts)
+        }
+        console.log.apply(console, args)
+      } else {
+        console.log(`[DEBUG] ${new Date().toISOString()}`)
+      }
     }
   }
 }
@@ -80,12 +92,12 @@ app.use((req, res, next) => {
   req.startTime = Date.now()
   req.id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-  logger.debug(`[REQ] ${req.method} ${req.path}`, { id: req.id })
+  logger.debug("[REQ] %s %s", req.method, req.path, { id: req.id })
 
   // Log response time
   res.on('finish', () => {
     const duration = Date.now() - req.startTime
-    logger.debug(`[RES] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`, {
+    logger.debug("[RES] %s %s - %s (%sms)", req.method, req.path, res.statusCode, duration, {
       id: req.id,
       duration
     })
