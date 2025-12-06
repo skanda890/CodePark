@@ -94,7 +94,6 @@ class DatabaseConfig {
       return { connected: false }
     }
 
-    const db = mongoose.connection.db
     const stats = mongoose.connection.readyState
 
     return {
