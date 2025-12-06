@@ -324,7 +324,9 @@ function handleCalculation (expr) {
     // Check cache using the sanitized expression to avoid Buffer.from on non-strings
     const cached = getCachedResult(expression)
     if (cached) {
-      logger.debug('Cache hit for expression', { expr: expression.substring(0, 50) })
+      logger.debug('Cache hit for expression', {
+        expr: expression.substring(0, 50)
+      })
       return cached
     }
 
