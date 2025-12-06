@@ -148,8 +148,7 @@ function evaluateTowerExponentiation (base, exponentExpr) {
         isSpecial: true,
         representation: `${base}^googolplex`,
         description: `This is ${base} raised to the power of googolplex (10^10^100), an incomprehensibly large number that cannot be computed or stored.`,
-        approximation:
-          'Infinity (Computational representation impossible)'
+        approximation: 'Infinity (Computational representation impossible)'
       }
     }
 
@@ -185,9 +184,7 @@ function evaluateTowerExponentiation (base, exponentExpr) {
         description: `This power tower evaluates to a number with more than 10^${logResult.toFixed(
           0
         )} digits.`,
-        approximation: `~10^${exponent
-          .times(Decimal.log10(base))
-          .toFixed(2)}`
+        approximation: `~10^${exponent.times(Decimal.log10(base)).toFixed(2)}`
       }
     }
 
@@ -198,9 +195,7 @@ function evaluateTowerExponentiation (base, exponentExpr) {
       result
     }
   } catch (error) {
-    throw new Error(
-      `Error evaluating tower exponentiation: ${error.message}`
-    )
+    throw new Error(`Error evaluating tower exponentiation: ${error.message}`)
   }
 }
 
@@ -257,7 +252,7 @@ function handleCalculation (expr) {
 
     // Handle shorthand notation with Decimal.js
     // Use arrow function in replace to avoid parameter reassignment
-    let processedExpr = expression.replace(
+    const processedExpr = expression.replace(
       shorthandRegex,
       (match, number, _, term) => {
         const base = new Decimal(number)
@@ -315,10 +310,7 @@ function handleCalculation (expr) {
 
     // Handle Vieta's formula
     if (vietaRegex.test(processedExpr)) {
-      const iterations = parseInt(
-        processedExpr.match(vietaRegex)[1],
-        10
-      )
+      const iterations = parseInt(processedExpr.match(vietaRegex)[1], 10)
 
       if (iterations > 1000) {
         throw new Error(
@@ -331,14 +323,10 @@ function handleCalculation (expr) {
 
       for (let i = 1; i <= iterations; i++) {
         product = product.times(term)
-        term = new Decimal(0.5)
-          .plus(new Decimal(0.5).times(term))
-          .sqrt()
+        term = new Decimal(0.5).plus(new Decimal(0.5).times(term)).sqrt()
       }
 
-      solution = new Decimal(2)
-        .div(product)
-        .toFixed(Math.min(50, iterations))
+      solution = new Decimal(2).div(product).toFixed(Math.min(50, iterations))
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`
     }
     // Handle square root
@@ -451,9 +439,7 @@ const server = app.listen(port, () => {
 
 // Graceful shutdown for SIGTERM and SIGINT (Ctrl+C)
 const gracefulShutdown = () => {
-  console.log(
-    'Shutdown signal received, closing HTTP server gracefully...'
-  )
+  console.log('Shutdown signal received, closing HTTP server gracefully...')
   server.close(() => {
     console.log('HTTP server closed')
     process.exit(0)
