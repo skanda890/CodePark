@@ -412,7 +412,7 @@ function calculateCore (expression) {
   if (hasAssignment) {
     const parts = processedExpr.split('=')
     const lastPart = parts.pop().trim()
-    let intermediateExpression = lastPart
+    let intermediateExpression
 
     if (sqrtRegex.test(lastPart)) {
       const match = lastPart.match(sqrtRegex)
