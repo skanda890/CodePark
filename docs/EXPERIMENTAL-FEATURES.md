@@ -23,12 +23,13 @@ CodePark currently requires Node.js 22.0.0+ and leverages these experimental fea
 
 ```javascript
 // Enable WASM modules for high-performance crypto and AI
-import wasmModule from './crypto.wasm';
+import wasmModule from "./crypto.wasm";
 
 const result = wasmModule.encrypt(data);
 ```
 
 **Use Cases**:
+
 - Cryptographic operations (Argon2, encryption)
 - TensorFlow.js computations
 - Image processing
@@ -40,7 +41,7 @@ const result = wasmModule.encrypt(data);
 
 ```javascript
 // Import modules directly from URLs
-import { helper } from 'https://cdn.example.com/utils.mjs';
+import { helper } from "https://cdn.example.com/utils.mjs";
 ```
 
 **Security Note**: Only use trusted sources. Network imports bypass local security checks.
@@ -55,6 +56,7 @@ node --test --experimental-test-coverage tests/**/*.test.js
 ```
 
 **Benefits**:
+
 - No need for external coverage tools
 - Built-in V8 coverage
 - Zero dependencies
@@ -69,8 +71,8 @@ CodePark is prepared for Node.js 23 with these new features:
 
 ```javascript
 // No more --experimental-require-module flag!
-const { greet } = require('./utils.mjs');
-console.log(greet('World'));
+const { greet } = require("./utils.mjs");
+console.log(greet("World"));
 ```
 
 **Migration**: Remove `--experimental-require-module` flag when upgrading.
@@ -89,13 +91,14 @@ node --experimental-strip-types app.ts
 
 ```javascript
 // localStorage and sessionStorage in Node.js!
-localStorage.setItem('theme', 'dark');
-const theme = localStorage.getItem('theme');
+localStorage.setItem("theme", "dark");
+const theme = localStorage.getItem("theme");
 
-sessionStorage.setItem('token', 'abc123');
+sessionStorage.setItem("token", "abc123");
 ```
 
 **Use Cases**:
+
 - Server-side session simulation
 - Testing browser-like storage
 - Edge computing environments
@@ -142,65 +145,65 @@ CodePark uses `next` and `latest` tags for all dependencies to stay on the cutti
 
 #### Core Framework (Next Tag)
 
-| Package | Current Stable | Next Version | Breaking Changes |
-|---------|----------------|--------------|------------------|
-| express | 4.x | 5.x | Middleware API changes |
-| socket.io | 4.x | 5.x | Transport updates |
-| graphql | 16.x | 17.x | Schema changes |
+| Package   | Current Stable | Next Version | Breaking Changes       |
+| --------- | -------------- | ------------ | ---------------------- |
+| express   | 4.x            | 5.x          | Middleware API changes |
+| socket.io | 4.x            | 5.x          | Transport updates      |
+| graphql   | 16.x           | 17.x         | Schema changes         |
 
 #### AI/ML (Next Tag)
 
-| Package | Features | Experimental Flags |
-|---------|----------|--------------------|
-| @tensorflow/tfjs-node | WebAssembly backend | `--experimental-wasm-modules` |
-| @tensorflow/tfjs-node-gpu | CUDA support | Requires GPU |
-| natural | NLP pipelines | None |
-| compromise | Text understanding | None |
-| sentiment | Sentiment analysis | None |
+| Package                   | Features            | Experimental Flags            |
+| ------------------------- | ------------------- | ----------------------------- |
+| @tensorflow/tfjs-node     | WebAssembly backend | `--experimental-wasm-modules` |
+| @tensorflow/tfjs-node-gpu | CUDA support        | Requires GPU                  |
+| natural                   | NLP pipelines       | None                          |
+| compromise                | Text understanding  | None                          |
+| sentiment                 | Sentiment analysis  | None                          |
 
 #### Real-Time & Collaboration (Next Tag)
 
-| Package | Protocol | Version |
-|---------|----------|----------|
-| socket.io | WebSocket, polling | next |
-| yjs | CRDT | next |
-| ws | WebSocket | next |
+| Package   | Protocol           | Version |
+| --------- | ------------------ | ------- |
+| socket.io | WebSocket, polling | next    |
+| yjs       | CRDT               | next    |
+| ws        | WebSocket          | next    |
 
 #### Data & Databases (Next Tag)
 
-| Package | Type | Features |
-|---------|------|----------|
-| prisma | ORM | Advanced relations |
-| mongodb | Driver | Connection pooling |
-| ioredis | Client | Cluster support |
-| apache-arrow | Columnar | Zero-copy reads |
+| Package      | Type     | Features           |
+| ------------ | -------- | ------------------ |
+| prisma       | ORM      | Advanced relations |
+| mongodb      | Driver   | Connection pooling |
+| ioredis      | Client   | Cluster support    |
+| apache-arrow | Columnar | Zero-copy reads    |
 
 #### Observability (Next Tag)
 
-| Package | Purpose | Integration |
-|---------|---------|-------------|
-| @opentelemetry/sdk-node | Tracing | Auto-instrumentation |
-| @sentry/node | Error tracking | Real-time alerts |
-| prom-client | Metrics | Prometheus |
-| pino | Logging | High-performance |
+| Package                 | Purpose        | Integration          |
+| ----------------------- | -------------- | -------------------- |
+| @opentelemetry/sdk-node | Tracing        | Auto-instrumentation |
+| @sentry/node            | Error tracking | Real-time alerts     |
+| prom-client             | Metrics        | Prometheus           |
+| pino                    | Logging        | High-performance     |
 
 #### Security (Next Tag)
 
-| Package | Protection | Algorithm |
-|---------|------------|------------|
-| argon2 | Password hashing | Memory-hard |
-| helmet | Security headers | CSP, HSTS |
-| jsonwebtoken | Authentication | HS256, RS256 |
-| otplib | 2FA | TOTP |
-| speakeasy | 2FA | HOTP, TOTP |
+| Package      | Protection       | Algorithm    |
+| ------------ | ---------------- | ------------ |
+| argon2       | Password hashing | Memory-hard  |
+| helmet       | Security headers | CSP, HSTS    |
+| jsonwebtoken | Authentication   | HS256, RS256 |
+| otplib       | 2FA              | TOTP         |
+| speakeasy    | 2FA              | HOTP, TOTP   |
 
 #### Performance (Latest Tag)
 
-| Package | Purpose | Optimization |
-|---------|---------|-------------|
-| zstd-codec | Compression | Level 19 max |
-| sudoku-gen | Game generation | Latest algorithms |
-| compression | HTTP compression | Brotli, gzip |
+| Package     | Purpose          | Optimization      |
+| ----------- | ---------------- | ----------------- |
+| zstd-codec  | Compression      | Level 19 max      |
+| sudoku-gen  | Game generation  | Latest algorithms |
+| compression | HTTP compression | Brotli, gzip      |
 
 ---
 
@@ -255,6 +258,7 @@ node \
 **Issue**: `next` packages may introduce breaking changes without warning.
 
 **Mitigation**:
+
 ```bash
 # Lock versions after testing
 npm shrinkwrap
@@ -268,12 +272,13 @@ git add package-lock.json
 **Issue**: WASM modules may fail to load on some platforms.
 
 **Workaround**:
+
 ```javascript
 try {
-  const wasmModule = await import('./module.wasm');
+  const wasmModule = await import("./module.wasm");
 } catch (error) {
-  console.warn('WASM not supported, falling back to JS');
-  const jsModule = await import('./module.js');
+  console.warn("WASM not supported, falling back to JS");
+  const jsModule = await import("./module.js");
 }
 ```
 
@@ -282,11 +287,10 @@ try {
 **Issue**: Network imports bypass local security checks.
 
 **Best Practice**:
+
 ```javascript
 // Use integrity checks
-import { helper } from 'https://cdn.example.com/utils.mjs' assert {
-  integrity: 'sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC'
-};
+import { helper } from "https://cdn.example.com/utils.mjs" assert { integrity: "sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC" };
 ```
 
 ### 4. Experimental API Changes
@@ -300,6 +304,7 @@ import { helper } from 'https://cdn.example.com/utils.mjs' assert {
 **Issue**: Some experimental features add runtime overhead.
 
 **Benchmark Before Deploying**:
+
 ```bash
 npm run benchmark
 ```
@@ -327,20 +332,22 @@ npm test
 #### Step 2: Update Flags
 
 **Remove**:
+
 ```json
 {
   "scripts": {
-    "dev": "node --experimental-require-module index.js"  // ❌ Remove
+    "dev": "node --experimental-require-module index.js" // ❌ Remove
   }
 }
 ```
 
 **Add**:
+
 ```json
 {
   "scripts": {
-    "dev:ts": "node --experimental-strip-types index.ts",  // ✅ New
-    "dev:storage": "node --experimental-webstorage index.js"  // ✅ New
+    "dev:ts": "node --experimental-strip-types index.ts", // ✅ New
+    "dev:storage": "node --experimental-webstorage index.js" // ✅ New
   }
 }
 ```
@@ -388,13 +395,13 @@ diff bench-v22.txt bench-v23.txt
 
 ### Benchmarks (Node.js 22 vs 23)
 
-| Operation | v22 | v23 | Improvement |
-|-----------|-----|-----|-------------|
-| HTTP req/sec | 50,000 | 55,000 | +10% |
-| JSON parsing | 1.2ms | 1.0ms | +16% |
-| WASM execution | 0.5ms | 0.4ms | +20% |
-| Memory usage | 150MB | 140MB | -7% |
-| Startup time | 1.5s | 1.2s | -20% |
+| Operation      | v22    | v23    | Improvement |
+| -------------- | ------ | ------ | ----------- |
+| HTTP req/sec   | 50,000 | 55,000 | +10%        |
+| JSON parsing   | 1.2ms  | 1.0ms  | +16%        |
+| WASM execution | 0.5ms  | 0.4ms  | +20%        |
+| Memory usage   | 150MB  | 140MB  | -7%         |
+| Startup time   | 1.5s   | 1.2s   | -20%        |
 
 ### Optimization Tips
 
@@ -407,8 +414,8 @@ function hashPassword(password) {
 }
 
 // Fast: WASM (Argon2)
-const argon2 = require('argon2');
-await argon2.hash(password);  // ~10ms
+const argon2 = require("argon2");
+await argon2.hash(password); // ~10ms
 ```
 
 #### 2. Leverage V8 Optimizations
@@ -418,8 +425,8 @@ await argon2.hash(password);  // ~10ms
 const data = fetchData();
 
 // Use native methods
-array.map()  // ✅ Fast
-for (let i = 0; i < array.length; i++) {}  // ❌ Slower
+array.map(); // ✅ Fast
+for (let i = 0; i < array.length; i++) {} // ❌ Slower
 ```
 
 #### 3. Enable Production Flags
@@ -438,38 +445,41 @@ NODE_ENV=production node \
 
 ### Experimental Features
 
-| Level | Stability | Production Ready |
-|-------|-----------|------------------|
-| 🔴 Unstable | 0 | No - API may change |
-| 🟡 Experimental | 1 | Caution - Test thoroughly |
-| 🟢 Stable | 2 | Yes - Safe for production |
-| ✅ Locked | 3 | Yes - No breaking changes |
+| Level           | Stability | Production Ready          |
+| --------------- | --------- | ------------------------- |
+| 🔴 Unstable     | 0         | No - API may change       |
+| 🟡 Experimental | 1         | Caution - Test thoroughly |
+| 🟢 Stable       | 2         | Yes - Safe for production |
+| ✅ Locked       | 3         | Yes - No breaking changes |
 
 ### Current Feature Status
 
-| Feature | Stability | Notes |
-|---------|-----------|-------|
-| WASM modules | 🟡 Experimental | Stable API, test on target platforms |
-| Network imports | 🟡 Experimental | Security concerns, use with caution |
-| Test coverage | 🟡 Experimental | Works well, some edge cases |
-| ES module require | 🟢 Stable (v23) | Production ready in Node.js 23 |
-| TypeScript execution | 🔴 Unstable | No type checking, experimental |
-| Web Storage API | 🔴 Unstable | Early stage, API may change |
+| Feature              | Stability       | Notes                                |
+| -------------------- | --------------- | ------------------------------------ |
+| WASM modules         | 🟡 Experimental | Stable API, test on target platforms |
+| Network imports      | 🟡 Experimental | Security concerns, use with caution  |
+| Test coverage        | 🟡 Experimental | Works well, some edge cases          |
+| ES module require    | 🟢 Stable (v23) | Production ready in Node.js 23       |
+| TypeScript execution | 🔴 Unstable     | No type checking, experimental       |
+| Web Storage API      | 🔴 Unstable     | Early stage, API may change          |
 
 ---
 
 ## Resources
 
 ### Official Documentation
+
 - [Node.js Experimental Features](https://nodejs.org/api/documentation.html#stability-index)
 - [Node.js 23 Release Notes](https://nodejs.org/en/blog/release/v23.0.0)
 - [npm dist-tags](https://docs.npmjs.com/cli/dist-tag)
 
 ### Community
+
 - [Node.js GitHub Discussions](https://github.com/nodejs/node/discussions)
 - [OpenJS Foundation](https://openjsf.org/)
 
 ### Monitoring
+
 - [npm Security Advisories](https://www.npmjs.com/advisories)
 - [Snyk Vulnerability Database](https://snyk.io/vuln/)
 - [Node.js Security Releases](https://nodejs.org/en/blog/vulnerability/)
@@ -478,4 +488,4 @@ NODE_ENV=production node \
 
 **🚀 Stay on the bleeding edge, but test before you deploy!**
 
-*Last updated: December 2025*
+_Last updated: December 2025_
