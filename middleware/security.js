@@ -109,10 +109,7 @@ const createRateLimiter = (options = {}) => {
     legacyHeaders: false,
     skip: (req) => req.path === '/health',
     handler: (req, res) => {
-      logger.warn(
-        { ip: req.ip, path: req.path },
-        'Rate limit exceeded'
-      )
+      logger.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded')
       res.status(429).json({
         error: 'Too many requests',
         message: 'Please try again later'
@@ -163,7 +160,10 @@ const rateLimiters = {
  */
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001')
+    const allowedOrigins = (
+      process.env.ALLOWED_ORIGINS ||
+      'http://localhost:3000,http://localhost:3001'
+    )
       .split(',')
       .map((o) => o.trim())
       .filter((o) => o.length > 0)
@@ -407,6 +407,6 @@ module.exports = {
   hppProtection,
   sanitizeInput,
   redis,
-  shouldEscapeField,  // Export for testing
-  sanitizeNode        // Export for testing
+  shouldEscapeField, // Export for testing
+  sanitizeNode // Export for testing
 }

@@ -21,12 +21,20 @@ function decideCors ({ origin, isProd, allowedOrigins }) {
 
   if (isProd) {
     if (!origin) {
-      return { allowOrigin: null, allowCredentials: false, reason: 'no-origin-prod' }
+      return {
+        allowOrigin: null,
+        allowCredentials: false,
+        reason: 'no-origin-prod'
+      }
     }
     if (whitelisted) {
       return { allowOrigin: origin, allowCredentials: true, reason: 'allowed' }
     }
-    return { allowOrigin: null, allowCredentials: false, reason: 'unauthorized' }
+    return {
+      allowOrigin: null,
+      allowCredentials: false,
+      reason: 'unauthorized'
+    }
   }
 
   // Development / non-prod
@@ -48,7 +56,9 @@ function decideCors ({ origin, isProd, allowedOrigins }) {
  * @param {string} allowedOrigins - Comma-separated allowed origins (env var or config)
  * @returns {Function} Express middleware
  */
-module.exports = function createCorsMiddleware (allowedOrigins = 'http://localhost:3000') {
+module.exports = function createCorsMiddleware (
+  allowedOrigins = 'http://localhost:3000'
+) {
   let allowedOriginsList = allowedOrigins
     .split(',')
     .map((o) => o.trim())
@@ -80,10 +90,16 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
       // Only log warnings in production for non-allowed requests
       switch (decision.reason) {
         case 'no-origin-prod':
-          logger.info({ path: req.path }, 'CORS: Request without origin in production')
+          logger.info(
+            { path: req.path },
+            'CORS: Request without origin in production'
+          )
           break
         case 'unauthorized':
-          logger.warn({ origin, path: req.path }, 'CORS: Request from unauthorized origin')
+          logger.warn(
+            { origin, path: req.path },
+            'CORS: Request from unauthorized origin'
+          )
           break
       }
     } else if (!isProd) {
@@ -96,7 +112,10 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
           )
           break
         case 'unauthorized':
-          logger.warn({ origin, path: req.path }, 'CORS: Request from unauthorized origin')
+          logger.warn(
+            { origin, path: req.path },
+            'CORS: Request from unauthorized origin'
+          )
           break
         case 'allowed':
           logger.debug({ origin }, 'CORS: Request from allowed origin')
@@ -114,7 +133,10 @@ module.exports = function createCorsMiddleware (allowedOrigins = 'http://localho
     }
 
     // Fixed headers: always set, independent of origin decision
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+    )
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-Token'

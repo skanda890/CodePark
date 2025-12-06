@@ -14,7 +14,9 @@ module.exports = {
 
   // Security
   // FIXED: Changed to ALLOWED_ORIGINS (comma-separated) with sensible default
-  allowedOrigin: process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001',
+  allowedOrigin:
+    process.env.ALLOWED_ORIGINS ||
+    'http://localhost:3000,http://localhost:3001',
   jwtSecret: process.env.JWT_SECRET || 'change-this-in-production',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '', // Optional separate refresh secret
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
