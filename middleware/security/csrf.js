@@ -9,7 +9,7 @@
  * @returns {string|undefined} CSRF token
  */
 const getCsrfTokenFromRequest = (req) =>
-  req.headers['x-csrf-token'] || req.body?._csrf;
+  req.headers['x-csrf-token'] || req.body?._csrf
 
 /**
  * CSRF Protection Middleware
@@ -18,20 +18,20 @@ const getCsrfTokenFromRequest = (req) =>
 const csrfProtection = (req, res, next) => {
   // Skip CSRF for safe methods
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
+    return next()
   }
 
-  const token = getCsrfTokenFromRequest(req);
-  const sessionToken = req.session?.csrfToken;
+  const token = getCsrfTokenFromRequest(req)
+  const sessionToken = req.session?.csrfToken
 
   if (!token || token !== sessionToken) {
     return res.status(403).json({
       error: 'Invalid CSRF token',
-      message: 'Request forbidden',
-    });
+      message: 'Request forbidden'
+    })
   }
 
-  next();
-};
+  next()
+}
 
-module.exports = csrfProtection;
+module.exports = csrfProtection

@@ -10,8 +10,8 @@
  */
 const sanitizeString = (value) =>
   value
-    .replace(/<[^>]*>/g, '')      // Remove HTML tags
-    .replace(/(['"`; ])/g, '');   // Remove SQL injection attempts
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/(['"`; ])/g, '') // Remove SQL injection attempts
 
 /**
  * Recursively sanitize an object
@@ -19,25 +19,25 @@ const sanitizeString = (value) =>
  */
 const sanitizeObject = (obj) => {
   for (const key in obj) {
-    const value = obj[key];
+    const value = obj[key]
     if (typeof value === 'string') {
-      obj[key] = sanitizeString(value);
+      obj[key] = sanitizeString(value)
     } else if (value && typeof value === 'object') {
-      sanitizeObject(value);
+      sanitizeObject(value)
     }
   }
-};
+}
 
 /**
  * Input Sanitization Middleware
  * Sanitizes request body, query, and params
  */
 const sanitizeInput = (req, res, next) => {
-  if (req.body) sanitizeObject(req.body);
-  if (req.query) sanitizeObject(req.query);
-  if (req.params) sanitizeObject(req.params);
+  if (req.body) sanitizeObject(req.body)
+  if (req.query) sanitizeObject(req.query)
+  if (req.params) sanitizeObject(req.params)
 
-  next();
-};
+  next()
+}
 
-module.exports = sanitizeInput;
+module.exports = sanitizeInput

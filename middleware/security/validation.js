@@ -1,4 +1,4 @@
-const { validationResult } = require('express-validator');
+const { validationResult } = require('express-validator')
 
 /**
  * Input Validation Module
@@ -13,18 +13,18 @@ const { validationResult } = require('express-validator');
 const validateInput = (validations) => {
   return async (req, res, next) => {
     // Run all validations
-    await Promise.all(validations.map((validation) => validation.run(req)));
+    await Promise.all(validations.map((validation) => validation.run(req)))
 
-    const errors = validationResult(req);
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: errors.array(),
-      });
+        details: errors.array()
+      })
     }
 
-    next();
-  };
-};
+    next()
+  }
+}
 
-module.exports = validateInput;
+module.exports = validateInput

@@ -1,6 +1,6 @@
-const rateLimit = require('express-rate-limit');
-const RedisStore = require('rate-limit-redis');
-const redis = require('../../infrastructure/redisClient');
+const rateLimit = require('express-rate-limit')
+const RedisStore = require('rate-limit-redis')
+const redis = require('../../infrastructure/redisClient')
 
 /**
  * Rate Limiting Module
@@ -21,15 +21,15 @@ const createRateLimiter = (options = {}) => {
     legacyHeaders: false,
     store: new RedisStore({
       client: redis,
-      prefix: 'rl:',
-    }),
-  };
+      prefix: 'rl:'
+    })
+  }
 
   // Merge options with defaults
-  const mergedOptions = { ...defaultOptions, ...options };
+  const mergedOptions = { ...defaultOptions, ...options }
 
   // Extract windowMs for use in handler (fixes NaN bug)
-  const effectiveWindowMs = mergedOptions.windowMs;
+  const effectiveWindowMs = mergedOptions.windowMs
 
   // Create handler with properly merged windowMs
   const handler = (req, res) => {
@@ -37,20 +37,20 @@ const createRateLimiter = (options = {}) => {
     // Otherwise fall back to calculated value from effectiveWindowMs
     const retryAfter = req.rateLimit?.resetTime
       ? Math.ceil((req.rateLimit.resetTime - Date.now()) / 1000)
-      : Math.ceil(effectiveWindowMs / 1000);
+      : Math.ceil(effectiveWindowMs / 1000)
 
     res.status(429).json({
       error: 'Too many requests',
       message: 'Please try again later',
-      retryAfter,
-    });
-  };
+      retryAfter
+    })
+  }
 
   // Add handler to merged options
-  mergedOptions.handler = handler;
+  mergedOptions.handler = handler
 
-  return rateLimit(mergedOptions);
-};
+  return rateLimit(mergedOptions)
+}
 
 /**
  * Pre-configured rate limiters for different endpoints
@@ -59,30 +59,30 @@ const rateLimiters = {
   // General API rate limiter
   api: createRateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,
+    max: 100
   }),
 
   // Stricter rate limiting for authentication endpoints
   auth: createRateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5,
-    skipSuccessfulRequests: true,
+    skipSuccessfulRequests: true
   }),
 
   // GraphQL endpoint rate limiting
   graphql: createRateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50,
+    max: 50
   }),
 
   // WebSocket connection rate limiting
   websocket: createRateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    max: 10,
-  }),
-};
+    max: 10
+  })
+}
 
 module.exports = {
   createRateLimiter,
-  rateLimiters,
-};
+  rateLimiters
+}

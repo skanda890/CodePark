@@ -1,4 +1,4 @@
-const helmet = require('helmet');
+const helmet = require('helmet')
 
 /**
  * Security Headers Module
@@ -21,8 +21,8 @@ const helmetConfig = helmet({
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
+      upgradeInsecureRequests: []
+    }
   },
   crossOriginEmbedderPolicy: true,
   crossOriginOpenerPolicy: { policy: 'same-origin' },
@@ -30,20 +30,20 @@ const helmetConfig = helmet({
   dnsPrefetchControl: { allow: false },
   expectCt: {
     maxAge: 86400,
-    enforce: true,
+    enforce: true
   },
   frameguard: { action: 'deny' },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true,
+    preload: true
   },
   ieNoOpen: true,
   noSniff: true,
   permittedCrossDomainPolicies: { permittedPolicies: 'none' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  xssFilter: true,
-});
+  xssFilter: true
+})
 
 /**
  * Custom Security Headers
@@ -54,20 +54,20 @@ const securityHeaders = (req, res, next) => {
   res.setHeader(
     'Permissions-Policy',
     'geolocation=(), microphone=(), camera=()'
-  );
+  )
 
   // Cache Control for sensitive pages
   res.setHeader(
     'Cache-Control',
     'no-store, no-cache, must-revalidate, proxy-revalidate'
-  );
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  )
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
 
-  next();
-};
+  next()
+}
 
 module.exports = {
   helmetConfig,
-  securityHeaders,
-};
+  securityHeaders
+}

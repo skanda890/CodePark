@@ -3,14 +3,14 @@
  * Provides a single import point for all security components
  */
 
-const { helmetConfig, securityHeaders } = require('./headers');
-const { rateLimiters, createRateLimiter } = require('./rateLimiting');
-const validateInput = require('./validation');
-const csrfProtection = require('./csrf');
-const hppProtection = require('./hpp');
-const sanitizeInput = require('./sanitize');
-const securityAuditLogger = require('./auditLogger');
-const { corsOptions, requestSizeLimits } = require('./cors');
+const { helmetConfig, securityHeaders } = require('./headers')
+const { rateLimiters, createRateLimiter } = require('./rateLimiting')
+const validateInput = require('./validation')
+const csrfProtection = require('./csrf')
+const hppProtection = require('./hpp')
+const sanitizeInput = require('./sanitize')
+const securityAuditLogger = require('./auditLogger')
+const { corsOptions, requestSizeLimits } = require('./cors')
 
 module.exports = {
   // Headers
@@ -34,5 +34,5 @@ module.exports = {
 
   // CORS & Request Limits
   corsOptions,
-  requestSizeLimits,
-};
+  requestSizeLimits
+}
