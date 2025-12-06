@@ -19,9 +19,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with security audit
+# Install production dependencies (lockfile-only) for reproducible builds
 RUN npm ci --only=production --ignore-scripts && \
-    npm audit fix --force || true && \
     npm cache clean --force
 
 # ================================
