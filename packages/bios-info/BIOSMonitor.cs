@@ -14,33 +14,15 @@ public class BIOSMonitor
     private ManagementEventWatcher _biosWatcher;
     private readonly string _logPath = "bios_audit_log.json";
     private readonly string _baselinePath = "bios_baseline.json";
+    private readonly object _changeLogLock = new object();
     private List<BIOSChangeLog> _changeLog;
-    
-    /// <summary>BIOS change audit log entry</summary>
-    public class BIOSChangeLog
-    {
-        [JsonPropertyName("timestamp")]
-        public DateTime Timestamp { get; set; }
-        
-        [JsonPropertyName("property")]
-        public string Property { get; set; }
-        
-        [JsonPropertyName("beforeValue")]
-        public string BeforeValue { get; set; }
-        
-        [JsonPropertyName("afterValue")]
-        public string AfterValue { get; set; }
-        
-        [JsonPropertyName("user")]
-        public string User { get; set; }
-        
-        [JsonPropertyName("severity")]
-        public string Severity { get; set; }
-    }
-    
+
     public BIOSMonitor()
     {
-        _changeLog = LoadChangeLog();
+        lock (_changeLogLock)
+        {
+            _changeLog = LoadChangeLog();
+        }
         Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] BIOS Monitor initialized");
     }
     
