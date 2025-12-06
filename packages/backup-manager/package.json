@@ -1,0 +1,23 @@
+{
+  "name": "backup-manager",
+  "version": "1.0.0",
+  "description": "Multi-cloud backup management with encryption and deduplication",
+  "main": "src/backup-manager.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "jest --coverage",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1400.0",
+    "googleapis": "^118.0.0",
+    "dropbox": "^11.0.0",
+    "dotenv": "^16.0.3",
+    "chalk": "^5.2.0",
+    "progress": "^2.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1",
+    "eslint": "^8.33.0"
+  }
+}

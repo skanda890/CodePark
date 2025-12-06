@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # Python 3.11
+  python:
+    image: python:3.11-slim
+    container_name: codepark-python
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: python -u script.py
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+  # Node.js 18
+  node:
+    image: node:18-alpine
+    container_name: codepark-node
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: node script.js
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+  # Go 1.20
+  go:
+    image: golang:1.20-alpine
+    container_name: codepark-go
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: go run main.go
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+  # Rust 1.70
+  rust:
+    image: rust:1.70-alpine
+    container_name: codepark-rust
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: cargo run
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+  # Java 17
+  java:
+    image: openjdk:17-jdk-slim
+    container_name: codepark-java
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: java -cp . Main
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+  # C# / .NET 7
+  dotnet:
+    image: mcr.microsoft.com/dotnet/sdk:7.0
+    container_name: codepark-dotnet
+    volumes:
+      - ./code:/workspace
+    working_dir: /workspace
+    command: dotnet run
+    networks:
+      - codepark
+    resources:
+      limits:
+        memory: 256m
+        cpus: '0.5'
+
+networks:
+  codepark:
+    driver: bridge
