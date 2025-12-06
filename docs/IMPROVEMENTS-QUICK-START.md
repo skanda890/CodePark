@@ -3,6 +3,7 @@
 ## Top 10 Immediate Improvements (Quick Wins)
 
 ### 1. GitHub Actions CI/CD (2-3 hours)
+
 ```yaml
 name: CI
 on: [push, pull_request]
@@ -12,25 +13,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-        with: { node-version: '22' }
+        with: { node-version: "22" }
       - run: npm ci
       - run: npm run lint:check
       - run: npm test -- --coverage
 ```
 
 ### 2. Implement RBAC (1-2 hours)
+
 ```javascript
 const PERMISSIONS = {
-  ADMIN: ['projects:*', 'users:*'],
-  COLLABORATOR: ['projects:read', 'projects:write'],
-  VIEWER: ['projects:read'],
+  ADMIN: ["projects:*", "users:*"],
+  COLLABORATOR: ["projects:read", "projects:write"],
+  VIEWER: ["projects:read"],
 };
 
 export function requirePermission(...perms) {
   return (req, res, next) => {
     const userPerms = PERMISSIONS[req.user.role];
-    if (!perms.some(p => userPerms.includes(p))) {
-      return res.status(403).json({ error: 'Forbidden' });
+    if (!perms.some((p) => userPerms.includes(p))) {
+      return res.status(403).json({ error: "Forbidden" });
     }
     next();
   };
@@ -38,15 +40,16 @@ export function requirePermission(...perms) {
 ```
 
 ### 3. Add Input Validation (2 hours)
+
 ```javascript
-import { z } from 'zod';
+import { z } from "zod";
 
 const ProjectSchema = z.object({
   name: z.string().min(3).max(255),
   description: z.string().max(1000).optional(),
 });
 
-app.post('/projects', async (req, res) => {
+app.post("/projects", async (req, res) => {
   try {
     const data = ProjectSchema.parse(req.body);
     // ...
@@ -57,6 +60,7 @@ app.post('/projects', async (req, res) => {
 ```
 
 ### 4. Setup Security Scanning (1 hour)
+
 ```json
 {
   "scripts": {
@@ -67,33 +71,39 @@ app.post('/projects', async (req, res) => {
 ```
 
 ### 5. Error Handling Middleware (1-2 hours)
+
 ```javascript
 export function errorHandler(err, req, res, next) {
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({ 
-      error: 'Validation failed',
-      details: err.errors 
+  if (err.name === "ValidationError") {
+    return res.status(400).json({
+      error: "Validation failed",
+      details: err.errors,
     });
   }
   res.status(err.status || 500).json({
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal Server Error'
-      : err.message
+    error:
+      process.env.NODE_ENV === "production"
+        ? "Internal Server Error"
+        : err.message,
   });
 }
 ```
 
 ### 6. Response Compression (30 minutes)
-```javascript
-import compression from 'compression';
 
-app.use(compression({
-  level: 6,
-  threshold: 1024,
-}));
+```javascript
+import compression from "compression";
+
+app.use(
+  compression({
+    level: 6,
+    threshold: 1024,
+  }),
+);
 ```
 
 ### 7. Docker Health Checks (1-2 hours)
+
 ```dockerfile
 FROM node:22-alpine
 WORKDIR /app
@@ -106,8 +116,9 @@ CMD ["node", "index.js"]
 ```
 
 ### 8. Redis Caching (2-3 hours)
+
 ```javascript
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 class CacheService {
   constructor() {
@@ -126,19 +137,21 @@ class CacheService {
 ```
 
 ### 9. Structured Logging (1 hour)
+
 ```javascript
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  transport: { target: 'pino-pretty' },
+  level: process.env.LOG_LEVEL || "info",
+  transport: { target: "pino-pretty" },
 });
 
-logger.info('Server started');
-logger.error('Error occurred', { error });
+logger.info("Server started");
+logger.error("Error occurred", { error });
 ```
 
 ### 10. API Documentation (2-3 hours)
+
 ```javascript
 /**
  * @swagger
@@ -158,36 +171,42 @@ logger.error('Error occurred', { error });
 ## Prioritized Implementation Tasks
 
 ### Week 1: Foundation
+
 - [ ] Add GitHub Actions workflows
 - [ ] Implement error handling middleware
 - [ ] Add response compression
 - [ ] Setup Docker with health checks
 
 ### Week 2: Security
+
 - [ ] Implement RBAC system
 - [ ] Add input validation (Zod)
 - [ ] Setup automated security scanning
 - [ ] Add security headers (Helmet)
 
 ### Week 3: Data & Performance
+
 - [ ] Implement Redis caching
 - [ ] Add database indexing
 - [ ] Optimize N+1 queries
 - [ ] Add pagination
 
 ### Week 4: Observability
+
 - [ ] Add structured logging
 - [ ] Implement Prometheus metrics
 - [ ] Add performance monitoring
 - [ ] Create health check endpoint
 
 ### Week 5-6: Testing
+
 - [ ] Write unit tests (50% coverage)
 - [ ] Add integration tests
 - [ ] Create test fixtures
 - [ ] Setup test CI/CD
 
 ### Week 7-8: Documentation
+
 - [ ] Complete API documentation
 - [ ] Add architecture guide
 - [ ] Create developer onboarding
@@ -269,4 +288,4 @@ logger.error('Error occurred', { error });
 
 ---
 
-*For detailed implementation guidance, see IMPROVEMENTS-DETAILED.md*
+_For detailed implementation guidance, see IMPROVEMENTS-DETAILED.md_
