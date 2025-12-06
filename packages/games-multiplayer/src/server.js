@@ -80,8 +80,10 @@ io.on('connection', (socket) => {
 
     players.set(socket.id, { roomId, userId: socket.userId })
 
+    const safeUsername = String(socket.username).replace(/[\r\n]/g, '');
+    const safeRoomId = String(roomId).replace(/[\r\n]/g, '');
     console.log(
-      `[${new Date().toISOString()}] Player ${socket.username} joined room ${roomId} (${room.players.length}/${room.maxPlayers})`
+      `[${new Date().toISOString()}] Player ${safeUsername} joined room ${safeRoomId} (${room.players.length}/${room.maxPlayers})`
     )
 
     // Notify room
