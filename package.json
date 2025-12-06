@@ -12,25 +12,44 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "audit": "npm audit",
+    "audit:fix": "npm audit fix",
+    "security-check": "npm audit --production",
+    "snyk-test": "snyk test --severity-threshold=high",
+    "update:deps": "npm update"
   },
   "dependencies": {
-    "express": "latest",
-    "mongoose": "latest",
-    "redis": "latest",
-    "axios": "latest",
-    "speakeasy": "latest",
-    "qrcode": "latest",
-    "socket.io": "latest",
-    "dotenv": "latest",
-    "cors": "latest",
-    "helmet": "latest"
+    "express": "^4.19.0",
+    "mongoose": "^7.9.0",
+    "redis": "^4.6.0",
+    "ioredis": "^5.3.2",
+    "axios": "^1.6.7",
+    "speakeasy": "^2.0.0",
+    "qrcode": "^1.5.3",
+    "socket.io": "^4.7.2",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "rate-limit-redis": "^4.2.0",
+    "express-validator": "^7.0.1",
+    "compression": "^1.7.4",
+    "uuid": "^9.0.1",
+    "html-escape": "^1.0.3",
+    "pino": "^8.18.0",
+    "pino-pretty": "^10.3.1",
+    "argon2": "^0.31.2",
+    "jsonwebtoken": "^9.1.2",
+    "bullmq": "^5.7.6",
+    "express-async-errors": "^3.1.1"
   },
   "devDependencies": {
-    "jest": "latest",
-    "supertest": "latest",
-    "nodemon": "latest",
-    "eslint": "latest"
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "nodemon": "^3.1.0",
+    "eslint": "^8.57.0",
+    "snyk": "^1.1274.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -40,6 +59,10 @@
     "testMatch": [
       "**/tests/**/*.test.js"
     ]
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "keywords": [
     "code",
