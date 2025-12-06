@@ -1,6 +1,30 @@
 # Math Calculator with Large Number Support
 
-A secure, high-precision mathematical calculator API with support for extremely large numbers including googolplex and tower exponentiation.
+A secure, high-precision mathematical calculator API with support for extremely large numbers including googolplex and tower exponentiation. Built with **cutting-edge, latest versions** of all dependencies.
+
+## ⚡ Cutting-Edge Technology Stack
+
+This project uses the **latest stable and pre-release versions** of all dependencies for maximum performance, security, and features:
+
+- **Express v5.2.1** - Latest Express 5 with Promise support and enhanced routing
+- **Helmet v8.1.0** - Latest security headers with improved CSP
+- **MathJS v15.1.0** - Latest with performance optimizations
+- **Decimal.js v10.4.3** - Latest arbitrary-precision arithmetic
+- **Axios v1.7.9** - Latest HTTP client
+- **Socket.io v4.8.1** - Latest real-time engine
+- **Express-rate-limit v8.2.1** - Latest rate limiting
+
+### 🔄 Auto-Update Strategy
+
+All dependencies use **caret (^) ranges** for automatic minor and patch updates:
+
+```bash
+# Manually update to latest versions
+npm run update:latest
+
+# Check for security issues
+npm run audit
+```
 
 ## Features
 
@@ -21,7 +45,7 @@ A secure, high-precision mathematical calculator API with support for extremely 
 - **Rate Limiting**: 
   - 100 requests per 15 minutes (general)
   - 20 calculations per minute (compute-intensive)
-- **Helmet.js**: Security headers protection
+- **Helmet.js v8.1.0**: Latest security headers protection
 - **DoS Protection**: Expression length limit (10,000 characters)
 - **Pattern Detection**: Blocks suspicious code patterns
 - **Request Size Limiting**: 100KB maximum request body
@@ -37,8 +61,25 @@ A secure, high-precision mathematical calculator API with support for extremely 
 
 ## Installation
 
+### Requirements
+- **Node.js**: >= 18.0.0 (for Express 5 compatibility)
+- **npm**: >= 9.0.0
+
 ```bash
 npm install
+```
+
+### Keeping Dependencies Fresh
+
+```bash
+# Update all dependencies to latest versions
+npm run update:latest
+
+# Check and fix security vulnerabilities
+npm run audit
+
+# View outdated packages
+npm outdated
 ```
 
 ## Usage
@@ -182,12 +223,30 @@ Common errors:
 
 ## Technical Details
 
-### Dependencies
-- **express** (^5.2.1): Web framework
-- **mathjs** (^15.0.0): Mathematical expression parser
-- **decimal.js** (^10.6.0): Arbitrary-precision decimal arithmetic
-- **helmet** (^8.0.0): Security headers
-- **express-rate-limit** (^8.2.1): Rate limiting middleware
+### Dependencies (Latest Versions)
+
+| Package | Version | Purpose |
+|---------|---------|----------|
+| express | ^5.2.1 | Web framework (Express 5 with Promise support) |
+| helmet | ^8.1.0 | Security headers (latest CSP improvements) |
+| mathjs | ^15.1.0 | Mathematical expression parser (performance optimized) |
+| decimal.js | ^10.4.3 | Arbitrary-precision arithmetic |
+| axios | ^1.7.9 | HTTP client |
+| socket.io | ^4.8.1 | Real-time communication |
+| express-rate-limit | ^8.2.1 | Rate limiting middleware |
+| big-integer | ^1.6.52 | Large integer operations |
+| big.js | ^7.0.1 | Big number arithmetic |
+| crypto-js | ^4.2.0 | Cryptographic functions |
+| nerdamer | ^1.1.13 | Symbolic math |
+| readline-sync | ^1.4.10 | Synchronous readline |
+
+### Why Latest Versions?
+
+✅ **Security**: Latest patches and vulnerability fixes  
+✅ **Performance**: Optimizations and improvements  
+✅ **Features**: Access to newest capabilities  
+✅ **Compatibility**: Better Node.js 18+ integration  
+✅ **Express 5**: Promise-based middleware, better error handling  
 
 ### Precision Configuration
 ```javascript
@@ -214,21 +273,52 @@ Decimal.set({
 
 ## Version History
 
-### v2.0.0 (Current)
+### v2.0.0 (Current - December 2025)
 - ✨ Added support for googolplex and larger undefined numbers
 - ✨ Implemented tower exponentiation (power towers)
+- 🔒 **Updated to latest/pre-release versions of all dependencies**
+- 🔒 Express 5.2.1 with Promise support
+- 🔒 Helmet 8.1.0 with enhanced security
+- 🔒 MathJS 15.1.0 with performance improvements
 - 🔒 Added comprehensive security features
 - 🔒 Implemented input validation and sanitization
-- 🔒 Added helmet.js for security headers
 - 🔒 Enhanced rate limiting
 - 🐛 Fixed potential injection vulnerabilities
 - 📈 Improved Decimal.js precision to 1000 digits
 - 🎯 Added health check endpoint
 - 🎯 Graceful shutdown handling
 - 📝 Comprehensive error messages
+- 📝 Added auto-update npm scripts
 
 ### v1.0.0
 - Initial release with basic calculator functionality
+
+## Maintenance
+
+### Regular Updates
+
+This project follows a **continuous update strategy**:
+
+1. **Weekly**: Check for dependency updates
+2. **Monthly**: Run security audits
+3. **Quarterly**: Review and test all major version upgrades
+
+```bash
+# Check for updates
+npm outdated
+
+# Update all to latest
+npm run update:latest
+
+# Security audit
+npm run audit
+```
+
+### Dependency Update Policy
+
+- **Patch updates** (̃x.x.X): Automatic via caret ranges
+- **Minor updates** (̃x.X.x): Automatic via caret ranges
+- **Major updates** (X.x.x): Manual review and testing required
 
 ## Contributing
 
@@ -237,6 +327,7 @@ Contributions are welcome! Please ensure:
 2. All inputs are validated and sanitized
 3. Large number handling is tested
 4. Error cases are properly handled
+5. **Keep dependencies updated** to latest versions
 
 ## License
 
@@ -249,3 +340,10 @@ SkandaBT
 ## Support
 
 For issues, questions, or contributions, please open an issue on the repository.
+
+---
+
+**Built with cutting-edge technology** ⚡  
+**Always up-to-date** 🔄  
+**Security-first** 🔒  
+**Performance-optimized** 🚀
