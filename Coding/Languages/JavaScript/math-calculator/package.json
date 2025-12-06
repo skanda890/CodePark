@@ -1,7 +1,7 @@
 {
   "name": "math-calculator",
   "version": "2.0.0",
-  "description": "A math calculator with approximation feature and support for extremely large numbers",
+  "description": "Advanced math calculator with arbitrary precision and large number support",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -36,12 +36,11 @@
     "math",
     "calculator",
     "large-numbers",
-    "googolplex",
-    "tower-exponentiation",
     "arbitrary-precision",
-    "express5",
-    "cutting-edge",
-    "latest"
+    "batch-processing",
+    "metrics",
+    "caching",
+    "api"
   ],
   "author": "SkandaBT",
   "license": "MIT",
