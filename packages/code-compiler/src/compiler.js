@@ -93,7 +93,7 @@ class CodeCompiler {
       }
 
       // Wait for completion
-      const waitPromise = container.wait(); // standard dockerode wait for container exit
+      const waitPromise = container.wait() // standard dockerode wait for container exit
       const result = await Promise.race([
         waitPromise,
         new Promise((resolve) => {
