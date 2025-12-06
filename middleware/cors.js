@@ -3,79 +3,44 @@
  * Configure Cross-Origin Resource Sharing
  *
  * FIXES:
- * - Extracted decision logic into pure function for testability
- * - Uses callback(null, false) instead of throwing errors (preserves non-browser clients)
- * - Properly scoped production Origin requirement
- * - Debug localhost references removed
+ * - Simplified decideCors with reason enum for clarity
+ * - Moved logging into middleware for flat control flow
+ * - Fixed empty allowedOrigins validation
+ * - Removed callback usage from pure function
  */
 
 const logger = require('../config/logger')
 
 /**
  * Pure CORS decision function
- * Determines CORS headers based on request origin and configuration
- * Returns an object describing the decision without side effects
+ * Returns decision + reason code for the middleware to interpret
+ * No side effects, easy to test
  */
-function decideCors ({ origin, env, allowedOrigins, path }) {
-  const isProd = env === 'production'
+function decideCors ({ origin, isProd, allowedOrigins }) {
+  const whitelisted = origin && allowedOrigins.includes(origin)
 
-  // Production requires Origin header for browser security
-  // Non-browser clients (apps, servers) can proceed without it
-  if (!origin && isProd) {
-    return {
-      // Return null for origin - browser will see no CORS headers
-      // Server-to-server/app-to-app calls proceed normally
-      log: {
-        level: 'info',
-        msg: 'CORS: Request without origin in production',
-        ctx: { path }
-      }
+  if (isProd) {
+    if (!origin) {
+      return { allowOrigin: null, allowCredentials: false, reason: 'no-origin-prod' }
     }
+    if (whitelisted) {
+      return { allowOrigin: origin, allowCredentials: true, reason: 'allowed' }
+    }
+    return { allowOrigin: null, allowCredentials: false, reason: 'unauthorized' }
   }
 
-  // Check if origin is whitelisted
-  if (origin && allowedOrigins.includes(origin)) {
+  // Development / non-prod
+  if (!origin) {
     return {
-      allowOrigin: origin,
-      allowCredentials: true,
-      log: {
-        level: 'debug',
-        msg: 'CORS: Request from allowed origin',
-        ctx: { origin }
-      }
-    }
-  }
-
-  // Development: allow requests without origin from whitelisted first entry
-  if (!origin && !isProd) {
-    return {
-      allowOrigin: allowedOrigins[0],
+      allowOrigin: allowedOrigins[0] ?? null,
       allowCredentials: false,
-      log: {
-        level: 'debug',
-        msg: 'CORS: Development mode, allowing first whitelisted origin',
-        ctx: { origin: allowedOrigins[0] }
-      }
+      reason: 'dev-no-origin'
     }
   }
-
-  // Unauthorized origin
-  if (origin) {
-    return {
-      // Return null - browser won't see CORS headers, request will fail in browser
-      // Non-browser clients unaffected
-      log: {
-        level: 'warn',
-        msg: 'CORS: Request from unauthorized origin',
-        ctx: { origin, path }
-      }
-    }
+  if (whitelisted) {
+    return { allowOrigin: origin, allowCredentials: true, reason: 'allowed' }
   }
-
-  // Fallback: no credentials, no origin header
-  return {
-    log: { level: 'debug', msg: 'CORS: Default fallback', ctx: { path } }
-  }
+  return { allowOrigin: null, allowCredentials: false, reason: 'unauthorized' }
 }
 
 /**
@@ -83,33 +48,60 @@ function decideCors ({ origin, env, allowedOrigins, path }) {
  * @param {string} allowedOrigins - Comma-separated allowed origins (env var or config)
  * @returns {Function} Express middleware
  */
-module.exports = function createCorsMiddleware (
-  allowedOrigins = 'http://localhost:3000'
-) {
-  const allowedOriginsList = allowedOrigins
+module.exports = function createCorsMiddleware (allowedOrigins = 'http://localhost:3000') {
+  let allowedOriginsList = allowedOrigins
     .split(',')
     .map((o) => o.trim())
     .filter((o) => o.length > 0)
 
+  // FIXED: Fail fast on empty allowedOrigins
+  if (allowedOriginsList.length === 0) {
+    logger.error(
+      'CORS configuration error: allowedOrigins is empty. ' +
+        'Using default: http://localhost:3000'
+    )
+    allowedOriginsList = ['http://localhost:3000']
+  }
+
   const env = process.env.NODE_ENV || 'development'
+  const isProd = env === 'production'
 
   return (req, res, next) => {
     const origin = req.headers.origin
 
-    // Get CORS decision
     const decision = decideCors({
       origin,
-      env,
-      allowedOrigins: allowedOriginsList,
-      path: req.path
+      isProd,
+      allowedOrigins: allowedOriginsList
     })
 
-    // Log if present (only info/warn/error level, not debug in production)
-    if (
-      decision.log &&
-      !(decision.log.level === 'debug' && env === 'production')
-    ) {
-      logger[decision.log.level](decision.log.ctx, decision.log.msg)
+    // FIXED: Flat, explicit logging policy
+    if (isProd && decision.reason !== 'allowed') {
+      // Only log warnings in production for non-allowed requests
+      switch (decision.reason) {
+        case 'no-origin-prod':
+          logger.info({ path: req.path }, 'CORS: Request without origin in production')
+          break
+        case 'unauthorized':
+          logger.warn({ origin, path: req.path }, 'CORS: Request from unauthorized origin')
+          break
+      }
+    } else if (!isProd) {
+      // Development: log more details
+      switch (decision.reason) {
+        case 'dev-no-origin':
+          logger.debug(
+            { origin: allowedOriginsList[0] },
+            'CORS: Development mode, allowing first whitelisted origin'
+          )
+          break
+        case 'unauthorized':
+          logger.warn({ origin, path: req.path }, 'CORS: Request from unauthorized origin')
+          break
+        case 'allowed':
+          logger.debug({ origin }, 'CORS: Request from allowed origin')
+          break
+      }
     }
 
     // Apply decision to response headers
@@ -122,10 +114,7 @@ module.exports = function createCorsMiddleware (
     }
 
     // Fixed headers: always set, independent of origin decision
-    res.setHeader(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-    )
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-Token'

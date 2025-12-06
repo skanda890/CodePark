@@ -29,30 +29,34 @@ if (missingVars.length > 0 && process.env.NODE_ENV === 'production') {
 }
 
 // Redis client with secure configuration
+// FIXED: Removed lazyConnect: true and commandTimeout (undocumented)
+// Proper timeout options: connectTimeout, maxRetriesPerRequest
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   password: process.env.REDIS_PASSWORD,
   maxRetriesPerRequest: 3,
-  enableReadyCheck: true,
-  lazyConnect: true,
+  enableReadyCheck: false, // Disable to allow connection on first request if needed
   retryStrategy: (times) => {
     const delay = Math.min(times * 50, 2000)
     return delay
   },
   connectTimeout: 5000,
-  commandTimeout: 5000
+  keepAlive: 30000 // Send PING every 30s to keep connection alive
 })
 
 redis.on('error', (err) => {
   logger.error('Redis connection error:', err.message)
 })
 
+redis.on('connect', () => {
+  logger.debug('Redis client connected')
+})
+
 /**
  * Helmet Configuration - Security Headers
  * FIXED: Removed 'nonce-{random}' placeholder which is not a valid runtime nonce.
  * For production inline scripts, implement per-request nonce generation via middleware.
- * See TODO below for future enhancement.
  */
 const helmetConfig = helmet({
   contentSecurityPolicy: {
@@ -94,26 +98,6 @@ const helmetConfig = helmet({
 })
 
 /**
- * TODO: Future Enhancement - Per-Request Nonce for CSP
- * When implementing inline styles that require CSP bypass, generate a unique nonce per request.
- * Example:
- *
- * const crypto = require('crypto')
- * const cspNonceMiddleware = (req, res, next) => {
- *   req.nonce = crypto.randomBytes(16).toString('base64')
- *   next()
- * }
- * const helmetWithNonce = helmet({
- *   contentSecurityPolicy: {
- *     directives: {
- *       styleSrc: (req) => [`'self'`, `'nonce-${req.nonce}'`]
- *     }
- *   }
- * })
- * Then on <style> tags: <style nonce={req.nonce}>...</style>
- */
-
-/**
  * Rate Limiting Configuration
  * FIXED: expiry is now derived from windowMs to prevent key persistence issues
  */
@@ -125,7 +109,10 @@ const createRateLimiter = (options = {}) => {
     legacyHeaders: false,
     skip: (req) => req.path === '/health',
     handler: (req, res) => {
-      logger.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded')
+      logger.warn(
+        { ip: req.ip, path: req.path },
+        'Rate limit exceeded'
+      )
       res.status(429).json({
         error: 'Too many requests',
         message: 'Please try again later'
@@ -155,9 +142,11 @@ const rateLimiters = {
   }),
   auth: createRateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 3,
+    max: 5, // FIXED: Changed to 5 (industry standard: 5-10 attempts)
     skipSuccessfulRequests: true,
     skipFailedRequests: false
+    // TODO: Consider implementing exponential backoff and account lockout
+    // for progressive authentication controls
   }),
   graphql: createRateLimiter({
     windowMs: 15 * 60 * 1000,
@@ -171,20 +160,14 @@ const rateLimiters = {
 
 /**
  * CORS Configuration - FIXED
- * Now uses callback(null, false) for disallowed origins instead of throwing errors.
- * Browser enforces CORS; non-browser clients unaffected by missing Origin header.
  */
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = (
-      process.env.ALLOWED_ORIGINS ||
-      'http://localhost:3000,http://localhost:3001'
-    )
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001')
       .split(',')
       .map((o) => o.trim())
+      .filter((o) => o.length > 0)
 
-    // FIXED: Use callback(null, false) instead of throwing error
-    // This prevents 500 errors for non-browser clients without Origin header
     if (!origin) {
       return callback(null, true)
     }
@@ -193,7 +176,7 @@ const corsOptions = {
       callback(null, true)
     } else {
       logger.warn({ origin }, 'CORS request from unauthorized origin')
-      callback(null, false) // FIXED: Browser enforces; return 200 but no CORS headers
+      callback(null, false)
     }
   },
   credentials: true,
@@ -350,76 +333,64 @@ const hppProtection = (req, res, next) => {
 /**
  * Sanitize User Input - Using proper HTML escape
  *
- * FIXED: Only escapes fields meant to be rendered as HTML/text.
+ * FIXED: Refactored with separate walker and predicate for clarity and extensibility.
+ * Only escapes fields meant to be rendered as HTML/text.
  * This prevents data corruption of IDs, URLs, base64, and other non-HTML data.
- * Primary escaping should occur at output layer (templates/responses) for defense-in-depth.
  */
+
+const textFieldsToEscape = [
+  'message',
+  'content',
+  'title',
+  'description',
+  'comment',
+  'bio'
+]
+
+const shouldEscapeField = (key, value) =>
+  textFieldsToEscape.includes(key) && typeof value === 'string'
+
+const sanitizeNode = (node, parentKey = null) => {
+  if (!node || typeof node !== 'object') return
+
+  if (Array.isArray(node)) {
+    for (let i = 0; i < node.length; i++) {
+      const item = node[i]
+
+      if (item == null) continue
+
+      // If this array is under an allow-listed key, escape string items
+      if (typeof item === 'string' && textFieldsToEscape.includes(parentKey)) {
+        node[i] = escape(item)
+        continue
+      }
+
+      if (typeof item === 'object') {
+        sanitizeNode(item, null)
+      }
+    }
+    return
+  }
+
+  for (const key of Object.keys(node)) {
+    const value = node[key]
+    if (value == null) continue
+
+    if (shouldEscapeField(key, value)) {
+      node[key] = escape(value)
+      continue
+    }
+
+    if (typeof value === 'object') {
+      sanitizeNode(value, key)
+    }
+  }
+}
+
 const sanitizeInput = (req, res, next) => {
-  // Field names that are expected to contain user-facing text which will be rendered
-  // in HTML contexts. Adjust this list as needed for your application.
-  const textFieldsToEscape = [
-    'message',
-    'content',
-    'title',
-    'description',
-    'comment',
-    'bio'
-  ]
-
-  const sanitizeValue = (value) => {
-    if (typeof value === 'string') {
-      return escape(value)
-    }
-    return value
-  }
-
-  const sanitizeObject = (obj) => {
-    if (!obj || typeof obj !== 'object') return
-
-    for (const key in obj) {
-      if (!Object.prototype.hasOwnProperty.call(obj, key)) continue
-
-      const value = obj[key]
-
-      // Skip null/undefined
-      if (value === null || value === undefined) {
-        continue
-      }
-
-      // Only escape string fields that are explicitly allowed to contain HTML/text
-      if (textFieldsToEscape.includes(key) && typeof value === 'string') {
-        obj[key] = sanitizeValue(value)
-        continue
-      }
-
-      // Recurse into nested plain objects
-      if (typeof value === 'object' && !Array.isArray(value)) {
-        sanitizeObject(value)
-        continue
-      }
-
-      // Handle arrays: if field name is allowlisted, sanitize string items;
-      // always recurse into nested objects within arrays
-      if (Array.isArray(value)) {
-        obj[key] = value.map((item) => {
-          if (item && typeof item === 'object' && !Array.isArray(item)) {
-            sanitizeObject(item)
-            return item
-          }
-
-          if (textFieldsToEscape.includes(key) && typeof item === 'string') {
-            return sanitizeValue(item)
-          }
-
-          return item
-        })
-      }
-    }
-  }
-
-  if (req.body) sanitizeObject(req.body)
-  if (req.query) sanitizeObject(req.query)
-  if (req.params) sanitizeObject(req.params)
+  if (req.body) sanitizeNode(req.body)
+  if (req.query) sanitizeNode(req.query)
+  if (req.params) sanitizeNode(req.params)
 
   next()
 }
@@ -435,5 +406,7 @@ module.exports = {
   securityAuditLogger,
   hppProtection,
   sanitizeInput,
-  redis
+  redis,
+  shouldEscapeField,  // Export for testing
+  sanitizeNode        // Export for testing
 }
