@@ -1,8 +1,8 @@
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const RedisStore = require('rate-limit-redis');
-const { body, validationResult } = require('express-validator');
-const Redis = require('ioredis');
+const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
+const RedisStore = require('rate-limit-redis')
+const { body, validationResult } = require('express-validator')
+const Redis = require('ioredis')
 
 /**
  * Security Middleware Configuration
@@ -17,10 +17,10 @@ const redis = new Redis({
   maxRetriesPerRequest: 3,
   enableReadyCheck: true,
   retryStrategy: (times) => {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-});
+    const delay = Math.min(times * 50, 2000)
+    return delay
+  }
+})
 
 /**
  * Helmet Configuration - Security Headers
@@ -38,8 +38,8 @@ const helmetConfig = helmet({
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
+      upgradeInsecureRequests: []
+    }
   },
   crossOriginEmbedderPolicy: true,
   crossOriginOpenerPolicy: { policy: 'same-origin' },
@@ -47,20 +47,20 @@ const helmetConfig = helmet({
   dnsPrefetchControl: { allow: false },
   expectCt: {
     maxAge: 86400,
-    enforce: true,
+    enforce: true
   },
   frameguard: { action: 'deny' },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true,
+    preload: true
   },
   ieNoOpen: true,
   noSniff: true,
   permittedCrossDomainPolicies: { permittedPolicies: 'none' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  xssFilter: true,
-});
+  xssFilter: true
+})
 
 /**
  * Rate Limiting Configuration
@@ -74,47 +74,47 @@ const createRateLimiter = (options = {}) => {
     legacyHeaders: false,
     store: new RedisStore({
       client: redis,
-      prefix: 'rl:',
+      prefix: 'rl:'
     }),
     handler: (req, res) => {
       res.status(429).json({
         error: 'Too many requests',
         message: 'Please try again later',
-        retryAfter: Math.ceil(options.windowMs / 1000),
-      });
-    },
-  };
+        retryAfter: Math.ceil(options.windowMs / 1000)
+      })
+    }
+  }
 
-  return rateLimit({ ...defaultOptions, ...options });
-};
+  return rateLimit({ ...defaultOptions, ...options })
+}
 
 // Different rate limiters for different endpoints
 const rateLimiters = {
   // General API rate limiter
   api: createRateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 100
   }),
 
   // Stricter rate limiting for authentication endpoints
   auth: createRateLimiter({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    skipSuccessfulRequests: true,
+    skipSuccessfulRequests: true
   }),
 
   // GraphQL endpoint rate limiting
   graphql: createRateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 50,
+    max: 50
   }),
 
   // WebSocket connection rate limiting
   websocket: createRateLimiter({
     windowMs: 60 * 1000,
-    max: 10,
-  }),
-};
+    max: 10
+  })
+}
 
 /**
  * CORS Configuration
@@ -125,22 +125,26 @@ const corsOptions = {
     // Whitelist of allowed origins
     const whitelist = process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',')
-      : ['http://localhost:3000', 'http://localhost:3001'];
+      : ['http://localhost:3000', 'http://localhost:3001']
 
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
+      callback(null, true)
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'))
     }
   },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
-  exposedHeaders: ['X-Request-ID', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
-  maxAge: 600, // 10 minutes
-};
+  exposedHeaders: [
+    'X-Request-ID',
+    'X-RateLimit-Limit',
+    'X-RateLimit-Remaining'
+  ],
+  maxAge: 600 // 10 minutes
+}
 
 /**
  * Request Size Limits
@@ -149,8 +153,8 @@ const corsOptions = {
 const requestSizeLimits = {
   json: { limit: '10mb' },
   urlencoded: { limit: '10mb', extended: true },
-  raw: { limit: '10mb' },
-};
+  raw: { limit: '10mb' }
+}
 
 /**
  * Input Validation Middleware
@@ -159,19 +163,19 @@ const requestSizeLimits = {
 const validateInput = (validations) => {
   return async (req, res, next) => {
     // Run all validations
-    await Promise.all(validations.map((validation) => validation.run(req)));
+    await Promise.all(validations.map((validation) => validation.run(req)))
 
-    const errors = validationResult(req);
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: errors.array(),
-      });
+        details: errors.array()
+      })
     }
 
-    next();
-  };
-};
+    next()
+  }
+}
 
 /**
  * Security Headers Middleware
@@ -179,17 +183,26 @@ const validateInput = (validations) => {
  */
 const securityHeaders = (req, res, next) => {
   // Add custom security headers
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  res.setHeader(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  )
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=()'
+  )
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate'
+  )
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
 
-  next();
-};
+  next()
+}
 
 /**
  * CSRF Token Validation
@@ -198,31 +211,31 @@ const securityHeaders = (req, res, next) => {
 const csrfProtection = (req, res, next) => {
   // Skip CSRF for safe methods
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
+    return next()
   }
 
-  const token = req.headers['x-csrf-token'] || req.body._csrf;
-  const sessionToken = req.session?.csrfToken;
+  const token = req.headers['x-csrf-token'] || req.body._csrf
+  const sessionToken = req.session?.csrfToken
 
   if (!token || token !== sessionToken) {
     return res.status(403).json({
       error: 'Invalid CSRF token',
-      message: 'Request forbidden',
-    });
+      message: 'Request forbidden'
+    })
   }
 
-  next();
-};
+  next()
+}
 
 /**
  * Security Audit Logger
  * Logs security-relevant events
  */
 const securityAuditLogger = (req, res, next) => {
-  const startTime = Date.now();
+  const startTime = Date.now()
 
   res.on('finish', () => {
-    const duration = Date.now() - startTime;
+    const duration = Date.now() - startTime
     const logData = {
       timestamp: new Date().toISOString(),
       method: req.method,
@@ -231,17 +244,17 @@ const securityAuditLogger = (req, res, next) => {
       duration,
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.headers['user-agent'],
-      userId: req.user?.id,
-    };
+      userId: req.user?.id
+    }
 
     // Log suspicious activity
     if (res.statusCode >= 400) {
-      console.warn('[SECURITY AUDIT]', logData);
+      console.warn('[SECURITY AUDIT]', logData)
     }
-  });
+  })
 
-  next();
-};
+  next()
+}
 
 /**
  * HTTP Parameter Pollution (HPP) Protection
@@ -249,17 +262,17 @@ const securityAuditLogger = (req, res, next) => {
  */
 const hppProtection = (req, res, next) => {
   // Whitelist of parameters that can be arrays
-  const whitelist = ['tags', 'categories', 'ids'];
+  const whitelist = ['tags', 'categories', 'ids']
 
   // Check all query parameters
   for (const key in req.query) {
     if (Array.isArray(req.query[key]) && !whitelist.includes(key)) {
-      req.query[key] = req.query[key][0]; // Take only first value
+      req.query[key] = req.query[key][0] // Take only first value
     }
   }
 
-  next();
-};
+  next()
+}
 
 /**
  * Sanitize User Input
@@ -270,21 +283,21 @@ const sanitizeInput = (req, res, next) => {
     for (const key in obj) {
       if (typeof obj[key] === 'string') {
         // Remove HTML tags
-        obj[key] = obj[key].replace(/<[^>]*>/g, '');
+        obj[key] = obj[key].replace(/<[^>]*>/g, '')
         // Remove SQL injection attempts
-        obj[key] = obj[key].replace(/(['"`;])/g, '');
+        obj[key] = obj[key].replace(/(['"`;])/g, '')
       } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-        sanitizeObject(obj[key]);
+        sanitizeObject(obj[key])
       }
     }
-  };
+  }
 
-  if (req.body) sanitizeObject(req.body);
-  if (req.query) sanitizeObject(req.query);
-  if (req.params) sanitizeObject(req.params);
+  if (req.body) sanitizeObject(req.body)
+  if (req.query) sanitizeObject(req.query)
+  if (req.params) sanitizeObject(req.params)
 
-  next();
-};
+  next()
+}
 
 module.exports = {
   helmetConfig,
@@ -297,5 +310,5 @@ module.exports = {
   securityAuditLogger,
   hppProtection,
   sanitizeInput,
-  redis,
-};
+  redis
+}

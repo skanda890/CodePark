@@ -17,6 +17,7 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 ### 🛡️ Application Security
 
 #### Security Middleware (`middleware/security.js`)
+
 - **Helmet.js**: Comprehensive security headers (CSP, HSTS, X-Frame-Options, etc.)
 - **Distributed Rate Limiting**: Redis-backed rate limiting for different endpoint types
   - API endpoints: 100 requests/15min
@@ -31,18 +32,21 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 - **CORS Configuration**: Whitelist-based origin control
 
 #### Authentication & Authorization
+
 - **Argon2 Password Hashing**: Memory-hard hashing with configurable parameters
 - **JWT with Refresh Tokens**: Short-lived access tokens (15min) with long-lived refresh (7d)
 - **Two-Factor Authentication**: TOTP-based 2FA with OTPLib and Speakeasy
 - **Session Security**: Secure, HTTP-only cookies with SameSite protection
 
 #### npm Configuration (`.npmrc`)
+
 - **Dependency Locking**: Prevents implicit upgrades
 - **Script Execution Control**: Configurable install script handling
 - **Automatic Auditing**: Security checks on every install
 - **Strict SSL**: Enforces secure connections
 
 #### Docker Security
+
 - **Multi-stage Builds**: Minimal production image
 - **Non-root User**: Runs as `nodejs` user (UID 1001)
 - **Alpine Base**: Minimal attack surface
@@ -96,6 +100,7 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 ## Known Security Advisories (Node.js 22)
 
 ### Recent CVEs (2025)
+
 - **CVE-2025-27210**: Windows device names bypass (patched in 22.13.1+)
 - **CVE-2025-23167**: HTTP header termination flaw (patched in 22.x)
 - **CVE-2025-23084**: Path traversal vulnerabilities (patched)
@@ -109,6 +114,7 @@ node --version  # Should be ≥22.13.1
 ## GraphQL Security
 
 ### Implemented Protections
+
 - **Query Depth Limiting**: Prevents deeply nested queries
 - **Query Complexity Analysis**: Limits computational cost
 - **Query Timeouts**: Maximum execution time enforcement
@@ -117,6 +123,7 @@ node --version  # Should be ≥22.13.1
 - **Introspection Control**: Disable in production (ENV: `GRAPHQL_INTROSPECTION=false`)
 
 ### Best Practices
+
 1. Disable introspection in production
 2. Implement query whitelisting for critical operations
 3. Use persisted queries for production
@@ -163,12 +170,14 @@ node --version  # Should be ≥22.13.1
 Using `next` and `latest` tags means:
 
 ✅ **Advantages**:
+
 - Access to newest features
 - Early bug fixes
 - Cutting-edge performance improvements
 - Latest security patches
 
 ⚠️ **Risks**:
+
 - Potential instability
 - Breaking API changes without warning
 - Undiscovered vulnerabilities
@@ -212,6 +221,7 @@ npm run dev
 If you must use it:
 
 1. **Environment Configuration**:
+
    ```bash
    NODE_ENV=production
    ENABLE_HELMET=true
@@ -251,6 +261,7 @@ If you must use it:
 ## Security Checklist
 
 ### Application Level
+
 - [x] Helmet.js security headers
 - [x] Distributed rate limiting
 - [x] Input validation and sanitization
@@ -262,6 +273,7 @@ If you must use it:
 - [x] Security audit logging
 
 ### Authentication & Authorization
+
 - [x] Argon2 password hashing
 - [x] JWT with refresh tokens
 - [x] Two-factor authentication support
@@ -269,12 +281,14 @@ If you must use it:
 - [x] CORS configuration
 
 ### Infrastructure
+
 - [x] Environment variable configuration
 - [x] Docker security hardening
 - [x] Health check endpoints
 - [x] Kubernetes-ready probes
 
 ### Monitoring & CI/CD
+
 - [x] Automated security scanning (GitHub Actions)
 - [x] npm audit on CI
 - [x] CodeQL analysis
@@ -285,6 +299,7 @@ If you must use it:
 - [x] Weekly security scans
 
 ### Dependencies
+
 - [x] npm configuration hardening
 - [x] Dependency locking
 - [x] Regular updates
@@ -293,30 +308,34 @@ If you must use it:
 ## Additional Resources
 
 ### General Security
+
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [Express Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
 
 ### GraphQL Security
+
 - [GraphQL Security Best Practices](https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html)
 - [Apollo Server Security](https://www.apollographql.com/docs/apollo-server/security/)
 
 ### Dependency Security
+
 - [npm Security Advisories](https://www.npmjs.com/advisories)
 - [Snyk Vulnerability Database](https://snyk.io/vuln/)
 - [Node.js Security Releases](https://nodejs.org/en/blog/vulnerability/)
 
 ### Container Security
+
 - [Docker Security Best Practices](https://docs.docker.com/develop/security-best-practices/)
 - [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker)
 
 ## Version History
 
-| Date       | Version | Changes                                                  |
-| ---------- | ------- | -------------------------------------------------------- |
-| 2025-12-06 | 3.0.0   | Enhanced security middleware, Docker hardening, CI/CD    |
-| 2024-12-05 | 2.0.0   | Added automated updates, monitoring                      |
-| 2024-12-05 | 1.0.0   | Initial security implementation                          |
+| Date       | Version | Changes                                               |
+| ---------- | ------- | ----------------------------------------------------- |
+| 2025-12-06 | 3.0.0   | Enhanced security middleware, Docker hardening, CI/CD |
+| 2024-12-05 | 2.0.0   | Added automated updates, monitoring                   |
+| 2024-12-05 | 1.0.0   | Initial security implementation                       |
 
 ---
 

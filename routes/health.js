@@ -1,7 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const os = require('os');
-const { version } = require('../package.json');
+const express = require('express')
+const router = express.Router()
+const os = require('os')
+const { version } = require('../package.json')
 
 /**
  * Health Check Routes
@@ -9,7 +9,7 @@ const { version } = require('../package.json');
  */
 
 // Store application start time
-const startTime = Date.now();
+const startTime = Date.now()
 
 /**
  * Basic Health Check
@@ -21,9 +21,9 @@ router.get('/', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version,
-  });
-});
+    version
+  })
+})
 
 /**
  * Detailed Health Check
@@ -40,7 +40,7 @@ router.get('/detailed', async (req, res) => {
       environment: process.env.NODE_ENV || 'development',
       nodeVersion: process.version,
       uptime: process.uptime(),
-      startTime: new Date(startTime).toISOString(),
+      startTime: new Date(startTime).toISOString()
     },
     system: {
       platform: os.platform(),
@@ -54,53 +54,53 @@ router.get('/detailed', async (req, res) => {
         heapUsed: formatBytes(process.memoryUsage().heapUsed),
         heapTotal: formatBytes(process.memoryUsage().heapTotal),
         external: formatBytes(process.memoryUsage().external),
-        rss: formatBytes(process.memoryUsage().rss),
+        rss: formatBytes(process.memoryUsage().rss)
       },
-      loadAverage: os.loadavg(),
+      loadAverage: os.loadavg()
     },
-    dependencies: {},
-  };
+    dependencies: {}
+  }
 
   // Check MongoDB connection
   try {
     if (global.mongoClient && global.mongoClient.topology) {
-      const isConnected = global.mongoClient.topology.isConnected();
+      const isConnected = global.mongoClient.topology.isConnected()
       healthChecks.dependencies.mongodb = {
         status: isConnected ? 'healthy' : 'unhealthy',
-        message: isConnected ? 'Connected' : 'Disconnected',
-      };
+        message: isConnected ? 'Connected' : 'Disconnected'
+      }
     } else {
       healthChecks.dependencies.mongodb = {
         status: 'unknown',
-        message: 'MongoDB client not initialized',
-      };
+        message: 'MongoDB client not initialized'
+      }
     }
   } catch (error) {
     healthChecks.dependencies.mongodb = {
       status: 'error',
-      message: error.message,
-    };
+      message: error.message
+    }
   }
 
   // Check Redis connection
   try {
     if (global.redisClient) {
-      const pingResult = await global.redisClient.ping().catch(() => null);
+      const pingResult = await global.redisClient.ping().catch(() => null)
       healthChecks.dependencies.redis = {
         status: pingResult === 'PONG' ? 'healthy' : 'unhealthy',
-        message: pingResult === 'PONG' ? 'Connected' : 'Disconnected',
-      };
+        message: pingResult === 'PONG' ? 'Connected' : 'Disconnected'
+      }
     } else {
       healthChecks.dependencies.redis = {
         status: 'unknown',
-        message: 'Redis client not initialized',
-      };
+        message: 'Redis client not initialized'
+      }
     }
   } catch (error) {
     healthChecks.dependencies.redis = {
       status: 'error',
-      message: error.message,
-    };
+      message: error.message
+    }
   }
 
   // Check Kafka connection (if enabled)
@@ -108,33 +108,33 @@ router.get('/detailed', async (req, res) => {
     if (process.env.ENABLE_KAFKA === 'true' && global.kafkaProducer) {
       healthChecks.dependencies.kafka = {
         status: 'healthy',
-        message: 'Connected',
-      };
+        message: 'Connected'
+      }
     } else {
       healthChecks.dependencies.kafka = {
         status: 'disabled',
-        message: 'Kafka not enabled',
-      };
+        message: 'Kafka not enabled'
+      }
     }
   } catch (error) {
     healthChecks.dependencies.kafka = {
       status: 'error',
-      message: error.message,
-    };
+      message: error.message
+    }
   }
 
   // Determine overall status
   const hasUnhealthyDependency = Object.values(healthChecks.dependencies).some(
     (dep) => dep.status === 'unhealthy' || dep.status === 'error'
-  );
+  )
 
   if (hasUnhealthyDependency) {
-    healthChecks.status = 'degraded';
+    healthChecks.status = 'degraded'
   }
 
-  const statusCode = healthChecks.status === 'healthy' ? 200 : 503;
-  res.status(statusCode).json(healthChecks);
-});
+  const statusCode = healthChecks.status === 'healthy' ? 200 : 503
+  res.status(statusCode).json(healthChecks)
+})
 
 /**
  * Readiness Probe
@@ -144,36 +144,36 @@ router.get('/detailed', async (req, res) => {
 router.get('/ready', async (req, res) => {
   const checks = {
     mongodb: false,
-    redis: false,
-  };
+    redis: false
+  }
 
   // Check critical dependencies
   try {
     if (global.mongoClient && global.mongoClient.topology) {
-      checks.mongodb = global.mongoClient.topology.isConnected();
+      checks.mongodb = global.mongoClient.topology.isConnected()
     }
   } catch (error) {
-    checks.mongodb = false;
+    checks.mongodb = false
   }
 
   try {
     if (global.redisClient) {
-      const pingResult = await global.redisClient.ping().catch(() => null);
-      checks.redis = pingResult === 'PONG';
+      const pingResult = await global.redisClient.ping().catch(() => null)
+      checks.redis = pingResult === 'PONG'
     }
   } catch (error) {
-    checks.redis = false;
+    checks.redis = false
   }
 
   // App is ready if at least MongoDB is connected
-  const isReady = checks.mongodb;
+  const isReady = checks.mongodb
 
   res.status(isReady ? 200 : 503).json({
     ready: isReady,
     checks,
-    timestamp: new Date().toISOString(),
-  });
-});
+    timestamp: new Date().toISOString()
+  })
+})
 
 /**
  * Liveness Probe
@@ -185,9 +185,9 @@ router.get('/live', (req, res) => {
   res.status(200).json({
     alive: true,
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
+    uptime: process.uptime()
+  })
+})
 
 /**
  * Startup Probe
@@ -196,14 +196,14 @@ router.get('/live', (req, res) => {
  */
 router.get('/startup', (req, res) => {
   // Check if application has been running for at least 5 seconds
-  const isStarted = process.uptime() > 5;
+  const isStarted = process.uptime() > 5
 
   res.status(isStarted ? 200 : 503).json({
     started: isStarted,
     uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
-});
+    timestamp: new Date().toISOString()
+  })
+})
 
 /**
  * Metrics Summary
@@ -224,21 +224,21 @@ router.get('/metrics', (req, res) => {
         heapTotal: process.memoryUsage().heapTotal,
         external: process.memoryUsage().external,
         rss: process.memoryUsage().rss,
-        arrayBuffers: process.memoryUsage().arrayBuffers,
+        arrayBuffers: process.memoryUsage().arrayBuffers
       },
-      cpu: process.cpuUsage(),
+      cpu: process.cpuUsage()
     },
     system: {
       totalMemory: os.totalmem(),
       freeMemory: os.freemem(),
       loadAverage: os.loadavg(),
       cpus: os.cpus().length,
-      uptime: os.uptime(),
-    },
-  };
+      uptime: os.uptime()
+    }
+  }
 
-  res.status(200).json(metrics);
-});
+  res.status(200).json(metrics)
+})
 
 /**
  * Version Information
@@ -253,9 +253,9 @@ router.get('/version', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     buildDate: process.env.BUILD_DATE || 'unknown',
     gitCommit: process.env.GIT_COMMIT || 'unknown',
-    gitBranch: process.env.GIT_BRANCH || 'unknown',
-  });
-});
+    gitBranch: process.env.GIT_BRANCH || 'unknown'
+  })
+})
 
 /**
  * Security Status
@@ -272,11 +272,11 @@ router.get('/security', (req, res) => {
     inputSanitization: process.env.ENABLE_INPUT_SANITIZATION === 'true',
     twoFactorAuth: process.env.ENABLE_2FA === 'true',
     sessionSecure: process.env.SESSION_SECURE === 'true',
-    strictSSL: process.env.REDIS_TLS === 'true',
-  };
+    strictSSL: process.env.REDIS_TLS === 'true'
+  }
 
-  const securityScore = Object.values(securityStatus).filter(Boolean).length;
-  const totalChecks = Object.keys(securityStatus).length;
+  const securityScore = Object.values(securityStatus).filter(Boolean).length
+  const totalChecks = Object.keys(securityStatus).length
 
   res.status(200).json({
     status: securityScore === totalChecks ? 'optimal' : 'needs-improvement',
@@ -288,21 +288,21 @@ router.get('/security', (req, res) => {
             'Enable all security features in production',
             'Set SESSION_SECURE=true when using HTTPS',
             'Enable CSRF protection for state-changing operations',
-            'Consider enabling 2FA for enhanced security',
+            'Consider enabling 2FA for enhanced security'
           ]
-        : ['All security features are enabled'],
-  });
-});
+        : ['All security features are enabled']
+  })
+})
 
 /**
  * Helper function to format bytes
  */
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+function formatBytes (bytes) {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-module.exports = router;
+module.exports = router
