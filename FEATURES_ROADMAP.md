@@ -275,7 +275,7 @@ Manage file backups and restoration.
   - AES-256 encryption
   - Password protection
   - Public key encryption
-  - Encrypted backups metadata
+  - Encrypted backup metadata
 
 #### Storage Backends
 
