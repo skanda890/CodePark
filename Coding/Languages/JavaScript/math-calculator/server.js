@@ -9,13 +9,16 @@ const app = express()
 const port = process.env.PORT || 4000
 
 // Security middleware - Helmet for security headers
+// Note: CSP allows 'unsafe-inline' for scripts and styles to support index.html
+// In production, consider using nonces or refactoring frontend to be CSP-compliant
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"]
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:']
       }
     }
   })
@@ -98,25 +101,20 @@ const shorthandMap = {
 }
 
 // Input validation and sanitization
-function validateAndSanitizeExpression (expression) {
-  if (!expression || typeof expression !== 'string') {
+function validateAndSanitizeExpression (expr) {
+  if (!expr || typeof expr !== 'string') {
     throw new Error('Invalid expression: must be a non-empty string')
   }
 
   // Limit expression length to prevent DoS
   const MAX_LENGTH = 10000
-  if (expression.length > MAX_LENGTH) {
+  if (expr.length > MAX_LENGTH) {
     throw new Error(
       `Expression too long: maximum ${MAX_LENGTH} characters allowed`
     )
   }
 
-  // Remove potentially dangerous characters while preserving math symbols
-  const sanitized = expression
-    .replace(/[;<>{}\[\]\\]/g, '') // Remove dangerous characters
-    .trim()
-
-  // Check for suspicious patterns
+  // Check for suspicious patterns BEFORE sanitization
   const dangerousPatterns = [
     /require\s*\(/i,
     /import\s+/i,
@@ -129,48 +127,53 @@ function validateAndSanitizeExpression (expression) {
   ]
 
   for (const pattern of dangerousPatterns) {
-    if (pattern.test(sanitized)) {
+    if (pattern.test(expr)) {
       throw new Error('Expression contains potentially unsafe patterns')
     }
   }
+
+  // Remove only minimally necessary dangerous characters
+  // We preserve [] for potential matrix support - invalid operations will fail in mathjs.evaluate() with clear error
+  const sanitized = expr.replace(/[;<>{}]/g, '').trim()
 
   return sanitized
 }
 
 // Function to handle tower exponentiation (power towers)
-function evaluateTowerExponentiation (base, exponentExpression) {
+function evaluateTowerExponentiation (base, exponentExpr) {
   try {
     // Handle special large number cases
-    if (exponentExpression === 'GOOGOLPLEX') {
+    if (exponentExpr === 'GOOGOLPLEX') {
       return {
         isSpecial: true,
         representation: `${base}^googolplex`,
         description: `This is ${base} raised to the power of googolplex (10^10^100), an incomprehensibly large number that cannot be computed or stored.`,
-        approximation: 'Infinity (Computational representation impossible)'
+        approximation:
+          'Infinity (Computational representation impossible)'
       }
     }
 
     if (
-      exponentExpression === 'SKEWES' ||
-      exponentExpression === 'MOSER' ||
-      exponentExpression === 'GRAHAMS'
+      exponentExpr === 'SKEWES' ||
+      exponentExpr === 'MOSER' ||
+      exponentExpr === 'GRAHAMS'
     ) {
       const name =
-        exponentExpression === 'SKEWES'
+        exponentExpr === 'SKEWES'
           ? "Skewes' number"
-          : exponentExpression === 'MOSER'
+          : exponentExpr === 'MOSER'
             ? "Moser's number"
             : "Graham's number"
       return {
         isSpecial: true,
-        representation: `${base}^${exponentExpression.toLowerCase()}`,
+        representation: `${base}^${exponentExpr.toLowerCase()}`,
         description: `This is ${base} raised to the power of ${name}, a number far beyond conventional computation.`,
         approximation: 'Infinity (Beyond computational limits)'
       }
     }
 
     // Try to evaluate the exponent
-    const exponent = new Decimal(exponentExpression)
+    const exponent = new Decimal(exponentExpr)
 
     // Check if result would be too large
     const logResult = exponent.times(Decimal.log10(base))
@@ -178,9 +181,13 @@ function evaluateTowerExponentiation (base, exponentExpression) {
     if (logResult.gt(1000)) {
       return {
         isSpecial: true,
-        representation: `${base}^${exponentExpression}`,
-        description: `This power tower evaluates to a number with more than 10^${logResult.toFixed(0)} digits.`,
-        approximation: `~10^${exponent.times(Decimal.log10(base)).toFixed(2)}`
+        representation: `${base}^${exponentExpr}`,
+        description: `This power tower evaluates to a number with more than 10^${logResult.toFixed(
+          0
+        )} digits.`,
+        approximation: `~10^${exponent
+          .times(Decimal.log10(base))
+          .toFixed(2)}`
       }
     }
 
@@ -191,20 +198,23 @@ function evaluateTowerExponentiation (base, exponentExpression) {
       result
     }
   } catch (error) {
-    throw new Error(`Error evaluating tower exponentiation: ${error.message}`)
+    throw new Error(
+      `Error evaluating tower exponentiation: ${error.message}`
+    )
   }
 }
 
 // Function to handle calculations
-function handleCalculation (expression) {
+function handleCalculation (expr) {
   const sqrtRegex = /squareroot(\d+)/
   const squareRegex = /square(\d+)/
   const vietaRegex = /vieta\((\d+)\)/ // Vieta's formula regex
-  const towerRegex = /(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/g // Tower exponentiation like 10^10^googolplex
+  // Tower exponentiation: 10^10^googolplex (base^exp1^exp2)
+  const towerRegex = /(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/g
 
   try {
     // Validate and sanitize input
-    expression = validateAndSanitizeExpression(expression)
+    const expression = validateAndSanitizeExpression(expr)
 
     const question = `What is the result of: ${expression}?`
     let solution
@@ -246,7 +256,8 @@ function handleCalculation (expression) {
     }
 
     // Handle shorthand notation with Decimal.js
-    expression = expression.replace(
+    // Use arrow function in replace to avoid parameter reassignment
+    let processedExpr = expression.replace(
       shorthandRegex,
       (match, number, _, term) => {
         const base = new Decimal(number)
@@ -274,8 +285,12 @@ function handleCalculation (expression) {
     )
 
     // Handle chained expressions like y=29-x=squareroot9
-    if (expression.includes('=') && !expression.match(/[<>!]=?/)) {
-      const parts = expression.split('=')
+    // Improved detection: exclude ==, ===, <=, >=, != from being treated as assignments
+    const hasComparisonOp = /===|==|<=|>=|!=/.test(processedExpr)
+    const hasAssignment = processedExpr.includes('=') && !hasComparisonOp
+
+    if (hasAssignment) {
+      const parts = processedExpr.split('=')
       const lastPart = parts.pop().trim()
       let intermediateExpression = lastPart
 
@@ -293,14 +308,17 @@ function handleCalculation (expression) {
         .concat(intermediateExpression)
         .join('=')
       solution = mathInstance.evaluate(evaluatedExpression).toString()
-      explanation = `The result of evaluating "${expression}" is ${solution}.`
+      explanation = `The result of evaluating "${processedExpr}" is ${solution}.`
 
       return { question, solution, explanation }
     }
 
     // Handle Vieta's formula
-    if (vietaRegex.test(expression)) {
-      const iterations = parseInt(expression.match(vietaRegex)[1], 10)
+    if (vietaRegex.test(processedExpr)) {
+      const iterations = parseInt(
+        processedExpr.match(vietaRegex)[1],
+        10
+      )
 
       if (iterations > 1000) {
         throw new Error(
@@ -313,22 +331,26 @@ function handleCalculation (expression) {
 
       for (let i = 1; i <= iterations; i++) {
         product = product.times(term)
-        term = new Decimal(0.5).plus(new Decimal(0.5).times(term)).sqrt()
+        term = new Decimal(0.5)
+          .plus(new Decimal(0.5).times(term))
+          .sqrt()
       }
 
-      solution = new Decimal(2).div(product).toFixed(Math.min(50, iterations))
+      solution = new Decimal(2)
+        .div(product)
+        .toFixed(Math.min(50, iterations))
       explanation = `Vieta's formula approximates π as the iterations increase. With ${iterations} iterations, the result is ${solution}.`
     }
     // Handle square root
-    else if (sqrtRegex.test(expression)) {
-      const number = parseFloat(expression.match(sqrtRegex)[1])
+    else if (sqrtRegex.test(processedExpr)) {
+      const number = parseFloat(processedExpr.match(sqrtRegex)[1])
       const result = new Decimal(number).sqrt()
       solution = result.toFixed()
       explanation = `The square root of ${number} is √${number}, resulting in ${solution}.`
     }
     // Handle square
-    else if (squareRegex.test(expression)) {
-      const number = parseFloat(expression.match(squareRegex)[1])
+    else if (squareRegex.test(processedExpr)) {
+      const number = parseFloat(processedExpr.match(squareRegex)[1])
       const result = new Decimal(number).pow(2)
       solution = result.toFixed()
       explanation = `The square of ${number} is ${solution}.`
@@ -337,16 +359,16 @@ function handleCalculation (expression) {
     else {
       try {
         // Use Decimal.js for handling large numbers
-        const evalResult = mathInstance.evaluate(expression)
+        const evalResult = mathInstance.evaluate(processedExpr)
         const decimalResult = new Decimal(evalResult.toString())
 
         // Check if number is too large to represent
         if (!decimalResult.isFinite()) {
           solution = 'Infinity'
-          explanation = `The result of evaluating "${expression}" exceeds representable limits (Infinity).`
+          explanation = `The result of evaluating "${processedExpr}" exceeds representable limits (Infinity).`
         } else {
           solution = decimalResult.toFixed()
-          explanation = `The result of evaluating "${expression}" is ${solution}.`
+          explanation = `The result of evaluating "${processedExpr}" is ${solution}.`
         }
       } catch (evalError) {
         throw new Error(`Evaluation error: ${evalError.message}`)
@@ -357,7 +379,7 @@ function handleCalculation (expression) {
   } catch (error) {
     console.error('Calculation error:', error.message)
     return {
-      question: `What is the result of: ${expression}?`,
+      question: `What is the result of: ${expr}?`,
       solution: 'Error',
       explanation: `Calculation error: ${error.message || 'Unsupported operation or invalid expression.'}`
     }
@@ -427,13 +449,26 @@ const server = app.listen(port, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 })
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully...')
+// Graceful shutdown for SIGTERM and SIGINT (Ctrl+C)
+const gracefulShutdown = () => {
+  console.log(
+    'Shutdown signal received, closing HTTP server gracefully...'
+  )
   server.close(() => {
-    console.log('Server closed')
+    console.log('HTTP server closed')
     process.exit(0)
   })
-})
+
+  // Force shutdown after 10 seconds
+  setTimeout(() => {
+    console.error(
+      'Could not close connections in time, forcefully shutting down'
+    )
+    process.exit(1)
+  }, 10000)
+}
+
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)
 
 module.exports = app
