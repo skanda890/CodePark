@@ -291,7 +291,7 @@ Decimal.set({
 - **Small to medium numbers** (< 10^100): Computed exactly
 - **Large numbers** (10^100 to 10^1000): Computed with Decimal.js
 - **Extremely large numbers** (> 10^1000): Returns description and approximation
-- **Undefined numbers** (googolplex, Graham's, etc.): Returns conceptual explanation
+- **Undefined numbers** (googolplex, Graham's, etc.): Return conceptual explanations
 
 ## Version History
 
