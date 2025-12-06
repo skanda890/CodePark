@@ -138,12 +138,6 @@ class SecurityScanner {
   async generateHTMLReport () {
     const report = await this.generateReport()
 
-    const severityColors = {
-      critical: '#d32f2f',
-      high: '#f57c00',
-      medium: '#fbc02d',
-      low: '#388e3c'
-    }
 
     const html = `<!DOCTYPE html>
 <html lang="en">
