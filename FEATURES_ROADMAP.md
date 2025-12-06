@@ -1356,5 +1356,211 @@ Fetch and display YouTube channel videos.
 ---
 
 **Document Version**: 1.0  
+
+12. API-Gateway
+
+### Current Functionality
+
+Provide centralized API routing and request handling.
+
+### Potential Features
+
+#### Request Management
+
+- [ ] **Request Routing**
+    - ◦ Dynamic route matching
+    - ◦ Path-based routing
+    - ◦ Header-based routing
+    - ◦ Load balancing
+- [ ] **Request Transformation**
+    - ◦ Request body transformation
+    - ◦ Header manipulation
+    - ◦ Query parameter rewriting
+    - ◦ Protocol conversion (HTTP/gRPC)
+- [ ] **Response Caching**
+    - ◦ TTL-based caching
+    - ◦ Cache invalidation strategies
+    - ◦ Conditional caching
+    - ◦ Cache statistics
+- [ ] **Rate Limiting**
+    - ◦ Per-user rate limits
+    - ◦ Per-IP rate limits
+    - ◦ Global rate limits
+    - ◦ Token bucket algorithm
+
+#### Monitoring & Analytics
+
+- [ ] **Traffic Analytics**
+    - ◦ Request count tracking
+    - ◦ Response time metrics
+    - ◦ Error rate monitoring
+    - ◦ Bandwidth usage
+- [ ] **Performance Metrics**
+    - ◦ Latency percentiles (p50, p95, p99)
+    - ◦ Throughput tracking
+    - ◦ Connection pooling stats
+    - ◦ Memory usage metrics
+- [ ] **Logging & Tracing**
+    - ◦ Request/response logging
+    - ◦ Distributed tracing
+    - ◦ Log aggregation
+    - ◦ Audit trails
+
+#### Security Features
+
+- [ ] **Authentication & Authorization**
+    - ◦ API key validation
+    - ◦ JWT token verification
+    - ◦ OAuth 2.0 integration
+    - ◦ CORS policy enforcement
+- [ ] **Request Validation**
+    - ◦ Schema validation
+    - ◦ Input sanitization
+    - ◦ SQL injection prevention
+    - ◦ XSS attack prevention
+- [ ] **DDoS Protection**
+    - ◦ IP blocking/whitelist
+    - ◦ Request pattern detection
+    - ◦ Geo-blocking support
+    - ◦ Honeypot endpoints
+
+#### Advanced Features
+
+- [ ] **API Versioning**
+    - ◦ Multiple API versions support
+    - ◦ Version deprecation warnings
+    - ◦ Migration guides
+    - ◦ Backward compatibility checking
+- [ ] **Circuit Breaker**
+    - ◦ Failure detection
+    - ◦ Automatic failover
+    - ◦ Health check endpoints
+    - ◦ Graceful degradation
+
+---
+
+13. Blockchain-Explorer
+
+### Current Functionality
+
+Simplified blockchain data visualization and analysis.
+
+### Potential Features
+
+#### Block Management
+
+- [ ] **Block Viewing**
+    - ◦ Display block headers
+    - ◦ Transaction list per block
+    - ◦ Merkle tree visualization
+    - ◦ Block metadata
+- [ ] **Transaction Analysis**
+    - ◦ Transaction details
+    - ◦ Input/output tracking
+    - ◦ Transaction fees
+    - ◦ Confirmation status
+- [ ] **Address Tracking**
+    - ◦ Balance display
+    - ◦ Transaction history
+    - ◦ Address labeling
+    - ◦ Watch list functionality
+
+#### Smart Contracts (Ethereum-specific)
+
+- [ ] **Contract Interaction**
+    - ◦ Contract bytecode viewer
+    - ◦ ABI display and interaction
+    - ◦ Contract source verification
+    - ◦ Function call simulator
+- [ ] **Contract Analytics**
+    - ◦ Total value locked (TVL)
+    - ◦ Gas usage analysis
+    - ◦ Call frequency tracking
+    - ◦ Event log viewer
+
+#### Network Statistics
+
+- [ ] **Real-time Metrics**
+    - ◦ Network hashrate
+    - ◦ Average block time
+    - ◦ Transaction throughput
+    - ◦ Active nodes count
+- [ ] **Historical Analysis**
+    - ◦ Price charts
+    - ◦ Transaction volume trends
+    - ◦ Active address tracking
+    - ◦ Mining difficulty
+
+#### Advanced Features
+
+- [ ] **Portfolio Tracking**
+    - ◦ Import wallet addresses
+    - ◦ Multi-wallet support
+    - ◦ Holdings calculation
+    - ◦ Performance analytics
+- [ ] **Alerts & Notifications**
+    - ◦ Large transaction alerts
+    - ◦ Address activity notifications
+    - ◦ Price alerts
+    - ◦ Smart contract event alerts
+
+---
+
+14. Task-Scheduler
+
+### Current Functionality
+
+Schedule and manage recurring tasks and jobs.
+
+### Potential Features
+
+#### Job Scheduling
+
+- [ ] **Scheduling Strategies**
+    - ◦ Cron expression support
+    - ◦ Interval-based scheduling
+    - ◦ Specific date/time scheduling
+    - ◦ Recurring patterns (daily, weekly, monthly)
+- [ ] **Job Management**
+    - ◦ Create/update/delete jobs
+    - ◦ Job enable/disable
+    - ◦ Job priority levels
+    - ◦ Job dependencies
+- [ ] **Execution Control**
+    - ◦ Concurrent job limits
+    - ◦ Timeout configuration
+    - ◦ Retry policies
+    - ◦ Failure handling
+
+#### Monitoring & Logging
+
+- [ ] **Job Tracking**
+    - ◦ Execution history
+    - ◦ Success/failure logs
+    - ◦ Execution duration tracking
+    - ◦ Resource usage metrics
+- [ ] **Alerts & Notifications**
+    - ◦ Job failure alerts
+    - ◦ Timeout notifications
+    - ◦ Email notifications
+    - ◦ Webhook integration
+
+#### Distributed Scheduling
+
+- [ ] **Multi-Node Support**
+    - ◦ Distributed job execution
+    - ◦ Leader election
+    - ◦ Job persistence
+    - ◦ Node health monitoring
+- [ ] **Scalability**
+    - ◦ Horizontal scaling
+    - ◦ Load distribution
+    - ◦ Fault tolerance
+    - ◦ Data replication
+
+---
+
+**Last Updated**: December 6, 2025 (Extended)
+**Status**: Ready for implementation planning
 **Last Updated**: December 6, 2025  
 **Status**: Ready for implementation planning
