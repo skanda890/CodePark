@@ -85,10 +85,13 @@ app.use((req, res, next) => {
   // Log response time
   res.on('finish', () => {
     const duration = Date.now() - req.startTime
-    logger.debug(`[RES] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`, {
-      id: req.id,
-      duration
-    })
+    logger.debug(
+      `[RES] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`,
+      {
+        id: req.id,
+        duration
+      }
+    )
   })
 
   next()
@@ -275,7 +278,11 @@ function evaluateTowerExponentiation (base, exponentExpr) {
       }
     }
 
-    if (exponentExpr === 'SKEWES' || exponentExpr === 'MOSER' || exponentExpr === 'GRAHAMS') {
+    if (
+      exponentExpr === 'SKEWES' ||
+      exponentExpr === 'MOSER' ||
+      exponentExpr === 'GRAHAMS'
+    ) {
       const names = {
         SKEWES: "Skewes' number",
         MOSER: "Moser's number",
@@ -325,8 +332,10 @@ function evaluateTowerExponentiation (base, exponentExpr) {
  * @throws {Error} If calculation fails
  */
 function calculateCore (expression) {
-  const sqrtRegex = /squareroot\s*\(([\d.]+)\)|\u221a\s*\(([\d.]+)\)|\u221a\s*([\d.]+)/i
-  const squareRegex = /square\s*\(([\d.]+)\)|\(([\d.]+)\)\s*\^\s*2|([\d.]+)\s*\^\s*2/i
+  const sqrtRegex =
+    /squareroot\s*\(([\d.]+)\)|\u221a\s*\(([\d.]+)\)|\u221a\s*([\d.]+)/i
+  const squareRegex =
+    /square\s*\(([\d.]+)\)|\(([\d.]+)\)\s*\^\s*2|([\d.]+)\s*\^\s*2/i
   const vietaRegex = /vieta\s*\(\s*(\d+)\s*\)/
   const towerRegex = /(\d+)\^(\d+)\^([\w\+\-\*\/\(\)]+)/g
 
@@ -343,11 +352,14 @@ function calculateCore (expression) {
     let middleResult
     const shorthandValue = shorthandMap[secondExp.toLowerCase()]
     if (shorthandValue) {
-      middleResult = typeof shorthandValue === 'string'
-        ? shorthandValue
-        : new Decimal(firstExp).pow(shorthandValue).toString()
+      middleResult =
+        typeof shorthandValue === 'string'
+          ? shorthandValue
+          : new Decimal(firstExp).pow(shorthandValue).toString()
     } else {
-      middleResult = new Decimal(firstExp).pow(new Decimal(secondExp)).toString()
+      middleResult = new Decimal(firstExp)
+        .pow(new Decimal(secondExp))
+        .toString()
     }
 
     const towerResult = evaluateTowerExponentiation(base, middleResult)
@@ -419,7 +431,9 @@ function calculateCore (expression) {
   if (vietaRegex.test(processedExpr)) {
     const iterations = parseInt(processedExpr.match(vietaRegex)[1], 10)
     if (iterations > CONFIG.MAX_VIETA_ITERATIONS) {
-      throw new Error(`Vieta iterations limited to ${CONFIG.MAX_VIETA_ITERATIONS}`)
+      throw new Error(
+        `Vieta iterations limited to ${CONFIG.MAX_VIETA_ITERATIONS}`
+      )
     }
 
     let product = new Decimal(1)
@@ -520,7 +534,9 @@ function handleCalculation (expr) {
 // ============================================================================
 
 app.get('/', (req, res) => {
-  res.send('Welcome to Math Calculator API v2.0! Visit /calculator or /api/docs')
+  res.send(
+    'Welcome to Math Calculator API v2.0! Visit /calculator or /api/docs'
+  )
 })
 
 app.get('/calculator', (req, res) => {
@@ -571,7 +587,7 @@ app.post('/calculate/batch', calculateLimiter, (req, res) => {
       })
     }
 
-    const results = expressions.map(expr => ({
+    const results = expressions.map((expr) => ({
       expression: expr,
       ...handleCalculation(expr)
     }))
@@ -605,8 +621,13 @@ app.get('/metrics', (req, res) => {
     requestCount: metrics.requestCount,
     calculationCount: metrics.totalCalculations,
     errorCount: metrics.errorCount,
-    errorRate: metrics.requestCount ? ((metrics.errorCount / metrics.requestCount) * 100).toFixed(2) + '%' : '0%',
-    avgCalculationTime: metrics.totalCalculations ? (metrics.totalExecutionTime / metrics.totalCalculations).toFixed(2) + 'ms' : '0ms',
+    errorRate: metrics.requestCount
+      ? ((metrics.errorCount / metrics.requestCount) * 100).toFixed(2) + '%'
+      : '0%',
+    avgCalculationTime: metrics.totalCalculations
+      ? (metrics.totalExecutionTime / metrics.totalCalculations).toFixed(2) +
+        'ms'
+      : '0ms',
     cacheSize: calculationCache.size
   })
 })
@@ -643,7 +664,7 @@ app.get('/api/docs', (req, res) => {
       'Arbitrary precision arithmetic (1000 digits)',
       'Large number support (googol, googolplex, etc)',
       'Tower exponentiation (10^10^googolplex)',
-      'Vieta\'s formula for π approximation',
+      "Vieta's formula for π approximation",
       'Batch calculations',
       'Request/response caching',
       'Performance metrics'
@@ -666,7 +687,10 @@ app.use((err, req, res, next) => {
   logger.error('Unhandled error', { error: err.message, path: req.path })
   res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    message:
+      process.env.NODE_ENV === 'development'
+        ? err.message
+        : 'Something went wrong',
     requestId: req.id
   })
 })
@@ -677,7 +701,7 @@ app.use((err, req, res, next) => {
 
 const hostname = process.env.HOST || 'localhost'
 const server = app.listen(port, () => {
-  logger.info(`Math Calculator API v2.0 started`, {
+  logger.info('Math Calculator API v2.0 started', {
     port,
     environment: process.env.NODE_ENV || 'development',
     url: `http://${hostname}:${port}`,

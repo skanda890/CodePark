@@ -62,26 +62,33 @@ Port number for the server:
 ### Example Usage
 
 **Development Mode (Verbose, Local)**:
+
 ```bash
 NODE_ENV=development npm run dev
 ```
+
 Output: Full debug logging, development-friendly error messages
 
 **Production Mode (Minimal, External)**:
+
 ```bash
 NODE_ENV=production HOST=0.0.0.0 PORT=80 npm start
 ```
+
 Output: Only errors and warnings, sanitized error messages, accessible from any host
 
 **Silent Mode (No Logs)**:
+
 ```bash
 NODE_ENV=silent npm start
 ```
+
 Output: No console output, metrics endpoint still works
 
 ### Logging Behavior
 
 **Important Note**: Expressions are NEVER logged by default. The logging system only tracks:
+
 - Expression length (not content)
 - Error messages (without expression details)
 - Request counts and timing
