@@ -13,6 +13,7 @@ http://localhost:4000
 ## Authentication
 
 No authentication required. Rate limiting applies:
+
 - **General endpoints**: 100 requests per 15 minutes per IP
 - **Calculate endpoint**: 20 requests per minute per IP
 
@@ -45,6 +46,7 @@ Evaluate a single mathematical expression.
 #### Examples
 
 **Basic arithmetic:**
+
 ```bash
 curl -X POST http://localhost:4000/calculate \
   -H "Content-Type: application/json" \
@@ -52,6 +54,7 @@ curl -X POST http://localhost:4000/calculate \
 ```
 
 **Large numbers:**
+
 ```bash
 curl -X POST http://localhost:4000/calculate \
   -H "Content-Type: application/json" \
@@ -59,6 +62,7 @@ curl -X POST http://localhost:4000/calculate \
 ```
 
 **Tower exponentiation:**
+
 ```bash
 curl -X POST http://localhost:4000/calculate \
   -H "Content-Type: application/json" \
@@ -66,6 +70,7 @@ curl -X POST http://localhost:4000/calculate \
 ```
 
 **Vieta's formula:**
+
 ```bash
 curl -X POST http://localhost:4000/calculate \
   -H "Content-Type: application/json" \
@@ -92,11 +97,7 @@ Evaluate multiple expressions in a single request (max 10).
 
 ```json
 {
-  "expressions": [
-    "5 + 3",
-    "10 * 2",
-    "vieta(50)"
-  ]
+  "expressions": ["5 + 3", "10 * 2", "vieta(50)"]
 }
 ```
 
@@ -222,13 +223,13 @@ Access the web-based calculator interface.
 
 ### Common Errors
 
-| Status | Error | Cause |
-|--------|-------|-------|
-| 400 | Invalid request | Missing expression field |
-| 400 | Expression too long | Exceeds 10,000 characters |
-| 400 | Unsafe patterns | Contains require(), eval(), etc |
-| 429 | Rate limit exceeded | Too many requests |
-| 500 | Internal server error | Server error |
+| Status | Error                 | Cause                           |
+| ------ | --------------------- | ------------------------------- |
+| 400    | Invalid request       | Missing expression field        |
+| 400    | Expression too long   | Exceeds 10,000 characters       |
+| 400    | Unsafe patterns       | Contains require(), eval(), etc |
+| 429    | Rate limit exceeded   | Too many requests               |
+| 500    | Internal server error | Server error                    |
 
 ### Example Error
 
@@ -239,6 +240,7 @@ curl -X POST http://localhost:4000/calculate \
 ```
 
 Response:
+
 ```json
 {
   "error": "Invalid request",
@@ -282,6 +284,7 @@ Support for power towers:
 ### Special Functions
 
 **Vieta's Formula** - Approximate π:
+
 ```
 vieta(1000)     → 3.14159265... (1000 iterations)
 ```
@@ -379,18 +382,22 @@ curl http://localhost:4000/api/docs
 ## Troubleshooting
 
 ### "Expression too long"
+
 - **Cause**: Expression exceeds 10,000 characters
 - **Solution**: Split into smaller expressions or use batch endpoint
 
 ### "Too many requests"
+
 - **Cause**: Rate limit exceeded
 - **Solution**: Wait before retrying or implement exponential backoff
 
 ### "Unsafe patterns"
+
 - **Cause**: Expression contains dangerous patterns (require, eval, etc)
 - **Solution**: Use only mathematical expressions
 
 ### Slow Performance
+
 - **Cause**: Large Vieta iterations or complex expressions
 - **Solution**: Check metrics endpoint, reduce iterations
 
@@ -399,6 +406,7 @@ curl http://localhost:4000/api/docs
 ## Version History
 
 ### v2.0.0 (Current)
+
 - Added batch calculation endpoint
 - Added metrics endpoint
 - Added caching
@@ -407,6 +415,7 @@ curl http://localhost:4000/api/docs
 - Performance improvements
 
 ### v1.0.0
+
 - Initial release
 - Single calculation
 - Large number support

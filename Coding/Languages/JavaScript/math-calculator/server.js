@@ -92,15 +92,22 @@ app.use((req, res, next) => {
   req.startTime = Date.now()
   req.id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-  logger.debug("[REQ] %s %s", req.method, req.path, { id: req.id })
+  logger.debug('[REQ] %s %s', req.method, req.path, { id: req.id })
 
   // Log response time
   res.on('finish', () => {
     const duration = Date.now() - req.startTime
-    logger.debug("[RES] %s %s - %s (%sms)", req.method, req.path, res.statusCode, duration, {
-      id: req.id,
-      duration
-    })
+    logger.debug(
+      '[RES] %s %s - %s (%sms)',
+      req.method,
+      req.path,
+      res.statusCode,
+      duration,
+      {
+        id: req.id,
+        duration
+      }
+    )
   })
 
   next()
@@ -267,7 +274,11 @@ function evaluateTowerExponentiation (base, exponentExpr) {
       }
     }
 
-    if (exponentExpr === 'SKEWES' || exponentExpr === 'MOSER' || exponentExpr === 'GRAHAMS') {
+    if (
+      exponentExpr === 'SKEWES' ||
+      exponentExpr === 'MOSER' ||
+      exponentExpr === 'GRAHAMS'
+    ) {
       const names = {
         SKEWES: "Skewes' number",
         MOSER: "Moser's number",
@@ -329,11 +340,14 @@ function handleCalculation (expr) {
       let middleResult
       if (shorthandMap[secondExp.toLowerCase()]) {
         const shorthandValue = shorthandMap[secondExp.toLowerCase()]
-        middleResult = typeof shorthandValue === 'string' 
-          ? shorthandValue 
-          : new Decimal(firstExp).pow(shorthandValue).toString()
+        middleResult =
+          typeof shorthandValue === 'string'
+            ? shorthandValue
+            : new Decimal(firstExp).pow(shorthandValue).toString()
       } else {
-        middleResult = new Decimal(firstExp).pow(new Decimal(secondExp)).toString()
+        middleResult = new Decimal(firstExp)
+          .pow(new Decimal(secondExp))
+          .toString()
       }
 
       const towerResult = evaluateTowerExponentiation(base, middleResult)
@@ -364,7 +378,9 @@ function handleCalculation (expr) {
             if (multiplier === 'GOOGOLPLEX') return `10^(10^100 * ${number})`
             if (multiplier === 'SKEWES') return `10^(10^(10^34) * ${number})`
             if (multiplier === 'MOSER' || multiplier === 'GRAHAMS') {
-              throw new Error(`${term} is beyond computational representation.`)
+              throw new Error(
+                `${term} is beyond computational representation.`
+              )
             }
           }
           return base.times(multiplier).toString()
@@ -383,14 +399,24 @@ function handleCalculation (expr) {
       let intermediateExpression = lastPart
 
       if (sqrtRegex.test(lastPart)) {
-        intermediateExpression = new Decimal(parseFloat(lastPart.match(sqrtRegex)[1])).sqrt().toString()
+        intermediateExpression = new Decimal(
+          parseFloat(lastPart.match(sqrtRegex)[1])
+        )
+          .sqrt()
+          .toString()
       } else if (squareRegex.test(lastPart)) {
-        intermediateExpression = new Decimal(parseFloat(lastPart.match(squareRegex)[1])).pow(2).toString()
+        intermediateExpression = new Decimal(
+          parseFloat(lastPart.match(squareRegex)[1])
+        )
+          .pow(2)
+          .toString()
       } else {
         intermediateExpression = mathInstance.evaluate(lastPart).toString()
       }
 
-      solution = mathInstance.evaluate(parts.concat(intermediateExpression).join('=')).toString()
+      solution = mathInstance
+        .evaluate(parts.concat(intermediateExpression).join('='))
+        .toString()
       explanation = `Assignment evaluation: ${processedExpr} = ${solution}`
       const result = { question, solution, explanation }
       setCachedResult(expr, result)
@@ -401,7 +427,9 @@ function handleCalculation (expr) {
     if (vietaRegex.test(processedExpr)) {
       const iterations = parseInt(processedExpr.match(vietaRegex)[1], 10)
       if (iterations > CONFIG.MAX_VIETA_ITERATIONS) {
-        throw new Error(`Vieta iterations limited to ${CONFIG.MAX_VIETA_ITERATIONS}`)
+        throw new Error(
+          `Vieta iterations limited to ${CONFIG.MAX_VIETA_ITERATIONS}`
+        )
       }
 
       let product = new Decimal(1)
@@ -460,7 +488,10 @@ function handleCalculation (expr) {
     return result
   } catch (error) {
     metrics.errorCount++
-    logger.error('Calculation error', { error: error.message, expr: expr.substring(0, 50) })
+    logger.error('Calculation error', {
+      error: error.message,
+      expr: expr.substring(0, 50)
+    })
     return {
       question: `What is the result of: ${expr}?`,
       solution: 'Error',
@@ -478,7 +509,9 @@ function handleCalculation (expr) {
 // ============================================================================
 
 app.get('/', (req, res) => {
-  res.send('Welcome to Math Calculator API v2.0! Visit /calculator or /api/docs')
+  res.send(
+    'Welcome to Math Calculator API v2.0! Visit /calculator or /api/docs'
+  )
 })
 
 app.get('/calculator', (req, res) => {
@@ -529,7 +562,7 @@ app.post('/calculate/batch', calculateLimiter, (req, res) => {
       })
     }
 
-    const results = expressions.map(expr => ({
+    const results = expressions.map((expr) => ({
       expression: expr,
       ...handleCalculation(expr)
     }))
@@ -563,8 +596,13 @@ app.get('/metrics', (req, res) => {
     requestCount: metrics.requestCount,
     calculationCount: metrics.totalCalculations,
     errorCount: metrics.errorCount,
-    errorRate: metrics.requestCount ? ((metrics.errorCount / metrics.requestCount) * 100).toFixed(2) + '%' : '0%',
-    avgCalculationTime: metrics.totalCalculations ? (metrics.totalExecutionTime / metrics.totalCalculations).toFixed(2) + 'ms' : '0ms',
+    errorRate: metrics.requestCount
+      ? ((metrics.errorCount / metrics.requestCount) * 100).toFixed(2) + '%'
+      : '0%',
+    avgCalculationTime: metrics.totalCalculations
+      ? (metrics.totalExecutionTime / metrics.totalCalculations).toFixed(2) +
+        'ms'
+      : '0ms',
     cacheSize: calculationCache.size
   })
 })
@@ -601,7 +639,7 @@ app.get('/api/docs', (req, res) => {
       'Arbitrary precision arithmetic (1000 digits)',
       'Large number support (googol, googolplex, etc)',
       'Tower exponentiation (10^10^googolplex)',
-      'Vieta\'s formula for π approximation',
+      "Vieta's formula for π approximation",
       'Batch calculations',
       'Request/response caching',
       'Performance metrics'
@@ -624,7 +662,10 @@ app.use((err, req, res, next) => {
   logger.error('Unhandled error', { error: err.message, path: req.path })
   res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    message:
+      process.env.NODE_ENV === 'development'
+        ? err.message
+        : 'Something went wrong',
     requestId: req.id
   })
 })
@@ -634,7 +675,7 @@ app.use((err, req, res, next) => {
 // ============================================================================
 
 const server = app.listen(port, () => {
-  logger.info(`Math Calculator API v2.0 started`, {
+  logger.info('Math Calculator API v2.0 started', {
     port,
     environment: process.env.NODE_ENV || 'development',
     url: `http://localhost:${port}`
