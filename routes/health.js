@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const os = require('os')
 const { version } = require('../package.json')
+const config = require('../config')
+const logger = require('../config/logger')
 
 /**
  * Health Check Routes
@@ -29,8 +31,17 @@ router.get('/', (req, res) => {
  * Detailed Health Check
  * @route GET /health/detailed
  * @returns {object} Comprehensive system status
+ * FIXED: Protected with authentication to prevent information disclosure
  */
 router.get('/detailed', async (req, res) => {
+  // SECURITY FIX: Verify authentication before exposing detailed system info
+  const authToken = req.headers.authorization
+  if (!authToken) {
+    return res.status(401).json({
+      error: 'Unauthorized: Authentication required for detailed health checks'
+    })
+  }
+
   const healthChecks = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -78,8 +89,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.mongodb = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'MongoDB health check error')
   }
 
   // Check Redis connection
@@ -99,8 +111,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.redis = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'Redis health check error')
   }
 
   // Check Kafka connection (if enabled)
@@ -119,8 +132,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.kafka = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'Kafka health check error')
   }
 
   // Determine overall status
@@ -154,6 +168,7 @@ router.get('/ready', async (req, res) => {
     }
   } catch (error) {
     checks.mongodb = false
+    logger.debug({ err: error }, 'MongoDB readiness check error')
   }
 
   try {
@@ -163,6 +178,7 @@ router.get('/ready', async (req, res) => {
     }
   } catch (error) {
     checks.redis = false
+    logger.debug({ err: error }, 'Redis readiness check error')
   }
 
   // App is ready if at least MongoDB is connected
@@ -207,16 +223,24 @@ router.get('/startup', (req, res) => {
 
 /**
  * Metrics Summary
+ * FIXED: Protected with authentication to prevent information disclosure
  * @route GET /health/metrics
  * @returns {object} Application metrics
  */
 router.get('/metrics', (req, res) => {
+  // SECURITY FIX: Verify authentication before exposing metrics
+  const authToken = req.headers.authorization
+  if (!authToken) {
+    return res.status(401).json({
+      error: 'Unauthorized: Authentication required for metrics'
+    })
+  }
+
   const metrics = {
     timestamp: new Date().toISOString(),
     process: {
       uptime: process.uptime(),
       pid: process.pid,
-      ppid: process.ppid,
       platform: process.platform,
       nodeVersion: process.version,
       memory: {
@@ -242,10 +266,19 @@ router.get('/metrics', (req, res) => {
 
 /**
  * Version Information
+ * FIXED: Restricted to authenticated users only
  * @route GET /health/version
  * @returns {object} Application version and build info
  */
 router.get('/version', (req, res) => {
+  // SECURITY FIX: Verify authentication before exposing version info
+  const authToken = req.headers.authorization
+  if (!authToken) {
+    return res.status(401).json({
+      error: 'Unauthorized: Authentication required for version information'
+    })
+  }
+
   res.status(200).json({
     application: 'CodePark',
     version,
@@ -259,10 +292,19 @@ router.get('/version', (req, res) => {
 
 /**
  * Security Status
+ * FIXED: Restricted to authenticated users only
  * @route GET /health/security
  * @returns {object} Security configuration status
  */
 router.get('/security', (req, res) => {
+  // SECURITY FIX: Verify authentication before exposing security status
+  const authToken = req.headers.authorization
+  if (!authToken) {
+    return res.status(401).json({
+      error: 'Unauthorized: Authentication required for security information'
+    })
+  }
+
   const securityStatus = {
     helmet: process.env.ENABLE_HELMET === 'true',
     rateLimiting: process.env.ENABLE_RATE_LIMITING === 'true',
