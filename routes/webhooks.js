@@ -26,7 +26,7 @@ const limiter = RateLimit({
   max: 100,
   message: {
     success: false,
-    error: "Too many requests, please try again later."
+    error: 'Too many requests, please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false
