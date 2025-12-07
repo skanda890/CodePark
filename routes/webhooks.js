@@ -54,7 +54,7 @@ const webhookValidationRules = () => [
     ])
     .withMessage('Invalid event type'),
   body('active')
-    .optional()
+    .optional({ nullable: true })
     .isBoolean()
     .withMessage('Active must be boolean')
     .toBoolean(),
