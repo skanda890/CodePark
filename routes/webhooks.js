@@ -10,7 +10,6 @@ const { body, validationResult } = require('express-validator')
 const RateLimit = require('express-rate-limit')
 const WebhookService = require('../services/WebhookService')
 const authMiddleware = require('../middleware/auth')
-const { validateInput } = require('../middleware/security')
 const logger = require('../config/logger')
 
 const webhookService = new WebhookService()
