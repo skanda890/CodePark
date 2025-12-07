@@ -246,7 +246,9 @@ router.get('/metrics', (req, res) => {
       error: 'Unauthorized: Authentication required for metrics'
     })
   }
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : authHeader
   try {
     const jwt = require('jsonwebtoken')
     jwt.verify(token, config.jwtSecret)
@@ -298,7 +300,9 @@ router.get('/version', (req, res) => {
       error: 'Unauthorized: Authentication required for version information'
     })
   }
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : authHeader
   try {
     const jwt = require('jsonwebtoken')
     jwt.verify(token, config.jwtSecret)
