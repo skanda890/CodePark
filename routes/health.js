@@ -2,10 +2,13 @@ const express = require('express')
 const router = express.Router()
 const os = require('os')
 const { version } = require('../package.json')
+const authMiddleware = require('../middleware/auth')
+const logger = require('../config/logger')
 
 /**
  * Health Check Routes
  * Provides system status, dependency health, and metrics
+ * FIXED: Using proper authMiddleware for JWT validation instead of manual checks
  */
 
 // Store application start time
@@ -15,6 +18,7 @@ const startTime = Date.now()
  * Basic Health Check
  * @route GET /health
  * @returns {object} Basic health status
+ * PUBLIC: No authentication required (essential for monitoring)
  */
 router.get('/', (req, res) => {
   res.status(200).json({
@@ -29,8 +33,9 @@ router.get('/', (req, res) => {
  * Detailed Health Check
  * @route GET /health/detailed
  * @returns {object} Comprehensive system status
+ * FIXED: Protected with proper JWT authentication using authMiddleware (CWE-287)
  */
-router.get('/detailed', async (req, res) => {
+router.get('/detailed', authMiddleware, async (req, res) => {
   const healthChecks = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -78,8 +83,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.mongodb = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'MongoDB health check error')
   }
 
   // Check Redis connection
@@ -99,8 +105,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.redis = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'Redis health check error')
   }
 
   // Check Kafka connection (if enabled)
@@ -119,8 +126,9 @@ router.get('/detailed', async (req, res) => {
   } catch (error) {
     healthChecks.dependencies.kafka = {
       status: 'error',
-      message: error.message
+      message: 'Connection check failed'
     }
+    logger.debug({ err: error }, 'Kafka health check error')
   }
 
   // Determine overall status
@@ -140,6 +148,7 @@ router.get('/detailed', async (req, res) => {
  * Readiness Probe
  * @route GET /health/ready
  * @returns {object} Readiness status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/ready', async (req, res) => {
   const checks = {
@@ -154,6 +163,7 @@ router.get('/ready', async (req, res) => {
     }
   } catch (error) {
     checks.mongodb = false
+    logger.debug({ err: error }, 'MongoDB readiness check error')
   }
 
   try {
@@ -163,6 +173,7 @@ router.get('/ready', async (req, res) => {
     }
   } catch (error) {
     checks.redis = false
+    logger.debug({ err: error }, 'Redis readiness check error')
   }
 
   // App is ready if at least MongoDB is connected
@@ -179,6 +190,7 @@ router.get('/ready', async (req, res) => {
  * Liveness Probe
  * @route GET /health/live
  * @returns {object} Liveness status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/live', (req, res) => {
   // Simple check - if we can respond, we're alive
@@ -193,6 +205,7 @@ router.get('/live', (req, res) => {
  * Startup Probe
  * @route GET /health/startup
  * @returns {object} Startup status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/startup', (req, res) => {
   // Check if application has been running for at least 5 seconds
@@ -207,16 +220,16 @@ router.get('/startup', (req, res) => {
 
 /**
  * Metrics Summary
+ * FIXED: Protected with proper JWT authentication using authMiddleware (CWE-200)
  * @route GET /health/metrics
  * @returns {object} Application metrics
  */
-router.get('/metrics', (req, res) => {
+router.get('/metrics', authMiddleware, (req, res) => {
   const metrics = {
     timestamp: new Date().toISOString(),
     process: {
       uptime: process.uptime(),
       pid: process.pid,
-      ppid: process.ppid,
       platform: process.platform,
       nodeVersion: process.version,
       memory: {
@@ -242,10 +255,11 @@ router.get('/metrics', (req, res) => {
 
 /**
  * Version Information
+ * FIXED: Restricted to authenticated users only with proper JWT validation (CWE-200)
  * @route GET /health/version
  * @returns {object} Application version and build info
  */
-router.get('/version', (req, res) => {
+router.get('/version', authMiddleware, (req, res) => {
   res.status(200).json({
     application: 'CodePark',
     version,
@@ -259,10 +273,11 @@ router.get('/version', (req, res) => {
 
 /**
  * Security Status
+ * FIXED: Restricted to authenticated users only with proper JWT validation (CWE-200)
  * @route GET /health/security
  * @returns {object} Security configuration status
  */
-router.get('/security', (req, res) => {
+router.get('/security', authMiddleware, (req, res) => {
   const securityStatus = {
     helmet: process.env.ENABLE_HELMET === 'true',
     rateLimiting: process.env.ENABLE_RATE_LIMITING === 'true',
