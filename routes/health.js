@@ -41,7 +41,9 @@ router.get('/detailed', async (req, res) => {
       error: 'Unauthorized: Authentication required for detailed health checks'
     })
   }
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : authHeader
   try {
     const jwt = require('jsonwebtoken')
     jwt.verify(token, config.jwtSecret)
