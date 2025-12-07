@@ -2,12 +2,13 @@ const express = require('express')
 const router = express.Router()
 const os = require('os')
 const { version } = require('../package.json')
-const config = require('../config')
+const authMiddleware = require('../middleware/auth')
 const logger = require('../config/logger')
 
 /**
  * Health Check Routes
  * Provides system status, dependency health, and metrics
+ * FIXED: Using proper authMiddleware for JWT validation instead of manual checks
  */
 
 // Store application start time
@@ -17,6 +18,7 @@ const startTime = Date.now()
  * Basic Health Check
  * @route GET /health
  * @returns {object} Basic health status
+ * PUBLIC: No authentication required (essential for monitoring)
  */
 router.get('/', (req, res) => {
   res.status(200).json({
@@ -31,28 +33,9 @@ router.get('/', (req, res) => {
  * Detailed Health Check
  * @route GET /health/detailed
  * @returns {object} Comprehensive system status
- * FIXED: Protected with authentication to prevent information disclosure
+ * FIXED: Protected with proper JWT authentication using authMiddleware (CWE-287)
  */
-router.get('/detailed', async (req, res) => {
-  // SECURITY FIX: Verify authentication before exposing detailed system info
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({
-      error: 'Unauthorized: Authentication required for detailed health checks'
-    })
-  }
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : authHeader
-  try {
-    const jwt = require('jsonwebtoken')
-    jwt.verify(token, config.jwtSecret)
-  } catch (err) {
-    return res.status(401).json({
-      error: 'Unauthorized: Invalid or expired token'
-    })
-  }
-
+router.get('/detailed', authMiddleware, async (req, res) => {
   const healthChecks = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -165,6 +148,7 @@ router.get('/detailed', async (req, res) => {
  * Readiness Probe
  * @route GET /health/ready
  * @returns {object} Readiness status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/ready', async (req, res) => {
   const checks = {
@@ -206,6 +190,7 @@ router.get('/ready', async (req, res) => {
  * Liveness Probe
  * @route GET /health/live
  * @returns {object} Liveness status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/live', (req, res) => {
   // Simple check - if we can respond, we're alive
@@ -220,6 +205,7 @@ router.get('/live', (req, res) => {
  * Startup Probe
  * @route GET /health/startup
  * @returns {object} Startup status for Kubernetes
+ * PUBLIC: No authentication required (essential for orchestration)
  */
 router.get('/startup', (req, res) => {
   // Check if application has been running for at least 5 seconds
@@ -234,30 +220,11 @@ router.get('/startup', (req, res) => {
 
 /**
  * Metrics Summary
- * FIXED: Protected with authentication to prevent information disclosure
+ * FIXED: Protected with proper JWT authentication using authMiddleware (CWE-200)
  * @route GET /health/metrics
  * @returns {object} Application metrics
  */
-router.get('/metrics', (req, res) => {
-  // SECURITY FIX: Verify authentication before exposing metrics
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({
-      error: 'Unauthorized: Authentication required for metrics'
-    })
-  }
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : authHeader
-  try {
-    const jwt = require('jsonwebtoken')
-    jwt.verify(token, config.jwtSecret)
-  } catch (err) {
-    return res.status(401).json({
-      error: 'Unauthorized: Invalid or expired token'
-    })
-  }
-
+router.get('/metrics', authMiddleware, (req, res) => {
   const metrics = {
     timestamp: new Date().toISOString(),
     process: {
@@ -288,30 +255,11 @@ router.get('/metrics', (req, res) => {
 
 /**
  * Version Information
- * FIXED: Restricted to authenticated users only
+ * FIXED: Restricted to authenticated users only with proper JWT validation (CWE-200)
  * @route GET /health/version
  * @returns {object} Application version and build info
  */
-router.get('/version', (req, res) => {
-  // SECURITY FIX: Verify authentication before exposing version info
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({
-      error: 'Unauthorized: Authentication required for version information'
-    })
-  }
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : authHeader
-  try {
-    const jwt = require('jsonwebtoken')
-    jwt.verify(token, config.jwtSecret)
-  } catch (err) {
-    return res.status(401).json({
-      error: 'Unauthorized: Invalid or expired token'
-    })
-  }
-
+router.get('/version', authMiddleware, (req, res) => {
   res.status(200).json({
     application: 'CodePark',
     version,
@@ -325,19 +273,11 @@ router.get('/version', (req, res) => {
 
 /**
  * Security Status
- * FIXED: Restricted to authenticated users only
+ * FIXED: Restricted to authenticated users only with proper JWT validation (CWE-200)
  * @route GET /health/security
  * @returns {object} Security configuration status
  */
-router.get('/security', (req, res) => {
-  // SECURITY FIX: Verify authentication before exposing security status
-  const authToken = req.headers.authorization
-  if (!authToken) {
-    return res.status(401).json({
-      error: 'Unauthorized: Authentication required for security information'
-    })
-  }
-
+router.get('/security', authMiddleware, (req, res) => {
   const securityStatus = {
     helmet: process.env.ENABLE_HELMET === 'true',
     rateLimiting: process.env.ENABLE_RATE_LIMITING === 'true',
