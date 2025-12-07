@@ -7,6 +7,7 @@
 const express = require('express')
 const router = express.Router()
 const { body, validationResult } = require('express-validator')
+const RateLimit = require('express-rate-limit')
 const WebhookService = require('../services/WebhookService')
 const authMiddleware = require('../middleware/auth')
 const { validateInput } = require('../middleware/security')
@@ -15,10 +16,22 @@ const logger = require('../config/logger')
 const webhookService = new WebhookService()
 
 /**
- * SECURITY FIX: Add authentication middleware to all webhook endpoints
+ * SECURITY FIX: Add authentication middleware and rate limiting to all webhook endpoints
  */
 router.use(authMiddleware)
 
+// Rate limiter: max 100 requests per 15 minutes per IP for webhook routes
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: {
+    success: false,
+    error: "Too many requests, please try again later."
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+router.use(limiter)
 /**
  * Input validation rules for webhooks
  */
