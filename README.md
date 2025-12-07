@@ -11,7 +11,7 @@ CodePark is a **bleeding-edge experimental** project management and collaboratio
 
 ---
 
-## 🌟 What's New in v3.0-experimental
+## 🌟 What's New in v2
 
 ### 🤖 AI & Machine Learning
 
