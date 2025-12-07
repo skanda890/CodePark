@@ -35,7 +35,8 @@ router.use(limiter)
 
 /**
  * Input validation rules for webhooks
- * Validates against whitelist of allowed fields
+ * Validates against whitelist of allowed fields (url, event, active, retryCount, headers)
+ * SECURITY FIX: Strict schema validation prevents mass-assignment and type confusion
  */
 const webhookValidationRules = () => [
   body('url')
@@ -52,7 +53,10 @@ const webhookValidationRules = () => [
       'error.occurred'
     ])
     .withMessage('Invalid event type'),
-  body('active').optional().isBoolean().withMessage('Active must be boolean'),
+  body('active')
+    .optional()
+    .isBoolean()
+    .withMessage('Active must be boolean'),
   body('retryCount')
     .optional()
     .isInt({ min: 0, max: 10 })
@@ -90,7 +94,7 @@ const validateWebhook = createValidationMiddleware({ entity: 'webhook' })
 /**
  * Load and authorize webhook access
  * Shared middleware for 404 + ownership checks
- * SECURITY FIX: Centralized authorization logic
+ * SECURITY FIX: Centralized authorization logic (CWE-287)
  */
 function loadWebhookAndAuthorize (req, res, next) {
   try {
@@ -107,7 +111,7 @@ function loadWebhookAndAuthorize (req, res, next) {
       })
     }
 
-    // SECURITY FIX: Verify ownership before granting access
+    // SECURITY FIX: Verify ownership before granting access (CWE-639)
     if (webhook.userId !== req.user.id) {
       logger.warn(
         { webhookId: req.params.id, userId: req.user?.id },
@@ -165,7 +169,7 @@ function handleRouteError (
 /**
  * Create a new webhook
  * POST /api/webhooks
- * FIXED: Added authentication, validation, field whitelisting
+ * FIXED: Added authentication, validation, field whitelisting (CWE-915)
  */
 router.post('/', webhookValidationRules(), validateWebhook, (req, res) => {
   try {
@@ -184,6 +188,8 @@ router.post('/', webhookValidationRules(), validateWebhook, (req, res) => {
       createdAt: new Date()
     }
 
+    // NOTE: webhookService.create() is synchronous and returns immediately
+    // If making this async in future, update to: const webhook = await webhookService.create(webhookData)
     const webhook = webhookService.create(webhookData)
 
     logger.info(
@@ -212,7 +218,7 @@ router.post('/', webhookValidationRules(), validateWebhook, (req, res) => {
 /**
  * List all webhooks for the authenticated user
  * GET /api/webhooks
- * FIXED: Added user-specific filtering and authentication
+ * FIXED: Added user-specific filtering and authentication (CWE-287)
  */
 router.get('/', (req, res) => {
   try {
@@ -255,7 +261,7 @@ router.get('/', (req, res) => {
 /**
  * Get webhook details
  * GET /api/webhooks/:id
- * FIXED: Added authorization check via middleware
+ * FIXED: Added authorization check via middleware (CWE-287)
  */
 router.get('/:id', loadWebhookAndAuthorize, (req, res) => {
   try {
@@ -280,7 +286,7 @@ router.get('/:id', loadWebhookAndAuthorize, (req, res) => {
 /**
  * Update webhook
  * PUT /api/webhooks/:id
- * FIXED: Added authentication, validation, authorization, and field whitelisting
+ * FIXED: Added authentication, validation, authorization, and field whitelisting (CWE-915, CWE-287)
  */
 router.put(
   '/:id',
@@ -301,6 +307,8 @@ router.put(
         headers
       }
 
+      // NOTE: webhookService.update() is synchronous and returns immediately
+      // If making this async in future, update to: const updatedWebhook = await webhookService.update(...)
       const updatedWebhook = webhookService.update(req.params.id, updateData)
 
       logger.info(
@@ -332,7 +340,7 @@ router.put(
 /**
  * Delete webhook
  * DELETE /api/webhooks/:id
- * FIXED: Added authentication and authorization
+ * FIXED: Added authentication and authorization (CWE-287)
  */
 router.delete('/:id', loadWebhookAndAuthorize, (req, res) => {
   try {
@@ -371,7 +379,7 @@ router.delete('/:id', loadWebhookAndAuthorize, (req, res) => {
 /**
  * Test webhook
  * POST /api/webhooks/:id/test
- * FIXED: Added authentication and authorization
+ * FIXED: Added authentication and authorization (CWE-287)
  */
 router.post('/:id/test', loadWebhookAndAuthorize, (req, res) => {
   try {
