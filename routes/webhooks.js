@@ -53,10 +53,7 @@ const webhookValidationRules = () => [
       'error.occurred'
     ])
     .withMessage('Invalid event type'),
-  body('active')
-    .optional()
-    .isBoolean()
-    .withMessage('Active must be boolean'),
+  body('active').optional().isBoolean().withMessage('Active must be boolean').toBoolean(),
   body('retryCount')
     .optional()
     .isInt({ min: 0, max: 10 })
