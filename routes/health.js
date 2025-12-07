@@ -292,10 +292,19 @@ router.get('/metrics', (req, res) => {
  */
 router.get('/version', (req, res) => {
   // SECURITY FIX: Verify authentication before exposing version info
-  const authToken = req.headers.authorization
-  if (!authToken) {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
     return res.status(401).json({
       error: 'Unauthorized: Authentication required for version information'
+    })
+  }
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
+  try {
+    const jwt = require('jsonwebtoken')
+    jwt.verify(token, config.jwtSecret)
+  } catch (err) {
+    return res.status(401).json({
+      error: 'Unauthorized: Invalid or expired token'
     })
   }
 
