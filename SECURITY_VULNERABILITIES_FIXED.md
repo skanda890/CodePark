@@ -50,6 +50,7 @@ The application exposed sensitive system information through unauthenticated hea
 #### Impact
 
 Attackers could use this information to:
+
 1. **Fingerprint the infrastructure** - Identify exact OS, Node version for targeted exploits
 2. **Estimate system capacity** - Plan denial-of-service attacks
 3. **Map deployment details** - Understand application architecture
@@ -62,21 +63,23 @@ Attackers could use this information to:
 
 ```javascript
 // SECURITY FIX: Verify authentication before exposing sensitive info
-const authToken = req.headers.authorization
+const authToken = req.headers.authorization;
 if (!authToken) {
   return res.status(401).json({
-    error: 'Unauthorized: Authentication required for detailed health checks'
-  })
+    error: "Unauthorized: Authentication required for detailed health checks",
+  });
 }
 ```
 
 **Protected Endpoints**:
+
 - `GET /health/detailed` - Requires authentication
-- `GET /health/metrics` - Requires authentication  
+- `GET /health/metrics` - Requires authentication
 - `GET /health/version` - Requires authentication
 - `GET /health/security` - Requires authentication
 
 **Public Endpoints** (still accessible):
+
 - `GET /health` - Basic health status only
 - `GET /health/ready` - Readiness probe (essential for orchestration)
 - `GET /health/live` - Liveness probe (essential for orchestration)
@@ -131,71 +134,73 @@ POST   /api/webhooks/:id/test - Test webhook (NO AUTH)
 #### Fix Applied
 
 **1. Authentication Middleware**
+
 ```javascript
 // Add authentication to all webhook routes
-router.use(authMiddleware)
+router.use(authMiddleware);
 ```
 
 **2. Authorization Checks**
+
 ```javascript
 // Verify ownership before returning webhook details
 if (webhook.userId !== req.user.id) {
   return res.status(403).json({
-    error: 'Forbidden: You do not have access to this webhook'
-  })
+    error: "Forbidden: You do not have access to this webhook",
+  });
 }
 ```
 
 **3. Input Validation**
+
 ```javascript
 const webhookValidationRules = () => [
-  body('url')
+  body("url")
     .isURL({ require_protocol: true })
-    .withMessage('Invalid webhook URL format')
+    .withMessage("Invalid webhook URL format")
     .isLength({ max: 2048 })
-    .withMessage('URL must be less than 2048 characters'),
-  body('event')
+    .withMessage("URL must be less than 2048 characters"),
+  body("event")
     .isIn([
-      'user.created',
-      'user.updated',
-      'game.started',
-      'game.completed',
-      'error.occurred'
+      "user.created",
+      "user.updated",
+      "game.started",
+      "game.completed",
+      "error.occurred",
     ])
-    .withMessage('Invalid event type'),
-  body('retryCount')
+    .withMessage("Invalid event type"),
+  body("retryCount")
     .optional()
     .isInt({ min: 0, max: 10 })
-    .withMessage('Retry count must be between 0 and 10')
-]
+    .withMessage("Retry count must be between 0 and 10"),
+];
 ```
 
 **4. User-Specific Filtering**
+
 ```javascript
 // Only return webhooks for the authenticated user
 const filters = {
-  userId: req.user.id,  // Add this field
+  userId: req.user.id, // Add this field
   // ... other filters
-}
+};
 ```
 
 **5. Audit Logging**
+
 ```javascript
-logger.info(
-  { webhookId: webhook.id, userId: req.user.id },
-  'Webhook created'
-)
+logger.info({ webhookId: webhook.id, userId: req.user.id }, "Webhook created");
 logger.warn(
   { webhookId: req.params.id, userId: req.user.id },
-  'Unauthorized access attempt to webhook'
-)
+  "Unauthorized access attempt to webhook",
+);
 ```
 
 #### Protected Endpoints (Now Secure)
 
 ```
 POST   /api/webhooks          - Requires JWT authentication
-GET    /api/webhooks          - Requires JWT authentication  
+GET    /api/webhooks          - Requires JWT authentication
 GET    /api/webhooks/:id      - Requires JWT + ownership verification
 PUT    /api/webhooks/:id      - Requires JWT + ownership verification + validation
 DELETE /api/webhooks/:id      - Requires JWT + ownership verification
@@ -240,20 +245,24 @@ Webhook endpoints accepted arbitrary input without validation:
 Implemented comprehensive input validation using express-validator:
 
 ```javascript
-body('url')
+(body("url")
   .isURL({ require_protocol: true })
-  .withMessage('Invalid webhook URL format')
+  .withMessage("Invalid webhook URL format")
   .isLength({ max: 2048 })
-  .withMessage('URL must be less than 2048 characters'),
-
-body('event')
-  .isIn(['user.created', 'user.updated', 'game.started', 'game.completed', 'error.occurred'])
-  .withMessage('Invalid event type'),
-
-body('retryCount')
-  .optional()
-  .isInt({ min: 0, max: 10 })
-  .withMessage('Retry count must be between 0 and 10')
+  .withMessage("URL must be less than 2048 characters"),
+  body("event")
+    .isIn([
+      "user.created",
+      "user.updated",
+      "game.started",
+      "game.completed",
+      "error.occurred",
+    ])
+    .withMessage("Invalid event type"),
+  body("retryCount")
+    .optional()
+    .isInt({ min: 0, max: 10 })
+    .withMessage("Retry count must be between 0 and 10"));
 ```
 
 ---
@@ -261,11 +270,13 @@ body('retryCount')
 ## Security Best Practices Implemented
 
 ### 1. Authentication & Authorization
+
 - ✅ JWT token-based authentication required for sensitive endpoints
 - ✅ User ownership verification on all resource operations
 - ✅ Proper 401/403 status codes for auth failures
 
 ### 2. Input Validation
+
 - ✅ Whitelist-based event type validation
 - ✅ URL format validation
 - ✅ Length limits on all string fields
@@ -273,18 +284,21 @@ body('retryCount')
 - ✅ Type checking for all inputs
 
 ### 3. Information Disclosure Prevention
+
 - ✅ Sensitive system details behind authentication
 - ✅ Generic error messages for production
 - ✅ Detailed errors only in development mode
 - ✅ No stack traces in API responses (production)
 
 ### 4. Audit Logging
+
 - ✅ All security events logged
 - ✅ Failed access attempts logged
 - ✅ User identification in all logs
 - ✅ Request ID tracking for forensics
 
 ### 5. Error Handling
+
 - ✅ Proper HTTP status codes
 - ✅ Meaningful error messages without information disclosure
 - ✅ Request ID included in error responses
@@ -296,12 +310,14 @@ body('retryCount')
 ### Immediate Actions
 
 1. **Review JWT Secret**
+
    ```bash
    # Ensure JWT_SECRET is strong and unique
    echo $JWT_SECRET | wc -c  # Should be >32 characters
    ```
 
 2. **Update Environment Variables**
+
    ```bash
    # In production, ensure these are set:
    JWT_SECRET=<generate-strong-random-secret>
@@ -310,10 +326,11 @@ body('retryCount')
    ```
 
 3. **Test Protected Endpoints**
+
    ```bash
    # All sensitive endpoints should return 401 without token
    curl http://localhost:3000/health/detailed
-   
+
    # Should return 401
    ```
 

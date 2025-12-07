@@ -69,44 +69,39 @@ const validate = (req, res, next) => {
  * POST /api/webhooks
  * FIXED: Added authentication, validation, and authorization
  */
-router.post(
-  '/',
-  webhookValidationRules(),
-  validate,
-  async (req, res) => {
-    try {
-      // SECURITY FIX: Ensure webhook is created by the authenticated user
-      const webhookData = {
-        ...req.body,
-        userId: req.user.id,
-        createdBy: req.user.id,
-        createdAt: new Date()
-      }
-
-      const webhook = await webhookService.create(webhookData)
-
-      logger.info(
-        { webhookId: webhook.id, userId: req.user.id },
-        'Webhook created'
-      )
-
-      res.status(201).json({
-        success: true,
-        data: webhook
-      })
-    } catch (error) {
-      logger.error(
-        { err: error, userId: req.user.id },
-        'Failed to create webhook'
-      )
-      res.status(400).json({
-        success: false,
-        error: 'Failed to create webhook',
-        message: process.env.NODE_ENV === 'development' ? error.message : ''
-      })
+router.post('/', webhookValidationRules(), validate, async (req, res) => {
+  try {
+    // SECURITY FIX: Ensure webhook is created by the authenticated user
+    const webhookData = {
+      ...req.body,
+      userId: req.user.id,
+      createdBy: req.user.id,
+      createdAt: new Date()
     }
+
+    const webhook = await webhookService.create(webhookData)
+
+    logger.info(
+      { webhookId: webhook.id, userId: req.user.id },
+      'Webhook created'
+    )
+
+    res.status(201).json({
+      success: true,
+      data: webhook
+    })
+  } catch (error) {
+    logger.error(
+      { err: error, userId: req.user.id },
+      'Failed to create webhook'
+    )
+    res.status(400).json({
+      success: false,
+      error: 'Failed to create webhook',
+      message: process.env.NODE_ENV === 'development' ? error.message : ''
+    })
   }
-)
+})
 
 /**
  * List all webhooks for the authenticated user
@@ -205,65 +200,54 @@ router.get('/:id', (req, res) => {
  * PUT /api/webhooks/:id
  * FIXED: Added authentication, validation, and authorization
  */
-router.put(
-  '/:id',
-  webhookValidationRules(),
-  validate,
-  async (req, res) => {
-    try {
-      const webhook = webhookService.get(req.params.id)
+router.put('/:id', webhookValidationRules(), validate, async (req, res) => {
+  try {
+    const webhook = webhookService.get(req.params.id)
 
-      if (!webhook) {
-        return res.status(404).json({
-          success: false,
-          error: 'Webhook not found'
-        })
-      }
-
-      // SECURITY FIX: Verify ownership before updating
-      if (webhook.userId !== req.user.id) {
-        logger.warn(
-          { webhookId: req.params.id, userId: req.user.id },
-          'Unauthorized update attempt on webhook'
-        )
-        return res.status(403).json({
-          success: false,
-          error: 'Forbidden: You do not have access to this webhook'
-        })
-      }
-
-      const updatedWebhook = await webhookService.update(
-        req.params.id,
-        req.body
-      )
-
-      logger.info(
-        { webhookId: req.params.id, userId: req.user.id },
-        'Webhook updated'
-      )
-
-      res.json({
-        success: true,
-        data: updatedWebhook
+    if (!webhook) {
+      return res.status(404).json({
+        success: false,
+        error: 'Webhook not found'
       })
-    } catch (error) {
-      logger.error(
-        { err: error, userId: req.user.id, webhookId: req.params.id },
-        'Failed to update webhook'
-      )
-      res
-        .status(
-          error.message && error.message.includes('not found') ? 404 : 400
-        )
-        .json({
-          success: false,
-          error: 'Failed to update webhook',
-          message:
-            process.env.NODE_ENV === 'development' ? error.message : ''
-        })
     }
+
+    // SECURITY FIX: Verify ownership before updating
+    if (webhook.userId !== req.user.id) {
+      logger.warn(
+        { webhookId: req.params.id, userId: req.user.id },
+        'Unauthorized update attempt on webhook'
+      )
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: You do not have access to this webhook'
+      })
+    }
+
+    const updatedWebhook = await webhookService.update(req.params.id, req.body)
+
+    logger.info(
+      { webhookId: req.params.id, userId: req.user.id },
+      'Webhook updated'
+    )
+
+    res.json({
+      success: true,
+      data: updatedWebhook
+    })
+  } catch (error) {
+    logger.error(
+      { err: error, userId: req.user.id, webhookId: req.params.id },
+      'Failed to update webhook'
+    )
+    res
+      .status(error.message && error.message.includes('not found') ? 404 : 400)
+      .json({
+        success: false,
+        error: 'Failed to update webhook',
+        message: process.env.NODE_ENV === 'development' ? error.message : ''
+      })
   }
-)
+})
 
 /**
  * Delete webhook
@@ -369,9 +353,7 @@ router.post('/:id/test', async (req, res) => {
       'Failed to test webhook'
     )
     res
-      .status(
-        error.message && error.message.includes('not found') ? 404 : 500
-      )
+      .status(error.message && error.message.includes('not found') ? 404 : 500)
       .json({
         success: false,
         error: 'Failed to test webhook',
