@@ -18,6 +18,7 @@ const authRoutes = require('./routes/auth')
 const gameRoutes = require('./games/routes/gameRoutes')
 const healthRoutes = require('./routes/health')
 const metricsRoutes = require('./routes/metrics')
+const webhookRoutes = require('./routes/webhooks')
 
 // Services
 const metricsService = require('./services/metrics')
@@ -91,6 +92,7 @@ app.get('/', (req, res) => {
       game: '/api/v1/game',
       health: '/health',
       metrics: config.metrics.enabled ? '/metrics' : null,
+      webhooks: '/api/webhooks',
       websocket: config.websocket.enabled ? config.websocket.path : null
     },
     documentation: 'https://github.com/skanda890/CodePark',
@@ -102,6 +104,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/game', authMiddleware, gameRoutes)
 app.use('/health', healthRoutes)
+app.use('/api/webhooks', webhookRoutes)
 
 if (config.metrics.enabled) {
   app.use('/metrics', metricsRoutes)
@@ -159,7 +162,8 @@ const server = app.listen(port, async () => {
   )
   logger.info('🎮 Games:       Number Guessing (CLI & API)')
   logger.info('✅ Security:    All dependencies pinned to stable versions')
-  logger.info('==============================================\n')
+  logger.info('✅ Webhooks:    Secured with JWT authentication & validation')
+  logger.info('==============================================')
 
   // Initialize cache service
   try {
