@@ -104,12 +104,14 @@ Backup Storage:
 ## Key Features Explained
 
 ### Full Backup
+
 - **When**: First backup or complete copy needed
 - **Size**: 100% of original files
 - **Time**: Longer
 - **Use**: Initial backup, important milestones
 
 ### Incremental Backup
+
 - **When**: Follow-up backups after changes
 - **Size**: 10-30% of original (only changed files)
 - **Time**: Faster
@@ -117,6 +119,7 @@ Backup Storage:
 - **Note**: Requires previous backup metadata
 
 ### Hash Verification
+
 - **What**: MD5 checksum for each file
 - **Why**: Detect corruption or tampering
 - **When**: Before restoring important data
@@ -125,6 +128,7 @@ Backup Storage:
 ## Tips & Tricks
 
 ### Tip 1: Naming Convention
+
 ```
 ✅ Good names:
   - project-v1
@@ -139,6 +143,7 @@ Backup Storage:
 ```
 
 ### Tip 2: Backup Frequency
+
 ```
 Small projects (< 100MB)
   └─ Daily backups
@@ -151,6 +156,7 @@ Large projects (> 1GB)
 ```
 
 ### Tip 3: Storage Path
+
 ```
 Default location: ~/.backup-manager/
 
@@ -161,6 +167,7 @@ To use different location:
 ```
 
 ### Tip 4: Testing
+
 ```
 Before relying on backups:
   1. Create a backup
@@ -173,27 +180,32 @@ Before relying on backups:
 ## Troubleshooting
 
 ### Problem: "Path does not exist"
+
 - **Solution**: Check path is correct and exists
 - **Example**: `/Users/username/projects/myapp` not `/projects/myapp`
 
 ### Problem: Permission denied errors
+
 - **Solution**: Run with appropriate permissions
 - **Windows**: Run as Administrator
 - **Mac/Linux**: Use `sudo npm start` if needed
 
 ### Problem: Backup seems slow
-- **Solution**: 
+
+- **Solution**:
   - Check disk speed (`dd if=/dev/zero of=test.file bs=1M count=100`)
   - Use incremental backups for faster backups
   - Close other I/O-heavy applications
 
 ### Problem: Verification fails with corrupted files
+
 - **Solution**:
   - Backup might be incomplete
   - Try creating a new backup
   - Check available disk space
 
 ### Problem: Out of disk space
+
 - **Solution**:
   - Delete old backups: Select **Delete Backup**
   - Use incremental backups
@@ -202,6 +214,7 @@ Before relying on backups:
 ## Best Practices
 
 ### Before Major Changes
+
 ```bash
 # 1. Create full backup
 Backup name: before-major-refactor
@@ -217,6 +230,7 @@ Select: Restore Backup
 ```
 
 ### Daily Workflow
+
 ```bash
 # Morning: Create incremental backup
 Backup name: daily-2025-12-13
@@ -227,6 +241,7 @@ Select: Verify Backup
 ```
 
 ### Archive Old Backups
+
 ```bash
 # 1. List all backups
 Select: List Backups
@@ -254,15 +269,15 @@ Project Size      | Full Backup | Incremental* | Storage
 
 ### Menu Options
 
-| Option | Action | Key Use |
-|--------|--------|----------|
-| Create Backup | New full or incremental backup | Initial backup, new versions |
-| Restore Backup | Restore files from backup | Recovery, deployment |
-| List Backups | View all backups | Review history, planning |
-| Verify Backup | Check backup integrity | Before important restore |
-| Delete Backup | Remove old backup | Free disk space |
-| Export Installed Apps | Generate install script | Setup new machine |
-| Exit | Close application | Done |
+| Option                | Action                         | Key Use                      |
+| --------------------- | ------------------------------ | ---------------------------- |
+| Create Backup         | New full or incremental backup | Initial backup, new versions |
+| Restore Backup        | Restore files from backup      | Recovery, deployment         |
+| List Backups          | View all backups               | Review history, planning     |
+| Verify Backup         | Check backup integrity         | Before important restore     |
+| Delete Backup         | Remove old backup              | Free disk space              |
+| Export Installed Apps | Generate install script        | Setup new machine            |
+| Exit                  | Close application              | Done                         |
 
 ## Getting Help
 
