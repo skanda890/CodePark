@@ -7,6 +7,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 1. **User Management & Presence** ✅
 
 #### Features:
+
 - User registration with custom username and avatar
 - Real-time online/offline status tracking
 - User list with status indicators
@@ -15,6 +16,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - User presence tracking
 
 **Implementation:**
+
 - Socket events: `register-user`, `user-registered`, `user-disconnected`, `get-users`, `users-list`
 - In-memory user storage with Map
 - Status badges with visual indicators
@@ -24,6 +26,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 2. **Enhanced Messaging System** ✅
 
 #### Features:
+
 - Real-time text messaging
 - Message history per room (last 50 messages)
 - Message timestamps
@@ -34,6 +37,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Message author information display
 
 **Implementation:**
+
 - Socket events: `send-message`, `new-message`, `user-typing`, `user-stopped-typing`
 - CryptoJS library for encryption
 - Message persistence in messageHistory Map
@@ -44,6 +48,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 3. **Room Management** ✅
 
 #### Features:
+
 - Create public and private chat rooms
 - Password-protected private rooms
 - Room listing with participant count
@@ -53,6 +58,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Room creation notifications
 
 **Implementation:**
+
 - REST API endpoints: `/api/create-room`, `/api/rooms`
 - Socket events: `join-room`, `leave-room`, `room-updated`
 - Room storage with participant management
@@ -63,6 +69,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 4. **Video & Audio Conferencing** ✅
 
 #### Features:
+
 - Real-time WebRTC peer connections
 - Video/audio streaming
 - Camera toggle (on/off)
@@ -76,6 +83,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Automatic STUN servers configuration
 
 **Implementation:**
+
 - RTCPeerConnection with proper configuration
 - getUserMedia for camera/microphone access
 - getDisplayMedia for screen sharing
@@ -88,6 +96,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 5. **Call Management** ✅
 
 #### Features:
+
 - Initiate calls
 - Answer/reject calls
 - End call functionality
@@ -97,6 +106,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Incoming call indicators
 
 **Implementation:**
+
 - Socket events: `initiate-call`, `end-call`, `incoming-call`, `call-ended`
 - Call state management
 - CallHistory array for persistence
@@ -108,6 +118,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 6. **File Sharing** ✅
 
 #### Features:
+
 - Share files in chat/rooms
 - File metadata tracking (name, size, type)
 - File data transmission
@@ -115,6 +126,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Timestamp recording
 
 **Implementation:**
+
 - Socket event: `share-file`
 - FileReader API for file handling
 - Base64 encoding for transmission
@@ -125,6 +137,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 7. **Security & Encryption** ✅
 
 #### Features:
+
 - End-to-end message encryption (AES-256)
 - Optional encryption toggle
 - Secure password for private rooms
@@ -133,6 +146,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Error handling and validation
 
 **Implementation:**
+
 - CryptoJS for encryption/decryption
 - Express-rate-limit middleware
 - Input validation
@@ -144,6 +158,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 8. **Modern User Interface** ✅
 
 #### Features:
+
 - Responsive design (desktop, tablet, mobile)
 - Dark/Light theme support
 - Clean and intuitive layout
@@ -157,6 +172,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Toast notifications
 
 **Implementation:**
+
 - CSS Grid and Flexbox layout
 - CSS variables for theming
 - Responsive media queries
@@ -169,6 +185,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 9. **Theme System** ✅
 
 #### Features:
+
 - Light/Dark theme toggle
 - Theme persistence (localStorage)
 - Smooth theme transitions
@@ -176,6 +193,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Automatic icon updates
 
 **Implementation:**
+
 - `data-theme` attribute
 - CSS custom properties
 - localStorage for persistence
@@ -186,6 +204,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 10. **Settings & Preferences** ✅
 
 #### Features:
+
 - Auto-answer calls option
 - HD quality toggle
 - Message encryption default setting
@@ -195,6 +214,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Settings persistence
 
 **Implementation:**
+
 - Settings modal dialog
 - Checkbox controls
 - State management
@@ -205,6 +225,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 11. **Call History** ✅
 
 #### Features:
+
 - View past calls
 - Call details (caller, time, duration)
 - Call history display
@@ -213,6 +234,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Formatted timestamps
 
 **Implementation:**
+
 - callHistory array
 - Call metadata tracking
 - REST API: `/api/call-history`
@@ -223,6 +245,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ### 12. **Participants Panel** ✅
 
 #### Features:
+
 - View room participants
 - Participant list with avatars
 - Join time display
@@ -231,6 +254,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - Real-time updates
 
 **Implementation:**
+
 - participants-panel element
 - updateParticipants() method
 - Socket event: `room-updated`
@@ -241,6 +265,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 ## 📊 Technical Architecture
 
 ### Backend Stack
+
 - **Framework:** Express.js
 - **Real-time:** Socket.IO
 - **Encryption:** CryptoJS (AES-256)
@@ -248,6 +273,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - **HTTP Server:** Node.js built-in http module
 
 ### Frontend Stack
+
 - **WebRTC:** Native RTCPeerConnection API
 - **Socket.IO Client:** Socket.IO 4.5.4
 - **Encryption:** CryptoJS 4.1.0
@@ -255,6 +281,7 @@ This document outlines all the new features implemented in the Web-RTC Chat appl
 - **Architecture:** Class-based OOP
 
 ### Data Structure
+
 - **Users Map:** `username`, `socketId`, `avatar`, `status`, `connectedAt`
 - **Rooms Map:** `id`, `name`, `participants`, `isPrivate`, `password`
 - **Messages Array:** `id`, `senderId`, `content`, `timestamp`, `encrypted`, `roomId`
@@ -277,6 +304,7 @@ GET  /api/call-history          - Get call history
 ### Socket.IO Events
 
 #### Emitted by Client
+
 - `register-user` - Register new user
 - `join-room` - Join a room
 - `leave-room` - Leave current room
@@ -293,6 +321,7 @@ GET  /api/call-history          - Get call history
 - `get-users` - Request user list
 
 #### Emitted by Server
+
 - `user-registered` - User joined
 - `new-message` - New message received
 - `users-list` - List of online users
@@ -311,6 +340,7 @@ GET  /api/call-history          - Get call history
 ## 🚀 Installation & Setup
 
 ### Prerequisites
+
 - Node.js (v14+)
 - npm or yarn
 - Modern browser with WebRTC support
@@ -345,61 +375,71 @@ Server will run on `http://localhost:3000`
 ## 📱 Usage Guide
 
 ### 1. **Join the Platform**
-   - Enter username
-   - Optionally add avatar URL
-   - Click "Join Chat"
-   - Allow camera/microphone access
+
+- Enter username
+- Optionally add avatar URL
+- Click "Join Chat"
+- Allow camera/microphone access
 
 ### 2. **Create a Room**
-   - Click "New Room" button
-   - Enter room name
-   - Optionally make it private with password
-   - Click "Create Room"
+
+- Click "New Room" button
+- Enter room name
+- Optionally make it private with password
+- Click "Create Room"
 
 ### 3. **Join a Room**
-   - Click on any room in the Rooms list
-   - Load previous messages automatically
-   - View participants
+
+- Click on any room in the Rooms list
+- Load previous messages automatically
+- View participants
 
 ### 4. **Send Messages**
-   - Type in the message input
-   - Toggle encryption if needed (🔒 icon)
-   - Press Enter or click send button
-   - See real-time delivery
+
+- Type in the message input
+- Toggle encryption if needed (🔒 icon)
+- Press Enter or click send button
+- See real-time delivery
 
 ### 5. **Start a Call**
-   - Click the phone icon (🔔)
-   - Camera and mic activate
-   - Remote user can answer
-   - Use controls to toggle camera/mic
-   - Click end call to disconnect
+
+- Click the phone icon (🔔)
+- Camera and mic activate
+- Remote user can answer
+- Use controls to toggle camera/mic
+- Click end call to disconnect
 
 ### 6. **Share Screen**
-   - Click screen share icon (📺)
-   - Select display to share
-   - Remote user sees your screen
-   - Click again to stop sharing
+
+- Click screen share icon (📺)
+- Select display to share
+- Remote user sees your screen
+- Click again to stop sharing
 
 ### 7. **Share Files**
-   - Click attachment icon (📎)
-   - Select file
-   - File metadata sent to room
-   - Others can download
+
+- Click attachment icon (📎)
+- Select file
+- File metadata sent to room
+- Others can download
 
 ### 8. **Manage Settings**
-   - Click Settings button
-   - Toggle preferences
-   - Settings auto-save
+
+- Click Settings button
+- Toggle preferences
+- Settings auto-save
 
 ### 9. **View Call History**
-   - Click Call History button
-   - See past calls with duration
-   - View caller and timestamp
+
+- Click Call History button
+- See past calls with duration
+- View caller and timestamp
 
 ### 10. **Theme Toggle**
-   - Click moon/sun icon (🌙/☀️)
-   - Toggle between light/dark modes
-   - Preference saved
+
+- Click moon/sun icon (🌙/☀️)
+- Toggle between light/dark modes
+- Preference saved
 
 ---
 
@@ -458,6 +498,7 @@ SkandaBT (@skanda890)
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
+
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit changes (`git commit -m 'Add amazing feature'`)
@@ -469,6 +510,7 @@ Contributions are welcome! Please:
 ## 📞 Support
 
 For issues or questions:
+
 - Open an issue on GitHub
 - Check existing documentation
 - Review code comments

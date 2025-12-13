@@ -1,271 +1,328 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web-RTC Chat - Enhanced Communication Platform</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1><i class="fas fa-video"></i> WebRTC Chat</h1>
-                <button id="theme-toggle" class="theme-btn" title="Toggle Theme">
-                    <i class="fas fa-moon"></i>
-                </button>
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1><i class="fas fa-video"></i> WebRTC Chat</h1>
+          <button id="theme-toggle" class="theme-btn" title="Toggle Theme">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+
+        <div class="user-profile">
+          <div class="user-info">
+            <img
+              id="user-avatar"
+              src="https://via.placeholder.com/40"
+              alt="Avatar"
+              class="avatar"
+            />
+            <div class="user-details">
+              <p id="username" class="user-name">Guest User</p>
+              <span id="user-status" class="status-badge online">Online</span>
             </div>
+          </div>
+          <div class="user-actions">
+            <button id="status-btn" class="icon-btn" title="Change Status">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+        </div>
 
-            <div class="user-profile">
-                <div class="user-info">
-                    <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
-                    <div class="user-details">
-                        <p id="username" class="user-name">Guest User</p>
-                        <span id="user-status" class="status-badge online">Online</span>
-                    </div>
-                </div>
-                <div class="user-actions">
-                    <button id="status-btn" class="icon-btn" title="Change Status">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </div>
+        <div class="sidebar-section">
+          <h3>Users Online (<span id="user-count">0</span>)</h3>
+          <div id="users-list" class="users-list"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Rooms</h3>
+          <div class="rooms-actions">
+            <button id="create-room-btn" class="btn btn-primary btn-sm">
+              <i class="fas fa-plus"></i> New Room
+            </button>
+          </div>
+          <div id="rooms-list" class="rooms-list"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Settings</h3>
+          <div class="settings-list">
+            <button id="settings-btn" class="settings-item">
+              <i class="fas fa-cog"></i> Settings
+            </button>
+            <button id="call-history-btn" class="settings-item">
+              <i class="fas fa-history"></i> Call History
+            </button>
+            <button id="help-btn" class="settings-item">
+              <i class="fas fa-question-circle"></i> Help
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Video Section -->
+        <div class="video-section">
+          <div class="video-container">
+            <div class="video-box local-video">
+              <video id="local-video" autoplay muted playsinline></video>
+              <div class="video-label">You</div>
             </div>
-
-            <div class="sidebar-section">
-                <h3>Users Online (<span id="user-count">0</span>)</h3>
-                <div id="users-list" class="users-list"></div>
+            <div class="video-box remote-video">
+              <video id="remote-video" autoplay playsinline></video>
+              <div class="video-label">Guest</div>
+              <div id="no-video-message" class="no-video-message">
+                <i class="fas fa-video-slash"></i>
+                <p>No active call</p>
+              </div>
             </div>
+          </div>
 
-            <div class="sidebar-section">
-                <h3>Rooms</h3>
-                <div class="rooms-actions">
-                    <button id="create-room-btn" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> New Room
-                    </button>
-                </div>
-                <div id="rooms-list" class="rooms-list"></div>
+          <!-- Call Controls -->
+          <div class="call-controls">
+            <button
+              id="toggle-camera"
+              class="control-btn"
+              title="Toggle Camera"
+            >
+              <i class="fas fa-video"></i>
+            </button>
+            <button
+              id="toggle-microphone"
+              class="control-btn"
+              title="Toggle Microphone"
+            >
+              <i class="fas fa-microphone"></i>
+            </button>
+            <button
+              id="toggle-speaker"
+              class="control-btn"
+              title="Toggle Speaker"
+            >
+              <i class="fas fa-volume-up"></i>
+            </button>
+            <button id="share-screen" class="control-btn" title="Share Screen">
+              <i class="fas fa-share-alt"></i>
+            </button>
+            <button
+              id="start-call"
+              class="control-btn call-btn"
+              title="Start Call"
+            >
+              <i class="fas fa-phone"></i>
+            </button>
+            <button
+              id="end-call"
+              class="control-btn end-btn hidden"
+              title="End Call"
+            >
+              <i class="fas fa-phone-slash"></i>
+            </button>
+          </div>
+
+          <!-- Call Info -->
+          <div id="call-info" class="call-info hidden">
+            <span id="call-duration">00:00</span>
+            <span id="call-quality" class="quality-indicator">HD</span>
+          </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section">
+          <div class="chat-header">
+            <h2 id="chat-title">General Chat</h2>
+            <div class="chat-actions">
+              <button
+                id="toggle-participants"
+                class="icon-btn"
+                title="Show Participants"
+              >
+                <i class="fas fa-users"></i>
+                <span id="participant-count" class="badge">0</span>
+              </button>
             </div>
+          </div>
 
-            <div class="sidebar-section">
-                <h3>Settings</h3>
-                <div class="settings-list">
-                    <button id="settings-btn" class="settings-item">
-                        <i class="fas fa-cog"></i> Settings
-                    </button>
-                    <button id="call-history-btn" class="settings-item">
-                        <i class="fas fa-history"></i> Call History
-                    </button>
-                    <button id="help-btn" class="settings-item">
-                        <i class="fas fa-question-circle"></i> Help
-                    </button>
-                </div>
+          <div id="messages-container" class="messages-container"></div>
+
+          <div class="typing-indicator hidden" id="typing-indicator">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+
+          <div class="message-input-area">
+            <div class="input-actions">
+              <button id="emoji-btn" class="icon-btn" title="Emoji">
+                <i class="fas fa-smile"></i>
+              </button>
+              <button id="file-btn" class="icon-btn" title="Share File">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              <input type="file" id="file-input" hidden />
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Video Section -->
-            <div class="video-section">
-                <div class="video-container">
-                    <div class="video-box local-video">
-                        <video id="local-video" autoplay muted playsinline></video>
-                        <div class="video-label">You</div>
-                    </div>
-                    <div class="video-box remote-video">
-                        <video id="remote-video" autoplay playsinline></video>
-                        <div class="video-label">Guest</div>
-                        <div id="no-video-message" class="no-video-message">
-                            <i class="fas fa-video-slash"></i>
-                            <p>No active call</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Call Controls -->
-                <div class="call-controls">
-                    <button id="toggle-camera" class="control-btn" title="Toggle Camera">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button id="toggle-microphone" class="control-btn" title="Toggle Microphone">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button id="toggle-speaker" class="control-btn" title="Toggle Speaker">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                    <button id="share-screen" class="control-btn" title="Share Screen">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
-                    <button id="start-call" class="control-btn call-btn" title="Start Call">
-                        <i class="fas fa-phone"></i>
-                    </button>
-                    <button id="end-call" class="control-btn end-btn hidden" title="End Call">
-                        <i class="fas fa-phone-slash"></i>
-                    </button>
-                </div>
-
-                <!-- Call Info -->
-                <div id="call-info" class="call-info hidden">
-                    <span id="call-duration">00:00</span>
-                    <span id="call-quality" class="quality-indicator">HD</span>
-                </div>
+            <input
+              type="text"
+              id="message-input"
+              placeholder="Type a message..."
+              class="message-input"
+            />
+            <div class="input-actions">
+              <button
+                id="encrypt-toggle"
+                class="icon-btn"
+                title="Toggle Encryption"
+              >
+                <i class="fas fa-lock"></i>
+              </button>
+              <button id="send-btn" class="icon-btn send-btn" title="Send">
+                <i class="fas fa-paper-plane"></i>
+              </button>
             </div>
-
-            <!-- Chat Section -->
-            <div class="chat-section">
-                <div class="chat-header">
-                    <h2 id="chat-title">General Chat</h2>
-                    <div class="chat-actions">
-                        <button id="toggle-participants" class="icon-btn" title="Show Participants">
-                            <i class="fas fa-users"></i>
-                            <span id="participant-count" class="badge">0</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="messages-container" class="messages-container"></div>
-
-                <div class="typing-indicator hidden" id="typing-indicator">
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                </div>
-
-                <div class="message-input-area">
-                    <div class="input-actions">
-                        <button id="emoji-btn" class="icon-btn" title="Emoji">
-                            <i class="fas fa-smile"></i>
-                        </button>
-                        <button id="file-btn" class="icon-btn" title="Share File">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <input type="file" id="file-input" hidden>
-                    </div>
-                    <input 
-                        type="text" 
-                        id="message-input" 
-                        placeholder="Type a message..." 
-                        class="message-input"
-                    >
-                    <div class="input-actions">
-                        <button id="encrypt-toggle" class="icon-btn" title="Toggle Encryption">
-                            <i class="fas fa-lock"></i>
-                        </button>
-                        <button id="send-btn" class="icon-btn send-btn" title="Send">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </main>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Participants Panel -->
     <div id="participants-panel" class="panel hidden">
-        <div class="panel-header">
-            <h3>Room Participants</h3>
-            <button id="close-participants" class="close-btn">&times;</button>
-        </div>
-        <div id="participants-list" class="participants-list"></div>
+      <div class="panel-header">
+        <h3>Room Participants</h3>
+        <button id="close-participants" class="close-btn">&times;</button>
+      </div>
+      <div id="participants-list" class="participants-list"></div>
     </div>
 
     <!-- Modals -->
     <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <h2>Welcome to Web-RTC Chat</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-username">Username:</label>
-                    <input type="text" id="login-username" placeholder="Enter your name" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-avatar">Avatar URL:</label>
-                    <input type="url" id="login-avatar" placeholder="https://..." value="https://via.placeholder.com/40">
-                </div>
-                <button type="submit" class="btn btn-primary">Join Chat</button>
-            </form>
-        </div>
+      <div class="modal-content">
+        <h2>Welcome to Web-RTC Chat</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-username">Username:</label>
+            <input
+              type="text"
+              id="login-username"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="login-avatar">Avatar URL:</label>
+            <input
+              type="url"
+              id="login-avatar"
+              placeholder="https://..."
+              value="https://via.placeholder.com/40"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Join Chat</button>
+        </form>
+      </div>
     </div>
 
     <div id="create-room-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Create New Room</h2>
-            <form id="create-room-form">
-                <div class="form-group">
-                    <label for="room-name">Room Name:</label>
-                    <input type="text" id="room-name" placeholder="Enter room name" required>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="room-private">
-                        Make it Private
-                    </label>
-                </div>
-                <div class="form-group hidden" id="password-group">
-                    <label for="room-password">Password:</label>
-                    <input type="password" id="room-password" placeholder="Enter password">
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">Create Room</button>
-                    <button type="button" class="btn btn-secondary" id="cancel-room">Cancel</button>
-                </div>
-            </form>
-        </div>
+      <div class="modal-content">
+        <h2>Create New Room</h2>
+        <form id="create-room-form">
+          <div class="form-group">
+            <label for="room-name">Room Name:</label>
+            <input
+              type="text"
+              id="room-name"
+              placeholder="Enter room name"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="room-private" />
+              Make it Private
+            </label>
+          </div>
+          <div class="form-group hidden" id="password-group">
+            <label for="room-password">Password:</label>
+            <input
+              type="password"
+              id="room-password"
+              placeholder="Enter password"
+            />
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Create Room</button>
+            <button type="button" class="btn btn-secondary" id="cancel-room">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Settings</h2>
-                <button id="close-settings" class="close-btn">&times;</button>
-            </div>
-            <div class="settings-panel">
-                <div class="setting-group">
-                    <h3>Audio & Video</h3>
-                    <label>
-                        <input type="checkbox" id="auto-answer" checked>
-                        Auto-answer incoming calls
-                    </label>
-                    <label>
-                        <input type="checkbox" id="hd-quality" checked>
-                        Enable HD Quality
-                    </label>
-                </div>
-                <div class="setting-group">
-                    <h3>Privacy</h3>
-                    <label>
-                        <input type="checkbox" id="encrypt-messages" checked>
-                        Encrypt messages by default
-                    </label>
-                    <label>
-                        <input type="checkbox" id="do-not-disturb">
-                        Do Not Disturb
-                    </label>
-                </div>
-                <div class="setting-group">
-                    <h3>Notifications</h3>
-                    <label>
-                        <input type="checkbox" id="sound-notifications" checked>
-                        Sound notifications
-                    </label>
-                    <label>
-                        <input type="checkbox" id="desktop-notifications" checked>
-                        Desktop notifications
-                    </label>
-                </div>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button id="close-settings" class="close-btn">&times;</button>
         </div>
+        <div class="settings-panel">
+          <div class="setting-group">
+            <h3>Audio & Video</h3>
+            <label>
+              <input type="checkbox" id="auto-answer" checked />
+              Auto-answer incoming calls
+            </label>
+            <label>
+              <input type="checkbox" id="hd-quality" checked />
+              Enable HD Quality
+            </label>
+          </div>
+          <div class="setting-group">
+            <h3>Privacy</h3>
+            <label>
+              <input type="checkbox" id="encrypt-messages" checked />
+              Encrypt messages by default
+            </label>
+            <label>
+              <input type="checkbox" id="do-not-disturb" />
+              Do Not Disturb
+            </label>
+          </div>
+          <div class="setting-group">
+            <h3>Notifications</h3>
+            <label>
+              <input type="checkbox" id="sound-notifications" checked />
+              Sound notifications
+            </label>
+            <label>
+              <input type="checkbox" id="desktop-notifications" checked />
+              Desktop notifications
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="call-history-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Call History</h2>
-                <button id="close-history" class="close-btn">&times;</button>
-            </div>
-            <div id="history-list" class="history-list"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Call History</h2>
+          <button id="close-history" class="close-btn">&times;</button>
         </div>
+        <div id="history-list" class="history-list"></div>
+      </div>
     </div>
 
     <!-- Notification Toast -->
@@ -274,5 +331,5 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.0/crypto-js.min.js"></script>
     <script src="client.js"></script>
-</body>
+  </body>
 </html>

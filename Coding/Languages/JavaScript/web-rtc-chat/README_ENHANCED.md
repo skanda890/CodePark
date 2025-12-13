@@ -28,6 +28,7 @@
 ### 🎯 Core Features
 
 ✅ **Video & Audio Conferencing**
+
 - Real-time peer-to-peer WebRTC connections
 - HD video and audio streaming
 - Camera and microphone controls
@@ -35,6 +36,7 @@
 - Call quality indicators
 
 ✅ **Real-time Messaging**
+
 - Instant text messaging
 - Message history (per room)
 - Typing indicators
@@ -43,6 +45,7 @@
 - Message status tracking
 
 ✅ **Room Management**
+
 - Create public and private chat rooms
 - Password-protected private rooms
 - Room participant tracking
@@ -50,6 +53,7 @@
 - Automatic participant updates
 
 ✅ **User Management**
+
 - User registration and profiles
 - Custom avatars
 - Online/offline status tracking
@@ -57,12 +61,14 @@
 - Status update notifications
 
 ✅ **File Sharing**
+
 - Share files in chat/rooms
 - File metadata tracking
 - Secure file transmission
 - Sender information
 
 ✅ **Security & Privacy**
+
 - End-to-end message encryption (AES-256)
 - Password-protected rooms
 - Rate limiting (DOS protection)
@@ -70,6 +76,7 @@
 - Input validation
 
 ✅ **Modern UI/UX**
+
 - Responsive design (mobile-first)
 - Dark/Light theme support
 - Smooth animations
@@ -78,12 +85,14 @@
 - Accessibility features
 
 ✅ **Call Management**
+
 - Call initiation and answering
 - Call history with duration
 - Call notifications
 - Call quality tracking
 
 ✅ **Settings & Preferences**
+
 - Auto-answer toggle
 - HD quality preference
 - Encryption preference
@@ -96,6 +105,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js v14+
 - npm v6+
 - Modern browser (Chrome, Firefox, Safari, Edge)
@@ -180,6 +190,7 @@ CORS_ORIGIN=*                               # CORS settings
 ### STUN Servers (for WebRTC)
 
 Default servers (automatic):
+
 - `stun:stun.l.google.com:19302`
 - `stun:stun1.l.google.com:19302`
 
@@ -187,8 +198,8 @@ Default servers (automatic):
 
 ```javascript
 // 15 minutes window, 100 requests max
-windowMs: 15 * 60 * 1000
-max: 100
+windowMs: 15 * 60 * 1000;
+max: 100;
 ```
 
 ---
@@ -198,12 +209,14 @@ max: 100
 ### Technology Stack
 
 **Backend:**
+
 - Node.js + Express.js
 - Socket.IO (real-time communication)
 - CryptoJS (encryption)
 - express-rate-limit (DOS protection)
 
 **Frontend:**
+
 - Vanilla JavaScript (ES6+)
 - WebRTC API
 - Socket.IO Client
@@ -243,12 +256,14 @@ Client A (Browser)  ←→  [WebRTC/Socket.IO]  ←→  Server  ←→  [WebRTC/
 ### REST Endpoints
 
 #### Get Rooms
+
 ```
 GET /api/rooms
 Response: { success: true, rooms: [...] }
 ```
 
 #### Create Room
+
 ```
 POST /api/create-room
 Body: { roomName: "string", isPrivate: boolean, password: "string" }
@@ -256,12 +271,14 @@ Response: { success: true, roomId: "string" }
 ```
 
 #### Get Room Messages
+
 ```
 GET /api/room/:roomId/messages
 Response: { success: true, messages: [...] }
 ```
 
 #### Get Call History
+
 ```
 GET /api/call-history
 Response: { success: true, callHistory: [...] }
@@ -270,30 +287,36 @@ Response: { success: true, callHistory: [...] }
 ### Socket.IO Events
 
 #### User Events
+
 - `register-user` → `user-registered` (emit/receive)
 - `get-users` → `users-list` (emit/receive)
 - `update-status` → `user-status-updated` (emit/receive)
 - `disconnect` → `user-disconnected` (emit/receive)
 
 #### Chat Events
+
 - `send-message` → `new-message` (emit/receive)
 - `user-typing` (emit/receive)
 - `user-stopped-typing` (emit/receive)
 
 #### Room Events
+
 - `join-room` → `room-updated` (emit/receive)
 - `leave-room` → `room-updated` (emit/receive)
 
 #### WebRTC Events
+
 - `offer` (emit/receive)
 - `answer` (emit/receive)
 - `ice-candidate` (emit/receive)
 
 #### Call Events
+
 - `initiate-call` → `incoming-call` (emit/receive)
 - `end-call` → `call-ended` (emit/receive)
 
 #### File Events
+
 - `share-file` → `file-shared` (emit/receive)
 
 ---
@@ -440,14 +463,16 @@ Response: { success: true, callHistory: [...] }
 ### For Production
 
 1. **Change Encryption Secret**
+
    ```env
    ENCRYPTION_SECRET=generate-secure-random-key
    ```
 
 2. **Enable HTTPS/WSS**
+
    ```javascript
    // Use SSL certificates
-   const https = require('https')
+   const https = require("https");
    ```
 
 3. **Add Authentication**
@@ -489,6 +514,7 @@ git push origin feature/amazing-feature
 ```
 
 ### Guidelines
+
 - Follow existing code style
 - Add comments for complex logic
 - Test thoroughly
@@ -509,6 +535,7 @@ See LICENSE file for details.
 ## 👨‍💻 Author
 
 **SkandaBT** (@skanda890)
+
 - GitHub: https://github.com/skanda890
 - Email: 9980056379Skanda@gmail.com
 
@@ -526,18 +553,21 @@ See LICENSE file for details.
 ## 🗺️ Roadmap
 
 ### v2.1 (Planned)
+
 - [ ] Database integration (MongoDB)
 - [ ] User authentication (JWT)
 - [ ] Message persistence
 - [ ] User profiles
 
 ### v2.2 (Planned)
+
 - [ ] Group video calls
 - [ ] Voice messages
 - [ ] Message search
 - [ ] Call recording
 
 ### v3.0 (Future)
+
 - [ ] Mobile app (React Native)
 - [ ] Analytics dashboard
 - [ ] Admin panel

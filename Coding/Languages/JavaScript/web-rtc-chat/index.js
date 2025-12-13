@@ -38,7 +38,8 @@ const messageHistory = new Map()
 const callHistory = []
 
 // Encryption secret (should be in .env in production)
-const ENCRYPTION_SECRET = process.env.ENCRYPTION_SECRET || 'your-secret-key-change-in-production'
+const ENCRYPTION_SECRET =
+  process.env.ENCRYPTION_SECRET || 'your-secret-key-change-in-production'
 
 // Utility functions
 const encryptMessage = (message, secret = ENCRYPTION_SECRET) => {
@@ -52,7 +53,9 @@ const encryptMessage = (message, secret = ENCRYPTION_SECRET) => {
 
 const decryptMessage = (encryptedMessage, secret = ENCRYPTION_SECRET) => {
   try {
-    const decrypted = CryptoJS.AES.decrypt(encryptedMessage, secret).toString(CryptoJS.enc.Utf8)
+    const decrypted = CryptoJS.AES.decrypt(encryptedMessage, secret).toString(
+      CryptoJS.enc.Utf8
+    )
     return JSON.parse(decrypted)
   } catch (error) {
     console.error('Decryption error:', error)
@@ -76,7 +79,7 @@ app.get('/', rootLimiter, (req, res) => {
 app.post('/api/create-room', (req, res) => {
   const roomId = generateRoomId()
   const roomName = req.body?.roomName || `Room ${roomId}`
-  
+
   rooms.set(roomId, {
     id: roomId,
     name: roomName,
@@ -85,9 +88,9 @@ app.post('/api/create-room', (req, res) => {
     isPrivate: req.body?.isPrivate || false,
     password: req.body?.password || null
   })
-  
+
   messageHistory.set(roomId, [])
-  
+
   res.json({
     success: true,
     roomId,
@@ -96,14 +99,14 @@ app.post('/api/create-room', (req, res) => {
 })
 
 app.get('/api/rooms', (req, res) => {
-  const roomsList = Array.from(rooms.values()).map(room => ({
+  const roomsList = Array.from(rooms.values()).map((room) => ({
     id: room.id,
     name: room.name,
     participantCount: room.participants.length,
     isPrivate: room.isPrivate,
     createdAt: room.createdAt
   }))
-  
+
   res.json({
     success: true,
     rooms: roomsList
@@ -113,7 +116,7 @@ app.get('/api/rooms', (req, res) => {
 app.get('/api/room/:roomId/messages', (req, res) => {
   const { roomId } = req.params
   const messages = messageHistory.get(roomId) || []
-  
+
   res.json({
     success: true,
     messages: messages.slice(-50)
@@ -130,7 +133,7 @@ app.get('/api/call-history', (req, res) => {
 // Socket.IO event handlers
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id)
-  
+
   let currentUser = null
   let currentRoom = null
 
@@ -145,16 +148,16 @@ io.on('connection', (socket) => {
         status: 'online',
         connectedAt: new Date()
       }
-      
+
       users.set(socket.id, currentUser)
-      
+
       io.emit('user-registered', {
         userId: currentUser.id,
         username: currentUser.username,
         avatar: currentUser.avatar,
         totalUsers: users.size
       })
-      
+
       console.log(`User registered: ${currentUser.username}`)
     } catch (error) {
       console.error('Error registering user:', error)
@@ -166,21 +169,25 @@ io.on('connection', (socket) => {
     try {
       const { roomId } = roomData
       const room = rooms.get(roomId)
-      
+
       if (!room) {
         socket.emit('error', { message: 'Room not found' })
         return
       }
-      
-      if (room.isPrivate && room.password && roomData.password !== room.password) {
+
+      if (
+        room.isPrivate &&
+        room.password &&
+        roomData.password !== room.password
+      ) {
         socket.emit('error', { message: 'Invalid room password' })
         return
       }
-      
+
       currentRoom = roomId
       socket.join(roomId)
-      
-      if (!room.participants.some(p => p.socketId === socket.id)) {
+
+      if (!room.participants.some((p) => p.socketId === socket.id)) {
         room.participants.push({
           socketId: socket.id,
           userId: currentUser?.id,
@@ -188,13 +195,13 @@ io.on('connection', (socket) => {
           joinedAt: new Date()
         })
       }
-      
+
       io.to(roomId).emit('room-updated', {
         roomId,
         participants: room.participants,
         participantCount: room.participants.length
       })
-      
+
       console.log(`${currentUser?.username} joined room ${roomId}`)
     } catch (error) {
       console.error('Error joining room:', error)
@@ -207,8 +214,10 @@ io.on('connection', (socket) => {
       if (currentRoom) {
         const room = rooms.get(currentRoom)
         if (room) {
-          room.participants = room.participants.filter(p => p.socketId !== socket.id)
-          
+          room.participants = room.participants.filter(
+            (p) => p.socketId !== socket.id
+          )
+
           io.to(currentRoom).emit('room-updated', {
             roomId: currentRoom,
             participants: room.participants,
@@ -236,23 +245,25 @@ io.on('connection', (socket) => {
         roomId: currentRoom,
         status: 'sent'
       }
-      
+
       if (message.encrypted) {
         message.encryptedContent = encryptMessage(message.content)
         delete message.content
       }
-      
+
       if (currentRoom) {
         const roomMessages = messageHistory.get(currentRoom) || []
         roomMessages.push(message)
         messageHistory.set(currentRoom, roomMessages)
-        
+
         io.to(currentRoom).emit('new-message', message)
       } else {
         io.emit('new-message', message)
       }
-      
-      console.log(`Message from ${currentUser?.username}: ${messageData.content}`)
+
+      console.log(
+        `Message from ${currentUser?.username}: ${messageData.content}`
+      )
     } catch (error) {
       console.error('Error sending message:', error)
       socket.emit('error', { message: 'Failed to send message' })
@@ -330,7 +341,7 @@ io.on('connection', (socket) => {
         status: 'ringing',
         type: callData.type || 'video'
       }
-      
+
       socket.broadcast.emit('incoming-call', call)
       console.log(`Call initiated from ${currentUser?.username}`)
     } catch (error) {
@@ -346,12 +357,12 @@ io.on('connection', (socket) => {
         duration: callData.duration || 0,
         status: 'ended'
       }
-      
+
       callHistory.push({
         ...callData,
         ...callEnd
       })
-      
+
       socket.broadcast.emit('call-ended', callEnd)
       console.log(`Call ended: ${callData.callId}`)
     } catch (error) {
@@ -371,7 +382,7 @@ io.on('connection', (socket) => {
         data: fileData.data,
         timestamp: new Date()
       }
-      
+
       if (currentRoom) {
         io.to(currentRoom).emit('file-shared', file)
       } else {
@@ -387,7 +398,7 @@ io.on('connection', (socket) => {
       if (currentUser) {
         currentUser.status = statusData.status
         users.set(socket.id, currentUser)
-        
+
         io.emit('user-status-updated', {
           userId: currentUser.id,
           status: statusData.status
@@ -400,13 +411,13 @@ io.on('connection', (socket) => {
 
   socket.on('get-users', () => {
     try {
-      const onlineUsers = Array.from(users.values()).map(user => ({
+      const onlineUsers = Array.from(users.values()).map((user) => ({
         id: user.id,
         username: user.username,
         avatar: user.avatar,
         status: user.status
       }))
-      
+
       socket.emit('users-list', onlineUsers)
     } catch (error) {
       console.error('Error getting users:', error)
@@ -422,11 +433,13 @@ io.on('connection', (socket) => {
           username: currentUser.username,
           totalUsers: users.size
         })
-        
+
         if (currentRoom) {
           const room = rooms.get(currentRoom)
           if (room) {
-            room.participants = room.participants.filter(p => p.socketId !== socket.id)
+            room.participants = room.participants.filter(
+              (p) => p.socketId !== socket.id
+            )
             io.to(currentRoom).emit('room-updated', {
               roomId: currentRoom,
               participants: room.participants,
@@ -435,7 +448,7 @@ io.on('connection', (socket) => {
           }
         }
       }
-      
+
       console.log('User disconnected:', socket.id)
     } catch (error) {
       console.error('Error handling disconnect:', error)

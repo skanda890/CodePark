@@ -1,6 +1,6 @@
 // Web-RTC Chat Client
 class WebRTCChat {
-  constructor() {
+  constructor () {
     this.socket = io()
     this.peerConnection = null
     this.localStream = null
@@ -17,7 +17,7 @@ class WebRTCChat {
     this.initWebRTC()
   }
 
-  initElements() {
+  initElements () {
     // Auth
     this.loginModal = document.getElementById('login-modal')
     this.loginForm = document.getElementById('login-form')
@@ -87,7 +87,7 @@ class WebRTCChat {
     this.notificationToast = document.getElementById('notification-toast')
   }
 
-  initEventListeners() {
+  initEventListeners () {
     // Auth
     this.loginForm.addEventListener('submit', (e) => this.handleLogin(e))
 
@@ -102,16 +102,26 @@ class WebRTCChat {
     this.messageInput.addEventListener('input', () => this.handleTyping())
 
     // Rooms
-    this.createRoomBtn.addEventListener('click', () => this.openCreateRoomModal())
-    this.createRoomForm.addEventListener('submit', (e) => this.handleCreateRoom(e))
-    this.cancelRoomBtn.addEventListener('click', () => this.closeCreateRoomModal())
+    this.createRoomBtn.addEventListener('click', () =>
+      this.openCreateRoomModal()
+    )
+    this.createRoomForm.addEventListener('submit', (e) =>
+      this.handleCreateRoom(e)
+    )
+    this.cancelRoomBtn.addEventListener('click', () =>
+      this.closeCreateRoomModal()
+    )
     this.roomPrivate.addEventListener('change', () => {
       this.passwordGroup.classList.toggle('hidden')
     })
 
     // Video
-    this.toggleCamera.addEventListener('click', () => this.toggleCameraStream())
-    this.toggleMicrophone.addEventListener('click', () => this.toggleMicrophoneStream())
+    this.toggleCamera.addEventListener('click', () =>
+      this.toggleCameraStream()
+    )
+    this.toggleMicrophone.addEventListener('click', () =>
+      this.toggleMicrophoneStream()
+    )
     this.shareScreen.addEventListener('click', () => this.shareScreenStream())
     this.startCallBtn.addEventListener('click', () => this.initiateCall())
     this.endCallBtn.addEventListener('click', () => this.endCall())
@@ -119,20 +129,30 @@ class WebRTCChat {
     // UI
     this.themeToggle.addEventListener('click', () => this.toggleTheme())
     this.settingsBtn.addEventListener('click', () => this.openSettingsModal())
-    this.closeSettingsBtn.addEventListener('click', () => this.closeSettingsModal())
-    this.callHistoryBtn.addEventListener('click', () => this.openCallHistoryModal())
-    this.closeHistoryBtn.addEventListener('click', () => this.closeCallHistoryModal())
+    this.closeSettingsBtn.addEventListener('click', () =>
+      this.closeSettingsModal()
+    )
+    this.callHistoryBtn.addEventListener('click', () =>
+      this.openCallHistoryModal()
+    )
+    this.closeHistoryBtn.addEventListener('click', () =>
+      this.closeCallHistoryModal()
+    )
     this.encryptToggle.addEventListener('click', () => this.toggleEncryption())
     this.fileBtn.addEventListener('click', () => this.fileInput.click())
     this.fileInput.addEventListener('change', (e) => this.handleFileShare(e))
 
     // Participants
-    this.toggleParticipantsBtn.addEventListener('click', () => this.toggleParticipantsPanel())
-    this.closeParticipantsBtn.addEventListener('click', () => this.closeParticipantsPanel())
+    this.toggleParticipantsBtn.addEventListener('click', () =>
+      this.toggleParticipantsPanel()
+    )
+    this.closeParticipantsBtn.addEventListener('click', () =>
+      this.closeParticipantsPanel()
+    )
   }
 
   // Authentication
-  handleLogin(e) {
+  handleLogin (e) {
     e.preventDefault()
     const username = this.loginUsername.value.trim()
     const avatar = this.loginAvatar.value.trim()
@@ -153,7 +173,7 @@ class WebRTCChat {
   }
 
   // WebRTC Initialization
-  async initWebRTC() {
+  async initWebRTC () {
     try {
       const config = {
         iceServers: [
@@ -177,7 +197,9 @@ class WebRTCChat {
 
       this.socket.on('offer', async (data) => {
         try {
-          await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+          await this.peerConnection.setRemoteDescription(
+            new RTCSessionDescription(data.offer)
+          )
           const answer = await this.peerConnection.createAnswer()
           await this.peerConnection.setLocalDescription(answer)
           this.socket.emit('answer', answer)
@@ -188,7 +210,9 @@ class WebRTCChat {
 
       this.socket.on('answer', async (data) => {
         try {
-          await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer))
+          await this.peerConnection.setRemoteDescription(
+            new RTCSessionDescription(data.answer)
+          )
         } catch (error) {
           console.error('Error handling answer:', error)
         }
@@ -197,7 +221,9 @@ class WebRTCChat {
       this.socket.on('ice-candidate', async (data) => {
         try {
           if (data.candidate) {
-            await this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate))
+            await this.peerConnection.addIceCandidate(
+              new RTCIceCandidate(data.candidate)
+            )
           }
         } catch (error) {
           console.error('Error adding ICE candidate:', error)
@@ -209,7 +235,7 @@ class WebRTCChat {
     }
   }
 
-  async startLocalStream() {
+  async startLocalStream () {
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -226,7 +252,7 @@ class WebRTCChat {
     }
   }
 
-  toggleCameraStream() {
+  toggleCameraStream () {
     if (this.localStream) {
       const videoTracks = this.localStream.getVideoTracks()
       videoTracks.forEach((track) => {
@@ -236,7 +262,7 @@ class WebRTCChat {
     }
   }
 
-  toggleMicrophoneStream() {
+  toggleMicrophoneStream () {
     if (this.localStream) {
       const audioTracks = this.localStream.getAudioTracks()
       audioTracks.forEach((track) => {
@@ -246,12 +272,16 @@ class WebRTCChat {
     }
   }
 
-  async shareScreenStream() {
+  async shareScreenStream () {
     try {
-      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true })
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true
+      })
       const screenTrack = screenStream.getVideoTracks()[0]
 
-      const sender = this.peerConnection.getSenders().find((s) => s.track?.kind === 'video')
+      const sender = this.peerConnection
+        .getSenders()
+        .find((s) => s.track?.kind === 'video')
       if (sender) {
         await sender.replaceTrack(screenTrack)
         screenTrack.onended = async () => {
@@ -266,7 +296,7 @@ class WebRTCChat {
     }
   }
 
-  async initiateCall() {
+  async initiateCall () {
     try {
       if (!this.peerConnection) {
         await this.initWebRTC()
@@ -289,7 +319,7 @@ class WebRTCChat {
     }
   }
 
-  endCall() {
+  endCall () {
     try {
       if (this.peerConnection) {
         this.peerConnection.getSenders().forEach((sender) => {
@@ -306,7 +336,9 @@ class WebRTCChat {
       this.noVideoMessage.classList.remove('hidden')
       this.remoteVideo.srcObject = null
 
-      const duration = Math.floor((Date.now() - (this.callStartTime || Date.now())) / 1000)
+      const duration = Math.floor(
+        (Date.now() - (this.callStartTime || Date.now())) / 1000
+      )
       this.socket.emit('end-call', { callId: 'call_' + Date.now(), duration })
       this.showNotification('Call ended', 'success')
     } catch (error) {
@@ -314,7 +346,7 @@ class WebRTCChat {
     }
   }
 
-  startCallDurationTimer() {
+  startCallDurationTimer () {
     const updateDuration = () => {
       if (this.callActive && this.callStartTime) {
         const elapsed = Math.floor((Date.now() - this.callStartTime) / 1000)
@@ -328,7 +360,7 @@ class WebRTCChat {
   }
 
   // Chat Functions
-  sendMessage() {
+  sendMessage () {
     const content = this.messageInput.value.trim()
     if (!content) return
 
@@ -343,11 +375,16 @@ class WebRTCChat {
     this.socket.emit('user-stopped-typing')
   }
 
-  displayMessage(message) {
+  displayMessage (message) {
     const messageEl = document.createElement('div')
-    messageEl.className = message.senderId === this.currentUser?.username ? 'message own' : 'message'
+    messageEl.className =
+      message.senderId === this.currentUser?.username
+        ? 'message own'
+        : 'message'
 
-    const content = message.encryptedContent ? '🔒 Encrypted Message' : message.content
+    const content = message.encryptedContent
+      ? '🔒 Encrypted Message'
+      : message.content
     const time = new Date(message.timestamp).toLocaleTimeString()
 
     messageEl.innerHTML = `
@@ -361,14 +398,14 @@ class WebRTCChat {
     this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight
   }
 
-  handleTyping() {
+  handleTyping () {
     if (this.messageInput.value) {
       this.socket.emit('user-typing')
     }
   }
 
   // Room Functions
-  async loadRooms() {
+  async loadRooms () {
     try {
       const response = await fetch('/api/rooms')
       const data = await response.json()
@@ -390,16 +427,16 @@ class WebRTCChat {
     }
   }
 
-  openCreateRoomModal() {
+  openCreateRoomModal () {
     this.createRoomModal.classList.remove('hidden')
   }
 
-  closeCreateRoomModal() {
+  closeCreateRoomModal () {
     this.createRoomModal.classList.add('hidden')
     this.createRoomForm.reset()
   }
 
-  async handleCreateRoom(e) {
+  async handleCreateRoom (e) {
     e.preventDefault()
     try {
       const response = await fetch('/api/create-room', {
@@ -424,7 +461,7 @@ class WebRTCChat {
     }
   }
 
-  joinRoom(roomId) {
+  joinRoom (roomId) {
     this.currentRoom = roomId
     this.socket.emit('join-room', { roomId })
     this.chatTitle.textContent = `Room ${roomId.substring(0, 8)}`
@@ -432,7 +469,7 @@ class WebRTCChat {
     this.loadRoomMessages(roomId)
   }
 
-  async loadRoomMessages(roomId) {
+  async loadRoomMessages (roomId) {
     try {
       const response = await fetch(`/api/room/${roomId}/messages`)
       const data = await response.json()
@@ -443,7 +480,7 @@ class WebRTCChat {
   }
 
   // File Sharing
-  handleFileShare(e) {
+  handleFileShare (e) {
     const file = e.target.files[0]
     if (!file) return
 
@@ -461,11 +498,11 @@ class WebRTCChat {
   }
 
   // User Management
-  loadUsers() {
+  loadUsers () {
     this.socket.emit('get-users')
   }
 
-  updateUsersList(users) {
+  updateUsersList (users) {
     this.userCount.textContent = users.length
     this.usersList.innerHTML = ''
     users.forEach((user) => {
@@ -481,7 +518,7 @@ class WebRTCChat {
   }
 
   // Encryption Toggle
-  toggleEncryption() {
+  toggleEncryption () {
     this.encryptMessages = !this.encryptMessages
     this.encryptToggle.classList.toggle('active')
     const status = this.encryptMessages ? 'enabled' : 'disabled'
@@ -489,28 +526,28 @@ class WebRTCChat {
   }
 
   // Theme Toggle
-  toggleTheme() {
+  toggleTheme () {
     this.theme = this.theme === 'light' ? 'dark' : 'light'
     this.setTheme(this.theme)
     localStorage.setItem('theme', this.theme)
   }
 
-  setTheme(theme) {
+  setTheme (theme) {
     document.documentElement.setAttribute('data-theme', theme)
     const icon = this.themeToggle.querySelector('i')
     icon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon'
   }
 
   // Modals
-  openSettingsModal() {
+  openSettingsModal () {
     this.settingsModal.classList.remove('hidden')
   }
 
-  closeSettingsModal() {
+  closeSettingsModal () {
     this.settingsModal.classList.add('hidden')
   }
 
-  async openCallHistoryModal() {
+  async openCallHistoryModal () {
     try {
       const response = await fetch('/api/call-history')
       const data = await response.json()
@@ -533,20 +570,20 @@ class WebRTCChat {
     }
   }
 
-  closeCallHistoryModal() {
+  closeCallHistoryModal () {
     this.callHistoryModal.classList.add('hidden')
   }
 
   // Participants Panel
-  toggleParticipantsPanel() {
+  toggleParticipantsPanel () {
     this.participantsPanel.classList.toggle('hidden')
   }
 
-  closeParticipantsPanel() {
+  closeParticipantsPanel () {
     this.participantsPanel.classList.add('hidden')
   }
 
-  updateParticipants(participants) {
+  updateParticipants (participants) {
     this.participantCount.textContent = participants.length
     this.participantsList.innerHTML = ''
     participants.forEach((participant) => {
@@ -564,7 +601,7 @@ class WebRTCChat {
   }
 
   // Notifications
-  showNotification(message, type = 'success') {
+  showNotification (message, type = 'success') {
     this.notificationToast.textContent = message
     this.notificationToast.className = `notification-toast ${type}`
     this.notificationToast.classList.remove('hidden')
@@ -575,9 +612,12 @@ class WebRTCChat {
   }
 
   // Socket Event Listeners
-  setupSocketListeners() {
+  setupSocketListeners () {
     this.socket.on('user-registered', (data) => {
-      this.showNotification(`${data.username} joined (${data.totalUsers} online)`, 'success')
+      this.showNotification(
+        `${data.username} joined (${data.totalUsers} online)`,
+        'success'
+      )
     })
 
     this.socket.on('new-message', (message) => {
@@ -605,7 +645,10 @@ class WebRTCChat {
     })
 
     this.socket.on('user-disconnected', (data) => {
-      this.showNotification(`${data.username} left (${data.totalUsers} online)`, 'warning')
+      this.showNotification(
+        `${data.username} left (${data.totalUsers} online)`,
+        'warning'
+      )
     })
   }
 }
