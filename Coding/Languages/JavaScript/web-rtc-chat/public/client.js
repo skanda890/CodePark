@@ -168,6 +168,7 @@ class WebRTCChat {
     this.loginModal.classList.add('hidden')
 
     this.socket.emit('register-user', { username, avatar })
+    this.loadUsers()
     this.loadRooms()
     this.startLocalStream()
   }
