@@ -19,9 +19,7 @@ function formatHeader (title) {
   console.log(`${'='.repeat(50)}${colors.reset}\n`)
 }
 
-function formatSection (title) {
-  console.log(`${colors.bright}${colors.green}${title}${colors.reset}`)
-}
+
 
 function formatKeyValue (key, value) {
   console.log(`  ${key}: ${value}`)
