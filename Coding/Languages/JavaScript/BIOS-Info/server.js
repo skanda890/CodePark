@@ -13,22 +13,22 @@ const colors = {
 }
 
 // Helper function to format output
-function formatHeader(title) {
+function formatHeader (title) {
   console.log(`\n${colors.bright}${colors.cyan}${'='.repeat(50)}`)
   console.log(`${title.toUpperCase()}`)
   console.log(`${'='.repeat(50)}${colors.reset}\n`)
 }
 
-function formatSection(title) {
+function formatSection (title) {
   console.log(`${colors.bright}${colors.green}${title}${colors.reset}`)
 }
 
-function formatKeyValue(key, value) {
+function formatKeyValue (key, value) {
   console.log(`  ${key}: ${value}`)
 }
 
 // Fetch BIOS Information
-async function getBiosInfo() {
+async function getBiosInfo () {
   try {
     const bios = await si.bios()
     formatHeader('BIOS Information')
@@ -38,13 +38,15 @@ async function getBiosInfo() {
     formatKeyValue('Revision', bios.revision)
     return bios
   } catch (error) {
-    console.error(`${colors.red}Error fetching BIOS info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching BIOS info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch System Information
-async function getSystemInfo() {
+async function getSystemInfo () {
   try {
     const system = await si.system()
     formatHeader('System Information')
@@ -54,13 +56,15 @@ async function getSystemInfo() {
     formatKeyValue('UUID', system.uuid)
     return system
   } catch (error) {
-    console.error(`${colors.red}Error fetching system info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching system info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch CPU Information
-async function getCpuInfo() {
+async function getCpuInfo () {
   try {
     const cpu = await si.cpu()
     formatHeader('CPU Information')
@@ -73,29 +77,39 @@ async function getCpuInfo() {
     formatKeyValue('Cache', cpu.cache)
     return cpu
   } catch (error) {
-    console.error(`${colors.red}Error fetching CPU info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching CPU info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch Memory Information
-async function getMemoryInfo() {
+async function getMemoryInfo () {
   try {
     const mem = await si.mem()
     formatHeader('Memory Information')
-    formatKeyValue('Total RAM', `${(mem.total / (1024 ** 3)).toFixed(2)} GB`)
-    formatKeyValue('Available RAM', `${(mem.available / (1024 ** 3)).toFixed(2)} GB`)
-    formatKeyValue('Used RAM', `${(mem.used / (1024 ** 3)).toFixed(2)} GB`)
-    formatKeyValue('Usage Percentage', `${((mem.used / mem.total) * 100).toFixed(2)}%`)
+    formatKeyValue('Total RAM', `${(mem.total / 1024 ** 3).toFixed(2)} GB`)
+    formatKeyValue(
+      'Available RAM',
+      `${(mem.available / 1024 ** 3).toFixed(2)} GB`
+    )
+    formatKeyValue('Used RAM', `${(mem.used / 1024 ** 3).toFixed(2)} GB`)
+    formatKeyValue(
+      'Usage Percentage',
+      `${((mem.used / mem.total) * 100).toFixed(2)}%`
+    )
     return mem
   } catch (error) {
-    console.error(`${colors.red}Error fetching memory info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching memory info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch OS Information
-async function getOsInfo() {
+async function getOsInfo () {
   try {
     const os = await si.osInfo()
     formatHeader('Operating System Information')
@@ -107,19 +121,23 @@ async function getOsInfo() {
     formatKeyValue('Hostname', os.hostname)
     return os
   } catch (error) {
-    console.error(`${colors.red}Error fetching OS info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching OS info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch GPU Information
-async function getGpuInfo() {
+async function getGpuInfo () {
   try {
     const gpu = await si.graphics()
     formatHeader('GPU Information')
     if (gpu.controllers && gpu.controllers.length > 0) {
       gpu.controllers.forEach((controller, index) => {
-        console.log(`${colors.bright}${colors.green}GPU ${index + 1}${colors.reset}`)
+        console.log(
+          `${colors.bright}${colors.green}GPU ${index + 1}${colors.reset}`
+        )
         formatKeyValue('Model', controller.model)
         formatKeyValue('Vendor', controller.vendor)
         formatKeyValue('Memory (MB)', controller.memory)
@@ -130,18 +148,22 @@ async function getGpuInfo() {
     }
     return gpu
   } catch (error) {
-    console.error(`${colors.red}Error fetching GPU info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching GPU info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch Network Information
-async function getNetworkInfo() {
+async function getNetworkInfo () {
   try {
     const network = await si.networkInterfaces()
     formatHeader('Network Information')
     network.forEach((iface, index) => {
-      console.log(`${colors.bright}${colors.green}Interface ${index + 1}: ${iface.ifaceName}${colors.reset}`)
+      console.log(
+        `${colors.bright}${colors.green}Interface ${index + 1}: ${iface.ifaceName}${colors.reset}`
+      )
       formatKeyValue('Type', iface.type)
       formatKeyValue('IP4 Address', iface.ip4)
       formatKeyValue('IP6 Address', iface.ip6)
@@ -151,13 +173,15 @@ async function getNetworkInfo() {
     })
     return network
   } catch (error) {
-    console.error(`${colors.red}Error fetching network info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching network info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Fetch all system information
-async function getAllInfo() {
+async function getAllInfo () {
   try {
     const allData = {
       bios: await getBiosInfo(),
@@ -171,24 +195,28 @@ async function getAllInfo() {
     }
     return allData
   } catch (error) {
-    console.error(`${colors.red}Error fetching all info: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error fetching all info: ${error.message}${colors.reset}`
+    )
     return null
   }
 }
 
 // Export data to JSON file
-async function exportToJson(data, filename = 'system-info.json') {
+async function exportToJson (data, filename = 'system-info.json') {
   try {
     const filepath = path.join(__dirname, filename)
     fs.writeFileSync(filepath, JSON.stringify(data, null, 2))
     console.log(`${colors.green}✓ Data exported to ${filename}${colors.reset}`)
   } catch (error) {
-    console.error(`${colors.red}Error exporting to JSON: ${error.message}${colors.reset}`)
+    console.error(
+      `${colors.red}Error exporting to JSON: ${error.message}${colors.reset}`
+    )
   }
 }
 
 // Display help information
-function showHelp() {
+function showHelp () {
   formatHeader('Usage Instructions')
   console.log('Supported commands:')
   console.log('  node server.js              - Show all system information')
@@ -204,7 +232,7 @@ function showHelp() {
 }
 
 // Main function
-async function main() {
+async function main () {
   const command = process.argv[2]
 
   switch (command) {
