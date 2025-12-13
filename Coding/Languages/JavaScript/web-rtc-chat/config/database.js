@@ -6,10 +6,13 @@ dotenv.config()
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/webrtc-chat', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    const conn = await mongoose.connect(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/webrtc-chat',
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      }
+    )
 
     console.log(`\u270d️ MongoDB Connected: ${conn.connection.host}`)
     return conn
