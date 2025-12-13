@@ -1,20 +1,32 @@
 {
   "name": "web-rtc-chat",
-  "version": "2.0.0",
-  "description": "Advanced Web-RTC Chat Application with Video Conferencing, Real-time Messaging, and File Sharing",
+  "version": "3.0.0",
+  "description": "Advanced Web-RTC Chat Application with Video Conferencing, Real-time Messaging, Database Integration, Group Calls, Voice Messages, Analytics, and Mobile App",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.js\"",
+    "db:seed": "node scripts/seed.js",
+    "db:migrate": "node scripts/migrate.js",
+    "analytics:sync": "node scripts/analytics.js"
   },
   "keywords": [
     "webrtc",
     "video-chat",
+    "voice-messaging",
+    "group-calls",
     "real-time",
     "communication",
     "socket.io",
-    "peer-to-peer"
+    "mongodb",
+    "peer-to-peer",
+    "sfu",
+    "analytics",
+    "mobile-app"
   ],
   "author": "SkandaBT",
   "license": "MIT",
@@ -28,16 +40,46 @@
   },
   "homepage": "https://github.com/skanda890/CodePark#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "jsonwebtoken": "^9.1.2",
+    "mongoose": "^8.0.3",
     "socket.io": "^4.8.1",
-    "express-rate-limit": "^8.2.1"
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "aws-sdk": "^2.1550.0",
+    "axios": "^1.6.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "nodemailer": "^6.9.7",
+    "redis": "^4.6.11",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "uuid": "^9.0.1",
+    "validator": "^13.11.0",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5"
   },
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "optionalDependencies": {
+    "mediasoup": "^3.13.40",
+    "wrtc": "^0.4.7"
   }
 }
