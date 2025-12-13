@@ -5,6 +5,7 @@ A powerful backup and restore utility for Node.js with support for file backup, 
 ## Features
 
 ### Core Functionality
+
 - **Create Backups**: Full or incremental file/folder backups with automatic organization
 - **Restore Backups**: Restore files from any previous backup point
 - **List Backups**: View all created backups with timestamps and metadata
@@ -13,6 +14,7 @@ A powerful backup and restore utility for Node.js with support for file backup, 
 - **Export Apps**: Generate installation commands for installed applications
 
 ### Advanced Features
+
 - **Incremental Backups**: Only backup changed files using MD5 hashing to save space
 - **Metadata Tracking**: Maintain detailed backup history and file information
 - **Hash Verification**: Detect corrupted or modified files in backups
@@ -54,12 +56,14 @@ Backup Manager - What would you like to do?
 Create a new backup of your files.
 
 **Prompts:**
+
 - `Backup name`: Give your backup a descriptive name
 - `Source path`: Full path to the directory you want to backup
 - `Use compression`: Enable compression (reserved for future versions)
 - `Incremental backup`: Skip unchanged files to save space
 
 **Example:**
+
 ```
 Backup name: my-project-v1
 Source path: /home/user/projects/myapp
@@ -68,6 +72,7 @@ Incremental backup: yes
 ```
 
 **Output:**
+
 ```
 ✓ Backup created successfully!
   Location: /home/user/.backup-manager/backups/my-project-v1
@@ -80,11 +85,13 @@ Incremental backup: yes
 Restore files from a previous backup.
 
 **Steps:**
+
 1. Select a backup from the list
 2. Specify the restoration directory
 3. Files will be copied to the specified location
 
 **Output:**
+
 ```
 ✓ Restoration completed!
   Location: /home/user/restored-project
@@ -96,6 +103,7 @@ Restore files from a previous backup.
 View all available backups with details.
 
 **Output:**
+
 ```
 Total backups: 3
 
@@ -111,6 +119,7 @@ Total backups: 3
 ```
 
 Backup types:
+
 - `[FULL]`: Complete backup of all files
 - `[INC]`: Incremental backup (only changed files)
 
@@ -119,11 +128,13 @@ Backup types:
 Check backup integrity by verifying file hashes.
 
 **Process:**
+
 1. Select a backup to verify
 2. Script compares stored MD5 hashes with actual file hashes
 3. Reports valid and corrupted files
 
 **Output:**
+
 ```
 Verifying backup: my-project-v1
 
@@ -139,6 +150,7 @@ Verifying backup: my-project-v1
 Remove a backup and free up disk space.
 
 **Safety:**
+
 - Confirmation prompt before deletion
 - Displays backup information
 - Action cannot be undone
@@ -150,14 +162,17 @@ Generate a list of installed applications and installation commands.
 **Platform-Specific Output:**
 
 **Windows:**
+
 - Creates `.bat` file
 - Uses Chocolatey or WinGet commands
 
 **macOS:**
+
 - Creates `.sh` file
 - Uses Homebrew commands
 
 **Linux:**
+
 - Creates `.sh` file
 - Uses apt-get commands
 
@@ -168,6 +183,7 @@ Generate a list of installed applications and installation commands.
 Backups are stored in: `~/.backup-manager/`
 
 Directory structure:
+
 ```
 ~/.backup-manager/
 ├── backups.json          # Global backup metadata
@@ -183,6 +199,7 @@ Directory structure:
 ### Metadata Format
 
 **Global Metadata** (`backups.json`):
+
 ```json
 {
   "backups": [
@@ -198,6 +215,7 @@ Directory structure:
 ```
 
 **Backup Metadata** (`backups/[name]/metadata.json`):
+
 ```json
 {
   "name": "my-project-v1",
@@ -252,16 +270,19 @@ The backup manager handles various error scenarios:
 ## Performance Considerations
 
 ### Backup Speed
+
 - File copying: Limited by disk I/O speed
 - Hash calculation: ~1-5ms per file depending on size
 - Typical backup: 1000 files in 5-10 seconds
 
 ### Storage Optimization
+
 - Full backup: Uses 100% of original size
 - Incremental backup: Uses ~10-30% of original size (varies by changes)
 - No compression: Backups use raw file size
 
 ### Scalability
+
 - Can handle thousands of files
 - Tested with 5000+ files
 - Memory usage: ~50MB for typical 10GB backup
@@ -275,21 +296,25 @@ The backup manager handles various error scenarios:
 ## Troubleshooting
 
 ### Backup fails with permission errors
+
 - Run with elevated privileges
 - Check directory permissions
 - Ensure user has read access to source files
 
 ### Verification reports corrupted files
+
 - Backup might be incomplete
 - Files might have been modified
 - Try creating a fresh backup
 
 ### Restoration has missing files
+
 - Check if incremental backups were used
 - Verify restore path has sufficient space
 - Check file system permissions at destination
 
 ### Slow backup performance
+
 - Check disk I/O performance
 - Exclude temporary/cache directories from backup
 - Use incremental backups for large projects
