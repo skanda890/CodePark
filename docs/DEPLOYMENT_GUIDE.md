@@ -26,6 +26,7 @@
 Before deploying CodePark to any environment:
 
 ### Required
+
 - [ ] Node.js 22.0.0 or higher installed
 - [ ] npm 10.0.0 or higher
 - [ ] Git repository cloned
@@ -37,6 +38,7 @@ Before deploying CodePark to any environment:
 - [ ] Domain name configured (production)
 
 ### Validation
+
 - [ ] Run `npm run lint` - all code passes linting
 - [ ] Run `npm test` - all tests pass
 - [ ] Run `npm run security-check` - no critical vulnerabilities
@@ -45,6 +47,7 @@ Before deploying CodePark to any environment:
 - [ ] Environment variables validated
 
 ### Security
+
 - [ ] Secrets not committed to repository
 - [ ] API keys rotated
 - [ ] CORS configuration reviewed
@@ -314,43 +317,43 @@ spec:
         app: codepark
     spec:
       containers:
-      - name: codepark
-        image: your-registry/codepark:latest
-        ports:
-        - containerPort: 3000
-          name: http
-        - containerPort: 4000
-          name: graphql
-        env:
-        - name: NODE_ENV
-          valueFrom:
-            configMapKeyRef:
-              name: codepark-config
-              key: NODE_ENV
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: codepark-secrets
-              key: JWT_SECRET
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: codepark
+          image: your-registry/codepark:latest
+          ports:
+            - containerPort: 3000
+              name: http
+            - containerPort: 4000
+              name: graphql
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: codepark-config
+                  key: NODE_ENV
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: codepark-secrets
+                  key: JWT_SECRET
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
 ```
 
 ---
