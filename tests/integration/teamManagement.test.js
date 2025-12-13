@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // Mock app - adjust based on your actual app structure
-let app
+
 
 describe('Team Management Integration Tests', () => {
   let projectId, userId1, userId2, authToken
