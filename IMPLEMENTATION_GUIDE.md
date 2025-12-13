@@ -421,12 +421,11 @@ db.messages.createIndex({ content: "text" })
 
 ```javascript
 // MongoDB connection pool
-mongose.connect(uri, {
+mongoose.connect(uri, {
   maxPoolSize: 10,
   minPoolSize: 5,
-  socketTimeoutMS: 45000,
+  socketTimeoutMS: 45000
 });
-```
 
 ---
 
