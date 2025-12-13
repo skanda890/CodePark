@@ -13,7 +13,7 @@ const CONFIG_DIR = path.join(os.homedir(), '.backup-manager')
 const METADATA_FILE = path.join(CONFIG_DIR, 'backups.json')
 
 // Initialize config directory
-function initializeConfig() {
+function initializeConfig () {
   if (!fs.existsSync(CONFIG_DIR)) {
     fs.mkdirSync(CONFIG_DIR, { recursive: true })
   }
@@ -23,7 +23,7 @@ function initializeConfig() {
 }
 
 // Load backup metadata
-function loadMetadata() {
+function loadMetadata () {
   try {
     const data = fs.readFileSync(METADATA_FILE, 'utf8')
     return JSON.parse(data)
@@ -34,7 +34,7 @@ function loadMetadata() {
 }
 
 // Save backup metadata
-function saveMetadata(metadata) {
+function saveMetadata (metadata) {
   try {
     fs.writeFileSync(METADATA_FILE, JSON.stringify(metadata, null, 2))
   } catch (error) {
@@ -43,7 +43,7 @@ function saveMetadata(metadata) {
 }
 
 // Calculate file hash for incremental backups
-function calculateFileHash(filePath) {
+function calculateFileHash (filePath) {
   try {
     const content = fs.readFileSync(filePath)
     return crypto.createHash('md5').update(content).digest('hex')
@@ -53,11 +53,11 @@ function calculateFileHash(filePath) {
 }
 
 // Get all files recursively
-function getAllFiles(dirPath, arrayOfFiles = []) {
+function getAllFiles (dirPath, arrayOfFiles = []) {
   try {
     const files = fs.readdirSync(dirPath)
-    
-    files.forEach(file => {
+
+    files.forEach((file) => {
       const filePath = path.join(dirPath, file)
       try {
         if (fs.statSync(filePath).isDirectory()) {
@@ -72,28 +72,30 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
   } catch (error) {
     console.error(`Error reading directory ${dirPath}:`, error)
   }
-  
+
   return arrayOfFiles
 }
 
 // Create a backup
-async function createBackup() {
+async function createBackup () {
   try {
     console.log('\n--- Create New Backup ---')
-    
+
     const response = await prompts([
       {
         type: 'text',
         name: 'backupName',
         message: 'Enter backup name:',
-        validate: (input) => input.trim().length > 0 ? true : 'Name cannot be empty'
+        validate: (input) =>
+          input.trim().length > 0 ? true : 'Name cannot be empty'
       },
       {
         type: 'text',
         name: 'sourcePath',
         message: 'Enter source path to backup:',
         initial: process.cwd(),
-        validate: (input) => fs.existsSync(input) ? true : 'Path does not exist'
+        validate: (input) =>
+          fs.existsSync(input) ? true : 'Path does not exist'
       },
       {
         type: 'confirm',
@@ -113,25 +115,27 @@ async function createBackup() {
 
     const backupDir = path.join(CONFIG_DIR, 'backups', response.backupName)
     const metadataPath = path.join(backupDir, 'metadata.json')
-    
+
     // Create backup directory
     if (!fs.existsSync(backupDir)) {
       fs.mkdirSync(backupDir, { recursive: true })
     }
 
     let filesBackedUp = 0
-    let fileList = []
-    let fileHashes = {}
+    const fileList = []
+    const fileHashes = {}
 
     const allFiles = getAllFiles(response.sourcePath)
-    
+
     // Load previous metadata for incremental backup
     let previousMetadata = {}
     if (response.incremental && fs.existsSync(metadataPath)) {
       try {
         previousMetadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'))
       } catch (e) {
-        console.warn('Could not load previous metadata, performing full backup')
+        console.warn(
+          'Could not load previous metadata, performing full backup'
+        )
       }
     }
 
@@ -195,22 +199,24 @@ async function createBackup() {
     })
     saveMetadata(globalMetadata)
 
-    console.log(`\n✓ Backup created successfully!`)
+    console.log('\n✓ Backup created successfully!')
     console.log(`  Location: ${backupDir}`)
     console.log(`  Files backed up: ${filesBackedUp}`)
-    console.log(`  Total size: ${(backupMetadata.totalSize / 1024 / 1024).toFixed(2)} MB`)
+    console.log(
+      `  Total size: ${(backupMetadata.totalSize / 1024 / 1024).toFixed(2)} MB`
+    )
   } catch (error) {
     console.error('Error creating backup:', error)
   }
 }
 
 // Restore from backup
-async function restoreBackup() {
+async function restoreBackup () {
   try {
     console.log('\n--- Restore Backup ---')
-    
+
     const metadata = loadMetadata()
-    
+
     if (metadata.backups.length === 0) {
       console.log('No backups found.')
       return
@@ -275,7 +281,7 @@ async function restoreBackup() {
       }
     }
 
-    console.log(`\n✓ Restoration completed!`)
+    console.log('\n✓ Restoration completed!')
     console.log(`  Location: ${restorePath}`)
     console.log(`  Files restored: ${filesRestored}`)
   } catch (error) {
@@ -284,19 +290,19 @@ async function restoreBackup() {
 }
 
 // List all backups
-async function listBackups() {
+async function listBackups () {
   try {
     console.log('\n--- Backup History ---')
-    
+
     const metadata = loadMetadata()
-    
+
     if (metadata.backups.length === 0) {
       console.log('No backups found.')
       return
     }
 
     console.log(`\nTotal backups: ${metadata.backups.length}\n`)
-    
+
     metadata.backups.forEach((backup, index) => {
       const date = new Date(backup.timestamp)
       const type = backup.incremental ? '[INC]' : '[FULL]'
@@ -312,12 +318,12 @@ async function listBackups() {
 }
 
 // Verify backup integrity
-async function verifyBackup() {
+async function verifyBackup () {
   try {
     console.log('\n--- Verify Backup ---')
-    
+
     const metadata = loadMetadata()
-    
+
     if (metadata.backups.length === 0) {
       console.log('No backups found.')
       return
@@ -342,13 +348,13 @@ async function verifyBackup() {
     const backupMetadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'))
 
     console.log(`\nVerifying backup: ${backup.name}`)
-    
+
     let validFiles = 0
-    let corruptedFiles = []
+    const corruptedFiles = []
 
     for (const fileInfo of backupMetadata.files) {
       const filePath = path.join(backup.path, 'files', fileInfo.relative)
-      
+
       if (!fs.existsSync(filePath)) {
         corruptedFiles.push(`Missing: ${fileInfo.relative}`)
         continue
@@ -362,15 +368,15 @@ async function verifyBackup() {
       }
     }
 
-    console.log(`\n✓ Verification complete!`)
+    console.log('\n✓ Verification complete!')
     console.log(`  Valid files: ${validFiles}`)
     console.log(`  Total files: ${backupMetadata.fileCount}`)
-    
+
     if (corruptedFiles.length > 0) {
-      console.log(`\n⚠ Issues found:`)
-      corruptedFiles.forEach(issue => console.log(`  - ${issue}`))
+      console.log('\n⚠ Issues found:')
+      corruptedFiles.forEach((issue) => console.log(`  - ${issue}`))
     } else {
-      console.log(`\n✓ All files verified successfully!`)
+      console.log('\n✓ All files verified successfully!')
     }
   } catch (error) {
     console.error('Error verifying backup:', error)
@@ -378,12 +384,12 @@ async function verifyBackup() {
 }
 
 // Delete backup
-async function deleteBackup() {
+async function deleteBackup () {
   try {
     console.log('\n--- Delete Backup ---')
-    
+
     const metadata = loadMetadata()
-    
+
     if (metadata.backups.length === 0) {
       console.log('No backups found.')
       return
@@ -413,22 +419,22 @@ async function deleteBackup() {
     if (!confirm) return
 
     const backup = metadata.backups[backupIndex]
-    
+
     // Remove backup directory
     fs.rmSync(backup.path, { recursive: true, force: true })
-    
+
     // Update metadata
     metadata.backups.splice(backupIndex, 1)
     saveMetadata(metadata)
 
-    console.log(`\n✓ Backup deleted successfully!`)
+    console.log('\n✓ Backup deleted successfully!')
   } catch (error) {
     console.error('Error deleting backup:', error)
   }
 }
 
 // App management functions (legacy)
-async function getInstalledApps() {
+async function getInstalledApps () {
   try {
     let apps = []
     switch (process.platform) {
@@ -476,7 +482,7 @@ async function getInstalledApps() {
   }
 }
 
-function generateInstallCommands(appList) {
+function generateInstallCommands (appList) {
   const osType = process.platform
   const commands = []
 
@@ -508,7 +514,7 @@ function generateInstallCommands(appList) {
   return commands
 }
 
-async function saveAppListToFile(appList, commands) {
+async function saveAppListToFile (appList, commands) {
   try {
     const osType = process.platform
     const defaultFileName = 'installed_apps_and_commands'
@@ -547,12 +553,12 @@ async function saveAppListToFile(appList, commands) {
 }
 
 // Main menu
-async function main() {
+async function main () {
   try {
     initializeConfig()
 
     let running = true
-    
+
     while (running) {
       const { action } = await prompts({
         type: 'select',
