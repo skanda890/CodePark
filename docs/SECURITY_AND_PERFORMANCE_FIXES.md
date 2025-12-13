@@ -15,16 +15,19 @@ This document details all security, performance, and code quality improvements a
 ## 1. Critical Security Fix: Invite Email Verification
 
 ### Issue
+
 **Severity**: 🔴 CRITICAL  
 **Type**: Security Vulnerability
 
 #### Problem
+
 The invite acceptance endpoint (`POST /api/invites/:token/accept`) had a critical security flaw:
 
 1. **Missing email verification**: Any authenticated user could accept an invite by possessing the token alone, regardless of whether the invite was intended for their email address.
 2. **No duplicate prevention**: If a user was already a team member and somehow obtained another invite token, attempting to accept it would cause a database unique constraint violation instead of returning a proper 4xx response.
 
 #### Attack Scenario
+
 ```
 1. Admin creates invite for alice@example.com (token: XYZ123)
 2. Attacker (logged in as bob@example.com) obtains token XYZ123
@@ -40,38 +43,42 @@ The invite acceptance endpoint (`POST /api/invites/:token/accept`) had a critica
 #### Changes Made
 
 1. **Email Verification**
+
    ```javascript
    // Verify invite email matches authenticated user's email
    if (invite.email !== userEmail) {
      return res.status(400).json({
-       error: 'Invite email does not match authenticated user email',
-       details: `Invite is for ${invite.email}, but authenticated as ${userEmail}`
-     })
+       error: "Invite email does not match authenticated user email",
+       details: `Invite is for ${invite.email}, but authenticated as ${userEmail}`,
+     });
    }
    ```
+
    - Extracts `userEmail` from authenticated user object
    - Compares against `invite.email`
    - Returns 400 Bad Request if mismatch
 
 2. **Duplicate Prevention**
+
    ```javascript
    // Check for existing membership before creating
    const existingMember = await prisma.teamMember.findUnique({
      where: {
        projectId_userId: {
          projectId: invite.projectId,
-         userId
-       }
-     }
-   })
+         userId,
+       },
+     },
+   });
 
    if (existingMember) {
      return res.status(409).json({
-       error: 'User is already a member of this project',
-       userRole: existingMember.role
-     })
+       error: "User is already a member of this project",
+       userRole: existingMember.role,
+     });
    }
    ```
+
    - Checks if user is already a team member
    - Returns 409 Conflict (appropriate HTTP status)
    - Prevents database constraint violation
@@ -79,6 +86,7 @@ The invite acceptance endpoint (`POST /api/invites/:token/accept`) had a critica
 ### Testing
 
 **Test cases added** (in `tests/integration/teamManagement.test.js`):
+
 - ✅ Accept invite with matching email (success case)
 - ✅ Reject if invite email ≠ user email (400 Bad Request)
 - ✅ Reject if user already a member (409 Conflict)
@@ -86,6 +94,7 @@ The invite acceptance endpoint (`POST /api/invites/:token/accept`) had a critica
 - ✅ Reject non-existent tokens (404 Not Found)
 
 ### Impact
+
 - **Security Level**: Prevents unauthorized project access
 - **Backward Compatibility**: None - this is a security hardening fix
 - **Breaking Change**: Yes for malicious actors exploiting the vulnerability
@@ -95,17 +104,21 @@ The invite acceptance endpoint (`POST /api/invites/:token/accept`) had a critica
 ## 2. Performance Fix: Shared Prisma Singleton
 
 ### Issue
+
 **Severity**: 🟠 HIGH  
 **Type**: Performance / Resource Exhaustion
 
 #### Problem
+
 Multiple modules were creating new `PrismaClient` instances:
+
 - `services/teamService.js`: `new PrismaClient()`
 - `middleware/authorization.js`: `new PrismaClient()`
 - `routes/teamManagement.js`: `new PrismaClient()`
 - `tests/integration/teamManagement.test.js`: `new PrismaClient()`
 
 Each instance maintains its own connection pool. Under load:
+
 - Connection pool exhaustion (default: 10 connections per instance × 4 instances = 40 connection pool slots)
 - Database connection limits exceeded
 - Performance degradation and potential connection timeouts
@@ -118,34 +131,38 @@ Each instance maintains its own connection pool. Under load:
 **File**: `lib/prisma.js`
 
 ```javascript
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require("@prisma/client");
 
 // Singleton Prisma instance to prevent connection pool exhaustion
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-module.exports = prisma
+module.exports = prisma;
 ```
 
 #### 2. Updated All Modules to Use Shared Instance
 
 **Before**:
+
 ```javascript
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 ```
 
 **After**:
+
 ```javascript
-const prisma = require('../lib/prisma')
+const prisma = require("../lib/prisma");
 ```
 
 **Files Updated**:
+
 - ✅ `services/teamService.js`
 - ✅ `middleware/authorization.js`
 - ✅ `routes/teamManagement.js`
 - ✅ `tests/integration/teamManagement.test.js`
 
 ### Benefits
+
 - Single shared connection pool (max 10 connections total)
 - Reduced memory footprint
 - Improved connection reuse
@@ -153,6 +170,7 @@ const prisma = require('../lib/prisma')
 - Prevents connection limit exhaustion
 
 ### Testing
+
 - Load tested with multiple concurrent requests
 - Connection pool metrics verified
 - No connection timeout errors under expected load
@@ -162,6 +180,7 @@ const prisma = require('../lib/prisma')
 ## 3. Code Complexity Reduction: TeamService Refactoring
 
 ### Issue
+
 **Severity**: 🟡 MEDIUM  
 **Type**: Code Quality / Maintainability
 
@@ -177,6 +196,7 @@ const prisma = require('../lib/prisma')
 #### 1. Remove Broad try/catch
 
 **Before**:
+
 ```javascript
 async addTeamMember (projectId, userId, role = 'CONTRIBUTOR') {
   try {
@@ -189,6 +209,7 @@ async addTeamMember (projectId, userId, role = 'CONTRIBUTOR') {
 ```
 
 **After**:
+
 ```javascript
 async addTeamMember (projectId, userId, role = 'CONTRIBUTOR') {
   // ... validation and creation logic (no try/catch)
@@ -201,28 +222,31 @@ async addTeamMember (projectId, userId, role = 'CONTRIBUTOR') {
 #### 2. Options Object Pattern for logAuditEvent
 
 **Before**:
+
 ```javascript
 await this.logAuditEvent(
   projectId,
-  'team_member_added',
-  'member',
+  "team_member_added",
+  "member",
   member.id,
   null,
-  null
-)
+  null,
+);
 ```
 
 **After**:
+
 ```javascript
 await this.logAuditEvent({
   projectId,
-  action: 'team_member_added',
-  resourceType: 'member',
-  resourceId: member.id
-})
+  action: "team_member_added",
+  resourceType: "member",
+  resourceId: member.id,
+});
 ```
 
 **Benefits**:
+
 - Self-documenting: Parameter names visible at call site
 - Less error-prone: No positional confusion
 - Flexible: Easy to add optional parameters without breaking existing calls
@@ -247,10 +271,12 @@ module.exports = { rolePermissions, hasPermission }
 ```
 
 **Updated Files**:
+
 - `middleware/authorization.js`: Uses `hasPermission` helper
 - `services/teamService.js`: Uses `hasPermission` helper
 
 **Benefits**:
+
 - Single source of truth for permission model
 - Easy to audit and modify roles
 - Consistent evaluation across middleware and services
@@ -259,29 +285,31 @@ module.exports = { rolePermissions, hasPermission }
 #### 4. Optional Dependency Injection for auditLogger
 
 **Before**:
+
 ```javascript
 class TeamService {
-  constructor (currentUserId, ipAddress, userAgent) {
-    this.currentUserId = currentUserId
-    this.ipAddress = ipAddress
-    this.userAgent = userAgent
+  constructor(currentUserId, ipAddress, userAgent) {
+    this.currentUserId = currentUserId;
+    this.ipAddress = ipAddress;
+    this.userAgent = userAgent;
   }
 }
 ```
 
 **After**:
+
 ```javascript
 class TeamService {
-  constructor (currentUserId, ipAddress, userAgent, auditLogger = null) {
-    this.currentUserId = currentUserId
-    this.ipAddress = ipAddress
-    this.userAgent = userAgent
-    this.auditLogger = auditLogger  // optional
+  constructor(currentUserId, ipAddress, userAgent, auditLogger = null) {
+    this.currentUserId = currentUserId;
+    this.ipAddress = ipAddress;
+    this.userAgent = userAgent;
+    this.auditLogger = auditLogger; // optional
   }
 
-  async logAuditEvent (opts) {
+  async logAuditEvent(opts) {
     if (this.auditLogger) {
-      return this.auditLogger.log({ ...opts })
+      return this.auditLogger.log({ ...opts });
     }
     // fallback to direct Prisma call
   }
@@ -289,11 +317,13 @@ class TeamService {
 ```
 
 **Benefits**:
+
 - Testable: Can inject mock auditLogger in tests
 - Decoupled: Service doesn't require Prisma directly
 - Backward compatible: auditLogger is optional
 
 ### Metrics
+
 - Reduced cyclomatic complexity in `TeamService`
 - 40% fewer lines in authorization middleware
 - 100% permission logic reuse (no duplication)
@@ -303,6 +333,7 @@ class TeamService {
 ## 4. Authorization Middleware Simplification
 
 ### File
+
 `middleware/authorization.js`
 
 ### Changes
@@ -310,51 +341,51 @@ class TeamService {
 #### 1. Use Shared Permissions Module
 
 ```javascript
-const { hasPermission } = require('../lib/permissions')
+const { hasPermission } = require("../lib/permissions");
 ```
 
 #### 2. Factory Pattern for Role Checking
 
 **Before** (duplicate code):
+
 ```javascript
 const requireAdminRole = async (req, res, next) => {
   // ... DB query and role check
-  if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    return res.status(403).json({ error: 'Admin access required' })
+  if (!member || !["OWNER", "ADMIN"].includes(member.role)) {
+    return res.status(403).json({ error: "Admin access required" });
   }
-}
+};
 
 const requireOwnerRole = async (req, res, next) => {
   // ... identical DB query and role check
-  if (!member || member.role !== 'OWNER') {
-    return res.status(403).json({ error: 'Owner access required' })
+  if (!member || member.role !== "OWNER") {
+    return res.status(403).json({ error: "Owner access required" });
   }
-}
+};
 ```
 
 **After** (DRY with factory):
+
 ```javascript
 const requireRole = (allowedRoles, errorMessage) => {
   return async (req, res, next) => {
     // ... single implementation
     if (!member || !allowedRoles.includes(member.role)) {
-      return res.status(403).json({ error: errorMessage })
+      return res.status(403).json({ error: errorMessage });
     }
-  }
-}
+  };
+};
 
 const requireAdminRole = requireRole(
-  ['OWNER', 'ADMIN'],
-  'Admin access required'
-)
+  ["OWNER", "ADMIN"],
+  "Admin access required",
+);
 
-const requireOwnerRole = requireRole(
-  ['OWNER'],
-  'Owner access required'
-)
+const requireOwnerRole = requireRole(["OWNER"], "Owner access required");
 ```
 
 ### Benefits
+
 - Eliminated 40+ lines of duplicate code
 - Easy to add new role-based middleware (e.g., `requireMaintainerRole`)
 - Single source for authorization query logic
@@ -365,6 +396,7 @@ const requireOwnerRole = requireRole(
 ## 5. Test Implementation Framework
 
 ### File
+
 `tests/integration/teamManagement.test.js`
 
 ### Changes
@@ -373,18 +405,19 @@ const requireOwnerRole = requireRole(
 **After**: Comprehensive test suite structure with:
 
 #### Test Structure
+
 ```javascript
-describe('Team Management Integration Tests', () => {
+describe("Team Management Integration Tests", () => {
   beforeAll(async () => {
     // Setup: Create test users, projects, auth tokens
-  })
+  });
 
   afterAll(async () => {
     // Cleanup: Remove test data
-  })
+  });
 
-  describe('POST /api/projects/:projectId/members', () => {
-    it('should add team member with valid role', async () => {
+  describe("POST /api/projects/:projectId/members", () => {
+    it("should add team member with valid role", async () => {
       // TODO: Implement
       // const res = await request(app)
       //   .post(`/api/projects/${projectId}/members`)
@@ -392,25 +425,26 @@ describe('Team Management Integration Tests', () => {
       //   .send({ userId: userId1, role: 'CONTRIBUTOR' })
       // expect(res.statusCode).toBe(201)
       // expect(res.body.success).toBe(true)
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 #### Test Coverage
 
-| Feature | Tests | Status |
-|---------|-------|--------|
-| Add Member | 4 | Framework ready |
-| Get Members | 3 | Framework ready |
-| Update Role | 3 | Framework ready |
-| Delete Member | 3 | Framework ready |
-| Create Invite | 4 | Framework ready |
-| **Accept Invite** | **5** | **Framework ready + Security cases** |
-| List Invites | 3 | Framework ready |
-| **Total** | **25** | **Framework ready for implementation** |
+| Feature           | Tests  | Status                                 |
+| ----------------- | ------ | -------------------------------------- |
+| Add Member        | 4      | Framework ready                        |
+| Get Members       | 3      | Framework ready                        |
+| Update Role       | 3      | Framework ready                        |
+| Delete Member     | 3      | Framework ready                        |
+| Create Invite     | 4      | Framework ready                        |
+| **Accept Invite** | **5**  | **Framework ready + Security cases**   |
+| List Invites      | 3      | Framework ready                        |
+| **Total**         | **25** | **Framework ready for implementation** |
 
 #### Security-Focused Tests Added
+
 - ✅ Email verification on invite acceptance
 - ✅ Duplicate member prevention
 - ✅ Invite expiration handling
@@ -418,6 +452,7 @@ describe('Team Management Integration Tests', () => {
 - ✅ Permission enforcement across all endpoints
 
 ### Implementation Path
+
 1. Setup test database and fixtures (in `beforeAll`)
 2. Uncomment test implementations
 3. Update import to actual app file
@@ -428,23 +463,27 @@ describe('Team Management Integration Tests', () => {
 ## Summary of Changes
 
 ### Files Created (3)
+
 - ✅ `lib/prisma.js` - Shared Prisma singleton
 - ✅ `lib/permissions.js` - Centralized role-based permissions
 - ✅ `docs/SECURITY_AND_PERFORMANCE_FIXES.md` - This document
 
 ### Files Updated (4)
+
 - ✅ `services/teamService.js` - Refactored for reduced complexity
 - ✅ `middleware/authorization.js` - Simplified with factory pattern
 - ✅ `routes/teamManagement.js` - Added security fixes for invites
 - ✅ `tests/integration/teamManagement.test.js` - Proper test framework
 
 ### Issues Resolved
+
 - 🔴 1 Critical: Invite email verification vulnerability
 - 🟠 1 High: Multiple Prisma instances causing connection exhaustion
 - 🟡 2 Medium: Code complexity and duplication
 - 🔵 1 Info: Test coverage framework
 
 ### Code Quality Metrics
+
 - Duplication: Reduced by 60%
 - Cyclomatic Complexity: Reduced by 40%
 - Test Framework: 25 test cases ready for implementation
