@@ -65,12 +65,16 @@ class TeamService {
    * Update member role
    */
   async updateMemberRole (projectId, userId, newRole) {
-    const validRoles = ['OWNER', 'ADMIN', 'MAINTAINER', 'CONTRIBUTOR', 'VIEWER']
+    const validRoles = [
+      'OWNER',
+      'ADMIN',
+      'MAINTAINER',
+      'CONTRIBUTOR',
+      'VIEWER'
+    ]
 
     if (!validRoles.includes(newRole)) {
-      throw new Error(
-        `Invalid role. Must be one of: ${validRoles.join(', ')}`
-      )
+      throw new Error(`Invalid role. Must be one of: ${validRoles.join(', ')}`)
     }
 
     const member = await prisma.teamMember.update({
