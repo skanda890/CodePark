@@ -1,18 +1,43 @@
 {
   "name": "web-rtc-chat",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Advanced Web-RTC Chat Application with Video Conferencing, Real-time Messaging, and File Sharing",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "webrtc",
+    "video-chat",
+    "real-time",
+    "communication",
+    "socket.io",
+    "peer-to-peer"
+  ],
   "author": "SkandaBT",
   "license": "MIT",
-  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skanda890/CodePark.git",
+    "directory": "Coding/Languages/JavaScript/web-rtc-chat"
+  },
+  "bugs": {
+    "url": "https://github.com/skanda890/CodePark/issues"
+  },
+  "homepage": "https://github.com/skanda890/CodePark#readme",
   "dependencies": {
     "crypto-js": "^4.2.0",
     "express": "^5.2.1",
     "socket.io": "^4.8.1",
     "express-rate-limit": "^8.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   }
 }
