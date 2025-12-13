@@ -1,755 +1,691 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Catch the Falling Objects Game - Enhanced</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Arial", sans-serif;
-        overflow: hidden;
-        background: #f0f0f0;
-      }
-
-      canvas {
-        display: block;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        margin: 0 auto;
-      }
-
-      #gameContainer {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-      }
-
-      /* UI Overlay */
-      #uiOverlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 10;
-        background: rgba(0, 0, 0, 0.3);
-        color: white;
-      }
-
-      .stats {
-        display: flex;
-        gap: 30px;
-        font-size: 18px;
-        font-weight: bold;
-      }
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .stat-label {
-        font-weight: normal;
-        opacity: 0.9;
-      }
-
-      .controls {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-      }
-
-      button {
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 2px solid white;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        font-size: 14px;
-      }
-
-      button:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-      }
-
-      button:active {
-        transform: scale(0.95);
-      }
-
-      select {
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 2px solid white;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 14px;
-      }
-
-      select option {
-        background: #333;
-        color: white;
-      }
-
-      /* Modal Styles */
-      .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.95);
-        border: 3px solid #667eea;
-        border-radius: 15px;
-        padding: 40px;
-        text-align: center;
-        z-index: 100;
-        display: none;
-        color: white;
-        min-width: 400px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-      }
-
-      .modal.show {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal h2 {
-        font-size: 48px;
-        margin-bottom: 20px;
-        color: #667eea;
-      }
-
-      .modal p {
-        font-size: 24px;
-        margin-bottom: 30px;
-        color: #ddd;
-      }
-
-      .modal-buttons {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-      }
-
-      .modal button {
-        padding: 12px 30px;
-        font-size: 16px;
-        min-width: 150px;
-      }
-
-      #overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 99;
-        display: none;
-      }
-
-      #overlay.show {
-        display: block;
-      }
-
-      /* Lives Display */
-      .lives-container {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .heart {
-        font-size: 24px;
-        color: #ff4757;
-        transition: all 0.3s ease;
-      }
-
-      .heart.lost {
-        opacity: 0.3;
-        transform: scale(0.8);
-      }
-
-      /* Sound Toggle */
-      .sound-toggle {
-        width: 50px;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.2);
-        border: 2px solid white;
-        border-radius: 15px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        padding: 2px;
-        transition: all 0.3s ease;
-      }
-
-      .sound-toggle.muted {
-        background: rgba(255, 100, 100, 0.3);
-      }
-
-      .sound-toggle-dot {
-        width: 26px;
-        height: 26px;
-        background: white;
-        border-radius: 50%;
-        transition: transform 0.3s ease;
-      }
-
-      .sound-toggle.muted .sound-toggle-dot {
-        transform: translateX(20px);
-      }
-
-      /* Pause Message */
-      #pauseMessage {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 64px;
-        color: white;
-        text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-        z-index: 50;
-        display: none;
-        pointer-events: none;
-        animation: pulse 1s infinite;
-      }
-
-      #pauseMessage.show {
-        display: block;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        50% {
-          opacity: 0.5;
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #f0f0f0;
         }
-      }
 
-      .difficulty-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+        canvas {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto;
+        }
 
-      .difficulty-container label {
-        color: white;
-        font-weight: bold;
-        font-size: 14px;
-      }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* UI Overlay */
+        #uiOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        select {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        select option {
+            background: #333;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+            color: white;
+            min-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .modal p {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #ddd;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .modal button {
+            padding: 12px 30px;
+            font-size: 16px;
+            min-width: 150px;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+            display: none;
+        }
+
+        #overlay.show {
+            display: block;
+        }
+
+        /* Lives Display */
+        .lives-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .heart {
+            font-size: 24px;
+            color: #ff4757;
+            transition: all 0.3s ease;
+        }
+
+        .heart.lost {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            width: 50px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle.muted {
+            background: rgba(255, 100, 100, 0.3);
+        }
+
+        .sound-toggle-dot {
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .sound-toggle.muted .sound-toggle-dot {
+            transform: translateX(20px);
+        }
+
+        /* Pause Message */
+        #pauseMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 64px;
+            color: white;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            z-index: 50;
+            display: none;
+            pointer-events: none;
+            animation: pulse 1s infinite;
+        }
+
+        #pauseMessage.show {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .difficulty-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .difficulty-container label {
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div id="gameContainer">
-      <canvas id="gameCanvas"></canvas>
-      <div id="uiOverlay">
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-label">Score:</span>
-            <span id="scoreDisplay">0</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Level:</span>
-            <span id="levelDisplay">1</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Missed:</span>
-            <span id="missedDisplay">0</span>
-          </div>
-          <div class="stat-item lives-container">
-            <span class="stat-label">Lives:</span>
-            <div id="livesDisplay"></div>
-          </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="uiOverlay">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Score:</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Level:</span>
+                    <span id="levelDisplay">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Missed:</span>
+                    <span id="missedDisplay">0</span>
+                </div>
+                <div class="stat-item lives-container">
+                    <span class="stat-label">Lives:</span>
+                    <div id="livesDisplay"></div>
+                </div>
+            </div>
+            <div class="controls">
+                <div class="difficulty-container">
+                    <label for="difficultySelect">Difficulty:</label>
+                    <select id="difficultySelect">
+                        <option value="easy">Easy</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="insane">Insane</option>
+                    </select>
+                </div>
+                <div class="sound-toggle" id="soundToggle" title="Toggle Sound">
+                    <div class="sound-toggle-dot"></div>
+                </div>
+                <button id="pauseBtn">PAUSE</button>
+                <button id="restartBtn">RESTART</button>
+            </div>
         </div>
-        <div class="controls">
-          <div class="difficulty-container">
-            <label for="difficultySelect">Difficulty:</label>
-            <select id="difficultySelect">
-              <option value="easy">Easy</option>
-              <option value="normal" selected>Normal</option>
-              <option value="hard">Hard</option>
-              <option value="insane">Insane</option>
-            </select>
-          </div>
-          <div class="sound-toggle" id="soundToggle" title="Toggle Sound">
-            <div class="sound-toggle-dot"></div>
-          </div>
-          <button id="pauseBtn">PAUSE</button>
-          <button id="restartBtn">RESTART</button>
-        </div>
-      </div>
-      <div id="pauseMessage">⏸ PAUSED</div>
+        <div id="pauseMessage">⏸ PAUSED</div>
     </div>
 
     <div id="overlay"></div>
     <div id="pauseModal" class="modal">
-      <h2>⏸ PAUSED</h2>
-      <p>Press SPACE or click Resume to continue</p>
-      <div class="modal-buttons">
-        <button id="resumeBtn">Resume</button>
-        <button id="pauseRestartBtn">Restart Game</button>
-      </div>
+        <h2>⏸ PAUSED</h2>
+        <p>Press SPACE or click Resume to continue</p>
+        <div class="modal-buttons">
+            <button id="resumeBtn">Resume</button>
+            <button id="pauseRestartBtn">Restart Game</button>
+        </div>
     </div>
 
     <div id="gameOverModal" class="modal">
-      <h2>GAME OVER</h2>
-      <p id="finalScoreText">Final Score: 0</p>
-      <p id="finalLevelText">Final Level: 1</p>
-      <div class="modal-buttons">
-        <button id="restartGameBtn">Play Again</button>
-      </div>
+        <h2>GAME OVER</h2>
+        <p id="finalScoreText">Final Score: 0</p>
+        <p id="finalLevelText">Final Level: 1</p>
+        <div class="modal-buttons">
+            <button id="restartGameBtn">Play Again</button>
+        </div>
     </div>
 
     <script>
-      const canvas = document.getElementById("gameCanvas");
-      const ctx = canvas.getContext("2d");
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      // Audio Context
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
-      let soundEnabled = true;
-
-      // Sound Effects
-      function playSound(frequency, duration) {
-        if (!soundEnabled) return;
-        try {
-          const oscillator = audioContext.createOscillator();
-          const gainNode = audioContext.createGain();
-          oscillator.connect(gainNode);
-          gainNode.connect(audioContext.destination);
-          oscillator.frequency.value = frequency;
-          oscillator.type = "sine";
-          gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + duration,
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + duration);
-        } catch (e) {
-          console.log("Audio playback not available");
-        }
-      }
-
-      // Difficulty Settings
-      const difficultySettings = {
-        easy: {
-          initialSpeed: 2,
-          spawnRate: 1500,
-          maxSpeed: 4,
-          levelUpInterval: 15,
-        },
-        normal: {
-          initialSpeed: 2.5,
-          spawnRate: 1000,
-          maxSpeed: 5.5,
-          levelUpInterval: 10,
-        },
-        hard: {
-          initialSpeed: 3.5,
-          spawnRate: 700,
-          maxSpeed: 7,
-          levelUpInterval: 8,
-        },
-        insane: {
-          initialSpeed: 5,
-          spawnRate: 500,
-          maxSpeed: 10,
-          levelUpInterval: 5,
-        },
-      };
-
-      let currentDifficulty = "normal";
-      let difficultyConfig = { ...difficultySettings.normal };
-
-      // Game State
-      let gameState = {
-        running: true,
-        paused: false,
-        gameOver: false,
-        player: {
-          x: canvas.width / 2,
-          y: canvas.height - 30,
-          width: 50,
-          height: 50,
-          dx: 0,
-        },
-        objects: [],
-        score: 0,
-        level: 1,
-        missedObjects: 0,
-        lives: 3,
-        maxLives: 3,
-        powerUpActive: false,
-        powerUpEndTime: 0,
-      };
-
-      // Update difficulty based on selection
-      document
-        .getElementById("difficultySelect")
-        .addEventListener("change", (e) => {
-          if (!gameState.gameOver) {
-            currentDifficulty = e.target.value;
-            difficultyConfig = { ...difficultySettings[currentDifficulty] };
-            playSound(800, 0.1);
-          }
-        });
-
-      // Sound Toggle
-      document.getElementById("soundToggle").addEventListener("click", () => {
-        soundEnabled = !soundEnabled;
-        document.getElementById("soundToggle").classList.toggle("muted");
-        playSound(soundEnabled ? 1000 : 400, 0.1);
-      });
-
-      // Pause/Resume
-      document
-        .getElementById("pauseBtn")
-        .addEventListener("click", togglePause);
-      document
-        .getElementById("resumeBtn")
-        .addEventListener("click", togglePause);
-      document
-        .getElementById("pauseRestartBtn")
-        .addEventListener("click", restartGame);
-      document
-        .getElementById("restartBtn")
-        .addEventListener("click", restartGame);
-      document
-        .getElementById("restartGameBtn")
-        .addEventListener("click", restartGame);
-
-      function togglePause() {
-        if (gameState.gameOver) return;
-        gameState.paused = !gameState.paused;
-        const modal = document.getElementById("pauseModal");
-        const overlay = document.getElementById("overlay");
-        const message = document.getElementById("pauseMessage");
-
-        if (gameState.paused) {
-          modal.classList.add("show");
-          overlay.classList.add("show");
-          message.classList.add("show");
-          document.getElementById("pauseBtn").textContent = "RESUME";
-          playSound(400, 0.2);
-        } else {
-          modal.classList.remove("show");
-          overlay.classList.remove("show");
-          message.classList.remove("show");
-          document.getElementById("pauseBtn").textContent = "PAUSE";
-          playSound(800, 0.2);
-        }
-      }
-
-      function restartGame() {
-        gameState = {
-          running: true,
-          paused: false,
-          gameOver: false,
-          player: {
-            x: canvas.width / 2,
-            y: canvas.height - 30,
-            width: 50,
-            height: 50,
-            dx: 0,
-          },
-          objects: [],
-          score: 0,
-          level: 1,
-          missedObjects: 0,
-          lives: 3,
-          maxLives: 3,
-          powerUpActive: false,
-          powerUpEndTime: 0,
-        };
-
-        document.getElementById("pauseModal").classList.remove("show");
-        document.getElementById("gameOverModal").classList.remove("show");
-        document.getElementById("overlay").classList.remove("show");
-        document.getElementById("pauseBtn").textContent = "PAUSE";
-        document.getElementById("difficultySelect").disabled = false;
-
-        playSound(600, 0.1);
-        playSound(800, 0.1);
-        playSound(1000, 0.15);
-      }
-
-      function endGame() {
-        gameState.gameOver = true;
-        document.getElementById("overlay").classList.add("show");
-        document.getElementById("gameOverModal").classList.add("show");
-        document.getElementById("finalScoreText").textContent =
-          `Final Score: ${gameState.score}`;
-        document.getElementById("finalLevelText").textContent =
-          `Final Level: ${gameState.level}`;
-        document.getElementById("difficultySelect").disabled = true;
-        playSound(200, 0.5);
-      }
-
-      function updateLivesDisplay() {
-        const livesDisplay = document.getElementById("livesDisplay");
-        livesDisplay.innerHTML = "";
-        for (let i = 0; i < gameState.maxLives; i++) {
-          const heart = document.createElement("div");
-          heart.className = "heart" + (i >= gameState.lives ? " lost" : "");
-          heart.textContent = "❤";
-          livesDisplay.appendChild(heart);
-        }
-      }
-
-      function drawPlayer() {
-        const gradient = ctx.createLinearGradient(
-          gameState.player.x,
-          gameState.player.y,
-          gameState.player.x,
-          gameState.player.y + gameState.player.height,
-        );
-        gradient.addColorStop(0, "#00d4ff");
-        gradient.addColorStop(1, "#0099cc");
-
-        ctx.fillStyle = gameState.powerUpActive ? "#ffff00" : gradient;
-        ctx.shadowColor = gameState.powerUpActive
-          ? "rgba(255, 255, 0, 0.8)"
-          : "rgba(0, 153, 204, 0.5)";
-        ctx.shadowBlur = 15;
-        ctx.fillRect(
-          gameState.player.x,
-          gameState.player.y,
-          gameState.player.width,
-          gameState.player.height,
-        );
-        ctx.shadowBlur = 0;
-
-        if (gameState.powerUpActive) {
-          ctx.strokeStyle = "#ffff00";
-          ctx.lineWidth = 3;
-          ctx.strokeRect(
-            gameState.player.x - 5,
-            gameState.player.y - 5,
-            gameState.player.width + 10,
-            gameState.player.height + 10,
-          );
-        }
-      }
-
-      function drawObjects() {
-        gameState.objects.forEach((obj) => {
-          const gradient = ctx.createLinearGradient(
-            obj.x,
-            obj.y,
-            obj.x,
-            obj.y + obj.height,
-          );
-          if (obj.type === "bonus") {
-            gradient.addColorStop(0, "#00ff00");
-            gradient.addColorStop(1, "#00aa00");
-            ctx.shadowColor = "rgba(0, 255, 0, 0.6)";
-          } else if (obj.type === "powerUp") {
-            gradient.addColorStop(0, "#ffff00");
-            gradient.addColorStop(1, "#ffaa00");
-            ctx.shadowColor = "rgba(255, 255, 0, 0.6)";
-          } else {
-            gradient.addColorStop(0, "#ff4757");
-            gradient.addColorStop(1, "#ff1744");
-            ctx.shadowColor = "rgba(255, 23, 68, 0.6)";
-          }
-
-          ctx.shadowBlur = 10;
-          ctx.fillStyle = gradient;
-          ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-          ctx.shadowBlur = 0;
-        });
-      }
-
-      function updateObjects() {
-        gameState.objects = gameState.objects.filter((obj) => {
-          obj.y += obj.dy;
-          if (obj.y > canvas.height) {
-            gameState.missedObjects++;
-            gameState.lives--;
-            playSound(300, 0.3);
-
-            if (gameState.lives <= 0) {
-              gameState.lives = 0;
-            }
-            return false;
-          }
-          return true;
-        });
-      }
-
-      function createObject() {
-        if (gameState.paused || gameState.gameOver) return;
-        const x = Math.random() * (canvas.width - 20);
-        const type = Math.random() > 0.85 ? "bonus" : "normal";
-        const baseDy = Math.min(
-          difficultyConfig.initialSpeed + (gameState.level - 1) * 0.5,
-          difficultyConfig.maxSpeed,
-        );
-        const dy = type === "bonus" ? baseDy * 0.8 : baseDy;
-
-        gameState.objects.push({
-          x,
-          y: 0,
-          width: 20,
-          height: 20,
-          dy,
-          type,
-          color: type === "bonus" ? "green" : "red",
-        });
-      }
-
-      function createPowerUp() {
-        if (gameState.paused || gameState.gameOver) return;
-        const x = Math.random() * (canvas.width - 20);
-        gameState.objects.push({
-          x,
-          y: 0,
-          width: 20,
-          height: 20,
-          dy: difficultyConfig.initialSpeed * 0.6,
-          type: "powerUp",
-          color: "yellow",
-        });
-      }
-
-      function detectCollision() {
-        gameState.objects = gameState.objects.filter((obj, index) => {
-          if (
-            obj.x < gameState.player.x + gameState.player.width &&
-            obj.x + obj.width > gameState.player.x &&
-            obj.y < gameState.player.y + gameState.player.height &&
-            obj.y + obj.height > gameState.player.y
-          ) {
-            if (obj.type === "powerUp") {
-              gameState.powerUpActive = true;
-              gameState.powerUpEndTime = Date.now() + 5000;
-              playSound(1200, 0.3);
-            } else if (obj.type === "bonus") {
-              gameState.score += 5;
-              playSound(800, 0.15);
-            } else {
-              gameState.score += 1;
-              playSound(600, 0.1);
-            }
-            return false;
-          }
-          return true;
-        });
-      }
-
-      function updatePlayer() {
-        if (gameState.powerUpActive && Date.now() > gameState.powerUpEndTime) {
-          gameState.powerUpActive = false;
-        }
-        gameState.player.x += gameState.powerUpActive
-          ? gameState.player.dx * 1.5
-          : gameState.player.dx;
-
-        if (gameState.player.x < 0) gameState.player.x = 0;
-        if (gameState.player.x + gameState.player.width > canvas.width)
-          gameState.player.x = canvas.width - gameState.player.width;
-      }
-
-      function updateLevel() {
-        const newLevel =
-          Math.floor(gameState.score / difficultyConfig.levelUpInterval) + 1;
-        if (newLevel > gameState.level) {
-          gameState.level = newLevel;
-          playSound(900, 0.1);
-          playSound(1100, 0.15);
-        }
-      }
-
-      function updateUI() {
-        document.getElementById("scoreDisplay").textContent = gameState.score;
-        document.getElementById("levelDisplay").textContent = gameState.level;
-        document.getElementById("missedDisplay").textContent =
-          gameState.missedObjects;
-        updateLivesDisplay();
-      }
-
-      function clearCanvas() {
-        ctx.fillStyle = "rgba(102, 126, 234, 0.1)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-
-      let spawnInterval;
-      let powerUpInterval;
-
-      function startSpawning() {
-        clearInterval(spawnInterval);
-        clearInterval(powerUpInterval);
-        spawnInterval = setInterval(createObject, difficultyConfig.spawnRate);
-        powerUpInterval = setInterval(createPowerUp, 10000);
-      }
-
-      function gameLoop() {
-        if (!gameState.paused && !gameState.gameOver) {
-          clearCanvas();
-          drawPlayer();
-          drawObjects();
-          updateObjects();
-          updatePlayer();
-          detectCollision();
-          updateLevel();
-        } else if (gameState.paused) {
-          clearCanvas();
-          drawPlayer();
-          drawObjects();
-        }
-
-        updateUI();
-        requestAnimationFrame(gameLoop);
-      }
-
-      // Keyboard Controls
-      document.addEventListener("keydown", (e) => {
-        if (e.key === " ") {
-          e.preventDefault();
-          togglePause();
-        }
-        if (e.key === "ArrowRight") gameState.player.dx = 5;
-        if (e.key === "ArrowLeft") gameState.player.dx = -5;
-      });
-
-      document.addEventListener("keyup", () => {
-        gameState.player.dx = 0;
-      });
-
-      // Window Resize Handler
-      window.addEventListener("resize", () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-      });
 
-      // Start game
-      updateLivesDisplay();
-      startSpawning();
-      gameLoop();
+        // Audio Context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        // Sound Effects
+        function playSound(frequency, duration) {
+            if (!soundEnabled) return;
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Audio playback not available');
+            }
+        }
+
+        // Difficulty Settings
+        const difficultySettings = {
+            easy: { initialSpeed: 2, spawnRate: 1500, maxSpeed: 4, levelUpInterval: 15 },
+            normal: { initialSpeed: 2.5, spawnRate: 1000, maxSpeed: 5.5, levelUpInterval: 10 },
+            hard: { initialSpeed: 3.5, spawnRate: 700, maxSpeed: 7, levelUpInterval: 8 },
+            insane: { initialSpeed: 5, spawnRate: 500, maxSpeed: 10, levelUpInterval: 5 }
+        };
+
+        let currentDifficulty = 'normal';
+        let difficultyConfig = { ...difficultySettings.normal };
+
+        // Game State
+        let gameState = {
+            running: true,
+            paused: false,
+            gameOver: false,
+            player: {
+                x: canvas.width / 2,
+                y: canvas.height - 30,
+                width: 50,
+                height: 50,
+                dx: 0
+            },
+            objects: [],
+            score: 0,
+            level: 1,
+            missedObjects: 0,
+            lives: 3,
+            maxLives: 3,
+            powerUpActive: false,
+            powerUpEndTime: 0
+        };
+
+        // Update difficulty based on selection
+        document.getElementById('difficultySelect').addEventListener('change', (e) => {
+            if (!gameState.gameOver) {
+                currentDifficulty = e.target.value;
+                difficultyConfig = { ...difficultySettings[currentDifficulty] };
+                playSound(800, 0.1);
+            }
+        });
+
+        // Sound Toggle
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').classList.toggle('muted');
+            playSound(soundEnabled ? 1000 : 400, 0.1);
+        });
+
+        // Pause/Resume
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
+        document.getElementById('pauseRestartBtn').addEventListener('click', restartGame);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+        document.getElementById('restartGameBtn').addEventListener('click', restartGame);
+
+        function togglePause() {
+            if (gameState.gameOver) return;
+            gameState.paused = !gameState.paused;
+            const modal = document.getElementById('pauseModal');
+            const overlay = document.getElementById('overlay');
+            const message = document.getElementById('pauseMessage');
+
+            if (gameState.paused) {
+                modal.classList.add('show');
+                overlay.classList.add('show');
+                message.classList.add('show');
+                document.getElementById('pauseBtn').textContent = 'RESUME';
+                playSound(400, 0.2);
+            } else {
+                modal.classList.remove('show');
+                overlay.classList.remove('show');
+                message.classList.remove('show');
+                document.getElementById('pauseBtn').textContent = 'PAUSE';
+                playSound(800, 0.2);
+            }
+        }
+
+        function restartGame() {
+            gameState = {
+                running: true,
+                paused: false,
+                gameOver: false,
+                player: {
+                    x: canvas.width / 2,
+                    y: canvas.height - 30,
+                    width: 50,
+                    height: 50,
+                    dx: 0
+                },
+                objects: [],
+                score: 0,
+                level: 1,
+                missedObjects: 0,
+                lives: 3,
+                maxLives: 3,
+                powerUpActive: false,
+                powerUpEndTime: 0
+            };
+
+            document.getElementById('pauseModal').classList.remove('show');
+            document.getElementById('gameOverModal').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('pauseBtn').textContent = 'PAUSE';
+            document.getElementById('difficultySelect').disabled = false;
+
+            playSound(600, 0.1);
+            playSound(800, 0.1);
+            playSound(1000, 0.15);
+        }
+
+        function endGame() {
+            gameState.gameOver = true;
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('gameOverModal').classList.add('show');
+            document.getElementById('finalScoreText').textContent = `Final Score: ${gameState.score}`;
+            document.getElementById('finalLevelText').textContent = `Final Level: ${gameState.level}`;
+            document.getElementById('difficultySelect').disabled = true;
+            playSound(200, 0.5);
+        }
+
+        function updateLivesDisplay() {
+            const livesDisplay = document.getElementById('livesDisplay');
+            livesDisplay.innerHTML = '';
+            for (let i = 0; i < gameState.maxLives; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart' + (i >= gameState.lives ? ' lost' : '');
+                heart.textContent = '❤';
+                livesDisplay.appendChild(heart);
+            }
+        }
+
+        function drawPlayer() {
+            const gradient = ctx.createLinearGradient(
+                gameState.player.x,
+                gameState.player.y,
+                gameState.player.x,
+                gameState.player.y + gameState.player.height
+            );
+            gradient.addColorStop(0, '#00d4ff');
+            gradient.addColorStop(1, '#0099cc');
+
+            ctx.fillStyle = gameState.powerUpActive ? '#ffff00' : gradient;
+            ctx.shadowColor = gameState.powerUpActive ? 'rgba(255, 255, 0, 0.8)' : 'rgba(0, 153, 204, 0.5)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(gameState.player.x, gameState.player.y, gameState.player.width, gameState.player.height);
+            ctx.shadowBlur = 0;
+
+            if (gameState.powerUpActive) {
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(gameState.player.x - 5, gameState.player.y - 5, gameState.player.width + 10, gameState.player.height + 10);
+            }
+        }
+
+        function drawObjects() {
+            gameState.objects.forEach((obj) => {
+                const gradient = ctx.createLinearGradient(obj.x, obj.y, obj.x, obj.y + obj.height);
+                if (obj.type === 'bonus') {
+                    gradient.addColorStop(0, '#00ff00');
+                    gradient.addColorStop(1, '#00aa00');
+                    ctx.shadowColor = 'rgba(0, 255, 0, 0.6)';
+                } else if (obj.type === 'powerUp') {
+                    gradient.addColorStop(0, '#ffff00');
+                    gradient.addColorStop(1, '#ffaa00');
+                    ctx.shadowColor = 'rgba(255, 255, 0, 0.6)';
+                } else {
+                    gradient.addColorStop(0, '#ff4757');
+                    gradient.addColorStop(1, '#ff1744');
+                    ctx.shadowColor = 'rgba(255, 23, 68, 0.6)';
+                }
+
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = gradient;
+                ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function updateObjects() {
+            gameState.objects = gameState.objects.filter((obj) => {
+                obj.y += obj.dy;
+                if (obj.y > canvas.height) {
+                    gameState.missedObjects++;
+                    gameState.lives--;
+                    playSound(300, 0.3);
+
+                    if (gameState.lives <= 0) {
+                        endGame();
+                    }
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        function createObject() {
+            if (gameState.paused || gameState.gameOver) return;
+            const x = Math.random() * (canvas.width - 20);
+            const type = Math.random() > 0.85 ? 'bonus' : 'normal';
+            const baseDy = Math.min(difficultyConfig.initialSpeed + (gameState.level - 1) * 0.5, difficultyConfig.maxSpeed);
+            const dy = type === 'bonus' ? baseDy * 0.8 : baseDy;
+
+            gameState.objects.push({
+                x,
+                y: 0,
+                width: 20,
+                height: 20,
+                dy,
+                type,
+                color: type === 'bonus' ? 'green' : 'red'
+            });
+        }
+
+        function createPowerUp() {
+            if (gameState.paused || gameState.gameOver) return;
+            const x = Math.random() * (canvas.width - 20);
+            gameState.objects.push({
+                x,
+                y: 0,
+                width: 20,
+                height: 20,
+                dy: difficultyConfig.initialSpeed * 0.6,
+                type: 'powerUp',
+                color: 'yellow'
+            });
+        }
+
+        function detectCollision() {
+            gameState.objects = gameState.objects.filter((obj, index) => {
+                if (
+                    obj.x < gameState.player.x + gameState.player.width &&
+                    obj.x + obj.width > gameState.player.x &&
+                    obj.y < gameState.player.y + gameState.player.height &&
+                    obj.y + obj.height > gameState.player.y
+                ) {
+                    if (obj.type === 'powerUp') {
+                        gameState.powerUpActive = true;
+                        gameState.powerUpEndTime = Date.now() + 5000;
+                        playSound(1200, 0.3);
+                    } else if (obj.type === 'bonus') {
+                        gameState.score += 5;
+                        playSound(800, 0.15);
+                    } else {
+                        gameState.score += 1;
+                        playSound(600, 0.1);
+                    }
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        function updatePlayer() {
+            if (gameState.powerUpActive && Date.now() > gameState.powerUpEndTime) {
+                gameState.powerUpActive = false;
+            }
+            gameState.player.x += gameState.powerUpActive ? gameState.player.dx * 1.5 : gameState.player.dx;
+
+            if (gameState.player.x < 0) gameState.player.x = 0;
+            if (gameState.player.x + gameState.player.width > canvas.width)
+                gameState.player.x = canvas.width - gameState.player.width;
+        }
+
+        function updateLevel() {
+            const newLevel = Math.floor(gameState.score / difficultyConfig.levelUpInterval) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                playSound(900, 0.1);
+                playSound(1100, 0.15);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = gameState.score;
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('missedDisplay').textContent = gameState.missedObjects;
+            updateLivesDisplay();
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        let spawnInterval;
+        let powerUpInterval;
+
+        function startSpawning() {
+            clearInterval(spawnInterval);
+            clearInterval(powerUpInterval);
+            spawnInterval = setInterval(createObject, difficultyConfig.spawnRate);
+            powerUpInterval = setInterval(createPowerUp, 10000);
+        }
+
+        function gameLoop() {
+            if (!gameState.paused && !gameState.gameOver) {
+                clearCanvas();
+                drawPlayer();
+                drawObjects();
+                updateObjects();
+                updatePlayer();
+                detectCollision();
+                updateLevel();
+            } else if (gameState.paused) {
+                clearCanvas();
+                drawPlayer();
+                drawObjects();
+            }
+
+            updateUI();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                e.preventDefault();
+                togglePause();
+            }
+            if (e.key === 'ArrowRight') gameState.player.dx = 5;
+            if (e.key === 'ArrowLeft') gameState.player.dx = -5;
+        });
+
+        // FIX: Only stop movement when arrow keys are released
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                gameState.player.dx = 0;
+            }
+        });
+
+        // Window Resize Handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start game
+        updateLivesDisplay();
+        startSpawning();
+        gameLoop();
     </script>
-  </body>
+</body>
 </html>
