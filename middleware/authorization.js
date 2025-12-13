@@ -1,8 +1,8 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
+const { hasPermission } = require('../lib/permissions')
 
 /**
- * Check if user has permission for resource
+ * Check if user has a specific permission
  */
 const requirePermission = (requiredPermission) => {
   return async (req, res, next) => {
@@ -21,36 +21,7 @@ const requirePermission = (requiredPermission) => {
         })
       }
 
-      const rolePermissions = {
-        OWNER: ['all'],
-        ADMIN: [
-          'manage-team',
-          'manage-settings',
-          'delete-project',
-          'manage-reviews',
-          'read-members'
-        ],
-        MAINTAINER: [
-          'create-review',
-          'approve-review',
-          'merge-code',
-          'manage-issues',
-          'read-members'
-        ],
-        CONTRIBUTOR: [
-          'write-code',
-          'create-review',
-          'comment-review',
-          'read-members'
-        ],
-        VIEWER: ['read-code', 'view-reviews', 'view-analytics', 'read-members']
-      }
-
-      const permissions = rolePermissions[member.role] || []
-      const hasPermission =
-        permissions.includes('all') || permissions.includes(requiredPermission)
-
-      if (!hasPermission) {
+      if (!hasPermission(member.role, requiredPermission)) {
         return res.status(403).json({
           error: 'Insufficient permissions',
           required: requiredPermission,
@@ -66,60 +37,47 @@ const requirePermission = (requiredPermission) => {
 }
 
 /**
- * Check if user is project owner or admin
+ * Factory for creating role-based middleware
  */
-const requireAdminRole = async (req, res, next) => {
-  try {
-    const { projectId } = req.params
-    const member = await prisma.teamMember.findUnique({
-      where: {
-        projectId_userId: {
-          projectId,
-          userId: req.user.id
+const requireRole = (allowedRoles, errorMessage) => {
+  return async (req, res, next) => {
+    try {
+      const { projectId } = req.params
+      const member = await prisma.teamMember.findUnique({
+        where: {
+          projectId_userId: {
+            projectId,
+            userId: req.user.id
+          }
         }
-      }
-    })
-
-    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-      return res.status(403).json({
-        error: 'Admin access required',
-        userRole: member?.role || 'none'
       })
-    }
 
-    next()
-  } catch (error) {
-    res.status(500).json({ error: 'Authorization check failed' })
+      if (!member || !allowedRoles.includes(member.role)) {
+        return res.status(403).json({
+          error: errorMessage,
+          userRole: member?.role || 'none'
+        })
+      }
+
+      next()
+    } catch (error) {
+      res.status(500).json({ error: 'Authorization check failed' })
+    }
   }
 }
 
 /**
+ * Check if user is project owner or admin
+ */
+const requireAdminRole = requireRole(
+  ['OWNER', 'ADMIN'],
+  'Admin access required'
+)
+
+/**
  * Check if user is project owner
  */
-const requireOwnerRole = async (req, res, next) => {
-  try {
-    const { projectId } = req.params
-    const member = await prisma.teamMember.findUnique({
-      where: {
-        projectId_userId: {
-          projectId,
-          userId: req.user.id
-        }
-      }
-    })
-
-    if (!member || member.role !== 'OWNER') {
-      return res.status(403).json({
-        error: 'Owner access required',
-        userRole: member?.role || 'none'
-      })
-    }
-
-    next()
-  } catch (error) {
-    res.status(500).json({ error: 'Authorization check failed' })
-  }
-}
+const requireOwnerRole = requireRole(['OWNER'], 'Owner access required')
 
 module.exports = {
   requirePermission,
