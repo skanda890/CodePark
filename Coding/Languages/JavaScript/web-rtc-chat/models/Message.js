@@ -31,24 +31,32 @@ const messageSchema = new mongoose.Schema({
     duration: Number,
     mimeType: String
   },
-  attachments: [{
-    filename: String,
-    url: String,
-    size: Number,
-    mimeType: String,
-    uploadedAt: Date
-  }],
-  reactions: [{
-    emoji: String,
-    users: [{
+  attachments: [
+    {
+      filename: String,
+      url: String,
+      size: Number,
+      mimeType: String,
+      uploadedAt: Date
+    }
+  ],
+  reactions: [
+    {
+      emoji: String,
+      users: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        }
+      ]
+    }
+  ],
+  replies: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }]
-  }],
-  replies: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Message'
-  }],
+      ref: 'Message'
+    }
+  ],
   parentMessage: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Message'
@@ -58,33 +66,39 @@ const messageSchema = new mongoose.Schema({
     enum: ['sent', 'delivered', 'read'],
     default: 'sent'
   },
-  readBy: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    readAt: Date
-  }],
+  readBy: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      readAt: Date
+    }
+  ],
   edited: {
     type: Boolean,
     default: false
   },
-  editHistory: [{
-    content: String,
-    editedAt: Date,
-    editedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+  editHistory: [
+    {
+      content: String,
+      editedAt: Date,
+      editedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
     }
-  }],
+  ],
   pinned: {
     type: Boolean,
     default: false
   },
-  mentions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  mentions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
@@ -114,7 +128,11 @@ messageSchema.methods.delete = function () {
 }
 
 // Search messages
-messageSchema.statics.searchInRoom = async function (roomId, query, limit = 50) {
+messageSchema.statics.searchInRoom = async function (
+  roomId,
+  query,
+  limit = 50
+) {
   return await this.find(
     { $text: { $search: query }, room: roomId, isDeleted: false },
     { score: { $meta: 'textScore' } }

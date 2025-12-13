@@ -76,25 +76,31 @@ const userSchema = new mongoose.Schema({
       default: 'high'
     }
   },
-  contacts: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  blockedUsers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  contacts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  blockedUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
   stats: {
     totalCalls: { type: Number, default: 0 },
     totalCallDuration: { type: Number, default: 0 },
     messagesCount: { type: Number, default: 0 },
     filesShared: { type: Number, default: 0 }
   },
-  roles: [{
-    type: String,
-    enum: ['user', 'admin', 'moderator'],
-    default: 'user'
-  }],
+  roles: [
+    {
+      type: String,
+      enum: ['user', 'admin', 'moderator'],
+      default: 'user'
+    }
+  ],
   isVerified: {
     type: Boolean,
     default: false
@@ -111,11 +117,13 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   },
   lastLogin: Date,
-  loginHistory: [{
-    timestamp: Date,
-    ipAddress: String,
-    deviceInfo: String
-  }]
+  loginHistory: [
+    {
+      timestamp: Date,
+      ipAddress: String,
+      deviceInfo: String
+    }
+  ]
 })
 
 // Hash password before saving
