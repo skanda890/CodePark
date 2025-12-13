@@ -5,6 +5,7 @@ A comprehensive Node.js utility for retrieving and displaying detailed system ha
 ## Features
 
 ✨ **Comprehensive System Information:**
+
 - BIOS details (manufacturer, version, release date, revision)
 - System information (manufacturer, model, type, UUID)
 - CPU specifications (brand, speed, cores, cache)
@@ -14,12 +15,14 @@ A comprehensive Node.js utility for retrieving and displaying detailed system ha
 - Network interfaces and configuration
 
 🎨 **Enhanced Output:**
+
 - Color-coded terminal output for better readability
 - Formatted sections and headers
 - Structured JSON export functionality
 - Command-line interface with multiple options
 
 ⚡ **Easy to Use:**
+
 - Simple command-line commands for specific information
 - Export data to JSON file for further processing
 - Help documentation built-in
@@ -33,6 +36,7 @@ npm install
 ## Usage
 
 ### Run All System Information
+
 ```bash
 npm start
 # or
@@ -42,6 +46,7 @@ node server.js
 ### View Specific Information
 
 **BIOS Information:**
+
 ```bash
 node server.js bios
 # or
@@ -49,36 +54,42 @@ npm run info:bios
 ```
 
 **System Information:**
+
 ```bash
 node server.js system
 npm run info:system
 ```
 
 **CPU Information:**
+
 ```bash
 node server.js cpu
 npm run info:cpu
 ```
 
 **Memory Information:**
+
 ```bash
 node server.js memory
 npm run info:memory
 ```
 
 **OS Information:**
+
 ```bash
 node server.js os
 npm run info:os
 ```
 
 **GPU Information:**
+
 ```bash
 node server.js gpu
 npm run info:gpu
 ```
 
 **Network Information:**
+
 ```bash
 node server.js network
 npm run info:network
@@ -87,6 +98,7 @@ npm run info:network
 ### Export All Information
 
 Export all system information to a JSON file:
+
 ```bash
 node server.js export
 # or
@@ -181,6 +193,7 @@ When using the `export` command, the generated `system-info.json` file includes:
 ## Error Handling
 
 The utility includes robust error handling:
+
 - Individual function error messages in red text
 - Graceful fallback if specific system info is unavailable
 - Continues fetching other information if one fails
