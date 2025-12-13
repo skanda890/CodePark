@@ -37,27 +37,32 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Development Setup
 
 1. **Fork the repository**
+
    ```bash
    # Visit https://github.com/skanda890/CodePark and click "Fork"
    ```
 
 2. **Clone your fork**
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/CodePark.git
    cd CodePark
    ```
 
 3. **Add upstream remote**
+
    ```bash
    git remote add upstream https://github.com/skanda890/CodePark.git
    ```
 
 4. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 5. **Create a development branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -72,6 +77,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Creating Features
 
 1. **Create a feature branch from `main`**
+
    ```bash
    git checkout -b feature/amazing-feature
    ```
@@ -82,6 +88,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
    - Update documentation as needed
 
 3. **Run tests and linting**
+
    ```bash
    npm run lint
    npm run format
@@ -89,11 +96,13 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
    ```
 
 4. **Commit your changes**
+
    ```bash
    git commit -m "feat: Add amazing feature"
    ```
 
 5. **Push to your fork**
+
    ```bash
    git push origin feature/amazing-feature
    ```
@@ -106,11 +115,13 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Fixing Bugs
 
 1. **Create a bug fix branch**
+
    ```bash
    git checkout -b fix/bug-description
    ```
 
 2. **Reference the issue in commits**
+
    ```bash
    git commit -m "fix: Resolve issue #123 - description"
    ```
@@ -130,19 +141,21 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Code Quality
 
 - **Linting**: Code must pass ESLint checks
+
   ```bash
   npm run lint
   ```
 
 - **Formatting**: Code must be formatted with Prettier
+
   ```bash
   npm run format
   ```
 
 - **No console.log**: Use the logging library (pino) instead
   ```javascript
-  logger.info('Message');
-  logger.error('Error');
+  logger.info("Message");
+  logger.error("Error");
   ```
 
 ### File Organization
@@ -168,6 +181,7 @@ src/
 ### Documentation
 
 - **JSDoc comments**: Document all functions and classes
+
   ```javascript
   /**
    * Processes user data and returns formatted result
@@ -217,18 +231,18 @@ npm run test:ai
 - Follow the Arrange-Act-Assert pattern
 
 ```javascript
-describe('UserService', () => {
-  describe('createUser', () => {
-    it('should create a new user with valid data', async () => {
+describe("UserService", () => {
+  describe("createUser", () => {
+    it("should create a new user with valid data", async () => {
       // Arrange
-      const userData = { name: 'John', email: 'john@example.com' };
+      const userData = { name: "John", email: "john@example.com" };
 
       // Act
       const result = await createUser(userData);
 
       // Assert
       expect(result.id).toBeDefined();
-      expect(result.name).toBe('John');
+      expect(result.name).toBe("John");
     });
   });
 });
@@ -306,20 +320,24 @@ git commit -m "perf(db): Add connection pooling"
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added
 - [ ] Integration tests added
 - [ ] Tested locally
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex logic
@@ -329,9 +347,11 @@ Brief description of changes
 - [ ] Security checks pass
 
 ## Related Issues
+
 Fixes #(issue number)
 
 ## Screenshots (if applicable)
+
 Add screenshots for UI changes
 ```
 
@@ -372,29 +392,36 @@ Add screenshots for UI changes
 
 ```markdown
 ## Description
+
 Clear description of the issue
 
 ## Steps to Reproduce
+
 1. Step one
 2. Step two
 3. Step three
 
 ## Expected Behavior
+
 What should happen
 
 ## Actual Behavior
+
 What actually happens
 
 ## Environment
+
 - Node.js version:
 - npm version:
 - OS: Windows / macOS / Linux
 - Browser (if applicable):
 
 ## Error Messages
+
 Include relevant error messages or logs
 
 ## Additional Context
+
 Any other relevant information
 ```
 
@@ -438,6 +465,7 @@ We welcome documentation improvements!
 ## Recognition
 
 Contributors will be recognized in:
+
 - Pull request acknowledgments
 - Release notes
 - Contributors list (coming soon)
@@ -455,6 +483,7 @@ Contributors will be recognized in:
 ## Questions?
 
 Feel free to:
+
 - Open a GitHub Discussion
 - Create an issue with the `question` label
 - Check existing documentation
