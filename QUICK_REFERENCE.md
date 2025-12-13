@@ -35,52 +35,52 @@ npm run k8s:deploy   # Deploy to Kubernetes
 
 ### Development
 
-| Command | Purpose | Output |
-|---------|---------|--------|
-| `npm run dev` | Start development server with hot reload | http://localhost:3000 |
-| `npm run dev:ai` | Start with AI/ML support | Includes TensorFlow.js |
-| `npm run graphql` | Run GraphQL server | http://localhost:4000/graphql |
-| `npm start` | Production start | Optimized build |
-| `npm run inspect` | Start with debugger | chrome://inspect |
+| Command           | Purpose                                  | Output                        |
+| ----------------- | ---------------------------------------- | ----------------------------- |
+| `npm run dev`     | Start development server with hot reload | http://localhost:3000         |
+| `npm run dev:ai`  | Start with AI/ML support                 | Includes TensorFlow.js        |
+| `npm run graphql` | Run GraphQL server                       | http://localhost:4000/graphql |
+| `npm start`       | Production start                         | Optimized build               |
+| `npm run inspect` | Start with debugger                      | chrome://inspect              |
 
 ### Testing
 
-| Command | Purpose | Coverage |
-|---------|---------|----------|
-| `npm test` | All tests with coverage | 80%+ |
-| `npm run test:watch` | Watch mode | Live updates |
-| `npm run test:ai` | ML/AI tests | Specific suite |
-| `npm run test:e2e` | End-to-end tests | User workflows |
-| `npm run test:security` | Security tests | Vulnerability scan |
+| Command                 | Purpose                 | Coverage           |
+| ----------------------- | ----------------------- | ------------------ |
+| `npm test`              | All tests with coverage | 80%+               |
+| `npm run test:watch`    | Watch mode              | Live updates       |
+| `npm run test:ai`       | ML/AI tests             | Specific suite     |
+| `npm run test:e2e`      | End-to-end tests        | User workflows     |
+| `npm run test:security` | Security tests          | Vulnerability scan |
 
 ### Code Quality
 
-| Command | Purpose | Output |
-|---------|---------|--------|
-| `npm run lint` | Lint and fix code | ESLint + Prettier |
-| `npm run lint:check` | Check only (no fix) | Report only |
-| `npm run format` | Format with Prettier | Auto-formatted |
-| `npm run format:check` | Check formatting | Report only |
-| `npm run security-check` | Security audit + Snyk | Full report |
+| Command                  | Purpose               | Output            |
+| ------------------------ | --------------------- | ----------------- |
+| `npm run lint`           | Lint and fix code     | ESLint + Prettier |
+| `npm run lint:check`     | Check only (no fix)   | Report only       |
+| `npm run format`         | Format with Prettier  | Auto-formatted    |
+| `npm run format:check`   | Check formatting      | Report only       |
+| `npm run security-check` | Security audit + Snyk | Full report       |
 
 ### Database
 
-| Command | Purpose | Result |
-|---------|---------|--------|
-| `npm run migrate` | Run migrations | Schema updated |
-| `npm run migrate:status` | Check status | Migration list |
-| `npm run seed` | Seed with sample data | Data inserted |
-| `npm run backup` | Backup database | Backup created |
+| Command                  | Purpose               | Result         |
+| ------------------------ | --------------------- | -------------- |
+| `npm run migrate`        | Run migrations        | Schema updated |
+| `npm run migrate:status` | Check status          | Migration list |
+| `npm run seed`           | Seed with sample data | Data inserted  |
+| `npm run backup`         | Backup database       | Backup created |
 
 ### Deployment
 
-| Command | Purpose | Platform |
-|---------|---------|----------|
-| `npm run docker:build` | Build Docker image | Local registry |
-| `npm run docker:run` | Run Docker container | Local environment |
-| `npm run k8s:deploy` | Deploy to Kubernetes | K8s cluster |
-| `npm run edge:dev` | Develop edge workers | Local |
-| `npm run edge:deploy` | Deploy to Cloudflare | Production |
+| Command                | Purpose              | Platform          |
+| ---------------------- | -------------------- | ----------------- |
+| `npm run docker:build` | Build Docker image   | Local registry    |
+| `npm run docker:run`   | Run Docker container | Local environment |
+| `npm run k8s:deploy`   | Deploy to Kubernetes | K8s cluster       |
+| `npm run edge:dev`     | Develop edge workers | Local             |
+| `npm run edge:deploy`  | Deploy to Cloudflare | Production        |
 
 ---
 
@@ -121,18 +121,21 @@ CLOUDFLARE_API_TOKEN=            # Edge deployment
 ## 📚 Documentation Links
 
 ### Core Documentation
+
 - **README**: Main project overview → [README.md](README.md)
 - **Contributing**: Contribution guidelines → [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Changelog**: Version history → [CHANGELOG.md](CHANGELOG.md)
 - **This Guide**: Quick reference → [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 
 ### Technical Documentation
+
 - **API Reference**: REST & GraphQL APIs → [docs/API.md](docs/API.md)
 - **Architecture**: System design → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **Deployment**: Deployment guide → [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
 - **Implementation**: Status tracker → [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
 
 ### Feature Guides
+
 - **Auto-Updates**: Dependency updating → [Coding/Scripts/auto-update/README.md](Coding/Scripts/auto-update/README.md)
 - **Auto-Update Quick Start**: Setup guide → [Coding/Scripts/auto-update/QUICKSTART.md](Coding/Scripts/auto-update/QUICKSTART.md)
 - **Experimental Features**: Beta features → [docs/EXPERIMENTAL-FEATURES.md](docs/EXPERIMENTAL-FEATURES.md)
@@ -143,6 +146,7 @@ CLOUDFLARE_API_TOKEN=            # Edge deployment
 ## 🔗 Important URLs
 
 ### Development
+
 - **Application**: http://localhost:3000
 - **GraphQL Playground**: http://localhost:4000/graphql
 - **API Documentation**: http://localhost:3000/api/docs
@@ -150,6 +154,7 @@ CLOUDFLARE_API_TOKEN=            # Edge deployment
 - **Debugger**: chrome://inspect
 
 ### External Services
+
 - **GitHub Repository**: https://github.com/skanda890/CodePark
 - **GitHub Issues**: https://github.com/skanda890/CodePark/issues
 - **GitHub Discussions**: https://github.com/skanda890/CodePark/discussions
@@ -232,12 +237,14 @@ git checkout -- .
 ## 📊 System Requirements
 
 ### Minimum
+
 - **Node.js**: 22.0.0+
 - **npm**: 10.0.0+
 - **RAM**: 2GB
 - **Disk**: 1GB free
 
 ### Recommended (Development)
+
 - **Node.js**: 22.11+ (latest)
 - **npm**: 10.5+
 - **RAM**: 4GB+
@@ -245,6 +252,7 @@ git checkout -- .
 - **CPU**: Multi-core processor
 
 ### Production
+
 - **Node.js**: 22.0.0+ LTS
 - **RAM**: 8GB+
 - **Disk**: 20GB+ SSD
@@ -271,6 +279,7 @@ git checkout -- .
 ## 🚢 Deployment Checklist
 
 ### Before Deploying
+
 - [ ] All tests pass: `npm test`
 - [ ] Linting passes: `npm run lint`
 - [ ] Security check passes: `npm run security-check`
@@ -281,6 +290,7 @@ git checkout -- .
 - [ ] Monitoring configured
 
 ### Deployment Steps
+
 1. Review changes: `git log origin/main..HEAD`
 2. Update version: Edit `package.json`
 3. Build: `npm run build`
@@ -297,18 +307,21 @@ git checkout -- .
 ## 📞 Getting Help
 
 ### Documentation
+
 - 📖 [Full Documentation](docs/)
 - 🏗️ [Architecture Guide](docs/ARCHITECTURE.md)
 - 📋 [API Documentation](docs/API.md)
 - 🚀 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 
 ### Community
+
 - 💬 [GitHub Discussions](https://github.com/skanda890/CodePark/discussions)
 - 🐛 [Report Issues](https://github.com/skanda890/CodePark/issues)
 - 💡 [Feature Requests](https://github.com/skanda890/CodePark/discussions)
 - 🤝 [Contributing](CONTRIBUTING.md)
 
 ### Security Issues
+
 - 🔒 Email: security@example.com (Do NOT use GitHub Issues)
 - ⚠️ See [SECURITY.md](SECURITY.md) for vulnerability disclosure
 
@@ -317,31 +330,36 @@ git checkout -- .
 ## 💡 Pro Tips
 
 1. **Use Git Branches**: Always create feature branches
+
    ```bash
    git checkout -b feature/your-feature
    ```
 
 2. **Pre-commit Hooks**: Set up to catch issues early
+
    ```bash
    npm run setup-husky
    ```
 
 3. **Watch Tests**: Run tests continuously during development
+
    ```bash
    npm run test:watch
    ```
 
 4. **Debug with Inspector**: Use Chrome DevTools
+
    ```bash
    npm run inspect
    # Then visit: chrome://inspect
    ```
 
 5. **Use Environment Profiles**:
+
    ```bash
    # Development
    NODE_ENV=development npm run dev
-   
+
    # Production
    NODE_ENV=production npm start
    ```
@@ -356,13 +374,13 @@ git checkout -- .
 
 ## 📱 Keyboard Shortcuts (Terminal)
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+C` | Stop server |
-| `Ctrl+L` | Clear screen |
+| Shortcut | Action                       |
+| -------- | ---------------------------- |
+| `Ctrl+C` | Stop server                  |
+| `Ctrl+L` | Clear screen                 |
 | `Ctrl+Z` | Suspend (run `fg` to resume) |
-| `↑/↓` | Previous/next command |
-| `Ctrl+R` | Search command history |
+| `↑/↓`    | Previous/next command        |
+| `Ctrl+R` | Search command history       |
 
 ---
 
@@ -432,14 +450,14 @@ git commit -m "chore: Update dependencies"
 
 ## 📝 Version Information
 
-| Component | Version | Status |
-|-----------|---------|--------|
-| **CodePark** | 3.0.0 | ✅ Stable |
-| **Node.js** | 22.0.0+ | ✅ Required |
-| **npm** | 10.0.0+ | ✅ Required |
-| **TypeScript** | Latest | ✅ Optional |
-| **Docker** | Latest | ✅ Optional |
-| **Kubernetes** | 1.24+ | ✅ Optional |
+| Component      | Version | Status      |
+| -------------- | ------- | ----------- |
+| **CodePark**   | 3.0.0   | ✅ Stable   |
+| **Node.js**    | 22.0.0+ | ✅ Required |
+| **npm**        | 10.0.0+ | ✅ Required |
+| **TypeScript** | Latest  | ✅ Optional |
+| **Docker**     | Latest  | ✅ Optional |
+| **Kubernetes** | 1.24+   | ✅ Optional |
 
 **Last Updated**: December 13, 2025  
 **Maintained By**: @skanda890  
