@@ -19,8 +19,6 @@ function formatHeader (title) {
   console.log(`${'='.repeat(50)}${colors.reset}\n`)
 }
 
-
-
 function formatKeyValue (key, value) {
   console.log(`  ${key}: ${value}`)
 }
