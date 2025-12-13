@@ -7,10 +7,8 @@ const {
 } = require('../middleware/authorization')
 const TeamService = require('../services/teamService')
 const { body, validationResult } = require('express-validator')
-const { PrismaClient } = require('@prisma/client')
+const prisma = require('../lib/prisma')
 const crypto = require('crypto')
-
-const prisma = new PrismaClient()
 
 // Apply auth middleware to all routes
 router.use(requireAuth)
@@ -186,7 +184,7 @@ router.post(
       })
 
       // TODO: Send email with invite link
-      // sendInviteEmail(email, `${process.env.APP_URL}/invite/${token}`);
+      // sendInviteEmail(email, `${process.env.APP_URL}/invite/${token}`)
 
       res.status(201).json({
         success: true,
@@ -206,11 +204,20 @@ router.post(
 /**
  * POST /api/invites/:token/accept
  * Accept team invite
+ *
+ * SECURITY:
+ * - Verifies invite.email matches authenticated user's email
+ * - Checks for existing teamMember before creating (prevents duplicates)
+ * - Returns 400 if email mismatch
+ * - Returns 409 if user already a member
  */
 router.post('/invites/:token/accept', requireAuth, async (req, res) => {
   try {
     const { token } = req.params
+    const userId = req.user.id
+    const userEmail = req.user.email // Assumes req.user has email from auth
 
+    // Find and validate invite
     const invite = await prisma.projectInvite.findUnique({
       where: { token }
     })
@@ -219,16 +226,45 @@ router.post('/invites/:token/accept', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Invite not found' })
     }
 
+    // Check invite expiration
     if (new Date() > invite.expiresAt) {
       return res.status(400).json({ error: 'Invite has expired' })
+    }
+
+    // SECURITY FIX: Verify email matches
+    if (invite.email !== userEmail) {
+      return res.status(400).json({
+        error: 'Invite email does not match authenticated user email',
+        details: `Invite is for ${invite.email}, but authenticated as ${userEmail}`
+      })
+    }
+
+    // SECURITY FIX: Check for existing membership (prevent duplicate constraint)
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        projectId_userId: {
+          projectId: invite.projectId,
+          userId
+        }
+      }
+    })
+
+    if (existingMember) {
+      return res.status(409).json({
+        error: 'User is already a member of this project',
+        userRole: existingMember.role
+      })
     }
 
     // Create team member
     const member = await prisma.teamMember.create({
       data: {
         projectId: invite.projectId,
-        userId: req.user.id,
+        userId,
         role: invite.role
+      },
+      include: {
+        user: { select: { id: true, username: true, email: true } }
       }
     })
 
@@ -237,17 +273,17 @@ router.post('/invites/:token/accept', requireAuth, async (req, res) => {
       where: { id: invite.id },
       data: {
         acceptedAt: new Date(),
-        acceptedByUserId: req.user.id
+        acceptedByUserId: userId
       }
     })
 
-    res.json({
+    res.status(201).json({
       success: true,
       message: 'Invite accepted',
       data: member
     })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(500).json({ error: error.message })
   }
 })
 
