@@ -7,12 +7,14 @@ All notable changes to the Backup Manager project are documented in this file.
 ### Major Features Added
 
 #### File Backup & Restore System
+
 - **New**: `createBackup()` - Create full or incremental backups of directories
 - **New**: `restoreBackup()` - Restore files from any backup point
 - **New**: Recursive directory traversal with automatic directory creation
 - **New**: Individual file copy with error recovery
 
 #### Incremental Backup Support
+
 - **New**: MD5-based file hashing for change detection
 - **New**: `calculateFileHash()` - Compute file hashes efficiently
 - **New**: Skip unchanged files in incremental backups
@@ -20,6 +22,7 @@ All notable changes to the Backup Manager project are documented in this file.
 - **Implementation**: Metadata-based comparison between backup versions
 
 #### Backup Metadata & Tracking
+
 - **New**: Global metadata file (`~/.backup-manager/backups.json`)
 - **New**: Per-backup metadata with file inventory (`metadata.json`)
 - **New**: Backup history tracking with timestamps
@@ -31,12 +34,14 @@ All notable changes to the Backup Manager project are documented in this file.
   - Modification information
 
 #### Integrity Verification
+
 - **New**: `verifyBackup()` - Check backup integrity using MD5 hashes
 - **New**: Corruption detection and reporting
 - **New**: Missing file detection
 - **New**: Detailed verification report with file-level status
 
 #### Backup Management
+
 - **New**: `listBackups()` - View all backups with metadata
 - **New**: Backup type indicators (Full vs Incremental)
 - **New**: Timestamp display with locale formatting
@@ -45,6 +50,7 @@ All notable changes to the Backup Manager project are documented in this file.
 - **New**: Confirmation prompts for destructive operations
 
 #### Configuration System
+
 - **New**: `initializeConfig()` - Setup config directory structure
 - **New**: Config storage in `~/.backup-manager/`
 - **New**: Automatic metadata persistence
@@ -52,12 +58,14 @@ All notable changes to the Backup Manager project are documented in this file.
 - **New**: JSON-based configuration format
 
 #### Interactive CLI Menu
+
 - **New**: Main menu with 7 options
 - **New**: Non-linear workflow (repeat operations without restart)
 - **New**: Visual menu with descriptive options
 - **New**: Graceful exit handling
 
 #### Validation & Error Handling
+
 - **New**: Path existence validation
 - **New**: Directory vs file path detection
 - **New**: Permission error recovery
@@ -67,17 +75,20 @@ All notable changes to the Backup Manager project are documented in this file.
 ### Improvements to Existing Features
 
 #### App Management
+
 - **Refactored**: `getInstalledApps()` - Cleaner code organization
 - **Improved**: Platform detection logic
 - **Enhanced**: Error messages for better debugging
 - **Optimized**: Linux fallback mechanism for app detection
 
 #### Installation Commands
+
 - **Improved**: `generateInstallCommands()` - Better formatting
 - **Enhanced**: Windows command suggestions
 - **Optimized**: Cross-platform compatibility
 
 #### File Export
+
 - **Refactored**: `saveAppListToFile()` - Better error handling
 - **Improved**: File path validation
 - **Enhanced**: User feedback messages
@@ -91,6 +102,7 @@ All notable changes to the Backup Manager project are documented in this file.
 - **Maintainability**: Modular function design for easy testing
 
 ### New Dependencies
+
 - **crypto**: Built-in Node.js module for MD5 hashing
   - No additional npm packages required
   - Zero external dependencies added
@@ -167,16 +179,19 @@ backup-manager/
 ### Future Roadmap
 
 **v2.1.0** (Planned)
+
 - [ ] Compression support (ZIP, TAR.GZ)
 - [ ] Backup size visualization
 - [ ] Pattern-based exclusion (gitignore-style)
 
 **v2.2.0** (Planned)
+
 - [ ] Encryption for backups
 - [ ] AES-256 encryption support
 - [ ] Secure password management
 
 **v3.0.0** (Planned)
+
 - [ ] Cloud storage integration (AWS S3, Google Drive)
 - [ ] Scheduled backups
 - [ ] Parallel file processing
@@ -213,6 +228,7 @@ npm start
 ## [1.0.0] - Initial Release
 
 ### Features
+
 - Installed application listing (Windows, macOS, Linux)
 - Installation command generation
 - Platform-specific file export (.bat, .sh, .txt)
@@ -223,6 +239,7 @@ npm start
 ## Version Numbering
 
 This project uses [Semantic Versioning](https://semver.org/):
+
 - **MAJOR**: Breaking changes
 - **MINOR**: New features (backward compatible)
 - **PATCH**: Bug fixes (backward compatible)
