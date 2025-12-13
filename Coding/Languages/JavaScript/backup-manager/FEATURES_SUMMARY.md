@@ -16,6 +16,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 1. 💾 Full & Incremental Backups
 
 **What it does:**
+
 - Create complete backups of any directory
 - Skip unchanged files in incremental backups
 - Organize backups automatically
@@ -23,12 +24,14 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 - Preserve directory structure
 
 **Key Benefits:**
+
 - 60-80% storage savings with incremental backups
 - Automatic metadata management
 - Fast backup creation
 - Zero compression overhead
 
 **Implementation:**
+
 ```javascript
 ✅ createBackup()          - Create new backup
 ✅ getAllFiles()           - Recursively collect files
@@ -37,6 +40,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **Use Cases:**
+
 - Back up project directories before refactoring
 - Daily incremental backups of development work
 - Archive important files
@@ -47,18 +51,21 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 2. 🔄 Restore from Backup
 
 **What it does:**
+
 - Restore files from any backup point
 - Recreate directory structure
 - Handle permission errors gracefully
 - Support partial or full restoration
 
 **Key Features:**
+
 - Interactive backup selection
 - Custom restore location
 - Directory creation on-the-fly
 - Error recovery for failed files
 
 **Implementation:**
+
 ```javascript
 ✅ restoreBackup()         - Interactive restore process
 ✅ Directory recreation    - Automatic folder structure
@@ -67,6 +74,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **Use Cases:**
+
 - Recover deleted files
 - Revert to previous versions
 - Deploy backups to new locations
@@ -77,18 +85,21 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 3. ✅ Backup Verification
 
 **What it does:**
+
 - Check backup integrity using MD5 hashes
 - Detect corrupted files
 - Find missing files
 - Report verification results
 
 **Key Features:**
+
 - File-by-file hash verification
 - Corruption detection
 - Missing file identification
 - Detailed status reporting
 
 **Implementation:**
+
 ```javascript
 ✅ verifyBackup()          - Check all files
 ✅ Hash comparison         - MD5 verification
@@ -97,6 +108,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **Use Cases:**
+
 - Pre-restore verification
 - Corruption detection
 - Backup health checks
@@ -107,18 +119,21 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 4. 📋 Backup Metadata & History
 
 **What it does:**
+
 - Track all backups with timestamps
 - Store file-level metadata
 - Maintain backup history
 - Organize backup information
 
 **Key Features:**
+
 - Global backup registry
 - Per-backup metadata file
 - Complete file inventory
 - Hash storage for verification
 
 **Implementation:**
+
 ```javascript
 ✅ initializeConfig()      - Setup config structure
 ✅ loadMetadata()          - Read backup metadata
@@ -127,6 +142,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **Stored Information:**
+
 - Backup name and timestamp
 - Source path and file count
 - Total backup size
@@ -138,18 +154,21 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 5. 🗑️ Backup Management
 
 **What it does:**
+
 - List all available backups
 - Delete old backups
 - Free up disk space
 - Organize backup history
 
 **Key Features:**
+
 - Interactive backup selection
 - Detailed backup information
 - Confirmation prompts
 - Metadata cleanup
 
 **Implementation:**
+
 ```javascript
 ✅ listBackups()           - View all backups
 ✅ deleteBackup()          - Remove selected backup
@@ -158,6 +177,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **Use Cases:**
+
 - Review backup history
 - Free disk space
 - Archive old backups
@@ -168,12 +188,14 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ### 6. 🎛️ Interactive Menu System
 
 **What it does:**
+
 - Provide user-friendly CLI interface
 - Enable multiple operations in one session
 - Guide users with clear prompts
 - Handle complex workflows
 
 **Menu Options:**
+
 ```
 1. Create Backup      - Full or incremental
 2. Restore Backup     - From any backup point
@@ -185,6 +207,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 **User Experience:**
+
 - Non-linear workflow
 - Repeat operations
 - Clear prompting
@@ -197,13 +220,13 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 
 ### Performance
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Create Backup (100 files) | ~1s | Full backup |
-| Create Backup (100 files) | ~200ms | Incremental |
-| Verify Backup | ~2-3s | Hash checking |
-| List Backups | ~100ms | Metadata reading |
-| Restore Backup | ~1s | File copying |
+| Operation                 | Time   | Notes            |
+| ------------------------- | ------ | ---------------- |
+| Create Backup (100 files) | ~1s    | Full backup      |
+| Create Backup (100 files) | ~200ms | Incremental      |
+| Verify Backup             | ~2-3s  | Hash checking    |
+| List Backups              | ~100ms | Metadata reading |
+| Restore Backup            | ~1s    | File copying     |
 
 ### Scalability
 
@@ -235,6 +258,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ## 📊 Comparison: Before vs After
 
 ### Version 1.0
+
 ```
 ✅ List installed apps
 ✅ Generate install commands
@@ -246,6 +270,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 ### Version 2.0
+
 ```
 ✅ List installed apps
 ✅ Generate install commands
@@ -265,6 +290,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ## 🚀 Use Cases
 
 ### Development
+
 ```
 1. Start working on project
 2. Create backup before major refactor
@@ -276,6 +302,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 ### Archival
+
 ```
 1. Project complete
 2. Create full backup
@@ -286,6 +313,7 @@ The Backup Manager v2.0 is a comprehensive backup solution that transforms your 
 ```
 
 ### Daily Workflow
+
 ```
 Morning:
   - Create incremental backup
@@ -300,6 +328,7 @@ Evening:
 ```
 
 ### System Setup
+
 ```
 1. List installed apps
 2. Export installation script
@@ -411,7 +440,7 @@ Total backups: 5
 1. my-project-v1 [FULL]
    Created: 12/01/2025, 10:00 AM
    Files: 500
-   
+
 2. my-project-daily-12-13 [INC]  ← Most recent
    Created: 12/13/2025, 4:18 PM
    Files: 42
