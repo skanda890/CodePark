@@ -320,7 +320,8 @@ class WebRTCChat {
         const elapsed = Math.floor((Date.now() - this.callStartTime) / 1000)
         const minutes = Math.floor(elapsed / 60)
         const seconds = elapsed % 60
-        this.callDuration.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`n        setTimeout(updateDuration, 1000)
+        this.callDuration.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        setTimeout(updateDuration, 1000)
       }
     }
     updateDuration()
