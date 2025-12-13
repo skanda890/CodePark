@@ -593,7 +593,7 @@
             playSound(300, 0.3);
 
             if (gameState.lives <= 0) {
-              endGame();
+              gameState.lives = 0;
             }
             return false;
           }
