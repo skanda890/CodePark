@@ -419,7 +419,7 @@ db.messages.createIndex({ content: "text" })
 
 ### Connection Pooling
 
-```javascript
+````javascript
 // MongoDB connection pool
 mongoose.connect(uri, {
   maxPoolSize: 10,
@@ -460,7 +460,7 @@ RUN npm ci --only=production
 COPY . .
 EXPOSE 3000
 CMD ["npm", "start"]
-```
+````
 
 ```bash
 # Build and run
