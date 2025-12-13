@@ -95,6 +95,7 @@ curl -X POST http://localhost:3000/api/auth/register \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -154,16 +155,16 @@ curl -X POST -H "Authorization: Bearer <accessToken>" \
 ### Send Message (Socket.IO)
 
 ```javascript
-socket.emit('send_message', {
-  roomId: '507f1f77bcf86cd799439011',
-  content: 'Hello everyone!',
+socket.emit("send_message", {
+  roomId: "507f1f77bcf86cd799439011",
+  content: "Hello everyone!",
   encrypted: false,
-  fileAttachment: null
+  fileAttachment: null,
 });
 
 // Receive response
-socket.on('message_sent', (message) => {
-  console.log('Message sent:', message);
+socket.on("message_sent", (message) => {
+  console.log("Message sent:", message);
 });
 ```
 
@@ -177,31 +178,31 @@ curl -H "Authorization: Bearer <token>" \
 ### Mark Message as Read
 
 ```javascript
-socket.emit('mark_message_read', messageId);
+socket.emit("mark_message_read", messageId);
 ```
 
 ### Add Reaction
 
 ```javascript
-socket.emit('add_reaction', {
-  messageId: '...',
-  emoji: '😀'
+socket.emit("add_reaction", {
+  messageId: "...",
+  emoji: "😀",
 });
 ```
 
 ### Edit Message
 
 ```javascript
-socket.emit('edit_message', {
-  messageId: '...',
-  content: 'Updated content'
+socket.emit("edit_message", {
+  messageId: "...",
+  content: "Updated content",
 });
 ```
 
 ### Delete Message
 
 ```javascript
-socket.emit('delete_message', messageId);
+socket.emit("delete_message", messageId);
 ```
 
 ---
@@ -255,12 +256,12 @@ curl -X DELETE -H "Authorization: Bearer <token>" \
 ### Connection
 
 ```javascript
-socket.on('connect', () => {
-  console.log('Connected to server');
+socket.on("connect", () => {
+  console.log("Connected to server");
 });
 
-socket.on('disconnect', () => {
-  console.log('Disconnected from server');
+socket.on("disconnect", () => {
+  console.log("Disconnected from server");
 });
 ```
 
@@ -268,25 +269,25 @@ socket.on('disconnect', () => {
 
 ```javascript
 // Join room
-socket.emit('join_room', { roomId: '...' });
+socket.emit("join_room", { roomId: "..." });
 
 // Receive message history
-socket.on('message_history', (messages) => {
-  console.log('History:', messages);
+socket.on("message_history", (messages) => {
+  console.log("History:", messages);
 });
 
 // Leave room
-socket.emit('leave_room', { roomId: '...' });
+socket.emit("leave_room", { roomId: "..." });
 ```
 
 ### Typing Indicators
 
 ```javascript
 // Emit typing
-socket.emit('user_typing', { roomId: '...', username: 'john' });
+socket.emit("user_typing", { roomId: "...", username: "john" });
 
 // Receive typing
-socket.on('user_typing', ({ userId, username }) => {
+socket.on("user_typing", ({ userId, username }) => {
   console.log(`${username} is typing...`);
 });
 ```
@@ -295,10 +296,10 @@ socket.on('user_typing', ({ userId, username }) => {
 
 ```javascript
 // Set status
-socket.emit('set_status', { status: 'away', customStatus: 'In a meeting' });
+socket.emit("set_status", { status: "away", customStatus: "In a meeting" });
 
 // Receive status update
-socket.on('user_status_changed', ({ userId, status }) => {
+socket.on("user_status_changed", ({ userId, status }) => {
   console.log(`User ${userId} is now ${status}`);
 });
 ```
@@ -307,36 +308,38 @@ socket.on('user_status_changed', ({ userId, status }) => {
 
 ```javascript
 // Initiate call
-socket.emit('call_user', { 
-  targetUserId: '...',
-  roomId: '...',
-  callType: 'video' // or 'audio'
+socket.emit("call_user", {
+  targetUserId: "...",
+  roomId: "...",
+  callType: "video", // or 'audio'
 });
 
 // Receive call
-socket.on('incoming_call', ({ callerId, callerName, callType }) => {
+socket.on("incoming_call", ({ callerId, callerName, callType }) => {
   console.log(`Incoming ${callType} call from ${callerName}`);
 });
 
 // Send offer
-socket.emit('webrtc_offer', {
-  targetUserId: '...',
-  offer: rtcPeerConnection.localDescription
+socket.emit("webrtc_offer", {
+  targetUserId: "...",
+  offer: rtcPeerConnection.localDescription,
 });
 
 // Receive offer
-socket.on('webrtc_offer', async ({ offer, senderId }) => {
-  await rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+socket.on("webrtc_offer", async ({ offer, senderId }) => {
+  await rtcPeerConnection.setRemoteDescription(
+    new RTCSessionDescription(offer),
+  );
   // ... create and send answer
 });
 
 // ICE Candidates
-socket.emit('ice_candidate', {
-  targetUserId: '...',
-  candidate: rtcPeerConnection.currentLocalDescription
+socket.emit("ice_candidate", {
+  targetUserId: "...",
+  candidate: rtcPeerConnection.currentLocalDescription,
 });
 
-socket.on('ice_candidate', ({ candidate }) => {
+socket.on("ice_candidate", ({ candidate }) => {
   rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate));
 });
 ```
@@ -354,28 +357,28 @@ socket.on('ice_candidate', ({ candidate }) => {
   email: String (unique, required),
   passwordHash: String,
   oauthProvider: 'local' | 'google' | 'github',
-  
+
   // Profile
   avatar: String,
   bio: String,
   location: String,
   website: String,
-  
+
   // Status
   status: 'online' | 'offline' | 'away' | 'dnd',
   customStatus: String,
   lastSeen: Date,
-  
+
   // Settings
   settings: {
     theme: 'light' | 'dark',
     notifications: Boolean,
     encryption: Boolean
   },
-  
+
   // Security
   blockedUsers: [ObjectId],
-  
+
   // Metadata
   createdAt: Date,
   isPremium: Boolean
@@ -391,7 +394,7 @@ socket.on('ice_candidate', ({ candidate }) => {
   content: String,
   messageType: 'text' | 'image' | 'file' | 'voice' | 'video',
   encrypted: Boolean,
-  
+
   // Attachments
   fileAttachment: {
     fileId: ObjectId,
@@ -399,19 +402,19 @@ socket.on('ice_candidate', ({ candidate }) => {
     fileSize: Number,
     fileUrl: String
   },
-  
+
   // Interactions
   readBy: [{ userId: ObjectId, readAt: Date }],
   reactions: [{ emoji: String, userId: ObjectId }],
-  
+
   // Editing
   editedAt: Date,
   editHistory: [{ content: String, editedAt: Date }],
-  
+
   // Deletion
   isDeleted: Boolean,
   deletedAt: Date,
-  
+
   createdAt: Date,
   updatedAt: Date
 }
@@ -581,6 +584,7 @@ pm2 start index.js --name "webrtc-chat"
 ## 📁 Dependencies
 
 **Core:**
+
 - `express` - Web framework
 - `socket.io` - Real-time communication
 - `mongoose` - MongoDB ODM
@@ -589,6 +593,7 @@ pm2 start index.js --name "webrtc-chat"
 - `passport` - OAuth strategy
 
 **Utilities:**
+
 - `joi` - Input validation
 - `multer` - File upload
 - `dotenv` - Environment variables
@@ -596,6 +601,7 @@ pm2 start index.js --name "webrtc-chat"
 - `compression` - Response compression
 
 **Optional:**
+
 - `redis` - Caching
 - `mediasoup` - SFU for group calls
 - `aws-sdk` - AWS services
@@ -624,6 +630,7 @@ MIT License - see LICENSE file
 ## 🙋 Support
 
 For issues, questions, or contributions:
+
 - GitHub Issues: [CodePark/issues](https://github.com/skanda890/CodePark/issues)
 - Email: skanda890@example.com
 

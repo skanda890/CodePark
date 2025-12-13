@@ -111,6 +111,7 @@ npm start
 ### Phase 1: Core Infrastructure (Week 1-2)
 
 #### ✅ Database Integration (MongoDB)
+
 - [x] MongoDB Atlas cluster created
 - [x] Connection string configured
 - [x] Collections created (users, rooms, messages, calls, files, sessions)
@@ -120,18 +121,21 @@ npm start
 **Implementation Status:** ✅ DONE
 
 **Files:**
+
 - `backend/models/User.js` - User schema with auth
 - `backend/models/Message.js` - Message persistence
 - `backend/config/database.js` - Connection setup
 
 **Test It:**
+
 ```bash
-node -e "require('./backend/config/database').connect().then(()=>console.log('✅ Connected'))" 
+node -e "require('./backend/config/database').connect().then(()=>console.log('✅ Connected'))"
 ```
 
 ---
 
 #### ✅ User Authentication (JWT/OAuth)
+
 - [x] User registration with validation
 - [x] Email/password login
 - [x] JWT token generation
@@ -144,11 +148,13 @@ node -e "require('./backend/config/database').connect().then(()=>console.log('�
 **Implementation Status:** ✅ DONE
 
 **Files:**
+
 - `backend/routes/auth.js` - Auth endpoints
 - `backend/middleware/auth.js` - Auth middleware
 - `backend/models/User.js` - User model
 
 **Endpoints:**
+
 ```bash
 # Register
 curl -X POST http://localhost:3000/api/auth/register \
@@ -168,6 +174,7 @@ curl http://localhost:3000/api/auth/me \
 ---
 
 #### ✅ Message Persistence
+
 - [x] Messages saved to MongoDB
 - [x] Message history retrieval
 - [x] Pagination support (50 messages per page)
@@ -178,25 +185,27 @@ curl http://localhost:3000/api/auth/me \
 **Implementation Status:** ✅ DONE
 
 **Files:**
+
 - `backend/models/Message.js` - Message schema
 - `backend/routes/messages.js` - Message endpoints
 
 **Socket.IO Events:**
+
 ```javascript
 // Send message
-socket.emit('send_message', {
-  roomId: '123',
-  content: 'Hello!',
-  encrypted: false
+socket.emit("send_message", {
+  roomId: "123",
+  content: "Hello!",
+  encrypted: false,
 });
 
 // Receive message
-socket.on('receive_message', (message) => {
+socket.on("receive_message", (message) => {
   console.log(message);
 });
 
 // Mark as read
-socket.emit('mark_message_read', messageId);
+socket.emit("mark_message_read", messageId);
 ```
 
 ---
@@ -204,6 +213,7 @@ socket.emit('mark_message_read', messageId);
 ### Phase 2: User Profiles & Advanced Features (Week 3)
 
 #### 🔄 User Profiles and Customization
+
 - [ ] Profile endpoints
 - [ ] Avatar upload to S3
 - [ ] Theme customization
@@ -212,6 +222,7 @@ socket.emit('mark_message_read', messageId);
 - [ ] Privacy settings
 
 **Files to Create:**
+
 ```bash
 backend/routes/users.js
 backend/services/s3Service.js
@@ -219,6 +230,7 @@ backend/middleware/upload.js
 ```
 
 **Next Steps:**
+
 ```bash
 # Create users routes
 touch backend/routes/users.js
@@ -233,6 +245,7 @@ touch backend/middleware/upload.js
 ---
 
 #### 🔄 Group Video Calls (SFU/Mesh)
+
 - [ ] MediaSoup router setup
 - [ ] WebRTC transport creation
 - [ ] Producer/Consumer management
@@ -241,6 +254,7 @@ touch backend/middleware/upload.js
 - [ ] Call recording
 
 **Files to Create:**
+
 ```bash
 backend/services/mediasoupService.js
 backend/services/sfu/router.js
@@ -251,6 +265,7 @@ backend/services/sfu/consumer.js
 ---
 
 #### 🔄 Voice Messages
+
 - [ ] Audio recording endpoint
 - [ ] Voice message storage
 - [ ] Automatic transcription (Whisper)
@@ -258,6 +273,7 @@ backend/services/sfu/consumer.js
 - [ ] Waveform generation
 
 **Files to Create:**
+
 ```bash
 backend/routes/voiceMessages.js
 backend/services/transcriptionService.js
@@ -269,6 +285,7 @@ backend/models/VoiceMessage.js
 ### Phase 3: Search & Recording (Week 4)
 
 #### 🔄 Message Search Functionality
+
 - [ ] Full-text search implementation
 - [ ] Advanced filters (date, user, type)
 - [ ] Search result pagination
@@ -276,6 +293,7 @@ backend/models/VoiceMessage.js
 - [ ] Saved searches
 
 **Endpoint:**
+
 ```bash
 GET /api/messages/search?query=hello&roomId=123&page=1
 ```
@@ -283,6 +301,7 @@ GET /api/messages/search?query=hello&roomId=123&page=1
 ---
 
 #### 🔄 Video Recording
+
 - [ ] Call recording setup
 - [ ] Video processing pipeline
 - [ ] Storage management
@@ -294,6 +313,7 @@ GET /api/messages/search?query=hello&roomId=123&page=1
 ### Phase 4: Mobile & Analytics (Week 5)
 
 #### 🔄 Mobile App (React Native)
+
 - [ ] Project initialization
 - [ ] Auth integration
 - [ ] Chat UI
@@ -304,6 +324,7 @@ GET /api/messages/search?query=hello&roomId=123&page=1
 ---
 
 #### 🔄 Analytics Dashboard
+
 - [ ] Real-time metrics
 - [ ] User analytics
 - [ ] Call statistics
@@ -351,21 +372,21 @@ curl -X POST http://localhost:3000/api/auth/register \
 
 ```javascript
 // Test client
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
-const socket = io('http://localhost:3000', {
+const socket = io("http://localhost:3000", {
   auth: {
-    token: 'your-jwt-token'
-  }
+    token: "your-jwt-token",
+  },
 });
 
-socket.on('connect', () => {
-  console.log('✅ Connected');
-  socket.emit('join_room', { roomId: '123' });
+socket.on("connect", () => {
+  console.log("✅ Connected");
+  socket.emit("join_room", { roomId: "123" });
 });
 
-socket.on('message_history', (messages) => {
-  console.log('Messages:', messages);
+socket.on("message_history", (messages) => {
+  console.log("Messages:", messages);
 });
 ```
 
@@ -403,7 +424,7 @@ db.messages.createIndex({ content: "text" })
 mongose.connect(uri, {
   maxPoolSize: 10,
   minPoolSize: 5,
-  socketTimeoutMS: 45000
+  socketTimeoutMS: 45000,
 });
 ```
 
@@ -511,11 +532,13 @@ socket.on('connect_error', (error) => console.error('Socket error:', error));
 
 ```javascript
 // Ensure CORS is configured
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(','),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(","),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }),
+);
 ```
 
 ### JWT Token Issues
@@ -529,7 +552,7 @@ app.use(cors({
 # Use refresh endpoint to get new token
 curl -X POST http://localhost:3000/api/auth/refresh \
   -H "Content-Type: application/json" \
-  -d '{"refreshToken":"..."}'  
+  -d '{"refreshToken":"..."}'
 ```
 
 ---

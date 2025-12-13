@@ -12,12 +12,12 @@ This document outlines the complete implementation roadmap for 10 major feature 
 
 ### Enhancement Phases
 
-| Phase | Features | Timeline |
-|-------|----------|----------|
+| Phase       | Features                                | Timeline  |
+| ----------- | --------------------------------------- | --------- |
 | **Phase 1** | Database + Authentication + Persistence | Weeks 1-2 |
-| **Phase 2** | Advanced Messaging & Search | Week 3 |
-| **Phase 3** | Group Calls & Voice Messages | Week 4 |
-| **Phase 4** | Recording & Mobile + Analytics | Week 5 |
+| **Phase 2** | Advanced Messaging & Search             | Week 3    |
+| **Phase 3** | Group Calls & Voice Messages            | Week 4    |
+| **Phase 4** | Recording & Mobile + Analytics          | Week 5    |
 
 ---
 
@@ -54,6 +54,7 @@ Architecture:
 ```
 
 **Dependencies:**
+
 ```json
 {
   "mongodb": "^5.8.0",
@@ -71,34 +72,42 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true, lowercase: true },
   passwordHash: { type: String, required: true },
   avatar: { type: String, default: null },
-  status: { type: String, enum: ['online', 'offline', 'away'], default: 'offline' },
+  status: {
+    type: String,
+    enum: ["online", "offline", "away"],
+    default: "offline",
+  },
   lastSeen: { type: Date, default: Date.now },
   settings: {
-    theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+    theme: { type: String, enum: ["light", "dark"], default: "light" },
     notifications: { type: Boolean, default: true },
     encryption: { type: Boolean, default: false },
-    dnd: { type: Boolean, default: false }
+    dnd: { type: Boolean, default: false },
   },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
 // Message Schema
 const messageSchema = new mongoose.Schema({
-  roomId: { type: mongoose.Schema.Types.ObjectId, ref: 'Room', required: true },
-  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  roomId: { type: mongoose.Schema.Types.ObjectId, ref: "Room", required: true },
+  senderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   content: { type: String, required: true },
   encrypted: { type: Boolean, default: false },
   encryptionMetadata: { type: String, default: null },
   fileAttachment: {
     fileId: mongoose.Schema.Types.ObjectId,
     fileName: String,
-    fileSize: Number
+    fileSize: Number,
   },
   readBy: [{ userId: mongoose.Schema.Types.ObjectId, readAt: Date }],
   reactions: [{ emoji: String, userId: mongoose.Schema.Types.ObjectId }],
   createdAt: { type: Date, default: Date.now, index: true },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 ```
 
@@ -151,6 +160,7 @@ Verify on Protected Routes
 ```
 
 **Dependencies:**
+
 ```json
 {
   "jsonwebtoken": "^9.1.0",
@@ -169,95 +179,96 @@ Verify on Protected Routes
 // JWT Token Generation
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
-    { userId, type: 'access' },
+    { userId, type: "access" },
     process.env.JWT_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: "15m" },
   );
-  
+
   const refreshToken = jwt.sign(
-    { userId, type: 'refresh' },
+    { userId, type: "refresh" },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: "7d" },
   );
-  
+
   return { accessToken, refreshToken };
 };
 
 // Middleware: Verify JWT
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
-  
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-  
+  const token =
+    req.cookies.accessToken || req.headers.authorization?.split(" ")[1];
+
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Invalid token' });
+    return res.status(403).json({ error: "Invalid token" });
   }
 };
 
 // Socket.IO Authentication
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  
+
   if (!token) {
-    return next(new Error('Authentication required'));
+    return next(new Error("Authentication required"));
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.userId = decoded.userId;
     next();
   } catch (err) {
-    next(new Error('Invalid token'));
+    next(new Error("Invalid token"));
   }
 });
 
 // Registration Endpoint
-app.post('/api/auth/register', async (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    
+
     // Validate input
     if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
-    
+
     // Check if user exists
     const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
-      return res.status(409).json({ error: 'User already exists' });
+      return res.status(409).json({ error: "User already exists" });
     }
-    
+
     // Hash password
     const passwordHash = await bcryptjs.hash(password, 10);
-    
+
     // Create user
     const user = new User({
       username,
       email,
       passwordHash,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
     });
-    
+
     await user.save();
-    
+
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user._id);
-    
+
     // Set HTTP-only cookie
-    res.cookie('accessToken', accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
     });
-    
+
     res.json({
       success: true,
-      user: { id: user._id, username, email, avatar: user.avatar }
+      user: { id: user._id, username, email, avatar: user.avatar },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -265,42 +276,48 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 // OAuth2 Google Strategy
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/api/auth/google/callback'
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ googleId: profile.id });
-    
-    if (!user) {
-      user = new User({
-        username: profile.displayName,
-        email: profile.emails[0].value,
-        googleId: profile.id,
-        avatar: profile.photos[0]?.value || null,
-        passwordHash: null
-      });
-      await user.save();
-    }
-    
-    return done(null, user);
-  } catch (error) {
-    return done(error);
-  }
-}));
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/api/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+          user = new User({
+            username: profile.displayName,
+            email: profile.emails[0].value,
+            googleId: profile.id,
+            avatar: profile.photos[0]?.value || null,
+            passwordHash: null,
+          });
+          await user.save();
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    },
+  ),
+);
 
 // OAuth Callback
-app.get('/api/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+app.get(
+  "/api/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
     const { accessToken, refreshToken } = generateTokens(req.user._id);
-    
-    res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
-    
-    res.redirect('/');
-  }
+
+    res.cookie("accessToken", accessToken, { httpOnly: true });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+
+    res.redirect("/");
+  },
 );
 ```
 
@@ -328,47 +345,46 @@ app.get('/api/auth/google/callback',
 messageSchema.index({ roomId: 1, createdAt: -1 });
 messageSchema.index({ senderId: 1, createdAt: -1 });
 messageSchema.index({ roomId: 1, encrypted: 1 });
-messageSchema.index({ content: 'text' }); // For full-text search
+messageSchema.index({ content: "text" }); // For full-text search
 
 // Batch message fetching
 const fetchMessages = async (roomId, page = 1, pageSize = 50) => {
   const skip = (page - 1) * pageSize;
-  
+
   const messages = await Message.find({ roomId })
-    .populate('senderId', 'username avatar')
+    .populate("senderId", "username avatar")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(pageSize)
     .lean();
-  
+
   return messages.reverse();
 };
 
 // Socket.IO message save
-socket.on('send_message', async (data) => {
+socket.on("send_message", async (data) => {
   try {
     const message = new Message({
       roomId: data.roomId,
       senderId: socket.userId,
       content: data.content,
-      encrypted: data.encrypted
+      encrypted: data.encrypted,
     });
-    
+
     await message.save();
-    
+
     // Populate and broadcast
-    await message.populate('senderId', 'username avatar');
-    io.to(data.roomId).emit('receive_message', message);
-    
+    await message.populate("senderId", "username avatar");
+    io.to(data.roomId).emit("receive_message", message);
   } catch (error) {
-    socket.emit('message_error', { error: error.message });
+    socket.emit("message_error", { error: error.message });
   }
 });
 
 // Load history on room join
-socket.on('join_room', async (roomId) => {
+socket.on("join_room", async (roomId) => {
   const messages = await fetchMessages(roomId, 1, 50);
-  socket.emit('message_history', messages);
+  socket.emit("message_history", messages);
 });
 ```
 
@@ -399,96 +415,113 @@ const userProfileSchema = {
   username: String,
   email: String,
   avatar: String,
-  
+
   // Profile
   bio: String,
   location: String,
   website: String,
   phoneNumber: String,
   dateOfBirth: Date,
-  
+
   // Customization
-  theme: { type: String, enum: ['light', 'dark', 'auto'], default: 'auto' },
+  theme: { type: String, enum: ["light", "dark", "auto"], default: "auto" },
   accentColor: String,
   notification: {
     email: Boolean,
     push: Boolean,
     soundEnabled: Boolean,
     doNotDisturb: Boolean,
-    dndSchedule: { start: String, end: String }
+    dndSchedule: { start: String, end: String },
   },
-  
+
   // Privacy
-  visibility: { type: String, enum: ['public', 'friends', 'private'], default: 'friends' },
+  visibility: {
+    type: String,
+    enum: ["public", "friends", "private"],
+    default: "friends",
+  },
   blockedUsers: [mongoose.Schema.Types.ObjectId],
-  allowCallsFrom: { type: String, enum: ['everyone', 'friends', 'nobody'], default: 'everyone' },
-  
+  allowCallsFrom: {
+    type: String,
+    enum: ["everyone", "friends", "nobody"],
+    default: "everyone",
+  },
+
   // Status
-  status: { type: String, enum: ['online', 'offline', 'away', 'dnd'], default: 'offline' },
+  status: {
+    type: String,
+    enum: ["online", "offline", "away", "dnd"],
+    default: "offline",
+  },
   customStatus: String,
-  statusExpiresAt: Date
+  statusExpiresAt: Date,
 };
 
 // Profile API Endpoints
-app.get('/api/users/:userId/profile', async (req, res) => {
-  const user = await User.findById(req.params.userId)
-    .select('-passwordHash -email -phoneNumber');
+app.get("/api/users/:userId/profile", async (req, res) => {
+  const user = await User.findById(req.params.userId).select(
+    "-passwordHash -email -phoneNumber",
+  );
   res.json(user);
 });
 
-app.put('/api/users/profile', verifyToken, async (req, res) => {
+app.put("/api/users/profile", verifyToken, async (req, res) => {
   const { bio, location, website, theme, accentColor } = req.body;
-  
+
   const user = await User.findByIdAndUpdate(
     req.userId,
     {
       bio,
       location,
       website,
-      settings: { theme, accentColor }
+      settings: { theme, accentColor },
     },
-    { new: true }
+    { new: true },
   );
-  
+
   res.json(user);
 });
 
 // Avatar Upload (with AWS S3)
-app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
-  const avatarUrl = await uploadToS3(req.file);
-  
-  const user = await User.findByIdAndUpdate(
-    req.userId,
-    { avatar: avatarUrl },
-    { new: true }
-  );
-  
-  res.json({ avatar: user.avatar });
-});
+app.post(
+  "/api/users/avatar",
+  verifyToken,
+  upload.single("avatar"),
+  async (req, res) => {
+    const avatarUrl = await uploadToS3(req.file);
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { avatar: avatarUrl },
+      { new: true },
+    );
+
+    res.json({ avatar: user.avatar });
+  },
+);
 
 // Custom Status
-socket.on('set_status', async (status) => {
+socket.on("set_status", async (status) => {
   const user = await User.findByIdAndUpdate(
     socket.userId,
     {
       customStatus: status.text,
-      statusExpiresAt: status.expiresAt
+      statusExpiresAt: status.expiresAt,
     },
-    { new: true }
+    { new: true },
   );
-  
-  io.emit('user_status_changed', {
+
+  io.emit("user_status_changed", {
     userId: socket.userId,
-    status: user.customStatus
+    status: user.customStatus,
   });
 });
 
 // Block/Unblock User
-app.post('/api/users/:userId/block', verifyToken, async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.userId,
-    { $addToSet: { blockedUsers: req.params.userId } }
-  );
+app.post("/api/users/:userId/block", verifyToken, async (req, res) => {
+  await User.findByIdAndUpdate(req.userId, {
+    $addToSet: { blockedUsers: req.params.userId },
+  });
   res.json({ blocked: true });
 });
 ```
@@ -549,7 +582,7 @@ Cons: Server processing required
 **Backend Implementation:**
 
 ```javascript
-const mediasoup = require('mediasoup');
+const mediasoup = require("mediasoup");
 
 let router; // Mediasoup router instance
 
@@ -558,32 +591,32 @@ const createRouter = async () => {
   router = await worker.createRouter({
     mediaCodecs: [
       {
-        kind: 'audio',
-        mimeType: 'audio/opus',
+        kind: "audio",
+        mimeType: "audio/opus",
         clockRate: 48000,
-        channels: 2
+        channels: 2,
       },
       {
-        kind: 'video',
-        mimeType: 'video/VP8',
+        kind: "video",
+        mimeType: "video/VP8",
         clockRate: 90000,
         parameters: {
-          'x-google-start-bitrate': 1000
-        }
-      }
-    ]
+          "x-google-start-bitrate": 1000,
+        },
+      },
+    ],
   });
   return router;
 };
 
 // WebRTC Transport (for producer/consumer)
-socket.on('createWebRtcTransport', async (_, callback) => {
+socket.on("createWebRtcTransport", async (_, callback) => {
   try {
     const transport = await router.createWebRtcTransport({
-      listenIps: [{ ip: '0.0.0.0', announcedIp: ANNOUNCED_IP }],
+      listenIps: [{ ip: "0.0.0.0", announcedIp: ANNOUNCED_IP }],
       enableUdp: true,
       enableTcp: true,
-      preferUdp: true
+      preferUdp: true,
     });
 
     callback({
@@ -591,33 +624,32 @@ socket.on('createWebRtcTransport', async (_, callback) => {
         id: transport.id,
         iceParameters: transport.iceParameters,
         iceCandidates: transport.iceCandidates,
-        dtlsParameters: transport.dtlsParameters
-      }
+        dtlsParameters: transport.dtlsParameters,
+      },
     });
 
     // Handle transport connection
-    transport.on('dtlsstatechange', (dtlsState) => {
-      if (dtlsState === 'closed') transport.close();
+    transport.on("dtlsstatechange", (dtlsState) => {
+      if (dtlsState === "closed") transport.close();
     });
-
   } catch (error) {
     callback({ error: error.message });
   }
 });
 
 // Produce Audio/Video
-socket.on('produce', async (data, callback) => {
+socket.on("produce", async (data, callback) => {
   try {
     let transport = transports.get(data.transportId);
-    
+
     const producer = await transport.produce({
       kind: data.kind,
-      rtpParameters: data.rtpParameters
+      rtpParameters: data.rtpParameters,
     });
 
     producers.set(producer.id, producer);
 
-    producer.on('transportclose', () => {
+    producer.on("transportclose", () => {
       producer.close();
       producers.delete(producer.id);
     });
@@ -625,32 +657,31 @@ socket.on('produce', async (data, callback) => {
     callback({ id: producer.id });
 
     // Notify others of new producer
-    socket.broadcast.emit('newProducer', {
+    socket.broadcast.emit("newProducer", {
       producerId: producer.id,
       kind: data.kind,
-      userId: socket.userId
+      userId: socket.userId,
     });
-
   } catch (error) {
     callback({ error: error.message });
   }
 });
 
 // Consume Producer Feed
-socket.on('consume', async (data, callback) => {
+socket.on("consume", async (data, callback) => {
   try {
     const producer = producers.get(data.producerId);
-    
+
     if (!producer) {
-      return callback({ error: 'Producer not found' });
+      return callback({ error: "Producer not found" });
     }
 
     const transport = transports.get(data.transportId);
-    
+
     const consumer = await transport.consume({
       producerId: producer.id,
       rtpCapabilities: data.rtpCapabilities,
-      paused: true
+      paused: true,
     });
 
     consumers.set(consumer.id, consumer);
@@ -659,16 +690,15 @@ socket.on('consume', async (data, callback) => {
       id: consumer.id,
       producerId: producer.id,
       kind: consumer.kind,
-      rtpParameters: consumer.rtpParameters
+      rtpParameters: consumer.rtpParameters,
     });
-
   } catch (error) {
     callback({ error: error.message });
   }
 });
 
 // Resume Consumer (start receiving stream)
-socket.on('resume', async (consumerId, callback) => {
+socket.on("resume", async (consumerId, callback) => {
   const consumer = consumers.get(consumerId);
   if (consumer) {
     await consumer.resume();
@@ -694,37 +724,41 @@ class GroupVideoCall {
     // Get local media
     this.localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: { width: 1280, height: 720 }
+      video: { width: 1280, height: 720 },
     });
 
     // Create transport
-    const transportParams = await this.socket.emitAsync('createWebRtcTransport');
-    this.sendTransport = await this.device.createSendTransport(transportParams.params);
+    const transportParams = await this.socket.emitAsync(
+      "createWebRtcTransport",
+    );
+    this.sendTransport = await this.device.createSendTransport(
+      transportParams.params,
+    );
 
     // Produce audio
     const audioProducer = await this.sendTransport.produce({
-      track: this.localStream.getAudioTracks()[0]
+      track: this.localStream.getAudioTracks()[0],
     });
 
     // Produce video
     const videoProducer = await this.sendTransport.produce({
-      track: this.localStream.getVideoTracks()[0]
+      track: this.localStream.getVideoTracks()[0],
     });
 
-    this.producers.set('audio', audioProducer);
-    this.producers.set('video', videoProducer);
+    this.producers.set("audio", audioProducer);
+    this.producers.set("video", videoProducer);
 
     // Notify room
-    this.socket.emit('userJoinedCall', { roomId: this.roomId });
+    this.socket.emit("userJoinedCall", { roomId: this.roomId });
   }
 
   // Handle new producer from other user
   async handleNewProducer(producerId, kind, userId) {
     const recvTransport = await this.createRecvTransport();
-    
+
     const consumer = await recvTransport.consume({
       producerId,
-      rtpCapabilities: this.device.rtpCapabilities
+      rtpCapabilities: this.device.rtpCapabilities,
     });
 
     if (!this.peers.has(userId)) {
@@ -732,7 +766,7 @@ class GroupVideoCall {
     }
 
     this.peers.get(userId)[kind] = consumer;
-    
+
     consumer.resume();
   }
 
@@ -748,10 +782,10 @@ class GroupVideoCall {
 
   // End call
   async endCall() {
-    this.producers.forEach(p => p.close());
-    this.consumers.forEach(c => c.close());
-    this.localStream.getTracks().forEach(t => t.stop());
-    this.socket.emit('userLeftCall', { roomId: this.roomId });
+    this.producers.forEach((p) => p.close());
+    this.consumers.forEach((c) => c.close());
+    this.localStream.getTracks().forEach((t) => t.stop());
+    this.socket.emit("userLeftCall", { roomId: this.roomId });
   }
 }
 ```
@@ -783,7 +817,7 @@ const voiceMessageSchema = new mongoose.Schema({
   duration: Number,
   waveform: [Number], // For waveform visualization
   transcription: String,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Recording audio and uploading
@@ -808,7 +842,7 @@ class VoiceMessageRecorder {
   async stopRecording() {
     return new Promise((resolve) => {
       this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const audioBlob = new Blob(this.audioChunks, { type: "audio/webm" });
         resolve(audioBlob);
       };
       this.mediaRecorder.stop();
@@ -817,12 +851,12 @@ class VoiceMessageRecorder {
 
   async uploadVoiceMessage(roomId, audioBlob) {
     const formData = new FormData();
-    formData.append('audio', audioBlob);
-    formData.append('roomId', roomId);
+    formData.append("audio", audioBlob);
+    formData.append("roomId", roomId);
 
-    const response = await fetch('/api/rooms/voice-message', {
-      method: 'POST',
-      body: formData
+    const response = await fetch("/api/rooms/voice-message", {
+      method: "POST",
+      body: formData,
     });
 
     return response.json();
@@ -830,44 +864,49 @@ class VoiceMessageRecorder {
 }
 
 // Backend endpoint
-app.post('/api/rooms/voice-message', verifyToken, upload.single('audio'), async (req, res) => {
-  try {
-    const { roomId } = req.body;
+app.post(
+  "/api/rooms/voice-message",
+  verifyToken,
+  upload.single("audio"),
+  async (req, res) => {
+    try {
+      const { roomId } = req.body;
 
-    // Upload to S3
-    const audioUrl = await uploadToS3(req.file, 'voice-messages');
+      // Upload to S3
+      const audioUrl = await uploadToS3(req.file, "voice-messages");
 
-    // Calculate duration
-    const duration = await getAudioDuration(req.file.path);
+      // Calculate duration
+      const duration = await getAudioDuration(req.file.path);
 
-    // Transcribe using Whisper API
-    const transcription = await transcribeAudio(req.file.path);
+      // Transcribe using Whisper API
+      const transcription = await transcribeAudio(req.file.path);
 
-    const voiceMessage = new VoiceMessage({
-      roomId,
-      senderId: req.userId,
-      audioUrl,
-      duration,
-      transcription
-    });
+      const voiceMessage = new VoiceMessage({
+        roomId,
+        senderId: req.userId,
+        audioUrl,
+        duration,
+        transcription,
+      });
 
-    await voiceMessage.save();
+      await voiceMessage.save();
 
-    // Broadcast to room
-    io.to(roomId).emit('voice_message', {
-      id: voiceMessage._id,
-      senderId: req.userId,
-      audioUrl,
-      duration,
-      transcription,
-      createdAt: voiceMessage.createdAt
-    });
+      // Broadcast to room
+      io.to(roomId).emit("voice_message", {
+        id: voiceMessage._id,
+        senderId: req.userId,
+        audioUrl,
+        duration,
+        transcription,
+        createdAt: voiceMessage.createdAt,
+      });
 
-    res.json({ success: true, voiceMessage });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+      res.json({ success: true, voiceMessage });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
 ```
 
 **Features:**
@@ -891,43 +930,43 @@ app.post('/api/rooms/voice-message', verifyToken, upload.single('audio'), async 
 
 ```javascript
 // Add text index to messages
-messageSchema.index({ content: 'text', 'sender.username': 'text' });
+messageSchema.index({ content: "text", "sender.username": "text" });
 
 // Full-text search endpoint
-app.get('/api/search/messages', verifyToken, async (req, res) => {
+app.get("/api/search/messages", verifyToken, async (req, res) => {
   const { query, roomId, page = 1 } = req.query;
-  
+
   if (!query) {
-    return res.status(400).json({ error: 'Search query required' });
+    return res.status(400).json({ error: "Search query required" });
   }
 
   const skip = (page - 1) * 20;
 
   const results = await Message.find(
     { $text: { $search: query }, roomId },
-    { score: { $meta: 'textScore' } }
+    { score: { $meta: "textScore" } },
   )
-  .sort({ score: { $meta: 'textScore' } })
-  .skip(skip)
-  .limit(20)
-  .populate('senderId', 'username avatar')
-  .lean();
+    .sort({ score: { $meta: "textScore" } })
+    .skip(skip)
+    .limit(20)
+    .populate("senderId", "username avatar")
+    .lean();
 
   const total = await Message.countDocuments({
     $text: { $search: query },
-    roomId
+    roomId,
   });
 
   res.json({
     results,
     total,
     page,
-    pages: Math.ceil(total / 20)
+    pages: Math.ceil(total / 20),
   });
 });
 
 // Advanced search with filters
-app.get('/api/search/messages/advanced', verifyToken, async (req, res) => {
+app.get("/api/search/messages/advanced", verifyToken, async (req, res) => {
   const {
     query,
     roomId,
@@ -936,7 +975,7 @@ app.get('/api/search/messages/advanced', verifyToken, async (req, res) => {
     endDate,
     hasFiles,
     encrypted,
-    page = 1
+    page = 1,
   } = req.query;
 
   const filter = {};
@@ -949,15 +988,15 @@ app.get('/api/search/messages/advanced', verifyToken, async (req, res) => {
     if (startDate) filter.createdAt.$gte = new Date(startDate);
     if (endDate) filter.createdAt.$lte = new Date(endDate);
   }
-  if (hasFiles === 'true') filter.fileAttachment = { $exists: true };
-  if (encrypted) filter.encrypted = encrypted === 'true';
+  if (hasFiles === "true") filter.fileAttachment = { $exists: true };
+  if (encrypted) filter.encrypted = encrypted === "true";
 
   const skip = (page - 1) * 20;
 
   const results = await Message.find(filter)
     .skip(skip)
     .limit(20)
-    .populate('senderId', 'username avatar')
+    .populate("senderId", "username avatar")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -970,8 +1009,8 @@ app.get('/api/search/messages/advanced', verifyToken, async (req, res) => {
       query,
       roomId,
       senderId,
-      dateRange: { startDate, endDate }
-    }
+      dateRange: { startDate, endDate },
+    },
   });
 });
 
@@ -980,7 +1019,7 @@ class MessageSearch {
   async search(query, filters = {}) {
     const params = new URLSearchParams({
       query,
-      ...filters
+      ...filters,
     });
 
     const response = await fetch(`/api/search/messages?${params}`);
@@ -995,8 +1034,8 @@ class MessageSearch {
 
   // Highlight search results
   highlightMatches(text, query) {
-    const regex = new RegExp(`(${query})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
+    const regex = new RegExp(`(${query})`, "gi");
+    return text.replace(regex, "<mark>$1</mark>");
   }
 }
 ```
@@ -1038,11 +1077,11 @@ class CallRecorder {
 
   startRecording() {
     this.recorder = new RecordRTC(this.stream, {
-      type: 'video',
-      mimeType: 'video/webm;codecs=vp9',
+      type: "video",
+      mimeType: "video/webm;codecs=vp9",
       videoBitsPerSecond: 2500000,
       desiredSampleRate: 44100,
-      bufferSize: 16384
+      bufferSize: 16384,
     });
 
     this.recorder.startRecording();
@@ -1062,12 +1101,12 @@ class CallRecorder {
 
   async uploadRecording(roomId, recordingBlob) {
     const formData = new FormData();
-    formData.append('video', recordingBlob);
-    formData.append('roomId', roomId);
+    formData.append("video", recordingBlob);
+    formData.append("roomId", roomId);
 
-    const response = await fetch('/api/calls/recording', {
-      method: 'POST',
-      body: formData
+    const response = await fetch("/api/calls/recording", {
+      method: "POST",
+      body: formData,
     });
 
     return response.json();
@@ -1077,59 +1116,64 @@ class CallRecorder {
   getStatus() {
     return {
       isRecording: this.isRecording,
-      duration: this.recorder?.getRecordingDuration() || 0
+      duration: this.recorder?.getRecordingDuration() || 0,
     };
   }
 }
 
 // Backend: Save recording
-app.post('/api/calls/recording', verifyToken, upload.single('video'), async (req, res) => {
-  try {
-    const { roomId } = req.body;
+app.post(
+  "/api/calls/recording",
+  verifyToken,
+  upload.single("video"),
+  async (req, res) => {
+    try {
+      const { roomId } = req.body;
 
-    // Store to S3
-    const videoUrl = await uploadToS3(req.file, 'recordings');
+      // Store to S3
+      const videoUrl = await uploadToS3(req.file, "recordings");
 
-    // Get video metadata
-    const metadata = await getVideoMetadata(req.file.path);
+      // Get video metadata
+      const metadata = await getVideoMetadata(req.file.path);
 
-    const recording = new CallRecording({
-      roomId,
-      recordedBy: req.userId,
-      videoUrl,
-      duration: metadata.duration,
-      fileSize: req.file.size,
-      codec: metadata.codec
-    });
+      const recording = new CallRecording({
+        roomId,
+        recordedBy: req.userId,
+        videoUrl,
+        duration: metadata.duration,
+        fileSize: req.file.size,
+        codec: metadata.codec,
+      });
 
-    await recording.save();
+      await recording.save();
 
-    // Update room
-    await Room.findByIdAndUpdate(roomId, {
-      $push: { recordings: recording._id }
-    });
+      // Update room
+      await Room.findByIdAndUpdate(roomId, {
+        $push: { recordings: recording._id },
+      });
 
-    // Notify participants
-    io.to(roomId).emit('recording_saved', {
-      recordingId: recording._id,
-      recordedBy: req.userId,
-      duration: recording.duration,
-      videoUrl
-    });
+      // Notify participants
+      io.to(roomId).emit("recording_saved", {
+        recordingId: recording._id,
+        recordedBy: req.userId,
+        duration: recording.duration,
+        videoUrl,
+      });
 
-    res.json({ success: true, recording });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+      res.json({ success: true, recording });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 // Retrieve recording list
-app.get('/api/calls/:roomId/recordings', verifyToken, async (req, res) => {
+app.get("/api/calls/:roomId/recordings", verifyToken, async (req, res) => {
   const recordings = await CallRecording.find({
-    roomId: req.params.roomId
+    roomId: req.params.roomId,
   })
-  .populate('recordedBy', 'username avatar')
-  .sort({ createdAt: -1 });
+    .populate("recordedBy", "username avatar")
+    .sort({ createdAt: -1 });
 
   res.json(recordings);
 });
@@ -1372,32 +1416,32 @@ const analyticsSchema = new mongoose.Schema({
   platform: String, // 'web', 'ios', 'android'
   userAgent: String,
   ipAddress: String,
-  timestamp: { type: Date, default: Date.now, index: true }
+  timestamp: { type: Date, default: Date.now, index: true },
 });
 
 // Dashboard Endpoints
-app.get('/api/analytics/overview', verifyAdmin, async (req, res) => {
+app.get("/api/analytics/overview", verifyAdmin, async (req, res) => {
   const { startDate, endDate } = req.query;
 
   const filter = {
     timestamp: {
       $gte: new Date(startDate),
-      $lte: new Date(endDate)
-    }
+      $lte: new Date(endDate),
+    },
   };
 
   const totalEvents = await Analytics.countDocuments(filter);
-  
-  const uniqueUsers = await Analytics.distinct('userId', filter);
-  
+
+  const uniqueUsers = await Analytics.distinct("userId", filter);
+
   const eventBreakdown = await Analytics.aggregate([
     { $match: filter },
-    { $group: { _id: '$eventType', count: { $sum: 1 } } }
+    { $group: { _id: "$eventType", count: { $sum: 1 } } },
   ]);
 
   const platformStats = await Analytics.aggregate([
     { $match: filter },
-    { $group: { _id: '$platform', count: { $sum: 1 } } }
+    { $group: { _id: "$platform", count: { $sum: 1 } } },
   ]);
 
   res.json({
@@ -1405,20 +1449,20 @@ app.get('/api/analytics/overview', verifyAdmin, async (req, res) => {
     uniqueUsers: uniqueUsers.length,
     eventBreakdown,
     platformStats,
-    dateRange: { startDate, endDate }
+    dateRange: { startDate, endDate },
   });
 });
 
 // User Activity Analytics
-app.get('/api/analytics/users', verifyAdmin, async (req, res) => {
+app.get("/api/analytics/users", verifyAdmin, async (req, res) => {
   const users = await User.aggregate([
     {
       $lookup: {
-        from: 'analytics',
-        localField: '_id',
-        foreignField: 'userId',
-        as: 'activities'
-      }
+        from: "analytics",
+        localField: "_id",
+        foreignField: "userId",
+        as: "activities",
+      },
     },
     {
       $project: {
@@ -1426,102 +1470,101 @@ app.get('/api/analytics/users', verifyAdmin, async (req, res) => {
         email: 1,
         createdAt: 1,
         lastSeen: 1,
-        totalEvents: { $size: '$activities' },
+        totalEvents: { $size: "$activities" },
         totalMessages: {
           $size: {
             $filter: {
-              input: '$activities',
-              as: 'activity',
-              cond: { $eq: ['$$activity.eventType', 'message_sent'] }
-            }
-          }
-        }
-      }
-    }
+              input: "$activities",
+              as: "activity",
+              cond: { $eq: ["$$activity.eventType", "message_sent"] },
+            },
+          },
+        },
+      },
+    },
   ]);
 
   res.json(users);
 });
 
 // Call Statistics
-app.get('/api/analytics/calls', verifyAdmin, async (req, res) => {
+app.get("/api/analytics/calls", verifyAdmin, async (req, res) => {
   const stats = await CallRecording.aggregate([
     {
       $group: {
         _id: null,
         totalCalls: { $sum: 1 },
-        totalDuration: { $sum: '$duration' },
-        avgDuration: { $avg: '$duration' },
-        totalStorageGB: { $sum: { $divide: ['$fileSize', 1e9] } }
-      }
-    }
+        totalDuration: { $sum: "$duration" },
+        avgDuration: { $avg: "$duration" },
+        totalStorageGB: { $sum: { $divide: ["$fileSize", 1e9] } },
+      },
+    },
   ]);
 
   res.json(stats[0] || { totalCalls: 0, totalDuration: 0 });
 });
 
 // Room Activity Analytics
-app.get('/api/analytics/rooms', verifyAdmin, async (req, res) => {
+app.get("/api/analytics/rooms", verifyAdmin, async (req, res) => {
   const roomStats = await Room.aggregate([
     {
       $lookup: {
-        from: 'messages',
-        localField: '_id',
-        foreignField: 'roomId',
-        as: 'messages'
-      }
+        from: "messages",
+        localField: "_id",
+        foreignField: "roomId",
+        as: "messages",
+      },
     },
     {
       $project: {
         name: 1,
         createdAt: 1,
-        participantCount: { $size: '$participants' },
-        messageCount: { $size: '$messages' },
+        participantCount: { $size: "$participants" },
+        messageCount: { $size: "$messages" },
         avgMessagesPerDay: {
           $divide: [
-            { $size: '$messages' },
+            { $size: "$messages" },
             {
               $ceil: {
-                $divide: [
-                  { $subtract: [new Date(), '$createdAt'] },
-                  86400000
-                ]
-              }
-            }
-          ]
-        }
-      }
+                $divide: [{ $subtract: [new Date(), "$createdAt"] }, 86400000],
+              },
+            },
+          ],
+        },
+      },
     },
-    { $sort: { messageCount: -1 } }
+    { $sort: { messageCount: -1 } },
   ]);
 
   res.json(roomStats);
 });
 
 // Real-time Dashboard Middleware
-app.get('/api/analytics/live', verifyAdmin, async (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+app.get("/api/analytics/live", verifyAdmin, async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
   const sendUpdate = async () => {
-    const onlineUsers = await User.countDocuments({ status: 'online' });
+    const onlineUsers = await User.countDocuments({ status: "online" });
     const recentMessages = await Message.countDocuments({
-      createdAt: { $gte: new Date(Date.now() - 5 * 60000) }
+      createdAt: { $gte: new Date(Date.now() - 5 * 60000) },
     });
     const activeRooms = await Room.countDocuments({ isEmpty: false });
 
-    res.write(`data: ${JSON.stringify({
-      onlineUsers,
-      recentMessages,
-      activeRooms,
-      timestamp: new Date()
-    })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({
+        onlineUsers,
+        recentMessages,
+        activeRooms,
+        timestamp: new Date(),
+      })}\n\n`,
+    );
   };
 
   const interval = setInterval(sendUpdate, 5000);
 
-  req.on('close', () => clearInterval(interval));
+  req.on("close", () => clearInterval(interval));
 });
 ```
 
@@ -1541,6 +1584,7 @@ app.get('/api/analytics/live', verifyAdmin, async (req, res) => {
 ## 🔧 Implementation Timeline & Resources
 
 ### Week 1-2: Phase 1
+
 - Set up MongoDB Atlas
 - Implement Mongoose schemas
 - Build authentication system
@@ -1550,6 +1594,7 @@ app.get('/api/analytics/live', verifyAdmin, async (req, res) => {
 **Resources Needed:** MongoDB Atlas (free tier), JWT/OAuth credentials
 
 ### Week 3: Phase 2
+
 - User profiles
 - Group video calls (MediaSoup setup)
 - Voice messages
@@ -1558,6 +1603,7 @@ app.get('/api/analytics/live', verifyAdmin, async (req, res) => {
 **Resources Needed:** AWS S3, OpenAI Whisper API, MediaSoup server
 
 ### Week 4: Phase 3
+
 - Message search
 - Video recording
 - Storage optimization
@@ -1566,6 +1612,7 @@ app.get('/api/analytics/live', verifyAdmin, async (req, res) => {
 **Resources Needed:** Elasticsearch (optional), S3 storage
 
 ### Week 5: Phase 4
+
 - React Native setup
 - Mobile implementation
 - Analytics dashboard
