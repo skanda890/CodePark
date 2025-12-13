@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 // Mock app - adjust based on your actual app structure
 
 describe('Team Management Integration Tests', () => {
-  let userId2, authToken
+  let authToken
 
   beforeAll(async () => {
     // Setup test data
