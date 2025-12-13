@@ -187,7 +187,7 @@ io.on('connection', (socket) => {
       currentRoom = roomId
       socket.join(roomId)
 
-      if (!room.participants.some(p => p.socketId === socket.id)) {
+      if (!room.participants.some((p) => p.socketId === socket.id)) {
         room.participants.push({
           socketId: socket.id,
           userId: currentUser?.id,
