@@ -1,12 +1,41 @@
 {
   "name": "BIOS-Info",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "server.js",
+  "description": "Comprehensive system and BIOS information utility for Node.js. Fetches detailed hardware, OS, CPU, memory, GPU, and network information with multiple output formats.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "info:all": "node server.js",
+    "info:bios": "node server.js bios",
+    "info:system": "node server.js system",
+    "info:cpu": "node server.js cpu",
+    "info:memory": "node server.js memory",
+    "info:os": "node server.js os",
+    "info:gpu": "node server.js gpu",
+    "info:network": "node server.js network",
+    "export": "node server.js export",
+    "help": "node server.js help"
   },
-  "keywords": [],
+  "keywords": [
+    "bios",
+    "system-info",
+    "hardware",
+    "cpu",
+    "memory",
+    "gpu",
+    "network",
+    "system-information"
+  ],
   "author": "SkandaBT",
   "license": "MIT",
-  "description": ""
+  "dependencies": {
+    "systeminformation": "^5.16.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skanda890/CodePark.git"
+  }
 }
