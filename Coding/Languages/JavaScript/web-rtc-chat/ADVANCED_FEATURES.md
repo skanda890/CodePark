@@ -31,6 +31,7 @@ npm install mongoose
 ### Configuration
 
 **`.env` file:**
+
 ```env
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/webrtc-chat
 MONGODB_LOCAL=mongodb://localhost:27017/webrtc-chat
@@ -40,8 +41,8 @@ NODE_ENV=production
 ### Connection
 
 ```javascript
-const { connectDB } = require('./config/database')
-await connectDB()
+const { connectDB } = require("./config/database");
+await connectDB();
 ```
 
 ### Models
@@ -96,20 +97,23 @@ npm install passport passport-google-oauth20
 
 ```javascript
 // config/oauth.js
-const passport = require('passport')
-const GoogleStrategy = require('passport-google-oauth20').Strategy
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
-  new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
-  }, async (accessToken, refreshToken, profile, done) => {
-    // Create or find user
-    const user = await User.findOrCreate(profile)
-    return done(null, user)
-  })
-)
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      // Create or find user
+      const user = await User.findOrCreate(profile);
+      return done(null, user);
+    },
+  ),
+);
 ```
 
 ### API Endpoints
@@ -133,12 +137,14 @@ GET    /api/auth/google/callback   - Google callback
 ### Features
 
 ✅ **Complete Message History**
+
 - All messages stored in MongoDB
 - Searchable and indexed
 - Soft delete support
 - Edit history tracking
 
 ✅ **Message Types**
+
 - Text messages
 - Voice messages
 - File attachments
@@ -146,6 +152,7 @@ GET    /api/auth/google/callback   - Google callback
 - Video clips
 
 ✅ **Message Status**
+
 - Sent → Delivered → Read
 - Read receipts with timestamps
 - Typing indicators
@@ -284,6 +291,7 @@ GET    /api/users/search?query=...   - Search users
 ### Architecture
 
 #### **Mesh Topology** (P2P)
+
 ```
 User A ←→ User B
   ↓   ╲  ↗   ↓
@@ -296,6 +304,7 @@ User C ←→ User D
 **Best for:** 2-4 participants
 
 #### **SFU (Selective Forwarding Unit)**
+
 ```
 User A ─┐
 User B ─┼─→ SFU Server ─→ All Users
@@ -315,22 +324,22 @@ npm install mediasoup  # For SFU
 
 ```javascript
 // Socket events for group calls
-socket.on('join-group-call', async (data) => {
-  const { roomId, peerId } = data
-  const call = await Call.findOrCreate(roomId)
-  call.addParticipant(peerId)
-  io.to(roomId).emit('participant-joined', { peerId })
-})
+socket.on("join-group-call", async (data) => {
+  const { roomId, peerId } = data;
+  const call = await Call.findOrCreate(roomId);
+  call.addParticipant(peerId);
+  io.to(roomId).emit("participant-joined", { peerId });
+});
 
-socket.on('group-offer', (data) => {
-  const { roomId, to, offer } = data
-  io.to(to).emit('group-offer', { from: socket.id, offer })
-})
+socket.on("group-offer", (data) => {
+  const { roomId, to, offer } = data;
+  io.to(to).emit("group-offer", { from: socket.id, offer });
+});
 
-socket.on('group-answer', (data) => {
-  const { roomId, to, answer } = data
-  io.to(to).emit('group-answer', { from: socket.id, answer })
-})
+socket.on("group-answer", (data) => {
+  const { roomId, to, answer } = data;
+  io.to(to).emit("group-answer", { from: socket.id, answer });
+});
 ```
 
 ### API
@@ -349,12 +358,14 @@ GET    /api/calls/:callId/stats    - Get call statistics
 ### Features
 
 ✅ **Voice Recording**
+
 - Record audio in browser
 - Playback with controls
 - Progress bar
 - Duration display
 
 ✅ **Voice Storage**
+
 - Store in cloud (AWS S3, Google Cloud)
 - Reference in message
 - Metadata tracking (duration, bitrate)
@@ -365,38 +376,38 @@ GET    /api/calls/:callId/stats    - Get call statistics
 // Frontend
 class VoiceRecorder {
   constructor() {
-    this.mediaRecorder = null
-    this.audioChunks = []
+    this.mediaRecorder = null;
+    this.audioChunks = [];
   }
 
   async start() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    this.mediaRecorder = new MediaRecorder(stream)
-    this.mediaRecorder.ondataavailable = (e) => this.audioChunks.push(e.data)
-    this.mediaRecorder.start()
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this.mediaRecorder = new MediaRecorder(stream);
+    this.mediaRecorder.ondataavailable = (e) => this.audioChunks.push(e.data);
+    this.mediaRecorder.start();
   }
 
   async stop() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.mediaRecorder.onstop = () => {
-        const blob = new Blob(this.audioChunks, { type: 'audio/mp3' })
-        resolve(blob)
-      }
-      this.mediaRecorder.stop()
-    })
+        const blob = new Blob(this.audioChunks, { type: "audio/mp3" });
+        resolve(blob);
+      };
+      this.mediaRecorder.stop();
+    });
   }
 
   async send(roomId) {
-    const blob = await this.stop()
-    const formData = new FormData()
-    formData.append('audio', blob, 'voice.mp3')
-    formData.append('roomId', roomId)
-    
-    const response = await fetch('/api/messages/voice', {
-      method: 'POST',
-      body: formData
-    })
-    return response.json()
+    const blob = await this.stop();
+    const formData = new FormData();
+    formData.append("audio", blob, "voice.mp3");
+    formData.append("roomId", roomId);
+
+    const response = await fetch("/api/messages/voice", {
+      method: "POST",
+      body: formData,
+    });
+    return response.json();
   }
 }
 ```
@@ -409,15 +420,15 @@ class VoiceRecorder {
 
 ```javascript
 // Database index
-messageSchema.index({ content: 'text', room: 1, createdAt: -1 })
+messageSchema.index({ content: "text", room: 1, createdAt: -1 });
 
 // Search implementation
 const messages = await Message.find(
-  { $text: { $search: 'query' }, room: roomId },
-  { score: { $meta: 'textScore' } }
+  { $text: { $search: "query" }, room: roomId },
+  { score: { $meta: "textScore" } },
 )
-  .sort({ score: { $meta: 'textScore' } })
-  .limit(50)
+  .sort({ score: { $meta: "textScore" } })
+  .limit(50);
 ```
 
 ### API
@@ -454,28 +465,28 @@ npm install ffmpeg.js    # For server-side processing
 
 ```javascript
 // Frontend - Recording setup
-const recordingStream = new MediaStream()
+const recordingStream = new MediaStream();
 
 // Add video tracks
-video.getTracks().forEach(track => recordingStream.addTrack(track))
-audio.getTracks().forEach(track => recordingStream.addTrack(track))
+video.getTracks().forEach((track) => recordingStream.addTrack(track));
+audio.getTracks().forEach((track) => recordingStream.addTrack(track));
 
 // Create recorder
 const recorder = new MediaRecorder(recordingStream, {
-  mimeType: 'video/webm;codecs=vp9',
-  videoBitsPerSecond: 2500000
-})
+  mimeType: "video/webm;codecs=vp9",
+  videoBitsPerSecond: 2500000,
+});
 
-let chunks = []
-recorder.ondataavailable = e => chunks.push(e.data)
+let chunks = [];
+recorder.ondataavailable = (e) => chunks.push(e.data);
 recorder.onstop = () => {
-  const blob = new Blob(chunks, { type: 'video/webm' })
+  const blob = new Blob(chunks, { type: "video/webm" });
   // Upload to cloud storage
-}
+};
 
-recorder.start()
+recorder.start();
 // ... call in progress
-recorder.stop()
+recorder.stop();
 ```
 
 ### API
@@ -508,13 +519,13 @@ npm install @react-native-camera/camera  # Camera access
 
 ```javascript
 // App.js - Main entry
-import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import LoginScreen from './screens/LoginScreen'
-import ChatScreen from './screens/ChatScreen'
-import CallScreen from './screens/CallScreen'
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginScreen from "./screens/LoginScreen";
+import ChatScreen from "./screens/ChatScreen";
+import CallScreen from "./screens/CallScreen";
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
@@ -525,7 +536,7 @@ export default function App() {
         <Stack.Screen name="Call" component={CallScreen} />
       </Stack.Navigator>
     </NavigationContainer>
-  )
+  );
 }
 ```
 
@@ -560,24 +571,28 @@ GET /api/analytics/export           - Export data (CSV/PDF)
 ### Dashboard Features
 
 ✅ **User Analytics**
+
 - Total users, active users, new users
 - Daily/Weekly/Monthly active users
 - User retention rate
 - Geographic distribution
 
 ✅ **Message Analytics**
+
 - Total messages, messages per day
 - Most active hours
 - Voice messages count
 - Encryption usage
 
 ✅ **Call Analytics**
+
 - Total calls, success rate
 - Average call duration
 - Group calls vs 1-to-1
 - Call quality metrics
 
 ✅ **Performance Metrics**
+
 - Server response time
 - Average latency
 - Packet loss rate
@@ -585,6 +600,7 @@ GET /api/analytics/export           - Export data (CSV/PDF)
 - Server uptime
 
 ✅ **Engagement**
+
 - Average session duration
 - Messages per user
 - Call frequency
@@ -597,17 +613,21 @@ npm install chart.js react-chartjs-2
 ```
 
 ```javascript
-import { Line, Bar, Pie } from 'react-chartjs-2'
+import { Line, Bar, Pie } from "react-chartjs-2";
 
 // Usage analytics chart
-<Line data={{
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [{
-    label: 'Daily Active Users',
-    data: [100, 150, 120, 180, 200, 190, 160],
-    borderColor: 'rgb(75, 192, 192)'
-  }]
-}} />
+<Line
+  data={{
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        label: "Daily Active Users",
+        data: [100, 150, 120, 180, 200, 190, 160],
+        borderColor: "rgb(75, 192, 192)",
+      },
+    ],
+  }}
+/>;
 ```
 
 ---
