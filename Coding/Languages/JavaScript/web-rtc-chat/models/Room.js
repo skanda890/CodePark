@@ -26,26 +26,28 @@ const roomSchema = new mongoose.Schema({
     type: String,
     default: 'https://via.placeholder.com/150'
   },
-  participants: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    role: {
-      type: String,
-      enum: ['owner', 'moderator', 'member'],
-      default: 'member'
-    },
-    joinedAt: {
-      type: Date,
-      default: Date.now
-    },
-    leftAt: Date,
-    isActive: {
-      type: Boolean,
-      default: true
+  participants: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      role: {
+        type: String,
+        enum: ['owner', 'moderator', 'member'],
+        default: 'member'
+      },
+      joinedAt: {
+        type: Date,
+        default: Date.now
+      },
+      leftAt: Date,
+      isActive: {
+        type: Boolean,
+        default: true
+      }
     }
-  }],
+  ],
   settings: {
     allowVoiceMessages: { type: Boolean, default: true },
     allowFileSharing: { type: Boolean, default: true },
@@ -54,10 +56,12 @@ const roomSchema = new mongoose.Schema({
     maxGroupCallParticipants: { type: Number, default: 100 },
     messageRetention: { type: Number, default: null } // days, null = infinite
   },
-  banned: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  banned: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
   tags: [String],
   stats: {
     totalMessages: { type: Number, default: 0 },
@@ -81,7 +85,9 @@ const roomSchema = new mongoose.Schema({
 
 // Add user to room
 roomSchema.methods.addUser = async function (userId, role = 'member') {
-  if (!this.participants.some(p => p.userId.toString() === userId.toString())) {
+  if (
+    !this.participants.some((p) => p.userId.toString() === userId.toString())
+  ) {
     this.participants.push({
       userId,
       role,
@@ -95,7 +101,7 @@ roomSchema.methods.addUser = async function (userId, role = 'member') {
 
 // Remove user from room
 roomSchema.methods.removeUser = async function (userId) {
-  this.participants = this.participants.map(p => {
+  this.participants = this.participants.map((p) => {
     if (p.userId.toString() === userId.toString()) {
       p.isActive = false
       p.leftAt = new Date()
@@ -117,7 +123,7 @@ roomSchema.methods.banUser = async function (userId) {
 
 // Get active participants
 roomSchema.methods.getActiveParticipants = function () {
-  return this.participants.filter(p => p.isActive)
+  return this.participants.filter((p) => p.isActive)
 }
 
 module.exports = mongoose.model('Room', roomSchema)

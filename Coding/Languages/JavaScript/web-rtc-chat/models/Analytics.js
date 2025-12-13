@@ -22,10 +22,12 @@ const analyticsSchema = new mongoose.Schema({
     encryptedMessages: { type: Number, default: 0 },
     voiceMessages: { type: Number, default: 0 },
     avgMessageLength: { type: Number, default: 0 },
-    mostActiveHours: [{
-      hour: Number,
-      count: Number
-    }]
+    mostActiveHours: [
+      {
+        hour: Number,
+        count: Number
+      }
+    ]
   },
   // Call Analytics
   calls: {
@@ -47,11 +49,13 @@ const analyticsSchema = new mongoose.Schema({
     privateRooms: { type: Number, default: 0 },
     archivedRooms: { type: Number, default: 0 },
     avgRoomParticipants: { type: Number, default: 0 },
-    mostPopularRooms: [{
-      roomId: mongoose.Schema.Types.ObjectId,
-      name: String,
-      participants: Number
-    }]
+    mostPopularRooms: [
+      {
+        roomId: mongoose.Schema.Types.ObjectId,
+        name: String,
+        participants: Number
+      }
+    ]
   },
   // File Analytics
   files: {
@@ -86,18 +90,24 @@ const analyticsSchema = new mongoose.Schema({
   },
   // Device Analytics
   devices: {
-    browsers: [{
-      name: String,
-      count: Number
-    }],
-    os: [{
-      name: String,
-      count: Number
-    }],
-    devices: [{
-      name: String,
-      count: Number
-    }]
+    browsers: [
+      {
+        name: String,
+        count: Number
+      }
+    ],
+    os: [
+      {
+        name: String,
+        count: Number
+      }
+    ],
+    devices: [
+      {
+        name: String,
+        count: Number
+      }
+    ]
   },
   // Geographic Analytics
   geography: [
@@ -121,7 +131,7 @@ analyticsSchema.index({ createdAt: 1 }, { expireAfterSeconds: 31536000 })
 // Generate dashboard data
 analyticsSchema.statics.generateDashboard = async function (days = 30) {
   const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-  
+
   return await this.find({ createdAt: { $gte: startDate } })
     .sort({ createdAt: 1 })
     .lean()
@@ -130,7 +140,7 @@ analyticsSchema.statics.generateDashboard = async function (days = 30) {
 // Get trends
 analyticsSchema.statics.getTrends = async function (metric, days = 7) {
   const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-  
+
   return await this.find({ createdAt: { $gte: startDate } })
     .select(metric)
     .sort({ createdAt: -1 })

@@ -6,19 +6,21 @@ const callSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  callees: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    status: {
-      type: String,
-      enum: ['ringing', 'accepted', 'declined', 'missed'],
-      default: 'ringing'
-    },
-    joinedAt: Date,
-    leftAt: Date
-  }],
+  callees: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      status: {
+        type: String,
+        enum: ['ringing', 'accepted', 'declined', 'missed'],
+        default: 'ringing'
+      },
+      joinedAt: Date,
+      leftAt: Date
+    }
+  ],
   room: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room'
@@ -69,17 +71,19 @@ const callSchema = new mongoose.Schema({
     avgPacketLoss: Number,
     avgJitter: Number
   },
-  participants: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    joinedAt: Date,
-    leftAt: Date,
-    connectionQuality: String,
-    bytesReceived: Number,
-    bytesSent: Number
-  }],
+  participants: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      joinedAt: Date,
+      leftAt: Date,
+      connectionQuality: String,
+      bytesReceived: Number,
+      bytesSent: Number
+    }
+  ],
   failureReason: String,
   cancellationReason: String,
   metadata: {
