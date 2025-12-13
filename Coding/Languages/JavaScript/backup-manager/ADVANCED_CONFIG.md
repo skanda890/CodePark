@@ -15,11 +15,13 @@ Customize the Backup Manager for your specific needs.
 ### Default Location
 
 By default, backups are stored in:
+
 ```
 ~/.backup-manager/
 ```
 
 This expands to:
+
 - **Windows**: `C:\Users\YourUsername\.backup-manager\`
 - **macOS**: `/Users/YourUsername/.backup-manager/`
 - **Linux**: `/home/username/.backup-manager/`
@@ -29,26 +31,30 @@ This expands to:
 #### Step 1: Edit index.js
 
 Find line 8:
+
 ```javascript
-const CONFIG_DIR = path.join(os.homedir(), '.backup-manager')
+const CONFIG_DIR = path.join(os.homedir(), ".backup-manager");
 ```
 
 Change to:
+
 ```javascript
 // Option A: Use environment variable
-const CONFIG_DIR = process.env.BACKUP_DIR || path.join(os.homedir(), '.backup-manager')
+const CONFIG_DIR =
+  process.env.BACKUP_DIR || path.join(os.homedir(), ".backup-manager");
 
 // Option B: Use fixed path
-const CONFIG_DIR = 'D:\\Backups\\BackupManager'  // Windows
-const CONFIG_DIR = '/mnt/backup/backup-manager'   // Linux
+const CONFIG_DIR = "D:\\Backups\\BackupManager"; // Windows
+const CONFIG_DIR = "/mnt/backup/backup-manager"; // Linux
 
 // Option C: Use relative path
-const CONFIG_DIR = path.join(process.cwd(), 'backups')
+const CONFIG_DIR = path.join(process.cwd(), "backups");
 ```
 
 #### Step 2: Use Custom Location
 
 **Option A - Environment Variable:**
+
 ```bash
 # Windows
 set BACKUP_DIR=D:\MyBackups
@@ -67,19 +73,19 @@ Edit the CONFIG_DIR line and save.
 #### Windows Network Drive
 
 ```javascript
-const CONFIG_DIR = path.join('\\\\server\\share', 'BackupManager')
+const CONFIG_DIR = path.join("\\\\server\\share", "BackupManager");
 ```
 
 #### macOS Network
 
 ```javascript
-const CONFIG_DIR = '/Volumes/NetworkDrive/BackupManager'
+const CONFIG_DIR = "/Volumes/NetworkDrive/BackupManager";
 ```
 
 #### Linux NFS/Samba
 
 ```javascript
-const CONFIG_DIR = '/mnt/network-storage/BackupManager'
+const CONFIG_DIR = "/mnt/network-storage/BackupManager";
 ```
 
 **Note**: Mount network drives first before running the application.
@@ -102,22 +108,22 @@ function filterFiles(files, excludePatterns = []) {
     /build/,
     /.*\.tmp$/,
     /.*\.log$/,
-    ...excludePatterns
-  ]
-  
-  return files.filter(file => {
-    return !patterns.some(pattern => pattern.test(file))
-  })
+    ...excludePatterns,
+  ];
+
+  return files.filter((file) => {
+    return !patterns.some((pattern) => pattern.test(file));
+  });
 }
 ```
 
 Modify `createBackup()` to use it:
 
 ```javascript
-let allFiles = getAllFiles(response.sourcePath)
+let allFiles = getAllFiles(response.sourcePath);
 
 // Add this line after getAllFiles()
-allFiles = filterFiles(allFiles)
+allFiles = filterFiles(allFiles);
 ```
 
 ### Custom File Size Limits
@@ -125,14 +131,16 @@ allFiles = filterFiles(allFiles)
 Skip large files during backup:
 
 ```javascript
-const MAX_FILE_SIZE = 100 * 1024 * 1024  // 100MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 // In createBackup(), modify the file copy loop:
 for (const file of allFiles) {
-  const fileSize = fs.statSync(file).size
+  const fileSize = fs.statSync(file).size;
   if (fileSize > MAX_FILE_SIZE) {
-    console.warn(`Skipping large file: ${file} (${(fileSize/1024/1024).toFixed(2)}MB)`)
-    continue
+    console.warn(
+      `Skipping large file: ${file} (${(fileSize / 1024 / 1024).toFixed(2)}MB)`,
+    );
+    continue;
   }
   // ... rest of backup code
 }
@@ -144,29 +152,29 @@ Add this function:
 
 ```javascript
 function deleteOldBackups(daysToKeep = 30) {
-  const metadata = loadMetadata()
-  const now = Date.now()
-  const msPerDay = 24 * 60 * 60 * 1000
-  const cutoffTime = now - (daysToKeep * msPerDay)
-  
-  let deletedCount = 0
-  
-  metadata.backups = metadata.backups.filter(backup => {
-    const backupTime = new Date(backup.timestamp).getTime()
+  const metadata = loadMetadata();
+  const now = Date.now();
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const cutoffTime = now - daysToKeep * msPerDay;
+
+  let deletedCount = 0;
+
+  metadata.backups = metadata.backups.filter((backup) => {
+    const backupTime = new Date(backup.timestamp).getTime();
     if (backupTime < cutoffTime) {
       try {
-        fs.rmSync(backup.path, { recursive: true, force: true })
-        deletedCount++
+        fs.rmSync(backup.path, { recursive: true, force: true });
+        deletedCount++;
       } catch (error) {
-        console.error(`Failed to delete ${backup.name}:`, error)
+        console.error(`Failed to delete ${backup.name}:`, error);
       }
-      return false  // Remove from metadata
+      return false; // Remove from metadata
     }
-    return true
-  })
-  
-  saveMetadata(metadata)
-  console.log(`Deleted ${deletedCount} old backups`)
+    return true;
+  });
+
+  saveMetadata(metadata);
+  console.log(`Deleted ${deletedCount} old backups`);
 }
 ```
 
@@ -192,45 +200,47 @@ case 'auto-delete':
 ```javascript
 function getBackupSize() {
   try {
-    console.log('\n--- Backup Size Report ---')
-    const metadata = loadMetadata()
-    const backupsPath = path.join(CONFIG_DIR, 'backups')
-    
-    let totalSize = 0
-    
-    metadata.backups.forEach(backup => {
-      const backupPath = backup.path
-      const size = getDirectorySize(backupPath)
-      totalSize += size
-      
-      const sizeGB = size / 1024 / 1024 / 1024
-      console.log(`\n${backup.name}`)
-      console.log(`  Size: ${sizeGB.toFixed(2)} GB`)
-      console.log(`  Files: ${backup.filesCount}`)
-    })
-    
-    console.log(`\nTotal Storage: ${(totalSize / 1024 / 1024 / 1024).toFixed(2)} GB`)
+    console.log("\n--- Backup Size Report ---");
+    const metadata = loadMetadata();
+    const backupsPath = path.join(CONFIG_DIR, "backups");
+
+    let totalSize = 0;
+
+    metadata.backups.forEach((backup) => {
+      const backupPath = backup.path;
+      const size = getDirectorySize(backupPath);
+      totalSize += size;
+
+      const sizeGB = size / 1024 / 1024 / 1024;
+      console.log(`\n${backup.name}`);
+      console.log(`  Size: ${sizeGB.toFixed(2)} GB`);
+      console.log(`  Files: ${backup.filesCount}`);
+    });
+
+    console.log(
+      `\nTotal Storage: ${(totalSize / 1024 / 1024 / 1024).toFixed(2)} GB`,
+    );
   } catch (error) {
-    console.error('Error getting backup sizes:', error)
+    console.error("Error getting backup sizes:", error);
   }
 }
 
 function getDirectorySize(dirPath) {
-  let size = 0
+  let size = 0;
   try {
-    const files = fs.readdirSync(dirPath, { withFileTypes: true })
-    files.forEach(file => {
-      const filePath = path.join(dirPath, file.name)
+    const files = fs.readdirSync(dirPath, { withFileTypes: true });
+    files.forEach((file) => {
+      const filePath = path.join(dirPath, file.name);
       if (file.isDirectory()) {
-        size += getDirectorySize(filePath)
+        size += getDirectorySize(filePath);
       } else {
-        size += fs.statSync(filePath).size
+        size += fs.statSync(filePath).size;
       }
-    })
+    });
   } catch (error) {
-    console.warn(`Error reading directory ${dirPath}:`, error.message)
+    console.warn(`Error reading directory ${dirPath}:`, error.message);
   }
-  return size
+  return size;
 }
 ```
 
@@ -239,18 +249,18 @@ function getDirectorySize(dirPath) {
 ```javascript
 function compareBackups() {
   try {
-    console.log('\n--- Compare Two Backups ---')
-    const metadata = loadMetadata()
-    
+    console.log("\n--- Compare Two Backups ---");
+    const metadata = loadMetadata();
+
     if (metadata.backups.length < 2) {
-      console.log('Need at least 2 backups to compare')
-      return
+      console.log("Need at least 2 backups to compare");
+      return;
     }
-    
+
     // Selection logic here
     // Compare file counts, sizes, dates
   } catch (error) {
-    console.error('Error comparing backups:', error)
+    console.error("Error comparing backups:", error);
   }
 }
 ```
@@ -264,10 +274,10 @@ For very large files, use SHA1 instead of MD5 (faster but less secure):
 ```javascript
 // Change line with createHash
 // FROM:
-return crypto.createHash('md5').update(content).digest('hex')
+return crypto.createHash("md5").update(content).digest("hex");
 
 // TO:
-return crypto.createHash('sha1').update(content).digest('hex')
+return crypto.createHash("sha1").update(content).digest("hex");
 ```
 
 ### Batch Processing
@@ -275,29 +285,31 @@ return crypto.createHash('sha1').update(content).digest('hex')
 Process files in batches for better performance:
 
 ```javascript
-const BATCH_SIZE = 100
+const BATCH_SIZE = 100;
 
 async function backupFilesInBatches(files, destPath) {
   for (let i = 0; i < files.length; i += BATCH_SIZE) {
-    const batch = files.slice(i, i + BATCH_SIZE)
-    await Promise.all(batch.map(file => copyFileAsync(file, destPath)))
-    console.log(`Processed ${Math.min(i + BATCH_SIZE, files.length)}/${files.length} files`)
+    const batch = files.slice(i, i + BATCH_SIZE);
+    await Promise.all(batch.map((file) => copyFileAsync(file, destPath)));
+    console.log(
+      `Processed ${Math.min(i + BATCH_SIZE, files.length)}/${files.length} files`,
+    );
   }
 }
 
 async function copyFileAsync(srcFile, destPath) {
   return new Promise((resolve, reject) => {
-    const destFile = path.join(destPath, path.relative(srcPath, srcFile))
-    const dir = path.dirname(destFile)
-    
+    const destFile = path.join(destPath, path.relative(srcPath, srcFile));
+    const dir = path.dirname(destFile);
+
     fs.mkdir(dir, { recursive: true }, (err) => {
-      if (err) reject(err)
+      if (err) reject(err);
       fs.copyFile(srcFile, destFile, (err) => {
-        if (err) reject(err)
-        resolve()
-      })
-    })
-  })
+        if (err) reject(err);
+        resolve();
+      });
+    });
+  });
 }
 ```
 
@@ -306,14 +318,14 @@ async function copyFileAsync(srcFile, destPath) {
 For very large backups, process metadata in streams:
 
 ```javascript
-const MAX_FILES_IN_MEMORY = 1000
+const MAX_FILES_IN_MEMORY = 1000;
 
 function chunkFileList(files) {
-  const chunks = []
+  const chunks = [];
   for (let i = 0; i < files.length; i += MAX_FILES_IN_MEMORY) {
-    chunks.push(files.slice(i, i + MAX_FILES_IN_MEMORY))
+    chunks.push(files.slice(i, i + MAX_FILES_IN_MEMORY));
   }
-  return chunks
+  return chunks;
 }
 ```
 
@@ -326,15 +338,15 @@ npm install node-schedule
 ```
 
 ```javascript
-const schedule = require('node-schedule')
+const schedule = require("node-schedule");
 
 // Run backup daily at 2 AM
 function scheduleBackup() {
-  schedule.scheduleJob('0 2 * * *', async () => {
-    console.log('Running scheduled backup...')
+  schedule.scheduleJob("0 2 * * *", async () => {
+    console.log("Running scheduled backup...");
     // Call backup function
-    await createBackup()
-  })
+    await createBackup();
+  });
 }
 ```
 
@@ -345,23 +357,23 @@ npm install nodemailer
 ```
 
 ```javascript
-const nodemailer = require('nodemailer')
+const nodemailer = require("nodemailer");
 
 async function sendBackupNotification(backupName, status) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  })
-  
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
-    to: 'recipient@example.com',
+    to: "recipient@example.com",
     subject: `Backup ${backupName} - ${status}`,
-    text: `Backup ${backupName} completed with status: ${status}`
-  })
+    text: `Backup ${backupName} completed with status: ${status}`,
+  });
 }
 ```
 
@@ -372,18 +384,18 @@ npm install @slack/web-api
 ```
 
 ```javascript
-const { WebClient } = require('@slack/web-api')
+const { WebClient } = require("@slack/web-api");
 
-const slack = new WebClient(process.env.SLACK_TOKEN)
+const slack = new WebClient(process.env.SLACK_TOKEN);
 
 async function notifySlack(message) {
   try {
     await slack.chat.postMessage({
-      channel: '#backups',
-      text: message
-    })
+      channel: "#backups",
+      text: message,
+    });
   } catch (error) {
-    console.error('Failed to send Slack notification:', error)
+    console.error("Failed to send Slack notification:", error);
   }
 }
 ```
@@ -395,23 +407,23 @@ npm install aws-sdk
 ```
 
 ```javascript
-const AWS = require('aws-sdk')
-const s3 = new AWS.S3()
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3();
 
 async function uploadToS3(localPath, bucketName, backupName) {
-  const fileContent = fs.readFileSync(localPath)
-  
+  const fileContent = fs.readFileSync(localPath);
+
   const params = {
     Bucket: bucketName,
     Key: `backups/${backupName}.zip`,
-    Body: fileContent
-  }
-  
+    Body: fileContent,
+  };
+
   try {
-    const result = await s3.upload(params).promise()
-    console.log(`Uploaded to S3: ${result.Location}`)
+    const result = await s3.upload(params).promise();
+    console.log(`Uploaded to S3: ${result.Location}`);
   } catch (error) {
-    console.error('S3 upload failed:', error)
+    console.error("S3 upload failed:", error);
   }
 }
 ```
@@ -448,9 +460,10 @@ npm install dotenv
 ```
 
 ```javascript
-require('dotenv').config()
+require("dotenv").config();
 
-const CONFIG_DIR = process.env.BACKUP_DIR || path.join(os.homedir(), '.backup-manager')
+const CONFIG_DIR =
+  process.env.BACKUP_DIR || path.join(os.homedir(), ".backup-manager");
 ```
 
 ## Debugging & Logging
@@ -460,14 +473,15 @@ const CONFIG_DIR = process.env.BACKUP_DIR || path.join(os.homedir(), '.backup-ma
 Add to top of index.js:
 
 ```javascript
-const DEBUG = process.env.DEBUG === 'true'
+const DEBUG = process.env.DEBUG === "true";
 
 function debug(message) {
-  if (DEBUG) console.log(`[DEBUG] ${message}`)
+  if (DEBUG) console.log(`[DEBUG] ${message}`);
 }
 ```
 
 Run with:
+
 ```bash
 DEBUG=true npm start
 ```
@@ -476,12 +490,12 @@ DEBUG=true npm start
 
 ```javascript
 function logFileOperation(operation, file, status) {
-  const timestamp = new Date().toISOString()
+  const timestamp = new Date().toISOString();
   const logMessage = `${timestamp} | ${operation} | ${file} | ${status}
-`
-  
-  const logFile = path.join(CONFIG_DIR, 'operations.log')
-  fs.appendFileSync(logFile, logMessage)
+`;
+
+  const logFile = path.join(CONFIG_DIR, "operations.log");
+  fs.appendFileSync(logFile, logMessage);
 }
 ```
 
