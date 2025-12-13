@@ -1,6 +1,7 @@
 # Prisma Schema Additions for New Features
 
 ## Overview
+
 This document outlines the required Prisma schema changes to support the 8 new features.
 
 ## Feature 5: Team Management & Roles
@@ -12,13 +13,13 @@ model TeamMember {
   id String @id @default(cuid())
   projectId String
   userId String
-  role String @default("CONTRIBUTOR") 
+  role String @default("CONTRIBUTOR")
   // Roles: OWNER, ADMIN, MAINTAINER, CONTRIBUTOR, VIEWER
   joinedAt DateTime @default(now())
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([projectId, userId])
   @@index([projectId])
   @@index([userId])
@@ -33,11 +34,11 @@ model ProjectInvite {
   expiresAt DateTime
   acceptedAt DateTime?
   acceptedByUserId String?
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+
   createdAt DateTime @default(now())
-  
+
   @@index([projectId])
   @@index([token])
   @@index([email])
@@ -57,10 +58,10 @@ model AuditLog {
   userAgent String?
   status String @default("success") // success, failure
   errorMessage String?
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+
   @@index([projectId])
   @@index([userId])
   @@index([timestamp])
@@ -78,13 +79,13 @@ model User {
   username String @unique
   email String @unique
   // ... existing fields ...
-  
+
   // New relations for team management
   teamMemberships TeamMember[]
   projectOwned Project[] @relation("owner")
   teamInvites ProjectInvite[]
   auditLogs AuditLog[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -99,16 +100,16 @@ model Project {
   description String?
   ownerId String
   // ... existing fields ...
-  
+
   // New relations for team management
   owner User @relation("owner", fields: [ownerId], references: [id])
   teamMembers TeamMember[]
   invites ProjectInvite[]
   auditLogs AuditLog[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([ownerId])
 }
 ```
@@ -140,9 +141,9 @@ model ProjectMetrics {
   codeQuality Float
   testCoverage Float
   vulnerabilityCount Int
-  
+
   project Project @relation(fields: [projectId], references: [id])
-  
+
   @@index([projectId])
   @@index([timestamp])
 }
@@ -153,9 +154,9 @@ model CodeReview {
   projectId String
   fileId String
   authorId String
-  status String @default("pending") 
+  status String @default("pending")
   // pending, approved, changes-requested, merged
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -171,7 +172,7 @@ model CodeSnippet {
   category String
   isPublic Boolean @default(false)
   ownerId String
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

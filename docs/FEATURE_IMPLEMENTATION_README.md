@@ -7,6 +7,7 @@ This pull request implements **Feature 5: Project Team Management & Roles** as p
 ## What's Included
 
 ### 1. Service Layer
+
 - **File**: `services/teamService.js`
 - **Features**:
   - Add team members to projects
@@ -16,6 +17,7 @@ This pull request implements **Feature 5: Project Team Management & Roles** as p
   - Audit logging for all operations
 
 ### 2. Middleware
+
 - **File**: `middleware/authorization.js`
 - **Features**:
   - `requirePermission()` - Check specific permissions
@@ -23,6 +25,7 @@ This pull request implements **Feature 5: Project Team Management & Roles** as p
   - `requireOwnerRole()` - Require OWNER only
 
 ### 3. API Routes
+
 - **File**: `routes/teamManagement.js`
 - **Endpoints**:
   - `POST /api/projects/:projectId/members` - Add member
@@ -34,10 +37,12 @@ This pull request implements **Feature 5: Project Team Management & Roles** as p
   - `GET /api/projects/:projectId/invites` - List invites
 
 ### 4. Tests
+
 - **File**: `tests/integration/teamManagement.test.js`
 - Test cases for all endpoints
 
 ### 5. Documentation
+
 - **File**: `docs/PRISMA_SCHEMA_ADDITIONS.md`
 - Schema requirements and migration instructions
 
@@ -98,10 +103,10 @@ Add to `index.js`:
 
 ```javascript
 // Import new routes
-const teamManagementRoutes = require('./routes/teamManagement');
+const teamManagementRoutes = require("./routes/teamManagement");
 
 // Add routes (after other route definitions)
-app.use('/api/projects', teamManagementRoutes);
+app.use("/api/projects", teamManagementRoutes);
 ```
 
 ### Step 4: Run Tests
@@ -170,17 +175,18 @@ curl -X POST http://localhost:3000/api/invites/INVITE_TOKEN/accept \
 
 ### Common Errors
 
-| Status | Error | Solution |
-|--------|-------|----------|
-| 403 | User is not a team member | Add user to team first |
-| 403 | Insufficient permissions | Check user role |
-| 400 | Invalid role | Use valid role: OWNER, ADMIN, MAINTAINER, CONTRIBUTOR, VIEWER |
-| 404 | Project not found | Verify project ID |
-| 409 | User already a member | Remove and re-add if needed |
+| Status | Error                     | Solution                                                      |
+| ------ | ------------------------- | ------------------------------------------------------------- |
+| 403    | User is not a team member | Add user to team first                                        |
+| 403    | Insufficient permissions  | Check user role                                               |
+| 400    | Invalid role              | Use valid role: OWNER, ADMIN, MAINTAINER, CONTRIBUTOR, VIEWER |
+| 404    | Project not found         | Verify project ID                                             |
+| 409    | User already a member     | Remove and re-add if needed                                   |
 
 ## Security Considerations
 
 ✅ **Implemented**:
+
 - Role-based access control (RBAC)
 - Permission checking on all endpoints
 - Input validation with express-validator
@@ -191,6 +197,7 @@ curl -X POST http://localhost:3000/api/invites/INVITE_TOKEN/accept \
 ## Performance Optimizations
 
 ✅ **Included**:
+
 - Database indexes on frequently queried fields
 - Unique constraints to prevent duplicates
 - Efficient query patterns
@@ -222,19 +229,23 @@ After this is merged and deployed:
 ## Review Notes
 
 ### What Changed
+
 - Added 3 new service/route files
 - Added 1 middleware file
 - Added test file
 - Added documentation
 
 ### Files Modified
+
 None - all new files
 
 ### Database Changes
+
 - 3 new models: `TeamMember`, `ProjectInvite`, `AuditLog`
 - 2 existing models updated: `User`, `Project`
 
 ### Breaking Changes
+
 None
 
 ## Testing the Feature
@@ -257,17 +268,20 @@ npm run test:integration -- tests/integration/teamManagement.test.js
 ## Deployment Instructions
 
 ### Development
+
 ```bash
 npm run dev
 ```
 
 ### Staging
+
 ```bash
 npm run build
 npm start
 ```
 
 ### Production
+
 1. Merge PR
 2. Run database migration: `npm run migrate`
 3. Deploy application
@@ -277,6 +291,7 @@ npm start
 ## Support & Questions
 
 For issues or questions:
+
 1. Check the documentation in `docs/`
 2. Review the API examples above
 3. Check existing tests for usage patterns
@@ -304,6 +319,6 @@ For issues or questions:
 **Priority**: Critical  
 **Phase**: Phase 1 (Foundation)  
 **Estimated Review Time**: 30 minutes  
-**Testing Time**: 15 minutes  
+**Testing Time**: 15 minutes
 
 Ready for review! ✅
