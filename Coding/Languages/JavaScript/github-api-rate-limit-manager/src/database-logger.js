@@ -219,7 +219,7 @@ class DatabaseLogger {
    * Get logs for analysis
    */
   async getLogs (options = {}) {
-    const { startDate, endDate, tokenId, limit = 100 } = options
+    const { limit = 100 } = options
 
     if (this.type === 'json') {
       return this.getJsonLogs(options)
