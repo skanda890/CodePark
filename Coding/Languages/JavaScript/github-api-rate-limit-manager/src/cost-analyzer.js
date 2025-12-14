@@ -1,6 +1,6 @@
 /**
  * Cost Analysis Module for GitHub API Rate Limit Manager
- * 
+ *
  * Features:
  * - Per-endpoint cost calculation
  * - GraphQL vs REST efficiency comparison
@@ -12,17 +12,17 @@
  */
 
 class CostAnalyzer {
-  constructor(config = {}) {
-    this.endpointCosts = config.endpointCosts || this.getDefaultCosts();
-    this.logs = [];
-    this.usageHistory = [];
-    this.maxHistorySize = config.maxHistorySize || 30;
+  constructor (config = {}) {
+    this.endpointCosts = config.endpointCosts || this.getDefaultCosts()
+    this.logs = []
+    this.usageHistory = []
+    this.maxHistorySize = config.maxHistorySize || 30
   }
 
   /**
    * Get default endpoint costs
    */
-  getDefaultCosts() {
+  getDefaultCosts () {
     return {
       rest: {
         'GET /repos/{owner}/{repo}': 1,
@@ -43,13 +43,13 @@ class CostAnalyzer {
         'search(first:100 type:REPOSITORY query:x) { edges { node { name } } }': 2,
         'repository(owner:x name:y) { issues(first:100) { edges { node { title } } } }': 5
       }
-    };
+    }
   }
 
   /**
    * Log API usage
    */
-  logUsage(endpoint, method, cost, responseTime = 0) {
+  logUsage (endpoint, method, cost, responseTime = 0) {
     const usage = {
       timestamp: new Date(),
       endpoint,
@@ -57,94 +57,103 @@ class CostAnalyzer {
       cost,
       responseTime,
       type: endpoint.includes('graphql') ? 'graphql' : 'rest'
-    };
+    }
 
-    this.logs.push(usage);
-    return { logged: true, cost };
+    this.logs.push(usage)
+    return { logged: true, cost }
   }
 
   /**
    * Calculate cost for specific endpoint
    */
-  calculateEndpointCost(endpoint, method = 'GET') {
-    const key = `${method} ${endpoint}`;
-    
+  calculateEndpointCost (endpoint, method = 'GET') {
+    const key = `${method} ${endpoint}`
+
     if (this.endpointCosts.rest[key]) {
-      return { cost: this.endpointCosts.rest[key], type: 'rest', endpoint: key };
+      return {
+        cost: this.endpointCosts.rest[key],
+        type: 'rest',
+        endpoint: key
+      }
     }
 
     // Try to find by pattern
     for (const [pattern, cost] of Object.entries(this.endpointCosts.rest)) {
       if (this.matchPattern(endpoint, pattern)) {
-        return { cost, type: 'rest', endpoint: pattern };
+        return { cost, type: 'rest', endpoint: pattern }
       }
     }
 
     // Default cost
-    return { cost: 1, type: 'rest', estimated: true };
+    return { cost: 1, type: 'rest', estimated: true }
   }
 
   /**
    * Match endpoint pattern
    */
-  matchPattern(endpoint, pattern) {
-    const regex = pattern.replace(/{[^}]+}/g, '[^/]+');
-    return new RegExp(`^${regex}$`).test(endpoint);
+  matchPattern (endpoint, pattern) {
+    const regex = pattern.replace(/{[^}]+}/g, '[^/]+')
+    return new RegExp(`^${regex}$`).test(endpoint)
   }
 
   /**
    * Compare GraphQL vs REST efficiency
    */
-  compareGraphQLvsREST(query, restEndpoints) {
+  compareGraphQLvsREST (query, restEndpoints) {
     // GraphQL usually costs 1-2 points per query
-    const graphqlCost = 2;
-    
+    const graphqlCost = 2
+
     // Calculate equivalent REST calls
     const restCost = restEndpoints.reduce((sum, ep) => {
-      return sum + (this.endpointCosts.rest[ep] || 1);
-    }, 0);
+      return sum + (this.endpointCosts.rest[ep] || 1)
+    }, 0)
 
-    const efficiency = ((1 - graphqlCost / restCost) * 100).toFixed(2);
+    const efficiency = ((1 - graphqlCost / restCost) * 100).toFixed(2)
 
     return {
       graphqlCost,
       restEquivalent: restCost,
       costSavings: restCost - graphqlCost,
       efficiencyGain: efficiency + '%',
-      recommendation: graphqlCost < restCost
-        ? `Use GraphQL (save ${restCost - graphqlCost} requests)`
-        : 'Use REST API for this use case'
-    };
+      recommendation:
+        graphqlCost < restCost
+          ? `Use GraphQL (save ${restCost - graphqlCost} requests)`
+          : 'Use REST API for this use case'
+    }
   }
 
   /**
    * Get 7-day usage summary
    */
-  get7DayUsage() {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  get7DayUsage () {
+    const now = new Date()
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-    const relevantLogs = this.logs.filter(log => new Date(log.timestamp) >= sevenDaysAgo);
-    
-    return this.calculateUsageSummary(relevantLogs, 7);
+    const relevantLogs = this.logs.filter(
+      (log) => new Date(log.timestamp) >= sevenDaysAgo
+    )
+
+    return this.calculateUsageSummary(relevantLogs, 7)
   }
 
   /**
    * Get 30-day usage summary
    */
-  get30DayUsage() {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  get30DayUsage () {
+    const now = new Date()
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-    const relevantLogs = this.logs.filter(log => new Date(log.timestamp) >= thirtyDaysAgo);
-    
-    return this.calculateUsageSummary(relevantLogs, 30);
+    const relevantLogs = this.logs.filter(
+      (log) => new Date(log.timestamp) >= thirtyDaysAgo
+    )
+
+    return this.calculateUsageSummary(relevantLogs, 30)
   }
 
   /**
    * Calculate usage summary
    */
-  calculateUsageSummary(logs, days) {
+  calculateUsageSummary (logs, days) {
     if (logs.length === 0) {
       return {
         days,
@@ -154,12 +163,12 @@ class CostAnalyzer {
         restRequests: 0,
         graphqlRequests: 0,
         breakdown: { rest: 0, graphql: 0 }
-      };
+      }
     }
 
-    const totalCost = logs.reduce((sum, log) => sum + log.cost, 0);
-    const restLogs = logs.filter(log => log.type === 'rest');
-    const graphqlLogs = logs.filter(log => log.type === 'graphql');
+    const totalCost = logs.reduce((sum, log) => sum + log.cost, 0)
+    const restLogs = logs.filter((log) => log.type === 'rest')
+    const graphqlLogs = logs.filter((log) => log.type === 'graphql')
 
     return {
       days,
@@ -179,80 +188,88 @@ class CostAnalyzer {
           cost: graphqlLogs.reduce((sum, log) => sum + log.cost, 0)
         }
       }
-    };
+    }
   }
 
   /**
    * Forecast usage for next 30 days
    */
-  forecast30Days() {
-    const sevenDayUsage = this.get7DayUsage();
-    const thirtyDayUsage = this.get30DayUsage();
+  forecast30Days () {
+    const sevenDayUsage = this.get7DayUsage()
+    const thirtyDayUsage = this.get30DayUsage()
 
     // Use 30-day average if available, otherwise use 7-day
-    const avgDaily = thirtyDayUsage.totalRequests > 0
-      ? thirtyDayUsage.totalRequests / 30
-      : sevenDayUsage.totalRequests / 7;
+    const avgDaily =
+      thirtyDayUsage.totalRequests > 0
+        ? thirtyDayUsage.totalRequests / 30
+        : sevenDayUsage.totalRequests / 7
 
-    const projectedTotal = Math.round(avgDaily * 30);
-    const projectedCost = projectedTotal * (sevenDayUsage.avgCostPerRequest || 1);
+    const projectedTotal = Math.round(avgDaily * 30)
+    const projectedCost =
+      projectedTotal * (sevenDayUsage.avgCostPerRequest || 1)
 
     return {
       period: 'next 30 days',
       projectedRequests: projectedTotal,
       projectedCost: Math.round(projectedCost),
-      basedOn: sevenDayUsage.totalRequests > 0 ? '7-day average' : 'limited data',
+      basedOn:
+        sevenDayUsage.totalRequests > 0 ? '7-day average' : 'limited data',
       confidence: sevenDayUsage.totalRequests > 100 ? 'high' : 'low'
-    };
+    }
   }
 
   /**
    * Estimate days until rate limit exhaustion
    */
-  estimateDaysUntilLimit(currentRemaining, dailyUsage) {
+  estimateDaysUntilLimit (currentRemaining, dailyUsage) {
     if (dailyUsage <= 0) {
-      return { days: Infinity, message: 'No usage recorded' };
+      return { days: Infinity, message: 'No usage recorded' }
     }
 
-    const daysRemaining = Math.floor(currentRemaining / dailyUsage);
-    const hoursRemaining = Math.round((currentRemaining % dailyUsage) * 24);
+    const daysRemaining = Math.floor(currentRemaining / dailyUsage)
+    const hoursRemaining = Math.round((currentRemaining % dailyUsage) * 24)
 
     return {
       daysRemaining,
       hoursRemaining,
       currentRemaining,
       dailyUsage: Math.round(dailyUsage),
-      exhaustionDate: new Date(Date.now() + daysRemaining * 24 * 60 * 60 * 1000),
+      exhaustionDate: new Date(
+        Date.now() + daysRemaining * 24 * 60 * 60 * 1000
+      ),
       critical: daysRemaining < 3,
       warning: daysRemaining < 7
-    };
+    }
   }
 
   /**
    * Get cost optimization recommendations
    */
-  getOptimizationRecommendations() {
-    const recommendations = [];
-    const thirtyDayUsage = this.get30DayUsage();
+  getOptimizationRecommendations () {
+    const recommendations = []
+    const thirtyDayUsage = this.get30DayUsage()
 
     // Check GraphQL vs REST usage
     if (thirtyDayUsage.breakdown.rest.count > 0) {
-      const restPercentage = (thirtyDayUsage.breakdown.rest.count / thirtyDayUsage.totalRequests) * 100;
+      const restPercentage =
+        (thirtyDayUsage.breakdown.rest.count / thirtyDayUsage.totalRequests) *
+        100
       if (restPercentage > 80) {
         recommendations.push({
           priority: 'high',
           category: 'API Selection',
           recommendation: 'Consider using GraphQL for batch operations',
           potential_savings: '30-50% request reduction',
-          implementation: 'Consolidate multiple REST calls into single GraphQL query'
-        });
+          implementation:
+            'Consolidate multiple REST calls into single GraphQL query'
+        })
       }
     }
 
     // Check for search API abuse
     const searchCost = this.logs
-      .filter(log => log.endpoint?.includes('search'))
-      .reduce((sum, log) => sum + log.cost, 0);
+      .filter((log) => log.endpoint?.includes('search'))
+      .reduce((sum, log) => sum + log.cost, 0)
 
     if (searchCost > 100) {
       recommendations.push({
@@ -261,13 +278,13 @@ class CostAnalyzer {
         recommendation: 'Reduce search API usage',
         potential_savings: '20-40% request reduction',
         implementation: 'Implement caching or reduce search frequency'
-      });
+      })
     }
 
     // Check daily consistency
-    const avgDaily = this.get7DayUsage().totalRequests / 7;
-    const variance = this.calculateVariance(this.logs);
-    
+    const avgDaily = this.get7DayUsage().totalRequests / 7
+    const variance = this.calculateVariance(this.logs)
+
     if (variance > avgDaily * 0.5) {
       recommendations.push({
         priority: 'medium',
@@ -275,7 +292,7 @@ class CostAnalyzer {
         recommendation: 'Usage is inconsistent - consider rate limiting',
         potential_savings: '15-30% request reduction',
         implementation: 'Implement request throttling and backoff'
-      });
+      })
     }
 
     recommendations.push({
@@ -284,37 +301,39 @@ class CostAnalyzer {
       recommendation: 'Use ETags for conditional requests',
       potential_savings: '10-20% request reduction',
       implementation: 'Store and use ETag headers for GET requests'
-    });
+    })
 
-    return recommendations;
+    return recommendations
   }
 
   /**
    * Calculate variance in daily usage
    */
-  calculateVariance(logs) {
-    if (logs.length === 0) return 0;
+  calculateVariance (logs) {
+    if (logs.length === 0) return 0
 
-    const dailyUsage = {};
-    logs.forEach(log => {
-      const date = new Date(log.timestamp).toISOString().split('T')[0];
-      dailyUsage[date] = (dailyUsage[date] || 0) + 1;
-    });
+    const dailyUsage = {}
+    logs.forEach((log) => {
+      const date = new Date(log.timestamp).toISOString().split('T')[0]
+      dailyUsage[date] = (dailyUsage[date] || 0) + 1
+    })
 
-    const values = Object.values(dailyUsage);
-    const mean = values.reduce((a, b) => a + b) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    const values = Object.values(dailyUsage)
+    const mean = values.reduce((a, b) => a + b) / values.length
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      values.length
 
-    return Math.sqrt(variance);
+    return Math.sqrt(variance)
   }
 
   /**
    * Get detailed cost report
    */
-  getDetailedReport() {
-    const thirtyDay = this.get30DayUsage();
-    const forecast = this.forecast30Days();
-    const recommendations = this.getOptimizationRecommendations();
+  getDetailedReport () {
+    const thirtyDay = this.get30DayUsage()
+    const forecast = this.forecast30Days()
+    const recommendations = this.getOptimizationRecommendations()
 
     return {
       period: 'Last 30 Days',
@@ -322,10 +341,11 @@ class CostAnalyzer {
       forecast,
       recommendations,
       generatedAt: new Date(),
-      summary: `Used ${thirtyDay.totalCost} API credits in past 30 days. ` +
-               `Projected to use ${forecast.projectedCost} in next 30 days.`
-    };
+      summary:
+        `Used ${thirtyDay.totalCost} API credits in past 30 days. ` +
+        `Projected to use ${forecast.projectedCost} in next 30 days.`
+    }
   }
 }
 
-module.exports = CostAnalyzer;
+module.exports = CostAnalyzer
