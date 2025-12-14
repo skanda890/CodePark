@@ -46,6 +46,7 @@ npm run github:check-limit
 ```
 
 Shows:
+
 - REST API remaining requests
 - GraphQL API remaining points
 - Search API remaining requests
@@ -74,6 +75,7 @@ npm run github:reset-recommendations
 ```
 
 Shows:
+
 - Next reset times
 - How to optimize API usage
 - Strategies to avoid hitting limits
@@ -114,27 +116,30 @@ Outputs rate limit data as JSON for scripts/automation.
 
 ### What Do The Numbers Mean?
 
-| Field | Meaning |
-|-------|----------|
-| **Limit** | Total requests available in this hour |
-| **Remaining** | How many requests you have left |
-| **Percent** | Percentage of quota remaining |
-| **Used** | How many requests you've already used |
-| **Reset in** | Time until this limit resets |
+| Field         | Meaning                               |
+| ------------- | ------------------------------------- |
+| **Limit**     | Total requests available in this hour |
+| **Remaining** | How many requests you have left       |
+| **Percent**   | Percentage of quota remaining         |
+| **Used**      | How many requests you've already used |
+| **Reset in**  | Time until this limit resets          |
 
 ### Health Status Colors
 
 ✅ **Healthy** (Green): 50%+ remaining
+
 ```
 Remaining:  2500 (50.00%)
 ```
 
 ⚠️ **Warning** (Yellow): 20-50% remaining
+
 ```
 Remaining:  1000 (20.00%)
 ```
 
 🔴 **Critical** (Red): <20% remaining
+
 ```
 Remaining:  500 (10.00%)
 ```
@@ -146,6 +151,7 @@ Remaining:  500 (10.00%)
 ### What Happens When Rate Limit Exceeded?
 
 You'll get an error like:
+
 ```json
 {
   "message": "API rate limit exceeded for user ID xxxxx.",
@@ -156,18 +162,21 @@ You'll get an error like:
 ### What To Do
 
 **Option 1: Wait (Automatic)**
+
 ```bash
 npm run github:wait-reset
 # Waits automatically until limit resets
 ```
 
 **Option 2: Check When It Resets**
+
 ```bash
 npm run github:reset-recommendations
 # Shows exact reset time
 ```
 
 **Option 3: Optimize Usage** (Best)
+
 - Use GraphQL (faster, costs less)
 - Cache results (don't repeat calls)
 - Batch requests together
@@ -180,6 +189,7 @@ npm run github:reset-recommendations
 ### Tip 1: Use GraphQL
 
 ❌ **Bad** - 3 separate API calls:
+
 ```bash
 curl https://api.github.com/repos/owner/repo
 curl https://api.github.com/repos/owner/repo/issues
@@ -188,12 +198,23 @@ curl https://api.github.com/repos/owner/repo/pulls
 ```
 
 ✅ **Good** - 1 GraphQL request:
+
 ```graphql
 query {
   repository(owner: "owner", name: "repo") {
     name
-    issues(first: 10) { nodes { id, title } }
-    pullRequests(first: 10) { nodes { id, title } }
+    issues(first: 10) {
+      nodes {
+        id
+        title
+      }
+    }
+    pullRequests(first: 10) {
+      nodes {
+        id
+        title
+      }
+    }
   }
 }
 # Uses only 1 request (at ~5 points)
@@ -207,12 +228,12 @@ const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
 
 async function getRepo(owner, repo) {
   const key = `${owner}/${repo}`;
-  
+
   // Check cache first
   if (cache[key] && Date.now() - cache[key].time < CACHE_TIME) {
     return cache[key].data;
   }
-  
+
   // Fetch if not cached
   const data = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
   cache[key] = { data, time: Date.now() };
@@ -223,13 +244,13 @@ async function getRepo(owner, repo) {
 ### Tip 3: Check Before You Query
 
 ```javascript
-const monitor = require('./scripts/github-api-rate-limit-reset');
+const monitor = require("./scripts/github-api-rate-limit-reset");
 const m = new monitor(process.env.GITHUB_TOKEN);
 
 const limits = await m.checkRateLimits();
 
 if (limits.graphql.remaining < 100) {
-  console.log('Low on quota, queuing requests...');
+  console.log("Low on quota, queuing requests...");
   // Add request to queue, wait, etc.
 }
 ```
@@ -248,16 +269,19 @@ Always use your token!
 ### Problem: "GitHub token not provided"
 
 **Solution 1**: Set environment variable
+
 ```bash
 export GITHUB_TOKEN="your_token_here"
 ```
 
 **Solution 2**: Create .env file
+
 ```bash
 echo "GITHUB_TOKEN=ghp_xxxxx" > .env
 ```
 
 **Solution 3**: Pass token directly
+
 ```bash
 node scripts/github-api-rate-limit-reset.js --token ghp_xxxxx --check
 ```
@@ -265,6 +289,7 @@ node scripts/github-api-rate-limit-reset.js --token ghp_xxxxx --check
 ### Problem: "Failed to get rate limit: 401"
 
 **Solution**: Token is invalid
+
 1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
 2. Delete the old token
 3. Generate a new one
@@ -274,6 +299,7 @@ node scripts/github-api-rate-limit-reset.js --token ghp_xxxxx --check
 ### Problem: "Failed to get rate limit: 403"
 
 **Solution**: Token doesn't have required permissions
+
 1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
 2. Click the token
 3. Add scopes: `repo`, `read:org`
@@ -283,6 +309,7 @@ node scripts/github-api-rate-limit-reset.js --token ghp_xxxxx --check
 ### Problem: Can't find npm scripts
 
 **Solution**: Update package.json
+
 ```bash
 npm install
 # This should install all scripts
@@ -296,10 +323,12 @@ npm run | grep github
 ## 📚 Learn More
 
 ### Detailed Documentation
+
 - [Full Guide](./github-rate-limit-management.md) - Complete documentation
 - [README](./GITHUB-RATE-LIMIT-README.md) - Project overview
 
 ### GitHub Resources
+
 - [API Rate Limiting](https://docs.github.com/en/rest/overview/resources-in-the-rest-api)
 - [GraphQL API](https://docs.github.com/en/graphql)
 - [Personal Access Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
@@ -366,30 +395,30 @@ ALERT_WEBHOOK_URL=https://your-webhook.com
 
 ### Commands
 
-| Command | What It Does |
-|---------|-------------|
-| `npm run github:check-limit` | Show current rate limits |
-| `npm run github:check-limit:json` | Show as JSON |
-| `npm run github:monitor-limit` | Continuous monitoring |
-| `npm run github:wait-reset` | Wait for reset |
-| `npm run github:reset-recommendations` | Get optimization tips |
+| Command                                | What It Does             |
+| -------------------------------------- | ------------------------ |
+| `npm run github:check-limit`           | Show current rate limits |
+| `npm run github:check-limit:json`      | Show as JSON             |
+| `npm run github:monitor-limit`         | Continuous monitoring    |
+| `npm run github:wait-reset`            | Wait for reset           |
+| `npm run github:reset-recommendations` | Get optimization tips    |
 
 ### Rate Limits
 
-| API | Limit | Window |
-|-----|-------|--------|
-| REST (Auth) | 5,000 | 1 hour |
-| GraphQL | 5,000 points | 1 hour |
-| Search | 30 | 1 minute |
+| API         | Limit        | Window   |
+| ----------- | ------------ | -------- |
+| REST (Auth) | 5,000        | 1 hour   |
+| GraphQL     | 5,000 points | 1 hour   |
+| Search      | 30           | 1 minute |
 
 ### Status Indicators
 
-| Status | Remaining | Action |
-|--------|-----------|--------|
-| ✅ Healthy | 50%+ | Continue normally |
-| ⚠️ Warning | 20-50% | Start optimizing |
-| 🔴 Critical | <20% | Reduce API calls |
-| 🕓 Exhausted | 0% | Wait or use different token |
+| Status       | Remaining | Action                      |
+| ------------ | --------- | --------------------------- |
+| ✅ Healthy   | 50%+      | Continue normally           |
+| ⚠️ Warning   | 20-50%    | Start optimizing            |
+| 🔴 Critical  | <20%      | Reduce API calls            |
+| 🕓 Exhausted | 0%        | Wait or use different token |
 
 ---
 
@@ -405,4 +434,4 @@ ALERT_WEBHOOK_URL=https://your-webhook.com
 
 **Happy coding!** 🚀
 
-*For more help, see [docs/github-rate-limit-management.md](./github-rate-limit-management.md)*
+_For more help, see [docs/github-rate-limit-management.md](./github-rate-limit-management.md)_
