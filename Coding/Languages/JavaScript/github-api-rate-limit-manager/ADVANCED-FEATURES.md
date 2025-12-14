@@ -11,6 +11,7 @@ This document details all 10 advanced features integrated into the GitHub API Ra
 ## 1️⃣ Multi-Token Support & Team Management
 
 ### Features
+
 - Manage 2+ GitHub tokens simultaneously
 - Health-based automatic token rotation
 - Per-token statistics and monitoring
@@ -22,12 +23,12 @@ This document details all 10 advanced features integrated into the GitHub API Ra
 ### Usage
 
 ```javascript
-const MultiTokenManager = require('./src/multi-token-manager');
+const MultiTokenManager = require("./src/multi-token-manager");
 
 const manager = new MultiTokenManager([
-  'ghp_token1...',
-  'ghp_token2...',
-  'ghp_token3...'
+  "ghp_token1...",
+  "ghp_token2...",
+  "ghp_token3...",
 ]);
 
 // Get next healthy token
@@ -44,6 +45,7 @@ const quota = manager.getTeamQuota();
 ```
 
 ### Key Methods
+
 - `getNextToken()` - Get next healthy token with auto-rotation
 - `getTeamQuota()` - Get aggregated team statistics
 - `getAllTokenStats()` - Get per-token details
@@ -55,6 +57,7 @@ const quota = manager.getTeamQuota();
 ## 2️⃣ Slack/Discord Notifications
 
 ### Features
+
 - Real-time alerts when rate limits drop
 - Slack webhook integration
 - Discord webhook integration
@@ -67,14 +70,14 @@ const quota = manager.getTeamQuota();
 ### Configuration
 
 ```javascript
-const NotificationService = require('./src/notification-service');
+const NotificationService = require("./src/notification-service");
 
 const notifications = new NotificationService({
-  slackWebhook: 'https://hooks.slack.com/services/...',
-  discordWebhook: 'https://discord.com/api/webhooks/...',
+  slackWebhook: "https://hooks.slack.com/services/...",
+  discordWebhook: "https://discord.com/api/webhooks/...",
   deduplicationWindow: 300000, // 5 minutes
   maxRetries: 3,
-  baseBackoffMs: 1000
+  baseBackoffMs: 1000,
 });
 ```
 
@@ -86,36 +89,38 @@ await notifications.notifyWarning({
   remaining: 500,
   limit: 5000,
   percentage: 10,
-  recommendation: 'Add more tokens'
+  recommendation: "Add more tokens",
 });
 
 // Send critical alert
 await notifications.notifyCritical({
   remaining: 100,
-  action: 'CRITICAL: Insufficient quota'
+  action: "CRITICAL: Insufficient quota",
 });
 
 // Send reset notification
 await notifications.notifyReset({
-  apiType: 'REST (Core)',
-  limit: 5000
+  apiType: "REST (Core)",
+  limit: 5000,
 });
 ```
 
 ### Alert Types
-| Type | Use Case | Emoji |
-|------|----------|-------|
-| **warning** | Rate limit below 25% | ⚠️ |
-| **critical** | Rate limit below 5% | 🚨 |
-| **reset** | Rate limit has reset | ✅ |
-| **rotation** | Token rotation occurred | 🔄 |
-| **error** | API error occurred | ❌ |
+
+| Type         | Use Case                | Emoji |
+| ------------ | ----------------------- | ----- |
+| **warning**  | Rate limit below 25%    | ⚠️    |
+| **critical** | Rate limit below 5%     | 🚨    |
+| **reset**    | Rate limit has reset    | ✅    |
+| **rotation** | Token rotation occurred | 🔄    |
+| **error**    | API error occurred      | ❌    |
 
 ---
 
 ## 3️⃣ Database Logging & Historical Analytics
 
 ### Features
+
 - JSON file storage (zero dependencies default)
 - Optional MongoDB support
 - Optional SQLite support
@@ -129,21 +134,21 @@ await notifications.notifyReset({
 ### Configuration
 
 ```javascript
-const DatabaseLogger = require('./src/database-logger');
+const DatabaseLogger = require("./src/database-logger");
 
 // JSON storage (default)
-const logger = new DatabaseLogger({ type: 'json' });
+const logger = new DatabaseLogger({ type: "json" });
 
 // MongoDB
 const logger = new DatabaseLogger({
-  type: 'mongodb',
-  mongoUri: 'mongodb://localhost:27017'
+  type: "mongodb",
+  mongoUri: "mongodb://localhost:27017",
 });
 
 // SQLite
 const logger = new DatabaseLogger({
-  type: 'sqlite',
-  sqlitePath: './data/rate-limit.db'
+  type: "sqlite",
+  sqlitePath: "./data/rate-limit.db",
 });
 ```
 
@@ -157,7 +162,7 @@ await logger.log({
   limit: 5000,
   requestCount: 500,
   errorCount: 2,
-  health: 90
+  health: 90,
 });
 
 // Analyze trends
@@ -177,6 +182,7 @@ const result = await logger.exportToCSV();
 ## 4️⃣ Smart Request Queuing System
 
 ### Features
+
 - Priority-based request queuing (4 levels: critical, high, normal, low)
 - Automatic rate limit detection
 - Exponential backoff retry (up to 3 attempts)
@@ -190,20 +196,23 @@ const result = await logger.exportToCSV();
 ### Usage
 
 ```javascript
-const RequestQueue = require('./src/request-queue');
+const RequestQueue = require("./src/request-queue");
 
 const queue = new RequestQueue({
   maxConcurrent: 5,
   maxRetries: 3,
-  baseBackoffMs: 1000
+  baseBackoffMs: 1000,
 });
 
 // Enqueue request
-const entry = queue.enqueue({
-  endpoint: '/user',
-  method: 'GET',
-  tokenId: 1
-}, 'high'); // priority: critical, high, normal, low
+const entry = queue.enqueue(
+  {
+    endpoint: "/user",
+    method: "GET",
+    tokenId: 1,
+  },
+  "high",
+); // priority: critical, high, normal, low
 
 // Process request
 await queue.processRequest(entry, async (request) => {
@@ -225,6 +234,7 @@ const health = queue.getQueueHealth();
 ## 5️⃣ HTTP Server & Web Dashboard
 
 ### Features
+
 - Express.js-based server (uses native HTTP)
 - Real-time rate limit visualization
 - REST API endpoints for monitoring
@@ -238,15 +248,15 @@ const health = queue.getQueueHealth();
 ### Configuration
 
 ```javascript
-const WebDashboard = require('./src/web-dashboard');
+const WebDashboard = require("./src/web-dashboard");
 
 const dashboard = new WebDashboard({
   port: 3000,
-  host: 'localhost',
+  host: "localhost",
   multiTokenManager: manager,
   databaseLogger: logger,
   notificationService: notifications,
-  requestQueue: queue
+  requestQueue: queue,
 });
 
 await dashboard.start();
@@ -255,21 +265,22 @@ await dashboard.start();
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Web dashboard UI |
-| `/api/status` | GET | Team quota status |
-| `/api/tokens` | GET | All tokens statistics |
-| `/api/queue` | GET | Queue status |
-| `/api/health` | GET | System health |
-| `/api/history` | GET | Historical logs |
-| `/health` | GET | Kubernetes health check |
+| Endpoint       | Method | Description             |
+| -------------- | ------ | ----------------------- |
+| `/`            | GET    | Web dashboard UI        |
+| `/api/status`  | GET    | Team quota status       |
+| `/api/tokens`  | GET    | All tokens statistics   |
+| `/api/queue`   | GET    | Queue status            |
+| `/api/health`  | GET    | System health           |
+| `/api/history` | GET    | Historical logs         |
+| `/health`      | GET    | Kubernetes health check |
 
 ---
 
 ## 6️⃣ GitHub App Integration
 
 ### Features
+
 - JWT token generation
 - Installation token management
 - Automatic token refresh with TTL caching
@@ -282,12 +293,12 @@ await dashboard.start();
 ### Configuration
 
 ```javascript
-const GitHubAppManager = require('./src/github-app-manager');
+const GitHubAppManager = require("./src/github-app-manager");
 
 const appManager = new GitHubAppManager({
   appId: process.env.GITHUB_APP_ID,
   privateKey: process.env.GITHUB_PRIVATE_KEY,
-  webhookSecret: process.env.WEBHOOK_SECRET
+  webhookSecret: process.env.WEBHOOK_SECRET,
 });
 ```
 
@@ -310,17 +321,19 @@ const limits = appManager.getRateLimitInfo();
 ```
 
 ### Rate Limits (GitHub App)
-| Limit Type | Rate |
-|------------|------|
-| **Core API** | 10,000 requests/hour |
-| **Search API** | 30 requests/minute |
-| **GraphQL** | 5,000 points/hour |
+
+| Limit Type     | Rate                 |
+| -------------- | -------------------- |
+| **Core API**   | 10,000 requests/hour |
+| **Search API** | 30 requests/minute   |
+| **GraphQL**    | 5,000 points/hour    |
 
 ---
 
 ## 7️⃣ Advanced Caching & Request Deduplication
 
 ### Features
+
 - TTL-based cache expiration (configurable)
 - ETag validation for conditional requests
 - Request deduplication (SHA-256 hashing)
@@ -333,17 +346,17 @@ const limits = appManager.getRateLimitInfo();
 ### Usage
 
 ```javascript
-const CacheDeduplicator = require('./src/cache-deduplicator');
+const CacheDeduplicator = require("./src/cache-deduplicator");
 
 const cache = new CacheDeduplicator({
-  ttl: 300000,        // 5 minutes
+  ttl: 300000, // 5 minutes
   maxCacheSize: 1000,
-  deduplicationTime: 5000 // 5 seconds
+  deduplicationTime: 5000, // 5 seconds
 });
 
 // Check for duplicate
 const isDup = cache.isDuplicate(request);
-if (isDup.duplicate) return 'Request already in flight';
+if (isDup.duplicate) return "Request already in flight";
 
 // Set cache
 cache.set(request, response);
@@ -362,6 +375,7 @@ const stats = cache.getStats();
 ## 8️⃣ Cost Analysis Module
 
 ### Features
+
 - Per-endpoint cost calculation
 - GraphQL vs REST efficiency comparison
 - 7-day and 30-day usage summaries
@@ -375,12 +389,12 @@ const stats = cache.getStats();
 ### Usage
 
 ```javascript
-const CostAnalyzer = require('./src/cost-analyzer');
+const CostAnalyzer = require("./src/cost-analyzer");
 
 const analyzer = new CostAnalyzer();
 
 // Log usage
-analyzer.logUsage('/user', 'GET', 1);
+analyzer.logUsage("/user", "GET", 1);
 
 // Get 7-day summary
 const summary7 = analyzer.get7DayUsage();
@@ -406,6 +420,7 @@ const recommendations = analyzer.getOptimizationRecommendations();
 ## 9️⃣ Export & Reporting
 
 ### Features
+
 - HTML report generation with styling
 - CSV export (comma-separated values)
 - JSON export (structured data)
@@ -434,6 +449,7 @@ const analytics = manager.getAnalyticsReport();
 ## 🔟 Webhook Server for CI/CD Integration
 
 ### Features
+
 - GitHub event webhook handling
 - Pre-deployment rate limit checks
 - Webhook signature verification
@@ -447,14 +463,14 @@ const analytics = manager.getAnalyticsReport();
 ### Configuration
 
 ```javascript
-const WebhookServer = require('./src/webhook-server');
+const WebhookServer = require("./src/webhook-server");
 
 const webhook = new WebhookServer({
   port: 3001,
   webhookSecret: process.env.WEBHOOK_SECRET,
   multiTokenManager: manager,
   notificationService: notifications,
-  databaseLogger: logger
+  databaseLogger: logger,
 });
 
 await webhook.start();
@@ -462,12 +478,12 @@ await webhook.start();
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/webhook` | POST | GitHub webhook receiver |
-| `/pre-deploy-check` | POST | Pre-deployment quota check |
-| `/health` | GET | Server health |
-| `/deployment-history` | GET | Deployment history |
+| Endpoint              | Method | Description                |
+| --------------------- | ------ | -------------------------- |
+| `/webhook`            | POST   | GitHub webhook receiver    |
+| `/pre-deploy-check`   | POST   | Pre-deployment quota check |
+| `/health`             | GET    | Server health              |
+| `/deployment-history` | GET    | Deployment history         |
 
 ### GitHub Actions Integration
 
@@ -505,13 +521,10 @@ pre_deploy_check:
 ### Setup
 
 ```javascript
-const Manager = require('./src/index');
+const Manager = require("./src/index");
 
 const manager = new Manager({
-  tokens: [
-    process.env.GITHUB_TOKEN_1,
-    process.env.GITHUB_TOKEN_2
-  ],
+  tokens: [process.env.GITHUB_TOKEN_1, process.env.GITHUB_TOKEN_2],
   slackWebhook: process.env.SLACK_WEBHOOK,
   discordWebhook: process.env.DISCORD_WEBHOOK,
   appId: process.env.GITHUB_APP_ID,
@@ -519,7 +532,7 @@ const manager = new Manager({
   webhookSecret: process.env.WEBHOOK_SECRET,
   dashboardPort: 3000,
   webhookPort: 3001,
-  dbType: 'json'
+  dbType: "json",
 });
 
 // Initialize
@@ -530,8 +543,8 @@ await manager.startServers();
 
 // Make request
 const result = await manager.handleRequest({
-  endpoint: '/user',
-  method: 'GET'
+  endpoint: "/user",
+  method: "GET",
 });
 
 // Get status
@@ -549,6 +562,7 @@ const exported = await manager.exportReport();
 ## 📊 Monitoring & Alerting
 
 ### Automatic Alerts Triggered By
+
 - Rate limit < 25% → **Warning** notification
 - Rate limit < 5% → **Critical** notification
 - Token becomes unhealthy → **Rotation** notification
@@ -556,11 +570,12 @@ const exported = await manager.exportReport();
 - Rate limit reset → **Reset** notification
 
 ### Health Status Levels
-| Status | Condition | Color |
-|--------|-----------|-------|
-| **Healthy** | Average health > 70% | 🟢 Green |
-| **Warning** | Average health 40-70% | 🟡 Yellow |
-| **Critical** | Average health < 40% | 🔴 Red |
+
+| Status       | Condition             | Color     |
+| ------------ | --------------------- | --------- |
+| **Healthy**  | Average health > 70%  | 🟢 Green  |
+| **Warning**  | Average health 40-70% | 🟡 Yellow |
+| **Critical** | Average health < 40%  | 🔴 Red    |
 
 ---
 
@@ -590,16 +605,19 @@ const exported = await manager.exportReport();
 ## 🛠️ Troubleshooting
 
 ### High Memory Usage
+
 - Reduce `maxCacheSize`
 - Reduce `maxHistorySize`
 - Run cleanup: `await logger.cleanupOldLogs(7)`
 
 ### Missed Notifications
+
 - Check webhook URLs are valid
 - Verify signature is correct
 - Check notification history
 
 ### Queue Buildup
+
 - Increase `maxConcurrent`
 - Add more tokens
 - Check for rate limit exhaustion
