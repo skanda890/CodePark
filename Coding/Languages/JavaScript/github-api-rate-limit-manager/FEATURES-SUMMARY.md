@@ -168,18 +168,19 @@ export WEBHOOK_SECRET="your-webhook-secret"
 
 ### Access Points
 
-| Component | URL | Purpose |
-|-----------|-----|----------|
-| **Dashboard** | http://localhost:3000 | Real-time monitoring |
-| **API Status** | http://localhost:3000/api/status | JSON status |
-| **Webhooks** | http://localhost:3001/webhook | GitHub events |
-| **Pre-Deploy Check** | http://localhost:3001/pre-deploy-check | CI/CD gates |
+| Component            | URL                                    | Purpose              |
+| -------------------- | -------------------------------------- | -------------------- |
+| **Dashboard**        | http://localhost:3000                  | Real-time monitoring |
+| **API Status**       | http://localhost:3000/api/status       | JSON status          |
+| **Webhooks**         | http://localhost:3001/webhook          | GitHub events        |
+| **Pre-Deploy Check** | http://localhost:3001/pre-deploy-check | CI/CD gates          |
 
 ---
 
 ## 📈 Key Metrics Tracked
 
 ### Token Level
+
 - Health percentage
 - Remaining requests
 - Request count
@@ -188,6 +189,7 @@ export WEBHOOK_SECRET="your-webhook-secret"
 - Last used timestamp
 
 ### Team Level
+
 - Combined remaining quota
 - Combined limit
 - Total requests
@@ -196,6 +198,7 @@ export WEBHOOK_SECRET="your-webhook-secret"
 - Team recommendations
 
 ### Queue Level
+
 - Queue length (by priority)
 - Active requests
 - Success rate
@@ -203,6 +206,7 @@ export WEBHOOK_SECRET="your-webhook-secret"
 - Peak queue depth
 
 ### Cache Level
+
 - Hit rate
 - Miss count
 - Cache size
@@ -210,6 +214,7 @@ export WEBHOOK_SECRET="your-webhook-secret"
 - Deduplication count
 
 ### Cost Level
+
 - Daily/weekly/monthly usage
 - Projected usage
 - Cost per endpoint
@@ -220,29 +225,30 @@ export WEBHOOK_SECRET="your-webhook-secret"
 
 ## 🎨 Alert Types & Triggers
 
-| Alert Type | Trigger | Channel | Emoji |
-|-----------|---------|---------|-------|
-| **Warning** | Rate limit < 25% | Slack/Discord | ⚠️ |
-| **Critical** | Rate limit < 5% | Slack/Discord | 🚨 |
-| **Reset** | Rate limit resets | Slack/Discord | ✅ |
-| **Rotation** | Token rotation | Slack/Discord | 🔄 |
-| **Error** | API error | Slack/Discord | ❌ |
+| Alert Type   | Trigger           | Channel       | Emoji |
+| ------------ | ----------------- | ------------- | ----- |
+| **Warning**  | Rate limit < 25%  | Slack/Discord | ⚠️    |
+| **Critical** | Rate limit < 5%   | Slack/Discord | 🚨    |
+| **Reset**    | Rate limit resets | Slack/Discord | ✅    |
+| **Rotation** | Token rotation    | Slack/Discord | 🔄    |
+| **Error**    | API error         | Slack/Discord | ❌    |
 
 ---
 
 ## 💾 Storage Options
 
-| Database | Default | Features |
-|----------|---------|----------|
-| **JSON** | ✅ Yes | Zero dependencies, file-based |
-| **MongoDB** | Optional | Scalable, cloud-ready |
-| **SQLite** | Optional | Local database, querying |
+| Database    | Default  | Features                      |
+| ----------- | -------- | ----------------------------- |
+| **JSON**    | ✅ Yes   | Zero dependencies, file-based |
+| **MongoDB** | Optional | Scalable, cloud-ready         |
+| **SQLite**  | Optional | Local database, querying      |
 
 ---
 
 ## 🔌 API Endpoints
 
 ### Dashboard (Port 3000)
+
 ```
 GET  /                    → Web UI
 GET  /api/status          → Team quota status
@@ -254,6 +260,7 @@ GET  /health              → K8s health check
 ```
 
 ### Webhook Server (Port 3001)
+
 ```
 POST /webhook             → GitHub webhooks
 POST /pre-deploy-check    → Pre-deployment checks
@@ -266,21 +273,25 @@ GET  /deployment-history  → Deployment logs
 ## 🎯 Use Cases
 
 ### 1. **High-Volume API Consumer**
+
 - Use multiple tokens for distributed quota
 - Monitor health in real-time
 - Get alerts before hitting limits
 
 ### 2. **CI/CD Pipeline**
+
 - Block deployments with insufficient quota
 - Monitor deployment rate limits
 - Auto-rotate tokens on failure
 
 ### 3. **Enterprise Organization**
+
 - Manage organization-wide rate limits
 - Track usage across teams
 - Generate compliance reports
 
 ### 4. **Microservices Architecture**
+
 - Centralized rate limit management
 - Queue requests across services
 - Cache common queries
@@ -289,15 +300,15 @@ GET  /deployment-history  → Deployment logs
 
 ## 📊 Performance Characteristics
 
-| Metric | Value | Note |
-|--------|-------|------|
-| **Dashboard Refresh** | 60 seconds | Auto-refresh interval |
-| **Cache TTL** | 5 minutes | Default, configurable |
-| **Dedup Window** | 5 seconds | Prevents duplicate requests |
-| **Retry Backoff** | Exponential | Max 3 attempts |
-| **Max Cache Size** | 1,000 entries | LRU eviction |
-| **Max History** | 1,000 entries | Configurable |
-| **Notification Retry** | 3 attempts | Exponential backoff |
+| Metric                 | Value         | Note                        |
+| ---------------------- | ------------- | --------------------------- |
+| **Dashboard Refresh**  | 60 seconds    | Auto-refresh interval       |
+| **Cache TTL**          | 5 minutes     | Default, configurable       |
+| **Dedup Window**       | 5 seconds     | Prevents duplicate requests |
+| **Retry Backoff**      | Exponential   | Max 3 attempts              |
+| **Max Cache Size**     | 1,000 entries | LRU eviction                |
+| **Max History**        | 1,000 entries | Configurable                |
+| **Notification Retry** | 3 attempts    | Exponential backoff         |
 
 ---
 
@@ -339,16 +350,19 @@ github-api-rate-limit-manager/
 ## 🎓 Learning Path
 
 **Level 1: Basics** (15 min)
+
 - Read README.md
 - Start with multi-token manager
 - View dashboard at http://localhost:3000
 
 **Level 2: Intermediate** (1 hour)
+
 - Set up Slack/Discord notifications
 - Configure request queuing
 - Try CSV export
 
 **Level 3: Advanced** (2+ hours)
+
 - Implement GitHub App integration
 - Set up webhook server
 - Configure CI/CD pre-deploy checks
@@ -377,6 +391,7 @@ github-api-rate-limit-manager/
 ## 🚀 Production Deployment
 
 ### Docker
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
@@ -386,6 +401,7 @@ CMD ["node", "src/index.js"]
 ```
 
 ### Kubernetes
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -396,15 +412,15 @@ spec:
   template:
     spec:
       containers:
-      - name: manager
-        image: github-rate-limit-manager:2.0
-        ports:
-        - containerPort: 3000
-        - containerPort: 3001
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
+        - name: manager
+          image: github-rate-limit-manager:2.0
+          ports:
+            - containerPort: 3000
+            - containerPort: 3001
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
 ```
 
 ---
@@ -412,6 +428,7 @@ spec:
 ## 📞 Contact & Support
 
 For issues, feature requests, or questions:
+
 - GitHub Issues: [skanda890/CodePark](https://github.com/skanda890/CodePark/issues)
 - Documentation: See `ADVANCED-FEATURES.md` for detailed info
 
@@ -420,11 +437,13 @@ For issues, feature requests, or questions:
 ## ⭐ Version History
 
 **v2.0** (December 2025) - Enterprise Suite
+
 - ✅ All 10 advanced features implemented
 - ✅ Production-ready
 - ✅ Full documentation
 
 **v1.0** (Previous) - Basic functionality
+
 - Real-time monitoring
 - Wait-for-reset
 - Basic recommendations
