@@ -13,16 +13,18 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 ✅ **Optimize** - Provide recommendations for API optimization  
 ✅ **Integrate** - Work seamlessly with Node.js applications  
 ✅ **Automate** - Support cron jobs and continuous monitoring  
-✅ **Document** - Comprehensive guides and examples  
+✅ **Document** - Comprehensive guides and examples
 
 ---
 
 ## 📦 Deliverables
 
 ### 1. Main Utility Script
+
 **File**: `scripts/github-api-rate-limit-reset.js` (21.3 KB)
 
 **Features**:
+
 - ✅ REST API rate limit monitoring (Core & Search)
 - ✅ GraphQL API rate limit monitoring
 - ✅ Real-time status display with colored output
@@ -35,6 +37,7 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - ✅ Support for HTTPS requests without external dependencies
 
 **Class**: `GitHubRateLimitMonitor`
+
 - `getRestRateLimit()` - Fetch REST API limits
 - `getGraphQLRateLimit()` - Fetch GraphQL API limits
 - `checkRateLimits()` - Check both APIs
@@ -44,9 +47,11 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - `displayStatus()` - Format and display results
 
 ### 2. Configuration File
+
 **File**: `config/github-rate-limit.config.js` (9.4 KB)
 
 **Configuration Sections**:
+
 - Rate limit tiers and thresholds
 - Monitoring settings
 - API optimization strategies
@@ -61,7 +66,9 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 ### 3. Documentation Suite
 
 #### A. Quick Start Guide
+
 **File**: `docs/GITHUB-RATE-LIMIT-QUICKSTART.md` (9.0 KB)
+
 - 5-minute setup instructions
 - Common commands reference
 - Output explanation
@@ -71,7 +78,9 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - Quick reference tables
 
 #### B. Comprehensive Guide
+
 **File**: `docs/github-rate-limit-management.md` (12.2 KB)
+
 - Complete overview
 - Rate limit types explanation
 - Usage examples with actual output
@@ -82,7 +91,9 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - Rate limit tiers and windows
 
 #### C. Project README
+
 **File**: `docs/GITHUB-RATE-LIMIT-README.md` (11.4 KB)
+
 - Project overview and features
 - Installation instructions
 - File structure
@@ -94,7 +105,9 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - Integration guide
 
 #### D. Project Summary
+
 **File**: `docs/GITHUB-RATE-LIMIT-PROJECT-SUMMARY.md` (This file)
+
 - Executive summary
 - Deliverables list
 - NPM scripts
@@ -103,9 +116,11 @@ A comprehensive GitHub API rate limit monitoring and management utility built fo
 - Integration examples
 
 ### 4. NPM Scripts
+
 **File**: `package.json` (Updated)
 
 New scripts added:
+
 ```json
 {
   "github:check-limit": "Check current rate limit status",
@@ -160,6 +175,7 @@ npm run github:check-limit:json
 ## 📊 Technical Specifications
 
 ### Technologies Used
+
 - **Language**: JavaScript (Node.js)
 - **API**: GitHub REST API v3 & GraphQL API
 - **Network**: HTTPS with native Node.js `https` module
@@ -168,11 +184,11 @@ npm run github:check-limit:json
 
 ### Rate Limits Monitored
 
-| API | Limit | Window | Cost |
-|-----|-------|--------|------|
-| REST (Auth) | 5,000 | 1 hour | 1 per request |
-| GraphQL | 5,000 | 1 hour | 1-50+ per query |
-| Search | 30 | 1 minute | 1 per search |
+| API         | Limit | Window   | Cost            |
+| ----------- | ----- | -------- | --------------- |
+| REST (Auth) | 5,000 | 1 hour   | 1 per request   |
+| GraphQL     | 5,000 | 1 hour   | 1-50+ per query |
+| Search      | 30    | 1 minute | 1 per search    |
 
 ### Performance Metrics
 
@@ -183,18 +199,19 @@ npm run github:check-limit:json
 
 ### Thresholds
 
-| Status | Remaining | Color | Action |
-|--------|-----------|-------|--------|
-| Healthy | 50%+ | Green | Continue |
-| Warning | 20-50% | Yellow | Optimize |
-| Critical | <20% | Red | Halt |
-| Exhausted | 0% | Red | Wait |
+| Status    | Remaining | Color  | Action   |
+| --------- | --------- | ------ | -------- |
+| Healthy   | 50%+      | Green  | Continue |
+| Warning   | 20-50%    | Yellow | Optimize |
+| Critical  | <20%      | Red    | Halt     |
+| Exhausted | 0%        | Red    | Wait     |
 
 ---
 
 ## 🔧 Features
 
 ### Core Features
+
 - ✅ Real-time rate limit monitoring
 - ✅ Multiple API support (REST, GraphQL, Search)
 - ✅ Continuous background monitoring
@@ -206,6 +223,7 @@ npm run github:check-limit:json
 - ✅ No external dependencies
 
 ### Advanced Features
+
 - ✅ GraphQL complexity analysis
 - ✅ Request batching strategies
 - ✅ Caching recommendations
@@ -239,6 +257,7 @@ config/
 ## 💡 Use Cases
 
 ### Use Case 1: Development Monitoring
+
 ```bash
 # Check limits before starting development
 npm run github:check-limit
@@ -248,6 +267,7 @@ npm run github:monitor-limit &
 ```
 
 ### Use Case 2: Automated CI/CD
+
 ```yaml
 # GitHub Actions: Check before running tests
 - name: Check API Rate Limits
@@ -255,12 +275,14 @@ npm run github:monitor-limit &
 ```
 
 ### Use Case 3: Production Monitoring
+
 ```bash
 # Cron job: Monitor hourly
 0 * * * * cd ~/CodePark && npm run github:check-limit >> logs/rate-limit.log
 ```
 
 ### Use Case 4: Rate Limit Debugging
+
 ```bash
 # Get recommendations when approaching limit
 npm run github:reset-recommendations
@@ -274,23 +296,25 @@ npm run github:wait-reset
 ## 🔄 Integration Examples
 
 ### Node.js Application
+
 ```javascript
-const GitHubRateLimitMonitor = require('./scripts/github-api-rate-limit-reset');
+const GitHubRateLimitMonitor = require("./scripts/github-api-rate-limit-reset");
 
 const monitor = new GitHubRateLimitMonitor(process.env.GITHUB_TOKEN);
 const limits = await monitor.checkRateLimits();
 
 if (limits.graphql?.rateLimit?.remaining < 100) {
-  console.warn('Low on GraphQL quota');
+  console.warn("Low on GraphQL quota");
 }
 ```
 
 ### GitHub Actions
+
 ```yaml
 name: Check Rate Limits
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: "0 * * * *"
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -303,6 +327,7 @@ jobs:
 ```
 
 ### Docker
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -318,16 +343,28 @@ CMD ["npm", "run", "github:monitor-limit"]
 ### Strategy 1: Use GraphQL
 
 **Benefits**:
+
 - Fetch multiple resources in one query
 - Reduce total API calls
 - Lower costs per query
 
 **Example**:
+
 ```graphql
 query {
   repository(owner: "owner", name: "repo") {
-    issues(first: 10) { nodes { id title } }
-    pullRequests(first: 10) { nodes { id title } }
+    issues(first: 10) {
+      nodes {
+        id
+        title
+      }
+    }
+    pullRequests(first: 10) {
+      nodes {
+        id
+        title
+      }
+    }
   }
 }
 ```
@@ -356,13 +393,13 @@ query {
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| "Token not provided" | Set GITHUB_TOKEN env var |
-| "401 Unauthorized" | Verify token is valid |
-| "Rate limit exhausted" | Run `github:wait-reset` |
-| "GraphQL query too expensive" | Reduce query complexity |
-| "Connection timeout" | Check internet connection |
+| Issue                         | Solution                  |
+| ----------------------------- | ------------------------- |
+| "Token not provided"          | Set GITHUB_TOKEN env var  |
+| "401 Unauthorized"            | Verify token is valid     |
+| "Rate limit exhausted"        | Run `github:wait-reset`   |
+| "GraphQL query too expensive" | Reduce query complexity   |
+| "Connection timeout"          | Check internet connection |
 
 See [QUICKSTART](./GITHUB-RATE-LIMIT-QUICKSTART.md#-troubleshooting) for detailed solutions.
 
@@ -393,17 +430,20 @@ CodePark/
 ## 🎓 Learning Path
 
 ### For Quick Users (5 min)
+
 1. Read: [Quick Start](./GITHUB-RATE-LIMIT-QUICKSTART.md)
 2. Run: `npm run github:check-limit`
 3. Use: Common commands
 
 ### For Developers (30 min)
+
 1. Read: [Project README](./GITHUB-RATE-LIMIT-README.md)
 2. Read: [Quick Start](./GITHUB-RATE-LIMIT-QUICKSTART.md)
 3. Review: Code comments
 4. Try: All commands
 
 ### For DevOps/Integrators (1 hour)
+
 1. Read: All documentation
 2. Review: Config file
 3. Study: Integration examples
@@ -427,16 +467,19 @@ CodePark/
 ## 📞 Support Resources
 
 ### Documentation
+
 - [Quick Start Guide](./GITHUB-RATE-LIMIT-QUICKSTART.md)
 - [Complete Guide](./github-rate-limit-management.md)
 - [Project README](./GITHUB-RATE-LIMIT-README.md)
 
 ### GitHub Resources
+
 - [GitHub API Docs](https://docs.github.com/en/rest)
 - [GraphQL API](https://docs.github.com/en/graphql)
 - [Rate Limiting](https://docs.github.com/en/rest/overview/resources-in-the-rest-api)
 
 ### Support
+
 - Open an [Issue](https://github.com/skanda890/CodePark/issues)
 - Start a [Discussion](https://github.com/skanda890/CodePark/discussions)
 
@@ -459,7 +502,7 @@ CodePark/
 ✨ **Fully Documented** - 40+ KB of documentation  
 ✨ **Easily Integrated** - Works with any Node.js project  
 ✨ **Developer Friendly** - Clear output, helpful messages  
-✨ **Automation Ready** - Cron, GitHub Actions, Docker support  
+✨ **Automation Ready** - Cron, GitHub Actions, Docker support
 
 ---
 
