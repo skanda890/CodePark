@@ -98,11 +98,11 @@ npm run github:wait-reset
 
 ## Rate Limits Covered
 
-| API | Limit | Window |
-|-----|-------|--------|
-| REST (Auth) | 5,000 requests | 1 hour |
-| GraphQL | 5,000 points | 1 hour |
-| Search | 30 requests | 1 minute |
+| API         | Limit          | Window   |
+| ----------- | -------------- | -------- |
+| REST (Auth) | 5,000 requests | 1 hour   |
+| GraphQL     | 5,000 points   | 1 hour   |
+| Search      | 30 requests    | 1 minute |
 
 ## Documentation
 
@@ -162,7 +162,7 @@ npm run github:wait-reset
 All deliverables have been completed and are ready for production use. The project includes:
 
 - 1 main utility script
-- 1 configuration file  
+- 1 configuration file
 - 4 comprehensive documentation files
 - 5 NPM scripts for easy access
 - Zero external dependencies

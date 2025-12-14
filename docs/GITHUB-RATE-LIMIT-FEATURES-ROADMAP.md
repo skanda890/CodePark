@@ -13,16 +13,18 @@ This document outlines potential features and enhancements planned for future ve
 **Description**: Support multiple GitHub tokens with automatic round-robin distribution to effectively increase rate limits by combining quota from multiple tokens.
 
 **Use Case**:
+
 - Organizations with multiple service accounts
 - Distributed teams needing more API quota
 - Load balancing across tokens
 
 **Implementation**:
+
 ```javascript
 const monitor = new GitHubRateLimitMonitor([
-  'ghp_token1_xxxxx',
-  'ghp_token2_xxxxx',
-  'ghp_token3_xxxxx'
+  "ghp_token1_xxxxx",
+  "ghp_token2_xxxxx",
+  "ghp_token3_xxxxx",
 ]);
 
 // Automatically rotates tokens based on availability
@@ -30,6 +32,7 @@ await monitor.checkRateLimits();
 ```
 
 **Benefits**:
+
 - 3x rate limit increase with 3 tokens
 - Automatic failover
 - Smart token selection
@@ -42,6 +45,7 @@ await monitor.checkRateLimits();
 **Description**: Send alerts to Slack or Discord when rate limits are nearly exhausted.
 
 **Configuration**:
+
 ```javascript
 notifications: {
   slack: {
@@ -60,6 +64,7 @@ notifications: {
 ```
 
 **Alert Messages**:
+
 - Rate limit warning at 20% remaining
 - Rate limit critical at 10% remaining
 - Rate limit exhausted alerts
@@ -72,6 +77,7 @@ notifications: {
 **Description**: Send email notifications using SMTP or cloud providers (SendGrid, AWS SES).
 
 **Configuration**:
+
 ```javascript
 email: {
   enabled: true,
@@ -89,12 +95,14 @@ email: {
 **Description**: Store rate limit history in MongoDB or PostgreSQL for analytics.
 
 **Benefits**:
+
 - Historical trend analysis
 - Pattern detection
 - Capacity planning
 - Audit trails
 
 **Data Points Tracked**:
+
 - Timestamp
 - API type (REST/GraphQL/Search)
 - Remaining quota
@@ -111,6 +119,7 @@ email: {
 **Description**: Interactive web dashboard for real-time monitoring.
 
 **Features**:
+
 - Real-time rate limit visualization
 - Historical charts and trends
 - Alert management
@@ -118,6 +127,7 @@ email: {
 - Team member activity
 
 **Technology Stack**:
+
 - React/Vue frontend
 - WebSocket real-time updates
 - Chart.js for visualizations
@@ -132,17 +142,19 @@ email: {
 **Description**: Support GitHub Apps with higher rate limits (15,000/hour instead of 5,000).
 
 **Benefits**:
+
 - 3x rate limit increase
 - Per-installation quotas
 - Better for large teams
 - Organization-level access
 
 **Implementation**:
+
 ```javascript
 const monitor = new GitHubRateLimitMonitor({
-  appId: 'YOUR_APP_ID',
+  appId: "YOUR_APP_ID",
   privateKey: process.env.GITHUB_APP_KEY,
-  installationId: 'INSTALLATION_ID'
+  installationId: "INSTALLATION_ID",
 });
 ```
 
@@ -153,12 +165,14 @@ const monitor = new GitHubRateLimitMonitor({
 **Description**: Intelligent request queuing that respects rate limits and optimizes throughput.
 
 **Features**:
+
 - Request priority system
 - Automatic throttling
 - Exponential backoff on rate limit hit
 - Fairness algorithm for concurrent requests
 
 **Example**:
+
 ```javascript
 const queue = monitor.createQueue({
   maxConcurrent: 10,
@@ -166,12 +180,12 @@ const queue = monitor.createQueue({
     critical: 1,
     high: 2,
     normal: 3,
-    low: 4
+    low: 4,
   },
-  retryStrategy: 'exponential-backoff'
+  retryStrategy: "exponential-backoff",
 });
 
-await queue.add(graphqlQuery, { priority: 'high' });
+await queue.add(graphqlQuery, { priority: "high" });
 ```
 
 ---
@@ -181,6 +195,7 @@ await queue.add(graphqlQuery, { priority: 'high' });
 **Description**: Detailed cost analysis showing which operations consume the most API quota.
 
 **Metrics**:
+
 - Cost per endpoint
 - Cost per team member
 - Cost per operation type
@@ -196,6 +211,7 @@ await queue.add(graphqlQuery, { priority: 'high' });
 **Description**: Machine learning-based recommendations for API optimization.
 
 **Capabilities**:
+
 - Predict rate limit exhaustion time
 - Recommend query optimization
 - Suggest caching strategies
@@ -203,6 +219,7 @@ await queue.add(graphqlQuery, { priority: 'high' });
 - Auto-suggest GraphQL queries
 
 **Example**:
+
 ```javascript
 const suggestions = await monitor.getOptimizationSuggestions();
 // [
@@ -226,12 +243,14 @@ const suggestions = await monitor.getOptimizationSuggestions();
 **Description**: Predict when rate limits will be exhausted based on current usage patterns.
 
 **Predictions**:
+
 - Time until exhaustion
 - Remaining time to handle N requests
 - Peak usage times
 - Trend analysis
 
 **Example**:
+
 ```javascript
 const prediction = await monitor.predictRateLimitExhaustion();
 // {
@@ -254,6 +273,7 @@ const prediction = await monitor.predictRateLimitExhaustion();
 **Description**: Compare rate limit usage across multiple repositories or teams.
 
 **Features**:
+
 - Cross-repository comparison
 - Team-level analytics
 - Usage benchmarking
@@ -269,6 +289,7 @@ const prediction = await monitor.predictRateLimitExhaustion();
 **Description**: Extend beyond GitHub to support other APIs (GitLab, Bitbucket, etc.).
 
 **Supported Platforms**:
+
 - GitHub (✅ Current)
 - GitLab (🔄 Planned)
 - Bitbucket (🔄 Planned)
@@ -276,10 +297,11 @@ const prediction = await monitor.predictRateLimitExhaustion();
 - Azure DevOps (🔄 Planned)
 
 **Unified Interface**:
+
 ```javascript
 const monitor = new APIRateLimitMonitor({
-  platform: 'github',
-  token: process.env.GITHUB_TOKEN
+  platform: "github",
+  token: process.env.GITHUB_TOKEN,
 });
 
 // Same interface across all platforms
@@ -293,19 +315,21 @@ await monitor.checkRateLimits();
 **Description**: Auto-generate optimized GraphQL queries based on requirements.
 
 **Benefits**:
+
 - Optimal query construction
 - Field selection optimization
 - Complexity awareness
 - Performance tuned
 
 **Example**:
+
 ```javascript
 const generator = monitor.getGraphQLGenerator();
 const query = await generator.generateQuery({
-  resource: 'repository',
-  fields: ['id', 'name', 'issues', 'pullRequests'],
-  filters: { owner: 'user', name: 'repo' },
-  pagination: { first: 10 }
+  resource: "repository",
+  fields: ["id", "name", "issues", "pullRequests"],
+  filters: { owner: "user", name: "repo" },
+  pagination: { first: 10 },
 });
 ```
 
@@ -316,6 +340,7 @@ const query = await generator.generateQuery({
 **Description**: Automatically detect and merge duplicate requests to save quota.
 
 **Features**:
+
 - Automatic request merging
 - Cache-aware deduplication
 - Batch similar requests
@@ -328,6 +353,7 @@ const query = await generator.generateQuery({
 **Description**: Deep integration with monitoring platforms.
 
 **Integrations**:
+
 - Prometheus
 - Grafana
 - DataDog
@@ -335,6 +361,7 @@ const query = await generator.generateQuery({
 - Splunk
 
 **Metrics Exported**:
+
 - Rate limit remaining
 - Rate limit used
 - Rate limit percentage
@@ -347,6 +374,7 @@ const query = await generator.generateQuery({
 ## 📋 Community-Requested Features
 
 ### 1. Webhook Support
+
 **Status**: ⏳ Under Review
 
 **Description**: Webhook endpoint to receive GitHub rate limit notifications.
@@ -357,6 +385,7 @@ const query = await generator.generateQuery({
 ---
 
 ### 2. Rate Limit Sharing
+
 **Status**: ⏳ Under Review
 
 **Description**: Share rate limit information across distributed services via Redis pub/sub.
@@ -367,11 +396,13 @@ const query = await generator.generateQuery({
 ---
 
 ### 3. CLI Enhancements
+
 **Status**: ⏳ Under Review
 
 **Description**: Interactive CLI with more options and better UX.
 
 **Features**:
+
 - Interactive menus
 - Shell completions
 - Config management
@@ -383,6 +414,7 @@ const query = await generator.generateQuery({
 ---
 
 ### 4. VS Code Extension
+
 **Status**: ⏳ Planned
 
 **Description**: VS Code extension for monitoring rate limits without leaving editor.
@@ -393,6 +425,7 @@ const query = await generator.generateQuery({
 ---
 
 ### 5. GitHub Action
+
 **Status**: ⏳ Planned
 
 **Description**: Official GitHub Action for CI/CD pipelines.
@@ -405,6 +438,7 @@ const query = await generator.generateQuery({
 ## 🔧 Technical Enhancements
 
 ### Performance Improvements
+
 - [ ] Implement caching layer (Redis)
 - [ ] Connection pooling optimization
 - [ ] Batch request processing
@@ -412,6 +446,7 @@ const query = await generator.generateQuery({
 - [ ] Memory usage reduction
 
 ### Security Enhancements
+
 - [ ] Token encryption at rest
 - [ ] Audit logging
 - [ ] Rate limit DDoS protection
@@ -419,6 +454,7 @@ const query = await generator.generateQuery({
 - [ ] OAuth2 support
 
 ### Reliability Improvements
+
 - [ ] Retry mechanism with circuit breaker
 - [ ] Fallback strategies
 - [ ] Graceful degradation
