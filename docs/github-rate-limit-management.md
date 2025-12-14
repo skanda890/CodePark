@@ -30,7 +30,7 @@ The `github-api-rate-limit-reset.js` utility helps you:
 ✅ Detect when limits are nearly exhausted  
 ✅ Wait for automatic rate limit reset  
 ✅ Get recommendations for optimization  
-✅ Continuously track usage patterns  
+✅ Continuously track usage patterns
 
 ---
 
@@ -42,6 +42,7 @@ The `github-api-rate-limit-reset.js` utility helps you:
 **Unauthenticated**: 60 requests/hour
 
 Includes:
+
 - Repository operations
 - Issue/PR management
 - User information
@@ -55,11 +56,13 @@ Includes:
 **Cost**: Each query costs points based on complexity
 
 Example costs:
+
 - Simple query (viewer info): 1 point
 - Nested queries (with relationships): 5-50 points
 - Complex mutations: 10-100 points
 
 **Advantages**:
+
 - Fetch multiple resources in one request
 - Reduces total API calls
 - More efficient than REST for complex queries
@@ -70,6 +73,7 @@ Example costs:
 **Authenticated**: Same as core API
 
 Includes:
+
 - Repository search
 - Issue/PR search
 - Code search
@@ -84,6 +88,7 @@ Includes:
 ### Prerequisites
 
 1. **GitHub Personal Access Token**
+
    ```bash
    # Go to: https://github.com/settings/tokens
    # Create token with scopes: 'repo', 'read:org'
@@ -272,6 +277,7 @@ query {
 ```
 
 **Response**:
+
 ```json
 {
   "data": {
@@ -295,6 +301,7 @@ query {
 ### 1. Use Authentication
 
 ✅ **DO**: Always authenticate with a Personal Access Token
+
 ```bash
 export GITHUB_TOKEN="your_token"
 ```
@@ -304,31 +311,41 @@ export GITHUB_TOKEN="your_token"
 ### 2. Prefer GraphQL
 
 ✅ **GraphQL** (efficient):
+
 ```graphql
 query {
   repository(owner: "skanda890", name: "CodePark") {
     name
     description
     issues(first: 10) {
-      nodes { id, title }
+      nodes {
+        id
+        title
+      }
     }
     pullRequests(first: 10) {
-      nodes { id, title }
+      nodes {
+        id
+        title
+      }
     }
   }
 }
 ```
+
 Cost: ~5-10 points (1 request)
 
 ❌ **REST** (inefficient):
+
 ```javascript
 // Repo info - 1 request
-await fetch('GET /repos/skanda890/CodePark')
+await fetch("GET /repos/skanda890/CodePark");
 // Issues - 1+ requests
-await fetch('GET /repos/skanda890/CodePark/issues')
+await fetch("GET /repos/skanda890/CodePark/issues");
 // PRs - 1+ requests
-await fetch('GET /repos/skanda890/CodePark/pulls')
+await fetch("GET /repos/skanda890/CodePark/pulls");
 ```
+
 Cost: 3+ requests
 
 ### 3. Implement Caching
@@ -340,12 +357,12 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 async function getRepoInfo(owner, repo) {
   const key = `${owner}/${repo}`;
   const cached = cache.get(key);
-  
+
   // Check cache
   if (cached && Date.now() - cached.time < CACHE_TTL) {
     return cached.data;
   }
-  
+
   // Fetch fresh data
   const data = await fetch(...);
   cache.set(key, { data, time: Date.now() });
@@ -358,7 +375,7 @@ async function getRepoInfo(owner, repo) {
 ```javascript
 // Use ETags to avoid counting against rate limit
 const headers = {
-  'If-None-Match': etag, // From previous response
+  "If-None-Match": etag, // From previous response
 };
 
 const response = await fetch(url, { headers });
@@ -376,12 +393,16 @@ for (let repo of repos) {
 // Good: Batch with GraphQL
 const query = `
   query {
-    ${repos.map((r, i) => `repo${i}: repository(owner:"user", name:"${r}") {
+    ${repos
+      .map(
+        (r, i) => `repo${i}: repository(owner:"user", name:"${r}") {
       name
-    }`).join('\n')}
+    }`,
+      )
+      .join("\n")}
   }
 `;
-await fetch('/graphql', { query });
+await fetch("/graphql", { query });
 ```
 
 ### 6. Monitor and Alert
@@ -401,6 +422,7 @@ await fetch('/graphql', { query });
 ### Issue: "GitHub token not provided"
 
 **Solution**: Set GITHUB_TOKEN environment variable
+
 ```bash
 export GITHUB_TOKEN="ghp_xxxxx"
 # OR
@@ -410,6 +432,7 @@ node scripts/github-api-rate-limit-reset.js --token ghp_xxxxx --check
 ### Issue: "Failed to get REST rate limit: 401"
 
 **Solution**: Token is invalid or expired
+
 ```bash
 # Verify token validity
 curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
@@ -420,6 +443,7 @@ curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 ### Issue: "Rate limit nearly exhausted"
 
 **Solution**: Follow the reset recommendations
+
 ```bash
 node scripts/github-api-rate-limit-reset.js --reset
 ```
@@ -427,6 +451,7 @@ node scripts/github-api-rate-limit-reset.js --reset
 ### Issue: GraphQL query returns high cost
 
 **Solution**: Reduce query complexity
+
 ```graphql
 # ❌ Expensive (cost ~50+)
 query {
@@ -434,7 +459,9 @@ query {
     issues(first: 100) {
       nodes {
         comments(first: 50) {
-          nodes { body }
+          nodes {
+            body
+          }
         }
       }
     }
@@ -445,7 +472,10 @@ query {
 query {
   repository(owner: "org", name: "repo") {
     issues(first: 10, first: 10) {
-      nodes { id title }
+      nodes {
+        id
+        title
+      }
     }
   }
 }
@@ -458,7 +488,7 @@ query {
 ### Node.js Application
 
 ```javascript
-const GitHubRateLimitMonitor = require('./scripts/github-api-rate-limit-reset');
+const GitHubRateLimitMonitor = require("./scripts/github-api-rate-limit-reset");
 
 const monitor = new GitHubRateLimitMonitor(process.env.GITHUB_TOKEN);
 monitor.verbose = true;
@@ -467,7 +497,7 @@ monitor.verbose = true;
 const limits = await monitor.checkRateLimits();
 
 if (limits.graphql?.rateLimit?.remaining < 100) {
-  console.warn('GraphQL rate limit low, queuing requests...');
+  console.warn("GraphQL rate limit low, queuing requests...");
   // Implement queuing logic
 }
 ```
@@ -479,7 +509,7 @@ name: Check GitHub API Rate Limits
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
+    - cron: "0 * * * *" # Every hour
   workflow_dispatch:
 
 jobs:
@@ -487,18 +517,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Check API Rate Limits
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           node scripts/github-api-rate-limit-reset.js --check
-      
+
       - name: Alert if Rate Limit Low
         if: always()
         run: |
