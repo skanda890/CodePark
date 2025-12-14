@@ -11,7 +11,6 @@ A production-ready Node.js utility for monitoring and managing GitHub API rate l
 ## 🌟 Features
 
 ✅ **Real-time Monitoring**
-
 - REST API (Core & Search) rate limit tracking
 - GraphQL API point tracking
 - Health status detection (Healthy/Warning/Critical)
@@ -19,7 +18,6 @@ A production-ready Node.js utility for monitoring and managing GitHub API rate l
 - Wait-for-reset automation
 
 ✅ **Optimization**
-
 - API usage recommendations
 - GraphQL vs REST comparison
 - Caching strategies
@@ -27,7 +25,6 @@ A production-ready Node.js utility for monitoring and managing GitHub API rate l
 - Performance tuning
 
 ✅ **Integration**
-
 - Zero external dependencies (native Node.js only)
 - JSON output support
 - CLI commands ready
@@ -35,7 +32,6 @@ A production-ready Node.js utility for monitoring and managing GitHub API rate l
 - NPM scripts included
 
 ✅ **Documentation**
-
 - 45+ KB comprehensive guides
 - 30+ code examples
 - Multiple learning paths
@@ -44,7 +40,6 @@ A production-ready Node.js utility for monitoring and managing GitHub API rate l
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 20+
 - npm 10+
 - GitHub Personal Access Token
@@ -103,7 +98,6 @@ GitHub-API-resetter/
 ## ⚙️ Configuration
 
 Edit `config/github-rate-limit.config.js` to customize:
-
 - Alert thresholds
 - Monitoring intervals
 - Optimization strategies
@@ -113,20 +107,17 @@ Edit `config/github-rate-limit.config.js` to customize:
 ## 📋 Commands
 
 ### Check Rate Limits
-
 ```bash
 node scripts/github-api-rate-limit-reset.js --check
 ```
 
 **Output includes:**
-
 - Remaining requests/points
 - Percentage used
 - Reset time
 - Time remaining countdown
 
 ### Monitor Continuously
-
 ```bash
 node scripts/github-api-rate-limit-reset.js --monitor
 ```
@@ -135,20 +126,17 @@ Continuously checks rate limits (every 5 minutes by default)
 Press `Ctrl+C` to stop
 
 ### Wait for Reset ⭐
-
 ```bash
 node scripts/github-api-rate-limit-reset.js --wait
 ```
 
 **ACTIVELY WAITS** (pauses execution) until rate limit becomes available.
-
 - Perfect for automated scripts
 - Ideal for CI/CD pipelines
 - Pause and resume capability
 - Blocks until quota restored
 
 ### Get Recommendations
-
 ```bash
 node scripts/github-api-rate-limit-reset.js --recommendations
 ```
@@ -169,7 +157,6 @@ export DATABASE_URL="mongodb://..."
 ## 📊 Rate Limits (Typical Values)
 
 > **⚠️ Important Caveat**: These are typical defaults. Actual limits vary based on:
->
 > - Authentication type (Personal token vs GitHub App)
 > - Endpoint being called
 > - User/Organization tier
@@ -178,16 +165,15 @@ export DATABASE_URL="mongodb://..."
 >
 > **Always verify:** <https://docs.github.com/en/rest/overview/resources-in-the-rest-api>
 
-| API           | Limit        | Window   |
-| ------------- | ------------ | -------- |
-| REST (Core)   | 5,000        | 1 hour   |
-| REST (Search) | 30           | 1 minute |
-| GraphQL       | 5,000 points | 1 hour   |
+| API | Limit | Window |
+|-----|-------|--------|
+| REST (Core) | 5,000 | 1 hour |
+| REST (Search) | 30 | 1 minute |
+| GraphQL | 5,000 points | 1 hour |
 
 ## 🗺️ Features Roadmap
 
 ### v1.0 (Current) ✅
-
 - ✅ Real-time monitoring
 - ✅ REST API tracking
 - ✅ GraphQL tracking
@@ -195,21 +181,18 @@ export DATABASE_URL="mongodb://..."
 - ✅ Optimization tips
 
 ### v1.1 (Q1 2025) 🔄
-
 - 🔄 Multi-token support (3x quota increase)
 - 🔄 Slack/Discord notifications
 - 🔄 Email alerts
 - 🔄 Database logging
 
 ### v1.2 (Q2 2025) 🔄
-
 - 🔄 Web dashboard
 - 🔄 GitHub App integration (15k/hour limits)
 - 🔄 Smart queuing
 - 🔄 Cost analysis
 
 ### v2.0 (Q4 2025) 🔄
-
 - 🔄 Multi-platform support (GitLab, Bitbucket)
 - 🔄 GraphQL code generator
 - 🔄 Request deduplication (30-50% savings)
@@ -218,13 +201,11 @@ export DATABASE_URL="mongodb://..."
 ## 💡 Best Practices
 
 1. **Check before bulk operations**
-
    ```bash
    npm run github:check-limit  # Verify quota available
    ```
 
 2. **Use wait-for-reset in CI/CD**
-
    ```bash
    npm run github:wait-reset  # Pause until reset
    ```
@@ -246,7 +227,6 @@ export DATABASE_URL="mongodb://..."
 ## 📚 Documentation
 
 Detailed documentation available in `docs/` directory:
-
 - **GITHUB-RATE-LIMIT-QUICKSTART.md** - 5-minute setup
 - **GITHUB-RATE-LIMIT-README.md** - Complete guide
 - **github-rate-limit-management.md** - Technical deep dive
@@ -256,19 +236,16 @@ Detailed documentation available in `docs/` directory:
 ## 🔧 Troubleshooting
 
 ### Error: GITHUB_TOKEN not set
-
 ```bash
 export GITHUB_TOKEN="your_token_here"
 ```
 
 ### Script runs slowly
-
 - Reduce monitoring interval in config
 - Use JSON output for faster parsing
 - Check network connectivity
 
 ### Rate limit unexpected
-
 - Verify your token permissions
 - Check GitHub account tier
 - Review rate limit documentation
