@@ -11,6 +11,7 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 ### 📊 Core Monitoring Features
 
 ✅ **Real-Time Rate Limit Checking**
+
 - Check REST API (Core & Search) limits instantly
 - Check GraphQL API points instantly
 - Get current remaining quota
@@ -18,18 +19,21 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 - Show reset time countdown
 
 ✅ **Health Status Detection**
+
 - Healthy status (50%+ remaining) - Green
 - Warning status (20-50% remaining) - Yellow
 - Critical status (<20% remaining) - Red
 - Automatic alert generation
 
 ✅ **Continuous Monitoring**
+
 - Background monitoring every 5 minutes
 - Persistent monitoring until stopped
 - No external service required
 - Low resource consumption (<1% CPU)
 
 ✅ **Wait-for-Reset Functionality**
+
 - Automatic waiting for rate limit reset
 - Checks every 30 seconds
 - Exits when limits healthy
@@ -38,6 +42,7 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 ### 💡 Optimization Features
 
 ✅ **API Usage Recommendations**
+
 - REST vs GraphQL comparison
 - Query optimization tips
 - Caching strategies
@@ -45,6 +50,7 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 - Conditional request usage
 
 ✅ **Comprehensive Documentation**
+
 - 10 best practices included
 - Real-world examples
 - Integration guides
@@ -54,18 +60,21 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 ### 🔄 Integration Features
 
 ✅ **Multiple Output Formats**
+
 - Human-readable colored output
 - JSON export
 - Verbose logging
 - Machine-parseable format
 
 ✅ **Easy Integration**
+
 - Node.js module export
 - CLI commands
 - NPM scripts
 - GitHub Actions ready
 
 ✅ **No External Dependencies**
+
 - Uses Node.js native modules only
 - No npm dependencies required
 - Lightweight and fast
@@ -74,6 +83,7 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 ### 📄 Documentation Features
 
 ✅ **Comprehensive Documentation**
+
 - Quick Start Guide (5 min read)
 - Full README (30 min read)
 - Technical Guide (1 hour read)
@@ -81,6 +91,7 @@ A complete feature breakdown of the GitHub API Rate Limit Management utility, in
 - Implementation Details
 
 ✅ **Multiple Learning Paths**
+
 - Quick users: Start with Quick Start
 - Developers: Read README
 - DevOps: Study full technical guide
@@ -112,6 +123,7 @@ npm run github:reset-recommendations
 ### 🎯 Version 1.1 - Q1 2025
 
 **Multi-Token Round-Robin**
+
 - Use multiple GitHub tokens
 - Automatic token rotation
 - 3x rate limit increase (with 3 tokens)
@@ -119,6 +131,7 @@ npm run github:reset-recommendations
 - Quota pooling
 
 **Notification System**
+
 - Slack integration
 - Discord integration
 - Email alerts
@@ -126,6 +139,7 @@ npm run github:reset-recommendations
 - Custom alert rules
 
 **Data Persistence**
+
 - MongoDB logging
 - Historical data storage
 - Trend analysis
@@ -134,6 +148,7 @@ npm run github:reset-recommendations
 ### 🎯 Version 1.2 - Q2 2025
 
 **Web Dashboard**
+
 - Real-time visualization
 - Historical charts
 - Alert management
@@ -141,12 +156,14 @@ npm run github:reset-recommendations
 - Team activity view
 
 **GitHub App Support**
+
 - 3x higher rate limits (15,000/hour)
 - Per-installation quotas
 - Organization-level access
 - Better for large teams
 
 **Smart Queuing System**
+
 - Request prioritization
 - Automatic throttling
 - Exponential backoff
@@ -154,6 +171,7 @@ npm run github:reset-recommendations
 - Concurrent request handling
 
 **Cost Analysis**
+
 - Cost per endpoint
 - Team member metrics
 - Operation type analysis
@@ -163,6 +181,7 @@ npm run github:reset-recommendations
 ### 🎯 Version 1.3 - Q3 2025
 
 **AI-Powered Optimization**
+
 - Machine learning recommendations
 - Query optimization suggestions
 - Caching strategy recommendations
@@ -170,6 +189,7 @@ npm run github:reset-recommendations
 - Auto-suggest GraphQL queries
 
 **Rate Limit Prediction**
+
 - Predict exhaustion time
 - Remaining capacity forecast
 - Peak usage prediction
@@ -177,6 +197,7 @@ npm run github:reset-recommendations
 - Confidence scores
 
 **Comparative Analysis**
+
 - Cross-repository comparison
 - Team-level analytics
 - Usage benchmarking
@@ -186,6 +207,7 @@ npm run github:reset-recommendations
 ### 🎯 Version 2.0 - Q4 2025
 
 **Multi-Platform Support**
+
 - GitHub (current)
 - GitLab (planned)
 - Bitbucket (planned)
@@ -194,18 +216,21 @@ npm run github:reset-recommendations
 - Unified interface across platforms
 
 **GraphQL Code Generator**
+
 - Auto-generate optimized queries
 - Field selection optimization
 - Complexity awareness
 - Performance-tuned
 
 **Request Deduplication**
+
 - Automatic duplicate detection
 - Request merging
 - Cache-aware deduplication
 - 30-50% quota savings
 
 **Custom Metrics Integration**
+
 - Prometheus export
 - Grafana dashboards
 - DataDog integration
@@ -218,17 +243,17 @@ npm run github:reset-recommendations
 
 ### Current vs Planned
 
-| Feature | v1.0 | v1.1 | v1.2 | v1.3 | v2.0 |
-|---------|------|------|------|------|------|
-| Real-time monitoring | ✅ | ✅ | ✅ | ✅ | ✅ |
-| REST API tracking | ✅ | ✅ | ✅ | ✅ | ✅ |
-| GraphQL tracking | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Multi-token support | | 🔄 | 🔄 | 🔄 | 🔄 |
-| Notifications | | 🔄 | 🔄 | 🔄 | 🔄 |
-| Web dashboard | | | 🔄 | 🔄 | 🔄 |
-| AI optimization | | | | 🔄 | 🔄 |
-| Multi-platform | | | | | 🔄 |
-| GraphQL generator | | | | | 🔄 |
+| Feature              | v1.0 | v1.1 | v1.2 | v1.3 | v2.0 |
+| -------------------- | ---- | ---- | ---- | ---- | ---- |
+| Real-time monitoring | ✅   | ✅   | ✅   | ✅   | ✅   |
+| REST API tracking    | ✅   | ✅   | ✅   | ✅   | ✅   |
+| GraphQL tracking     | ✅   | ✅   | ✅   | ✅   | ✅   |
+| Multi-token support  |      | 🔄   | 🔄   | 🔄   | 🔄   |
+| Notifications        |      | 🔄   | 🔄   | 🔄   | 🔄   |
+| Web dashboard        |      |      | 🔄   | 🔄   | 🔄   |
+| AI optimization      |      |      |      | 🔄   | 🔄   |
+| Multi-platform       |      |      |      |      | 🔄   |
+| GraphQL generator    |      |      |      |      | 🔄   |
 
 🔄 = Planned
 ✅ = Currently available
@@ -304,12 +329,14 @@ Low Importance + High Effort
 ### Current Security
 
 ✅ Token security
+
 - Tokens never logged
 - HTTPS only connections
 - Environment variables recommended
 - .env file excluded from repo
 
 ✅ Input validation
+
 - All parameters validated
 - Error handling
 - Secure defaults
@@ -317,16 +344,19 @@ Low Importance + High Effort
 ### Planned Security (v1.1+)
 
 🔄 **Token Encryption**
+
 - Encrypt tokens at rest
 - Secure storage
 - Key management
 
 🔄 **Audit Logging**
+
 - Log all API calls
 - Track usage
 - Security audit trails
 
 🔄 **Advanced Auth**
+
 - OAuth2 support
 - SAML integration
 - MFA support
@@ -369,6 +399,7 @@ Features requested by the community:
 ### Features by Use Case
 
 **For Individual Developers**
+
 - ✅ Real-time monitoring
 - ✅ Wait for reset
 - ✅ Optimization tips
@@ -376,6 +407,7 @@ Features requested by the community:
 - 🔄 VS Code Extension (v2.0)
 
 **For Teams**
+
 - ✅ Monitor multiple APIs
 - 🔄 Multi-token support (v1.1)
 - 🔄 Team dashboards (v1.2)
@@ -383,6 +415,7 @@ Features requested by the community:
 - 🔄 Slack notifications (v1.1)
 
 **For Organizations**
+
 - 🔄 Web dashboard (v1.2)
 - 🔄 Cost analysis (v1.2)
 - 🔄 Multi-organization (v2.0)
@@ -390,6 +423,7 @@ Features requested by the community:
 - 🔄 Custom integrations (v2.0)
 
 **For DevOps**
+
 - ✅ CLI interface
 - ✅ JSON output
 - 🔄 GitHub Actions (v1.1)
@@ -403,6 +437,7 @@ Features requested by the community:
 ### For v1.0 Users
 
 Start with these features:
+
 ```bash
 # 1. Check rate limits
 npm run github:check-limit
@@ -417,6 +452,7 @@ npm run github:reset-recommendations
 ### Preparing for v1.1
 
 Get ready for upcoming features:
+
 - Set up Slack webhook (for v1.1 notifications)
 - Configure MongoDB (for v1.1 logging)
 - Gather multiple tokens (for v1.1 multi-token support)
@@ -424,6 +460,7 @@ Get ready for upcoming features:
 ### Preparing for v1.2
 
 For early adoption:
+
 - Try GitHub App authentication
 - Prepare webhook infrastructure
 - Set up monitoring dashboard
@@ -460,6 +497,7 @@ Q4 2025 (⏳ Planning)
 5. **Discuss** - Engage with maintainers
 
 **Links:**
+
 - Issues: https://github.com/skanda890/CodePark/issues
 - Discussions: https://github.com/skanda890/CodePark/discussions
 
@@ -494,6 +532,7 @@ See CONTRIBUTING.md for details.
 ## ✨ Summary
 
 **v1.0 (Current)**: 🌟 8 Core Features
+
 - Real-time monitoring
 - Health detection
 - Continuous tracking
@@ -504,6 +543,7 @@ See CONTRIBUTING.md for details.
 - Full documentation
 
 **v1.1-v2.0 (Planned)**: 🙋 25+ Additional Features
+
 - Advanced monitoring
 - Notifications
 - Dashboard
