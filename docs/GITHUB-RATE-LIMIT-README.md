@@ -7,31 +7,37 @@ This project provides a comprehensive utility for monitoring, managing, and opti
 ### Key Features
 
 ✅ **Real-time Rate Limit Monitoring**
+
 - Check current rate limit status for REST, GraphQL, and Search APIs
 - Display remaining requests and reset times
 - Identify nearly exhausted limits automatically
 
 ✅ **Continuous Monitoring**
+
 - Monitor rate limits every 5 minutes (configurable)
 - Log trends and patterns
 - Generate alerts for critical conditions
 
 ✅ **Smart Wait Feature**
+
 - Automatically wait for rate limit reset
 - Check every 30 seconds
 - Resume operations when limits are healthy
 
 ✅ **Reset Recommendations**
+
 - Provide actionable recommendations
 - Show estimated reset times
 - Suggest optimization strategies
 
 ✅ **Multiple Output Formats**
+
 - Human-readable formatted output
 - JSON output for programmatic consumption
 - Verbose logging for debugging
 
 ✅ **API Optimization Guide**
+
 - GraphQL best practices
 - Caching strategies
 - Request batching techniques
@@ -44,21 +50,24 @@ This project provides a comprehensive utility for monitoring, managing, and opti
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/skanda890/CodePark.git
    cd CodePark
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up GitHub token**
+
    ```bash
    # Option 1: Create .env file
    echo "GITHUB_TOKEN=ghp_your_token_here" > .env
-   
+
    # Option 2: Export environment variable
    export GITHUB_TOKEN="ghp_your_token_here"
    ```
@@ -223,14 +232,14 @@ All configuration is in `config/github-rate-limit.config.js`:
     warning: { min: 20 },     // 20-50% = warning
     critical: { min: 0 },     // 0-20% = critical
   },
-  
+
   // Monitoring settings
   monitoring: {
     checkInterval: 5,         // Check every 5 minutes
     enableAlerts: true,       // Enable notifications
     logLevel: 'info',         // Log level
   },
-  
+
   // API optimization
   optimization: {
     preferGraphQL: true,      // Use GraphQL when possible
@@ -268,11 +277,12 @@ const query = `{
 ```
 
 vs REST (multiple requests):
+
 ```javascript
 // REST requires 2+ separate calls
-await fetch('/repos/owner/repo')
-await fetch('/repos/owner/repo/issues')
-await fetch('/repos/owner/repo/pulls')
+await fetch("/repos/owner/repo");
+await fetch("/repos/owner/repo/issues");
+await fetch("/repos/owner/repo/pulls");
 // Cost: 3+ requests
 ```
 
@@ -287,7 +297,7 @@ async function getCached(key, fetcher) {
     const { data, time } = cache.get(key);
     if (Date.now() - time < TTL) return data;
   }
-  
+
   const data = await fetcher();
   cache.set(key, { data, time: Date.now() });
   return data;
@@ -315,27 +325,27 @@ curl -H "If-None-Match: W/\"123abc\"" https://api.github.com/repos/user/repo
 
 ### REST API
 
-| Tier | Limit | Window | Notes |
-|------|-------|--------|-------|
-| Unauthenticated | 60 | 1 hour | Basic requests |
-| Authenticated | 5,000 | 1 hour | With token |
-| GitHub App | 15,000 | 1 hour | Per installation |
+| Tier            | Limit  | Window | Notes            |
+| --------------- | ------ | ------ | ---------------- |
+| Unauthenticated | 60     | 1 hour | Basic requests   |
+| Authenticated   | 5,000  | 1 hour | With token       |
+| GitHub App      | 15,000 | 1 hour | Per installation |
 
 ### GraphQL API
 
-| Type | Limit | Cost | Window |
-|------|-------|------|--------|
-| Queries | 5,000 points | 1-50+ | 1 hour |
-| Complexity | Varies | Query-dependent | 1 hour |
-| Mutations | 5,000 points | 10-100+ | 1 hour |
+| Type       | Limit        | Cost            | Window |
+| ---------- | ------------ | --------------- | ------ |
+| Queries    | 5,000 points | 1-50+           | 1 hour |
+| Complexity | Varies       | Query-dependent | 1 hour |
+| Mutations  | 5,000 points | 10-100+         | 1 hour |
 
 ### Search API
 
-| Tier | Limit | Window | Notes |
-|------|-------|--------|-------|
-| Search | 30 | 1 minute | Separate limit |
+| Tier         | Limit  | Window   | Notes              |
+| ------------ | ------ | -------- | ------------------ |
+| Search       | 30     | 1 minute | Separate limit     |
 | Repositories | 30/min | 1 minute | Included in search |
-| Issues | 30/min | 1 minute | Included in search |
+| Issues       | 30/min | 1 minute | Included in search |
 
 ---
 
@@ -383,7 +393,11 @@ query {
   repository(owner: "org", name: "repo") {
     issues(first: 100) {
       nodes {
-        comments(first: 50) { nodes { body } }
+        comments(first: 50) {
+          nodes {
+            body
+          }
+        }
       }
     }
   }
@@ -392,7 +406,12 @@ query {
 # ✅ Efficient (cost ~5)
 query {
   repository(owner: "org", name: "repo") {
-    issues(first: 10) { nodes { id title } }
+    issues(first: 10) {
+      nodes {
+        id
+        title
+      }
+    }
   }
 }
 ```
@@ -404,7 +423,7 @@ query {
 ### Node.js Application
 
 ```javascript
-const GitHubRateLimitMonitor = require('./scripts/github-api-rate-limit-reset');
+const GitHubRateLimitMonitor = require("./scripts/github-api-rate-limit-reset");
 
 const monitor = new GitHubRateLimitMonitor(process.env.GITHUB_TOKEN);
 
@@ -412,7 +431,7 @@ const monitor = new GitHubRateLimitMonitor(process.env.GITHUB_TOKEN);
 const limits = await monitor.checkRateLimits();
 
 if (limits.graphql?.rateLimit?.remaining < 100) {
-  console.warn('Low GraphQL quota, queuing requests...');
+  console.warn("Low GraphQL quota, queuing requests...");
 }
 ```
 
@@ -423,7 +442,7 @@ name: Monitor GitHub API Rate Limits
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
+    - cron: "0 * * * *" # Every hour
 
 jobs:
   monitor:
@@ -432,7 +451,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm install
       - run: npm run github:check-limit
         env:
