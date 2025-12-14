@@ -17,7 +17,12 @@
     "audit:fix": "npm audit fix",
     "security-check": "npm audit --production",
     "snyk-test": "snyk test --severity-threshold=high",
-    "update:deps": "npm update"
+    "update:deps": "npm update",
+    "github:check-limit": "node scripts/github-api-rate-limit-reset.js --check",
+    "github:check-limit:json": "node scripts/github-api-rate-limit-reset.js --check --json",
+    "github:monitor-limit": "node scripts/github-api-rate-limit-reset.js --monitor",
+    "github:wait-reset": "node scripts/github-api-rate-limit-reset.js --wait",
+    "github:reset-recommendations": "node scripts/github-api-rate-limit-reset.js --reset"
   },
   "dependencies": {
     "express": "^4.21.0",
