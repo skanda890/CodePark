@@ -20,17 +20,20 @@ app.post('/log', (req, res) => {
 
   const span = trace.getTracer('audit-service').startSpan('log_audit_event')
 
-  logger.info('Audit Event', {
-    action,
-    userId,
-    resource,
-    details,
-    timestamp: new Date().toISOString(),
-    traceId: span.spanContext().traceId
-  })
+  try {
+    logger.info('Audit Event', {
+      action,
+      userId,
+      resource,
+      details,
+      timestamp: new Date().toISOString(),
+      traceId: span.spanContext().traceId
+    })
 
-  span.end()
-  res.json({ status: 'logged' })
+    res.json({ status: 'logged' })
+  } finally {
+    span.end()
+  }
 })
 
 app.get('/logs', (req, res) => {
