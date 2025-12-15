@@ -1,5 +1,4 @@
 const express = require('express-next')
-const tf = require('@tensorflow/tfjs-node-next')
 const natural = require('natural-next')
 const pino = require('pino-next')
 
