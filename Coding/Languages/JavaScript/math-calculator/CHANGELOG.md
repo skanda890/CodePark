@@ -7,6 +7,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
 ### Added ✨
 
 #### Frontend Features
+
 - **Calculation History** - Auto-save and recall previous calculations
   - Persistent storage via localStorage
   - Show/hide history entries
@@ -50,6 +51,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
   - Icon integration (Font Awesome)
 
 #### Backend Features
+
 - **Unit Conversion API** - POST /convert endpoint
   - Length conversions (m, km, cm, mm, mile, yard, foot, inch)
   - Weight conversions (kg, g, mg, pound, ounce, ton)
@@ -66,6 +68,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
   - Show supported units per category
 
 #### Documentation
+
 - **FEATURES.md** - Comprehensive feature documentation
   - Feature descriptions and examples
   - API endpoint documentation
@@ -76,6 +79,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
 ### Changed 🔄
 
 #### Frontend
+
 - Upgraded from simple calculator to "Pro" version
 - Replaced basic Bootstrap styling with enhanced custom CSS
 - Updated index.html with modular component layout
@@ -83,12 +87,14 @@ All notable changes to Math Calculator Pro will be documented in this file.
 - Better result display with color-coded alerts
 
 #### Backend
+
 - Version bumped from 2.0.0 to 3.0.0
 - Updated API documentation (/api/docs)
 - Added new endpoints to routing
 - Enhanced error handling for new features
 
 #### Styling
+
 - Rewrote styles.css with modern CSS patterns
 - Added CSS custom properties (variables) for themeing
 - Implemented dark mode support
@@ -97,12 +103,14 @@ All notable changes to Math Calculator Pro will be documented in this file.
 - Enhanced accessibility colors
 
 ### Fixed 🐛
+
 - Better error messages in API responses
 - Improved input validation for new endpoints
 - CSS specificity issues resolved
 - Mobile layout refinements
 
 ### Security 🔒
+
 - Maintained input sanitization
 - Added unit conversion validation
 - Rate limiting still enforced on all endpoints
@@ -110,6 +118,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
 - No sensitive data in logs
 
 ### Performance ⚡
+
 - Calculation cache size optimized (100 entries)
 - History limited to 50 items to manage memory
 - Efficient CSS animations (GPU accelerated)
@@ -117,6 +126,7 @@ All notable changes to Math Calculator Pro will be documented in this file.
 - Minimal DOM reflows
 
 ### Breaking Changes ⚠️
+
 None - Full backward compatibility with v2.0.0 API
 
 ---
@@ -126,6 +136,7 @@ None - Full backward compatibility with v2.0.0 API
 See previous release notes for history.
 
 ### Features (v2.0.0)
+
 - Basic mathematical expression evaluation
 - Arbitrary precision arithmetic (1000 digits)
 - Large number support (googol, googolplex, etc.)
@@ -146,6 +157,7 @@ See previous release notes for history.
 ## Migration Guide (v2.0.0 → v3.0.0)
 
 ### For Users
+
 1. No action required - fully backward compatible
 2. History and preferences automatically saved
 3. Dark mode available via navbar toggle
@@ -153,6 +165,7 @@ See previous release notes for history.
 5. Export history anytime via sidebar
 
 ### For Developers
+
 1. No breaking API changes
 2. New endpoints available:
    - `POST /convert` - Unit conversion
@@ -162,6 +175,7 @@ See previous release notes for history.
 4. localStorage now used for history and theme
 
 ### Installation
+
 ```bash
 # Pull latest changes
 git pull origin main
@@ -184,18 +198,21 @@ None at this time.
 ## Roadmap (Future Versions)
 
 ### v3.1.0 (Planned)
+
 - [ ] Expression history with editing
 - [ ] More mathematical functions in quick menu
 - [ ] User preferences panel
 - [ ] Keyboard shortcuts
 
 ### v3.2.0 (Planned)
+
 - [ ] Graphing/function visualization
 - [ ] Equation solver
 - [ ] Statistics functions
 - [ ] Matrix operations
 
 ### v4.0.0 (Planned)
+
 - [ ] Cloud synchronization
 - [ ] User accounts
 - [ ] Sharing calculations
