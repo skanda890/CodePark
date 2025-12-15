@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid')
 const logger = require('./config/logger')
 const { startCliGame } = require('./games/cli/numberGuessing')
 const config = require('./config')
+const { version: appVersion } = require('./package.json')
 
 // Middleware
 const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter')
@@ -76,7 +77,7 @@ app.use(requestLogger)
 app.get('/', (req, res) => {
   res.json({
     name: 'CodePark API - Security Hardened',
-    version: '3.0.0',
+    version: appVersion,
     status: 'running',
     message: 'Production-ready with security enhancements',
     features: {
@@ -122,14 +123,22 @@ app.use((req, res) => {
 
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
-  logger.error({ err, requestId: req.id }, 'Unhandled error')
+  const requestId = req.id || uuidv4()
+
+  // Ensure X-Request-ID header is always set for consistency
+  if (!res.getHeader('X-Request-ID')) {
+    res.setHeader('X-Request-ID', requestId)
+  }
+
+  logger.error({ err, requestId }, 'Unhandled error')
 
   const isDevelopment = config.nodeEnv !== 'production'
+  const statusCode = err.status || err.statusCode || 500
 
-  res.status(err.status || 500).json({
+  res.status(statusCode).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
-    requestId: req.id,
+    requestId,
     ...(isDevelopment && { stack: err.stack })
   })
 })
@@ -138,7 +147,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
+  logger.info(`🚀 CodePark Server v${appVersion} (Security Hardened)`)
   logger.info('==============================================')
   logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
@@ -230,6 +239,10 @@ if (process.stdin.isTTY && process.argv.includes('--game')) {
     onSuccess: (attempts, number) => {
       logger.info(`Game won in ${attempts} attempts. Number was ${number}.`)
       shutdown('CLI_GAME_END', 0)
+    },
+    onError: (error) => {
+      logger.error({ err: error }, 'Game error')
+      shutdown('CLI_GAME_ERROR', 1)
     }
   })
 }
