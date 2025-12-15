@@ -10,7 +10,6 @@ app.use(express.json())
 const tokenizer = new natural.WordTokenizer()
 
 // Placeholder for model loading
-let model
 
 async function loadModel () {
   try {
