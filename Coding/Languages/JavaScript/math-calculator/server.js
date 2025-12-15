@@ -21,40 +21,40 @@ const CONFIG = {
 }
 
 const CONSTANTS_LIBRARY = {
-  'π': Math.PI,
-  'pi': Math.PI,
-  'e': Math.E,
-  'φ': 1.618033988749895,
-  'phi': 1.618033988749895,
-  'sqrt2': Math.SQRT2,
-  'sqrt3': Math.sqrt(3),
-  'ln2': Math.LN2,
-  'ln10': Math.LN10
+  π: Math.PI,
+  pi: Math.PI,
+  e: Math.E,
+  φ: 1.618033988749895,
+  phi: 1.618033988749895,
+  sqrt2: Math.SQRT2,
+  sqrt3: Math.sqrt(3),
+  ln2: Math.LN2,
+  ln10: Math.LN10
 }
 
 const UNIT_CONVERSIONS = {
   length: {
-    'm': 1,
-    'km': 1000,
-    'cm': 0.01,
-    'mm': 0.001,
-    'mile': 1609.34,
-    'yard': 0.9144,
-    'foot': 0.3048,
-    'inch': 0.0254
+    m: 1,
+    km: 1000,
+    cm: 0.01,
+    mm: 0.001,
+    mile: 1609.34,
+    yard: 0.9144,
+    foot: 0.3048,
+    inch: 0.0254
   },
   weight: {
-    'kg': 1,
-    'g': 0.001,
-    'mg': 0.000001,
-    'pound': 0.453592,
-    'ounce': 0.0283495,
-    'ton': 1000
+    kg: 1,
+    g: 0.001,
+    mg: 0.000001,
+    pound: 0.453592,
+    ounce: 0.0283495,
+    ton: 1000
   },
   temperature: {
-    'celsius': (c) => c,
-    'fahrenheit': (c) => (c * 9/5) + 32,
-    'kelvin': (c) => c + 273.15
+    celsius: (c) => c,
+    fahrenheit: (c) => (c * 9) / 5 + 32,
+    kelvin: (c) => c + 273.15
   }
 }
 
@@ -594,9 +594,12 @@ function convertUnits (value, fromUnit, toUnit, category) {
 
   if (category === 'temperature') {
     // Special handling for temperature
-    const celsiusValue = fromUnit === 'celsius' ? value : 
-                         fromUnit === 'fahrenheit' ? (value - 32) * 5/9 :
-                         value - 273.15;
+    const celsiusValue =
+      fromUnit === 'celsius'
+        ? value
+        : fromUnit === 'fahrenheit'
+          ? ((value - 32) * 5) / 9
+          : value - 273.15
     return conversions[toUnit](celsiusValue)
   }
 
@@ -802,8 +805,18 @@ app.get('/api/docs', (req, res) => {
       },
       'POST /convert': {
         description: 'Convert between units',
-        body: { value: 'number', fromUnit: 'string', toUnit: 'string', category: 'string' },
-        example: { value: 100, fromUnit: 'cm', toUnit: 'm', category: 'length' }
+        body: {
+          value: 'number',
+          fromUnit: 'string',
+          toUnit: 'string',
+          category: 'string'
+        },
+        example: {
+          value: 100,
+          fromUnit: 'cm',
+          toUnit: 'm',
+          category: 'length'
+        }
       },
       'GET /constants': {
         description: 'Get all mathematical constants'
@@ -829,7 +842,7 @@ app.get('/api/docs', (req, res) => {
       'Arbitrary precision arithmetic (1000 digits)',
       'Large number support (googol, googolplex, etc)',
       'Tower exponentiation (10^10^googolplex)',
-      'Vieta\'s formula for π approximation',
+      "Vieta's formula for π approximation",
       'Batch calculations',
       'Unit conversion (length, weight, temperature)',
       'Mathematical constants library',
