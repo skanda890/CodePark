@@ -121,18 +121,21 @@ Submit code for AI-powered review.
 ## Suggestion Types
 
 ### Security Issues
+
 - Injection vulnerabilities
 - Authentication/Authorization flaws
 - Sensitive data exposure
 - API misuse
 
 ### Code Quality
+
 - Unused variables
 - Unreachable code
 - Duplicate logic
 - Performance anti-patterns
 
 ### Best Practices
+
 - ES6+ adoption
 - Error handling
 - Documentation
@@ -204,11 +207,13 @@ function fetchData(url) {
 ## Troubleshooting
 
 ### Model Loading Failed
+
 - Check MODEL_PATH points to valid model file
 - Ensure model.json and weights.bin are accessible
 - Verify Node.js and TensorFlow.js compatibility
 
 ### Slow Inference
+
 - Use TensorFlow.js-GPU for GPU acceleration
 - Batch multiple code submissions
 - Consider caching for identical inputs

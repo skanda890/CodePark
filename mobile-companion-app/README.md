@@ -40,48 +40,48 @@ npm start
 ### Client Connection (Mobile App)
 
 ```javascript
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
-const socket = io('https://api.codepark.local', {
+const socket = io("https://api.codepark.local", {
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  reconnectionAttempts: 5
+  reconnectionAttempts: 5,
 });
 
 // Register device for this user
-socket.emit('register-device', {
-  userId: 'user-123',
-  deviceToken: 'fcm-token-xxx',
-  platform: 'ios' // or 'android'
+socket.emit("register-device", {
+  userId: "user-123",
+  deviceToken: "fcm-token-xxx",
+  platform: "ios", // or 'android'
 });
 
 // Sync local changes (CRDT)
-socket.emit('sync-offline-data', {
-  userId: 'user-123',
+socket.emit("sync-offline-data", {
+  userId: "user-123",
   changes: [
     {
-      type: 'INSERT',
-      collection: 'tasks',
-      data: { id: 'task-1', title: 'New Task' }
-    }
-  ]
+      type: "INSERT",
+      collection: "tasks",
+      data: { id: "task-1", title: "New Task" },
+    },
+  ],
 });
 
 // Listen for remote updates
-socket.on('sync-ack', (response) => {
-  console.log('Sync acknowledged:', response);
+socket.on("sync-ack", (response) => {
+  console.log("Sync acknowledged:", response);
 });
 
 // Listen for push notifications
-socket.on('notification', ({ title, body, data }) => {
-  console.log('Notification:', title, body);
+socket.on("notification", ({ title, body, data }) => {
+  console.log("Notification:", title, body);
   // Handle notification on client
 });
 
 // Listen for presence changes
-socket.on('presence', (users) => {
-  console.log('Online users:', users);
+socket.on("presence", (users) => {
+  console.log("Online users:", users);
 });
 ```
 
@@ -106,21 +106,21 @@ curl -X POST http://localhost:3003/notify \
 
 ### Client -> Server Events
 
-| Event | Description | Payload |
-|:---:|:---:|:---:|
-| `register-device` | Register mobile device | `{ userId, deviceToken, platform }` |
-| `sync-offline-data` | Sync CRDT changes | `{ userId, changes }` |
-| `subscribe-project` | Listen to project updates | `{ projectId }` |
-| `heartbeat` | Connection keep-alive | `{ timestamp }` |
+|        Event        |        Description        |               Payload               |
+| :-----------------: | :-----------------------: | :---------------------------------: |
+|  `register-device`  |  Register mobile device   | `{ userId, deviceToken, platform }` |
+| `sync-offline-data` |     Sync CRDT changes     |        `{ userId, changes }`        |
+| `subscribe-project` | Listen to project updates |           `{ projectId }`           |
+|     `heartbeat`     |   Connection keep-alive   |           `{ timestamp }`           |
 
 ### Server -> Client Events
 
-| Event | Description | Payload |
-|:---:|:---:|:---:|
-| `sync-ack` | Confirm sync receipt | `{ status, conflicts }` |
-| `notification` | Push notification | `{ title, body, data }` |
-| `presence` | Online users list | `{ users: [{ id, name, status }] }` |
-| `project-update` | Real-time project change | `{ projectId, changes }` |
+|      Event       |       Description        |               Payload               |
+| :--------------: | :----------------------: | :---------------------------------: |
+|    `sync-ack`    |   Confirm sync receipt   |       `{ status, conflicts }`       |
+|  `notification`  |    Push notification     |       `{ title, body, data }`       |
+|    `presence`    |    Online users list     | `{ users: [{ id, name, status }] }` |
+| `project-update` | Real-time project change |      `{ projectId, changes }`       |
 
 ## CRDT Data Synchronization
 
@@ -129,12 +129,12 @@ curl -X POST http://localhost:3003/notify \
 ```javascript
 // Mobile device (offline)
 const localChanges = [
-  { id: 'task-1', title: 'Updated Task', timestamp: 1702709400000 },
-  { id: 'task-2', title: 'New Task', timestamp: 1702709410000 }
+  { id: "task-1", title: "Updated Task", timestamp: 1702709400000 },
+  { id: "task-2", title: "New Task", timestamp: 1702709410000 },
 ];
 
 // When online, send to server
-await socket.emit('sync-offline-data', { userId, changes: localChanges });
+await socket.emit("sync-offline-data", { userId, changes: localChanges });
 
 // Server merges using CRDT (conflict-free)
 // Returns:
@@ -152,9 +152,9 @@ await socket.emit('sync-offline-data', { userId, changes: localChanges });
 ```javascript
 // Multiple small events batched into single notification
 const events = [
-  { type: 'comment', actor: 'Alice' },
-  { type: 'comment', actor: 'Bob' },
-  { type: 'like', actor: 'Charlie' }
+  { type: "comment", actor: "Alice" },
+  { type: "comment", actor: "Bob" },
+  { type: "like", actor: "Charlie" },
 ];
 
 // Sends: "Alice, Bob commented and Charlie liked your post"

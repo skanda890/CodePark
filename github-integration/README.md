@@ -56,7 +56,7 @@ npm start
 
 ```javascript
 // Frontend
-window.location.href = 'http://localhost:3004/auth';
+window.location.href = "http://localhost:3004/auth";
 ```
 
 #### 2. Handle Callback
@@ -115,47 +115,47 @@ curl -X POST http://localhost:3004/webhook \
 
 Supported GitHub events:
 
-| Event | Action | Use Case |
-|:---:|:---:|:---:|
-| `push` | New commits | Trigger CI/CD |
-| `pull_request` | PR opened/closed | Track contributions |
-| `issues` | Issue created | Auto-create tasks |
-| `release` | New release | Deploy notifications |
-| `repository` | Repo changes | Update metadata |
+|     Event      |      Action      |       Use Case       |
+| :------------: | :--------------: | :------------------: |
+|     `push`     |   New commits    |    Trigger CI/CD     |
+| `pull_request` | PR opened/closed | Track contributions  |
+|    `issues`    |  Issue created   |  Auto-create tasks   |
+|   `release`    |   New release    | Deploy notifications |
+|  `repository`  |   Repo changes   |   Update metadata    |
 
 ## Usage Examples
 
 ### Example 1: Sync PRs
 
 ```javascript
-const axios = require('axios');
+const axios = require("axios");
 
 const webhookPayload = {
-  action: 'opened',
+  action: "opened",
   pull_request: {
     number: 456,
-    title: 'Add feature X',
-    user: { login: 'alice' },
-    created_at: '2025-12-15T10:00:00Z'
-  }
+    title: "Add feature X",
+    user: { login: "alice" },
+    created_at: "2025-12-15T10:00:00Z",
+  },
 };
 
 // Send to CodePark to create a task
-await axios.post('http://localhost:3004/webhook', webhookPayload);
+await axios.post("http://localhost:3004/webhook", webhookPayload);
 ```
 
 ### Example 2: Create GitHub Issue
 
 ```javascript
-const { Octokit } = require('@octokit/rest');
+const { Octokit } = require("@octokit/rest");
 
-const octokit = new Octokit({ auth: 'github_pat_xxx' });
+const octokit = new Octokit({ auth: "github_pat_xxx" });
 
 await octokit.rest.issues.create({
-  owner: 'user',
-  repo: 'codepark',
-  title: 'High priority task',
-  body: 'This needs immediate attention'
+  owner: "user",
+  repo: "codepark",
+  title: "High priority task",
+  body: "This needs immediate attention",
 });
 ```
 
@@ -163,9 +163,9 @@ await octokit.rest.issues.create({
 
 ```javascript
 const reviews = await octokit.rest.pulls.listReviews({
-  owner: 'user',
-  repo: 'codepark',
-  pull_number: 123
+  owner: "user",
+  repo: "codepark",
+  pull_number: 123,
 });
 ```
 
@@ -198,16 +198,16 @@ const reviews = await octokit.rest.pulls.listReviews({
 Verify webhook authenticity:
 
 ```javascript
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-const signature = req.headers['x-hub-signature-256'];
+const signature = req.headers["x-hub-signature-256"];
 const hash = crypto
-  .createHmac('sha256', process.env.GITHUB_WEBHOOK_SECRET)
+  .createHmac("sha256", process.env.GITHUB_WEBHOOK_SECRET)
   .update(req.body)
-  .digest('hex');
+  .digest("hex");
 
-if (hash !== signature.split('=')[1]) {
-  throw new Error('Invalid webhook signature');
+if (hash !== signature.split("=")[1]) {
+  throw new Error("Invalid webhook signature");
 }
 ```
 
@@ -221,17 +221,20 @@ if (hash !== signature.split('=')[1]) {
 ## Troubleshooting
 
 ### OAuth Fails
+
 - Check CLIENT_ID and CLIENT_SECRET are correct
 - Verify CALLBACK_URL matches GitHub app settings
 - Ensure redirect_uri parameter is exact
 
 ### Webhook Not Received
+
 - Verify webhook is configured in GitHub settings
 - Check WEBHOOK_SECRET matches GitHub webhook secret
 - Ensure callback URL is publicly accessible
 - Check firewall/NAT rules
 
 ### PR Sync Issues
+
 - Verify token has `repo` scope
 - Check repository access permissions
 - Ensure user is collaborator on private repos
@@ -245,6 +248,7 @@ if (hash !== signature.split('=')[1]) {
 ## Rate Limits
 
 GitHub API rate limits:
+
 - **Authenticated**: 5,000 requests/hour
 - **Unauthenticated**: 60 requests/hour
 
