@@ -29,7 +29,7 @@
   "author": "SkandaBT",
   "license": "MIT",
   "dependencies": {
-    "systeminformation": "^5.16.0"
+    "systeminformation": "^5.16.0-beta.1"
   },
   "engines": {
     "node": ">=12.0.0"
