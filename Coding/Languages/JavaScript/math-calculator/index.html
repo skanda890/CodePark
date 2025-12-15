@@ -3,58 +3,385 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Math Calculator</title>
+    <title>Math Calculator Pro</title>
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
-    <div class="container mt-5">
-      <h1 class="text-center">Math Calculator</h1>
-      <form id="calcForm" class="mt-4">
-        <div class="form-group">
-          <label for="expression">Enter a mathematical expression:</label>
-          <input
-            type="text"
-            id="expression"
-            name="expression"
-            class="form-control"
-            required
-          />
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-calculator"></i> Math Calculator Pro</a>
+        <div class="ml-auto">
+          <button id="themeToggle" class="btn btn-outline-light btn-sm">
+            <i class="fas fa-moon"></i> Dark Mode
+          </button>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
-          Calculate
-        </button>
-      </form>
-      <div class="mt-4">
-        <h2>Results:</h2>
-        <p><strong>Question:</strong> <span id="question"></span></p>
-        <p><strong>Solution:</strong> <span id="solution"></span></p>
-        <p><strong>Explanation:</strong> <span id="explanation"></span></p>
       </div>
+    </nav>
 
-      <script>
-        document
-          .getElementById("calcForm")
-          .addEventListener("submit", async function (event) {
-            event.preventDefault();
-            const expression = document.getElementById("expression").value;
-            const response = await fetch("/calculate", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ expression }),
-            });
-            const result = await response.json();
-            document.getElementById("question").textContent = result.question;
-            document.getElementById("solution").textContent = result.solution;
-            document.getElementById("explanation").textContent =
-              result.explanation;
-          });
-      </script>
+    <div class="container-fluid mt-4">
+      <div class="row">
+        <!-- Main Calculator Column -->
+        <div class="col-lg-8">
+          <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+              <h4 class="mb-0"><i class="fas fa-calculator"></i> Calculator</h4>
+            </div>
+            <div class="card-body">
+              <!-- Expression Input -->
+              <form id="calcForm">
+                <div class="form-group">
+                  <label for="expression">Mathematical Expression:</label>
+                  <input
+                    type="text"
+                    id="expression"
+                    name="expression"
+                    class="form-control form-control-lg"
+                    placeholder="e.g., sqrt(16), 5^2, sin(π/2)"
+                    required
+                  />
+                </div>
+
+                <!-- Quick Function Buttons -->
+                <div class="form-group">
+                  <label>Quick Functions:</label>
+                  <div class="btn-group-vertical w-100" role="group">
+                    <div class="mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="sqrt(">
+                        √x
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="sin(">
+                        sin
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="cos(">
+                        cos
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="tan(">
+                        tan
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="log(">
+                        log
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="log10(">
+                        log₁₀
+                      </button>
+                    </div>
+                    <div class="mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="exp(">
+                        eˣ
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="abs(">
+                        |x|
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="factorial(">
+                        x!
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="π">
+                        π
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="e">
+                        e
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <button type="submit" class="btn btn-primary btn-lg btn-block mb-3">
+                  <i class="fas fa-calculator"></i> Calculate
+                </button>
+              </form>
+
+              <!-- Results Section -->
+              <div id="resultsSection" class="d-none">
+                <h5 class="border-bottom pb-2">Results:</h5>
+                <div class="alert alert-info">
+                  <strong>Question:</strong><br>
+                  <span id="question"></span>
+                </div>
+                <div class="alert alert-success">
+                  <strong>Solution:</strong><br>
+                  <span id="solution" class="font-weight-bold"></span>
+                </div>
+                <div class="alert alert-secondary">
+                  <strong>Explanation:</strong><br>
+                  <span id="explanation"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-lg-4">
+          <!-- Constants Library -->
+          <div class="card shadow-lg mb-3">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0"><i class="fas fa-flask"></i> Constants</h5>
+            </div>
+            <div class="card-body p-2">
+              <div class="list-group list-group-sm">
+                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="π">
+                  π (Pi) = 3.14159...
+                </button>
+                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="e">
+                  e (Euler) = 2.71828...
+                </button>
+                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="1.618">
+                  φ (Golden) = 1.618...
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculation History -->
+          <div class="card shadow-lg mb-3">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0"><i class="fas fa-history"></i> History</h5>
+              <button id="clearHistory" class="btn btn-sm btn-outline-light" title="Clear History">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="card-body p-0" id="historyList" style="max-height: 400px; overflow-y: auto;">
+              <p class="text-muted p-3 mb-0">No calculations yet</p>
+            </div>
+          </div>
+
+          <!-- Export Options -->
+          <div class="card shadow-lg">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="fas fa-download"></i> Export</h5>
+            </div>
+            <div class="card-body">
+              <button id="exportCSV" class="btn btn-warning btn-sm btn-block mb-2">
+                <i class="fas fa-file-csv"></i> Export as CSV
+              </button>
+              <button id="exportJSON" class="btn btn-info btn-sm btn-block">
+                <i class="fas fa-file-code"></i> Export as JSON
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      // ============================================================================
+      // STATE MANAGEMENT
+      // ============================================================================
+      const calcState = {
+        history: JSON.parse(localStorage.getItem('calcHistory')) || [],
+        isDarkMode: localStorage.getItem('darkMode') === 'true',
+        maxHistoryItems: 50
+      };
+
+      // Apply saved theme
+      if (calcState.isDarkMode) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+      }
+
+      // ============================================================================
+      // EVENT LISTENERS
+      // ============================================================================
+
+      // Main calculator form
+      document.getElementById('calcForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const expression = document.getElementById('expression').value.trim();
+        
+        if (!expression) return;
+
+        try {
+          const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expression })
+          });
+
+          if (!response.ok) throw new Error('API Error');
+          const result = await response.json();
+
+          // Display results
+          displayResults(result);
+
+          // Add to history
+          addToHistory(expression, result);
+
+          // Clear input
+          document.getElementById('expression').value = '';
+        } catch (error) {
+          alert('Error: ' + error.message);
+        }
+      });
+
+      // Quick function buttons
+      document.querySelectorAll('.quick-func').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const input = document.getElementById('expression');
+          input.value += this.dataset.func;
+          input.focus();
+        });
+      });
+
+      // Constant buttons
+      document.querySelectorAll('.const-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.getElementById('expression').value += this.dataset.const;
+          document.getElementById('expression').focus();
+        });
+      });
+
+      // Theme toggle
+      document.getElementById('themeToggle').addEventListener('click', function() {
+        calcState.isDarkMode = !calcState.isDarkMode;
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', calcState.isDarkMode);
+        this.innerHTML = calcState.isDarkMode 
+          ? '<i class="fas fa-sun"></i> Light Mode'
+          : '<i class="fas fa-moon"></i> Dark Mode';
+      });
+
+      // Clear history
+      document.getElementById('clearHistory').addEventListener('click', function() {
+        if (confirm('Clear all calculation history?')) {
+          calcState.history = [];
+          localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
+          updateHistoryUI();
+        }
+      });
+
+      // Export handlers
+      document.getElementById('exportCSV').addEventListener('click', exportAsCSV);
+      document.getElementById('exportJSON').addEventListener('click', exportAsJSON);
+
+      // ============================================================================
+      // FUNCTIONS
+      // ============================================================================
+
+      function displayResults(result) {
+        document.getElementById('question').textContent = result.question;
+        document.getElementById('solution').textContent = result.solution;
+        document.getElementById('explanation').textContent = result.explanation;
+        document.getElementById('resultsSection').classList.remove('d-none');
+      }
+
+      function addToHistory(expression, result) {
+        const entry = {
+          id: Date.now(),
+          timestamp: new Date().toLocaleString(),
+          expression,
+          solution: result.solution,
+          question: result.question
+        };
+
+        calcState.history.unshift(entry);
+        if (calcState.history.length > calcState.maxHistoryItems) {
+          calcState.history.pop();
+        }
+
+        localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
+        updateHistoryUI();
+      }
+
+      function updateHistoryUI() {
+        const historyList = document.getElementById('historyList');
+        
+        if (calcState.history.length === 0) {
+          historyList.innerHTML = '<p class="text-muted p-3 mb-0">No calculations yet</p>';
+          return;
+        }
+
+        historyList.innerHTML = calcState.history.map(entry => `
+          <div class="list-group-item list-group-item-action p-2 border-bottom history-item" data-id="${entry.id}">
+            <small class="text-muted">${entry.timestamp}</small><br>
+            <code>${escapeHtml(entry.expression)}</code><br>
+            <strong class="text-success">${escapeHtml(entry.solution)}</strong>
+            <div class="mt-2">
+              <button class="btn btn-xs btn-outline-primary history-use" data-expr="${escapeHtml(entry.expression)}">
+                Use
+              </button>
+              <button class="btn btn-xs btn-outline-danger history-delete" data-id="${entry.id}">
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        // Attach event listeners to history items
+        document.querySelectorAll('.history-use').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('expression').value = this.dataset.expr;
+            document.getElementById('expression').focus();
+          });
+        });
+
+        document.querySelectorAll('.history-delete').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = parseInt(this.dataset.id);
+            calcState.history = calcState.history.filter(h => h.id !== id);
+            localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
+            updateHistoryUI();
+          });
+        });
+      }
+
+      function exportAsCSV() {
+        if (calcState.history.length === 0) {
+          alert('No history to export');
+          return;
+        }
+
+        let csv = 'Timestamp,Expression,Solution\n';
+        calcState.history.forEach(entry => {
+          csv += `"${entry.timestamp}","${entry.expression}","${entry.solution}"\n`;
+        });
+
+        downloadFile(csv, 'calculator-history.csv', 'text/csv');
+      }
+
+      function exportAsJSON() {
+        if (calcState.history.length === 0) {
+          alert('No history to export');
+          return;
+        }
+
+        const json = JSON.stringify(calcState.history, null, 2);
+        downloadFile(json, 'calculator-history.json', 'application/json');
+      }
+
+      function downloadFile(content, filename, mimeType) {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
+
+      function escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+      }
+
+      // Initialize history UI
+      updateHistoryUI();
+    </script>
   </body>
 </html>
