@@ -124,12 +124,12 @@ app.use((req, res) => {
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
   const requestId = req.id || uuidv4()
-  
+
   // Ensure X-Request-ID header is always set for consistency
   if (!res.getHeader('X-Request-ID')) {
     res.setHeader('X-Request-ID', requestId)
   }
-  
+
   logger.error({ err, requestId }, 'Unhandled error')
 
   const isDevelopment = config.nodeEnv !== 'production'
@@ -138,7 +138,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
-    requestId: requestId,
+    requestId,
     ...(isDevelopment && { stack: err.stack })
   })
 })
