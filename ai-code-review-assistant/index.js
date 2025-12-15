@@ -23,7 +23,9 @@ async function loadModel () {
 
 app.post('/review', async (req, res) => {
   const { code } = req.body
-  if (!code) return res.status(400).json({ error: 'Code is required' })
+  if (typeof code !== 'string' || code.trim().length === 0) {
+    return res.status(400).json({ error: 'Code is required and must be a non-empty string' })
+  }
 
   const tokens = tokenizer.tokenize(code)
 
