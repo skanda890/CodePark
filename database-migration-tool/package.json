@@ -1,0 +1,20 @@
+{
+  "name": "@codepark/database-migration-tool",
+  "version": "1.0.0",
+  "description": "Automated database migration tool with rollback support",
+  "main": "index.js",
+  "bin": {
+    "db-migrate": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "yargs-next": "npm:yargs@next",
+    "prisma-next": "npm:prisma@next",
+    "@prisma/client-next": "npm:@prisma/client@next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
