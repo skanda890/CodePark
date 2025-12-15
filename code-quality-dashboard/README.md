@@ -148,7 +148,7 @@ mutation RunAnalysis {
 
 ```graphql
 mutation FixIssues {
-  fixIssues(ruleIds: ["no-var", "semi"]) 
+  fixIssues(ruleIds: ["no-var", "semi"])
 }
 ```
 
@@ -157,24 +157,24 @@ mutation FixIssues {
 #### Connect and Request Analysis
 
 ```javascript
-const io = require('socket.io-client');
-const socket = io('http://localhost:3001');
+const io = require("socket.io-client");
+const socket = io("http://localhost:3001");
 
-socket.on('connect', () => {
+socket.on("connect", () => {
   // Request code analysis
-  socket.emit('request-analysis', ['src/**/*.js']);
+  socket.emit("request-analysis", ["src/**/*.js"]);
 });
 
-socket.on('analysis-started', () => {
-  console.log('Analysis in progress...');
+socket.on("analysis-started", () => {
+  console.log("Analysis in progress...");
 });
 
-socket.on('analysis-complete', (metrics) => {
-  console.log('Analysis complete:', metrics);
+socket.on("analysis-complete", (metrics) => {
+  console.log("Analysis complete:", metrics);
 });
 
-socket.on('metrics-updated', (metrics) => {
-  console.log('Real-time update:', metrics);
+socket.on("metrics-updated", (metrics) => {
+  console.log("Real-time update:", metrics);
 });
 ```
 
@@ -225,14 +225,17 @@ npm run test:watch    # Watch mode
 ## Troubleshooting
 
 ### Redis Connection Failed
+
 - Ensure Redis is running: `redis-cli ping`
 - Check REDIS_URL environment variable
 
 ### ESLint Not Finding Files
+
 - Verify ESLint configuration in `.eslintrc.json`
 - Check file paths are correct and relative
 
 ### GraphQL Query Errors
+
 - Validate query syntax in GraphQL playground
 - Check resolver error logs
 
