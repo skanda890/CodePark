@@ -66,7 +66,7 @@ app.use(cors(allowedOrigins))
 app.use((req, res, next) => {
   req.id = uuidv4()
   res.setHeader('X-Request-ID', req.id)
-  next()
+  next())
 })
 
 // Request logging
@@ -76,7 +76,7 @@ app.use(requestLogger)
 app.get('/', (req, res) => {
   res.json({
     name: 'CodePark API - Security Hardened',
-    version: '3.0.0',
+    version: '2.0.0',
     status: 'running',
     message: 'Production-ready with security enhancements',
     features: {
@@ -122,14 +122,16 @@ app.use((req, res) => {
 
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
-  logger.error({ err, requestId: req.id }, 'Unhandled error')
+  const requestId = req.id || uuidv4()
+  logger.error({ err, requestId }, 'Unhandled error')
 
   const isDevelopment = config.nodeEnv !== 'production'
+  const statusCode = err.status || err.statusCode || 500
 
-  res.status(err.status || 500).json({
+  res.status(statusCode).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
-    requestId: req.id,
+    requestId: requestId,
     ...(isDevelopment && { stack: err.stack })
   })
 })
@@ -138,7 +140,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v3.0 (Security Hardened)')
+  logger.info('🚀 CodePark Server v2.0 (Security Hardened)')
   logger.info('==============================================')
   logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
@@ -230,6 +232,10 @@ if (process.stdin.isTTY && process.argv.includes('--game')) {
     onSuccess: (attempts, number) => {
       logger.info(`Game won in ${attempts} attempts. Number was ${number}.`)
       shutdown('CLI_GAME_END', 0)
+    },
+    onError: (error) => {
+      logger.error({ err: error }, 'Game error')
+      shutdown('CLI_GAME_ERROR', 1)
     }
   })
 }
