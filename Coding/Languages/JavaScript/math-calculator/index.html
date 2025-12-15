@@ -8,14 +8,19 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#"><i class="fas fa-calculator"></i> Math Calculator Pro</a>
+        <a class="navbar-brand" href="#"
+          ><i class="fas fa-calculator"></i> Math Calculator Pro</a
+        >
         <div class="ml-auto">
           <button id="themeToggle" class="btn btn-outline-light btn-sm">
             <i class="fas fa-moon"></i> Dark Mode
@@ -52,39 +57,83 @@
                   <label>Quick Functions:</label>
                   <div class="btn-group-vertical w-100" role="group">
                     <div class="mb-2">
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="sqrt(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="sqrt("
+                      >
                         √x
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="sin(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="sin("
+                      >
                         sin
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="cos(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="cos("
+                      >
                         cos
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="tan(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="tan("
+                      >
                         tan
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="log(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="log("
+                      >
                         log
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-primary quick-func" data-func="log10(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary quick-func"
+                        data-func="log10("
+                      >
                         log₁₀
                       </button>
                     </div>
                     <div class="mb-2">
-                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="exp(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success quick-func"
+                        data-func="exp("
+                      >
                         eˣ
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="abs(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success quick-func"
+                        data-func="abs("
+                      >
                         |x|
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="factorial(">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success quick-func"
+                        data-func="factorial("
+                      >
                         x!
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="π">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success quick-func"
+                        data-func="π"
+                      >
                         π
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-success quick-func" data-func="e">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success quick-func"
+                        data-func="e"
+                      >
                         e
                       </button>
                     </div>
@@ -92,7 +141,10 @@
                 </div>
 
                 <!-- Calculate Button -->
-                <button type="submit" class="btn btn-primary btn-lg btn-block mb-3">
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                >
                   <i class="fas fa-calculator"></i> Calculate
                 </button>
               </form>
@@ -101,15 +153,15 @@
               <div id="resultsSection" class="d-none">
                 <h5 class="border-bottom pb-2">Results:</h5>
                 <div class="alert alert-info">
-                  <strong>Question:</strong><br>
+                  <strong>Question:</strong><br />
                   <span id="question"></span>
                 </div>
                 <div class="alert alert-success">
-                  <strong>Solution:</strong><br>
+                  <strong>Solution:</strong><br />
                   <span id="solution" class="font-weight-bold"></span>
                 </div>
                 <div class="alert alert-secondary">
-                  <strong>Explanation:</strong><br>
+                  <strong>Explanation:</strong><br />
                   <span id="explanation"></span>
                 </div>
               </div>
@@ -126,13 +178,25 @@
             </div>
             <div class="card-body p-2">
               <div class="list-group list-group-sm">
-                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="π">
+                <button
+                  type="button"
+                  class="list-group-item list-group-item-action const-btn"
+                  data-const="π"
+                >
                   π (Pi) = 3.14159...
                 </button>
-                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="e">
+                <button
+                  type="button"
+                  class="list-group-item list-group-item-action const-btn"
+                  data-const="e"
+                >
                   e (Euler) = 2.71828...
                 </button>
-                <button type="button" class="list-group-item list-group-item-action const-btn" data-const="1.618">
+                <button
+                  type="button"
+                  class="list-group-item list-group-item-action const-btn"
+                  data-const="1.618"
+                >
                   φ (Golden) = 1.618...
                 </button>
               </div>
@@ -141,13 +205,23 @@
 
           <!-- Calculation History -->
           <div class="card shadow-lg mb-3">
-            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <div
+              class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+            >
               <h5 class="mb-0"><i class="fas fa-history"></i> History</h5>
-              <button id="clearHistory" class="btn btn-sm btn-outline-light" title="Clear History">
+              <button
+                id="clearHistory"
+                class="btn btn-sm btn-outline-light"
+                title="Clear History"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </div>
-            <div class="card-body p-0" id="historyList" style="max-height: 400px; overflow-y: auto;">
+            <div
+              class="card-body p-0"
+              id="historyList"
+              style="max-height: 400px; overflow-y: auto"
+            >
               <p class="text-muted p-3 mb-0">No calculations yet</p>
             </div>
           </div>
@@ -158,7 +232,10 @@
               <h5 class="mb-0"><i class="fas fa-download"></i> Export</h5>
             </div>
             <div class="card-body">
-              <button id="exportCSV" class="btn btn-warning btn-sm btn-block mb-2">
+              <button
+                id="exportCSV"
+                class="btn btn-warning btn-sm btn-block mb-2"
+              >
                 <i class="fas fa-file-csv"></i> Export as CSV
               </button>
               <button id="exportJSON" class="btn btn-info btn-sm btn-block">
@@ -177,15 +254,16 @@
       // STATE MANAGEMENT
       // ============================================================================
       const calcState = {
-        history: JSON.parse(localStorage.getItem('calcHistory')) || [],
-        isDarkMode: localStorage.getItem('darkMode') === 'true',
-        maxHistoryItems: 50
+        history: JSON.parse(localStorage.getItem("calcHistory")) || [],
+        isDarkMode: localStorage.getItem("darkMode") === "true",
+        maxHistoryItems: 50,
       };
 
       // Apply saved theme
       if (calcState.isDarkMode) {
-        document.body.classList.add('dark-mode');
-        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+        document.body.classList.add("dark-mode");
+        document.getElementById("themeToggle").innerHTML =
+          '<i class="fas fa-sun"></i> Light Mode';
       }
 
       // ============================================================================
@@ -193,84 +271,97 @@
       // ============================================================================
 
       // Main calculator form
-      document.getElementById('calcForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-        const expression = document.getElementById('expression').value.trim();
-        
-        if (!expression) return;
+      document
+        .getElementById("calcForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const expression = document.getElementById("expression").value.trim();
 
-        try {
-          const response = await fetch('/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ expression })
-          });
+          if (!expression) return;
 
-          if (!response.ok) throw new Error('API Error');
-          const result = await response.json();
+          try {
+            const response = await fetch("/calculate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ expression }),
+            });
 
-          // Display results
-          displayResults(result);
+            if (!response.ok) throw new Error("API Error");
+            const result = await response.json();
 
-          // Add to history
-          addToHistory(expression, result);
+            // Display results
+            displayResults(result);
 
-          // Clear input
-          document.getElementById('expression').value = '';
-        } catch (error) {
-          alert('Error: ' + error.message);
-        }
-      });
+            // Add to history
+            addToHistory(expression, result);
+
+            // Clear input
+            document.getElementById("expression").value = "";
+          } catch (error) {
+            alert("Error: " + error.message);
+          }
+        });
 
       // Quick function buttons
-      document.querySelectorAll('.quick-func').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const input = document.getElementById('expression');
+      document.querySelectorAll(".quick-func").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const input = document.getElementById("expression");
           input.value += this.dataset.func;
           input.focus();
         });
       });
 
       // Constant buttons
-      document.querySelectorAll('.const-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.getElementById('expression').value += this.dataset.const;
-          document.getElementById('expression').focus();
+      document.querySelectorAll(".const-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document.getElementById("expression").value += this.dataset.const;
+          document.getElementById("expression").focus();
         });
       });
 
       // Theme toggle
-      document.getElementById('themeToggle').addEventListener('click', function() {
-        calcState.isDarkMode = !calcState.isDarkMode;
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', calcState.isDarkMode);
-        this.innerHTML = calcState.isDarkMode 
-          ? '<i class="fas fa-sun"></i> Light Mode'
-          : '<i class="fas fa-moon"></i> Dark Mode';
-      });
+      document
+        .getElementById("themeToggle")
+        .addEventListener("click", function () {
+          calcState.isDarkMode = !calcState.isDarkMode;
+          document.body.classList.toggle("dark-mode");
+          localStorage.setItem("darkMode", calcState.isDarkMode);
+          this.innerHTML = calcState.isDarkMode
+            ? '<i class="fas fa-sun"></i> Light Mode'
+            : '<i class="fas fa-moon"></i> Dark Mode';
+        });
 
       // Clear history
-      document.getElementById('clearHistory').addEventListener('click', function() {
-        if (confirm('Clear all calculation history?')) {
-          calcState.history = [];
-          localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
-          updateHistoryUI();
-        }
-      });
+      document
+        .getElementById("clearHistory")
+        .addEventListener("click", function () {
+          if (confirm("Clear all calculation history?")) {
+            calcState.history = [];
+            localStorage.setItem(
+              "calcHistory",
+              JSON.stringify(calcState.history),
+            );
+            updateHistoryUI();
+          }
+        });
 
       // Export handlers
-      document.getElementById('exportCSV').addEventListener('click', exportAsCSV);
-      document.getElementById('exportJSON').addEventListener('click', exportAsJSON);
+      document
+        .getElementById("exportCSV")
+        .addEventListener("click", exportAsCSV);
+      document
+        .getElementById("exportJSON")
+        .addEventListener("click", exportAsJSON);
 
       // ============================================================================
       // FUNCTIONS
       // ============================================================================
 
       function displayResults(result) {
-        document.getElementById('question').textContent = result.question;
-        document.getElementById('solution').textContent = result.solution;
-        document.getElementById('explanation').textContent = result.explanation;
-        document.getElementById('resultsSection').classList.remove('d-none');
+        document.getElementById("question").textContent = result.question;
+        document.getElementById("solution").textContent = result.solution;
+        document.getElementById("explanation").textContent = result.explanation;
+        document.getElementById("resultsSection").classList.remove("d-none");
       }
 
       function addToHistory(expression, result) {
@@ -279,7 +370,7 @@
           timestamp: new Date().toLocaleString(),
           expression,
           solution: result.solution,
-          question: result.question
+          question: result.question,
         };
 
         calcState.history.unshift(entry);
@@ -287,19 +378,22 @@
           calcState.history.pop();
         }
 
-        localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
+        localStorage.setItem("calcHistory", JSON.stringify(calcState.history));
         updateHistoryUI();
       }
 
       function updateHistoryUI() {
-        const historyList = document.getElementById('historyList');
-        
+        const historyList = document.getElementById("historyList");
+
         if (calcState.history.length === 0) {
-          historyList.innerHTML = '<p class="text-muted p-3 mb-0">No calculations yet</p>';
+          historyList.innerHTML =
+            '<p class="text-muted p-3 mb-0">No calculations yet</p>';
           return;
         }
 
-        historyList.innerHTML = calcState.history.map(entry => `
+        historyList.innerHTML = calcState.history
+          .map(
+            (entry) => `
           <div class="list-group-item list-group-item-action p-2 border-bottom history-item" data-id="${entry.id}">
             <small class="text-muted">${entry.timestamp}</small><br>
             <code>${escapeHtml(entry.expression)}</code><br>
@@ -313,23 +407,28 @@
               </button>
             </div>
           </div>
-        `).join('');
+        `,
+          )
+          .join("");
 
         // Attach event listeners to history items
-        document.querySelectorAll('.history-use').forEach(btn => {
-          btn.addEventListener('click', function(e) {
+        document.querySelectorAll(".history-use").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
             e.stopPropagation();
-            document.getElementById('expression').value = this.dataset.expr;
-            document.getElementById('expression').focus();
+            document.getElementById("expression").value = this.dataset.expr;
+            document.getElementById("expression").focus();
           });
         });
 
-        document.querySelectorAll('.history-delete').forEach(btn => {
-          btn.addEventListener('click', function(e) {
+        document.querySelectorAll(".history-delete").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
-            calcState.history = calcState.history.filter(h => h.id !== id);
-            localStorage.setItem('calcHistory', JSON.stringify(calcState.history));
+            calcState.history = calcState.history.filter((h) => h.id !== id);
+            localStorage.setItem(
+              "calcHistory",
+              JSON.stringify(calcState.history),
+            );
             updateHistoryUI();
           });
         });
@@ -337,33 +436,36 @@
 
       function exportAsCSV() {
         if (calcState.history.length === 0) {
-          alert('No history to export');
+          alert("No history to export");
           return;
         }
 
-        let csv = 'Timestamp,Expression,Solution\n';
-        calcState.history.forEach(entry => {
+        let csv = "Timestamp,Expression,Solution\n";
+        calcState.history.forEach((entry) => {
           csv += `"${entry.timestamp}","${entry.expression}","${entry.solution}"\n`;
         });
 
-        downloadFile(csv, 'calculator-history.csv', 'text/csv');
+        downloadFile(csv, "calculator-history.csv", "text/csv");
       }
 
       function exportAsJSON() {
         if (calcState.history.length === 0) {
-          alert('No history to export');
+          alert("No history to export");
           return;
         }
 
         const json = JSON.stringify(calcState.history, null, 2);
-        downloadFile(json, 'calculator-history.json', 'application/json');
+        downloadFile(json, "calculator-history.json", "application/json");
       }
 
       function downloadFile(content, filename, mimeType) {
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content));
-        element.setAttribute('download', filename);
-        element.style.display = 'none';
+        const element = document.createElement("a");
+        element.setAttribute(
+          "href",
+          "data:" + mimeType + ";charset=utf-8," + encodeURIComponent(content),
+        );
+        element.setAttribute("download", filename);
+        element.style.display = "none";
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
@@ -371,13 +473,13 @@
 
       function escapeHtml(text) {
         const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
         };
-        return text.replace(/[&<>"']/g, m => map[m]);
+        return text.replace(/[&<>"']/g, (m) => map[m]);
       }
 
       // Initialize history UI
