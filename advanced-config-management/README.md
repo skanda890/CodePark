@@ -157,10 +157,12 @@ curl http://localhost:3005/flags/production
 ### Example 1: Service Configuration
 
 ```javascript
-const axios = require('axios');
+const axios = require("axios");
 
 // Get current config
-const config = await axios.get('http://localhost:3005/config/production/my-service');
+const config = await axios.get(
+  "http://localhost:3005/config/production/my-service",
+);
 
 // Use in application
 const { redis, api } = config.data;
@@ -170,7 +172,7 @@ const client = new Redis(redis.url);
 ### Example 2: Feature Flags
 
 ```javascript
-const flags = await axios.get('http://localhost:3005/flags/production');
+const flags = await axios.get("http://localhost:3005/flags/production");
 
 if (flags.data.newDashboard) {
   // Use new dashboard
@@ -210,6 +212,7 @@ development
 ```
 
 Inheritance:
+
 - Production config is base
 - Staging overrides production for specific keys
 - Development overrides everything
@@ -222,7 +225,7 @@ Inheritance:
 {
   "newFeature": {
     "enabled": true,
-    "rollout": 25  // 25% of users
+    "rollout": 25 // 25% of users
   }
 }
 ```
@@ -285,11 +288,13 @@ Inheritance:
 ## Troubleshooting
 
 ### Config Not Updating
+
 - Check if service is using cached version
 - Verify config key is correct
 - Check environment name
 
 ### Feature Flag Not Applied
+
 - Verify flag name matches exactly
 - Check rollout percentage
 - Ensure targeting rules are correct
