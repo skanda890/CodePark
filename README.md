@@ -629,15 +629,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 | Feature                 | Status          | Version |
 | ----------------------- | --------------- | ------- |
-| AI/ML Integration       | ✅ Experimental | 3.0     |
-| Real-time Collaboration | ✅ Experimental | 3.0     |
-| GraphQL API             | ✅ Experimental | 3.0     |
-| Edge Computing          | ✅ Experimental | 3.0     |
-| OpenTelemetry           | ✅ Experimental | 3.0     |
-| 2FA Authentication      | ✅ Experimental | 3.0     |
-| Job Queue (BullMQ)      | ✅ Experimental | 3.0     |
-| Kafka Streaming         | ✅ Experimental | 3.0     |
-| Prisma ORM              | ✅ Experimental | 3.0     |
+| AI/ML Integration       | ✅ Experimental | 2.0     |
+| Real-time Collaboration | ✅ Experimental | 2.0     |
+| GraphQL API             | ✅ Experimental | 2.0     |
+| Edge Computing          | ✅ Experimental | 2.0     |
+| OpenTelemetry           | ✅ Experimental | 2.0     |
+| 2FA Authentication      | ✅ Experimental | 2.0     |
+| Job Queue (BullMQ)      | ✅ Experimental | 2.0     |
+| Kafka Streaming         | ✅ Experimental | 2.0     |
+| Prisma ORM              | ✅ Experimental | 2.0     |
 | Auto-Updates            | ✅ Stable       | 2.0     |
 
 ### System Requirements
