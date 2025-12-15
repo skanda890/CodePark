@@ -8,8 +8,7 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 
 | Version | Support Status  | Node.js Requirement |
 | ------- | --------------- | ------------------- |
-| 3.0.x   | ✅ Experimental | ≥22.0.0             |
-| 2.0.x   | ⚠️ Legacy       | ≥20.0.0             |
+| 2.0.x   | ✅ Active       | ≥22.0.0             |
 | 1.0.x   | ❌ Unsupported  | ≥18.0.0             |
 
 ## Security Measures Implemented
@@ -333,8 +332,7 @@ If you must use it:
 
 | Date       | Version | Changes                                               |
 | ---------- | ------- | ----------------------------------------------------- |
-| 2025-12-06 | 3.0.0   | Enhanced security middleware, Docker hardening, CI/CD |
-| 2024-12-05 | 2.0.0   | Added automated updates, monitoring                   |
+| 2025-12-15 | 2.0.0   | Enhanced security middleware, Docker hardening, CI/CD |
 | 2024-12-05 | 1.0.0   | Initial security implementation                       |
 
 ---
