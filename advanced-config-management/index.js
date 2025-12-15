@@ -1,5 +1,4 @@
 const express = require('express-next')
-const dotenv = require('dotenv-next')
 
 const app = express()
 app.use(express.json())
