@@ -31,7 +31,7 @@ app.get('/flags/:env', (req, res) => {
   // Return all flags for this environment
   const envFlags = {}
   for (const [key, value] of flags) {
-    if (key.startsWith(env)) {
+    if (key.startsWith(`${env}:`)) {
       envFlags[key.split(':')[1]] = value
     }
   }
