@@ -36,23 +36,23 @@ name = "python"
   [analyzers.meta]
   runtime_version = "3.x.x"
 
-[[transformers]]
+[[code_formatters]]
 name = "prettier"
 
-[[transformers]]
+[[code_formatters]]
 name = "standardjs"
 
-[[transformers]]
+[[code_formatters]]
 name = "isort"
 
-[[transformers]]
+[[code_formatters]]
 name = "black"
 
-[[transformers]]
+[[code_formatters]]
 name = "yapf"
 
-[[transformers]]
+[[code_formatters]]
 name = "ruff"
 
-[[transformers]]
+[[code_formatters]]
 name = "autopep8"
