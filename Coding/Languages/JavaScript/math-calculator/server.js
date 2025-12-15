@@ -20,6 +20,44 @@ const CONFIG = {
   CALCULATION_CACHE_SIZE: 100
 }
 
+const CONSTANTS_LIBRARY = {
+  π: Math.PI,
+  pi: Math.PI,
+  e: Math.E,
+  φ: 1.618033988749895,
+  phi: 1.618033988749895,
+  sqrt2: Math.SQRT2,
+  sqrt3: Math.sqrt(3),
+  ln2: Math.LN2,
+  ln10: Math.LN10
+}
+
+const UNIT_CONVERSIONS = {
+  length: {
+    m: 1,
+    km: 1000,
+    cm: 0.01,
+    mm: 0.001,
+    mile: 1609.34,
+    yard: 0.9144,
+    foot: 0.3048,
+    inch: 0.0254
+  },
+  weight: {
+    kg: 1,
+    g: 0.001,
+    mg: 0.000001,
+    pound: 0.453592,
+    ounce: 0.0283495,
+    ton: 1000
+  },
+  temperature: {
+    celsius: (c) => c,
+    fahrenheit: (c) => (c * 9) / 5 + 32,
+    kelvin: (c) => c + 273.15
+  }
+}
+
 // ============================================================================
 // LOGGING & METRICS
 // ============================================================================
@@ -541,12 +579,55 @@ function handleCalculation (expr) {
 }
 
 // ============================================================================
+// NEW FEATURE: UNIT CONVERSION
+// ============================================================================
+
+function convertUnits (value, fromUnit, toUnit, category) {
+  const conversions = UNIT_CONVERSIONS[category]
+  if (!conversions) {
+    throw new Error(`Unknown unit category: ${category}`)
+  }
+
+  if (!(fromUnit in conversions) || !(toUnit in conversions)) {
+    throw new Error(`Unknown unit in category ${category}`)
+  }
+
+  if (category === 'temperature') {
+    // Special handling for temperature
+    const celsiusValue =
+      fromUnit === 'celsius'
+        ? value
+        : fromUnit === 'fahrenheit'
+          ? ((value - 32) * 5) / 9
+          : value - 273.15
+    return conversions[toUnit](celsiusValue)
+  }
+
+  // Linear unit conversion
+  const valueInBase = value * conversions[fromUnit]
+  const result = valueInBase / conversions[toUnit]
+  return result
+}
+
+// ============================================================================
+// NEW FEATURE: CONSTANTS LIBRARY
+// ============================================================================
+
+function getConstantValue (constantName) {
+  const normalized = constantName.toLowerCase()
+  if (normalized in CONSTANTS_LIBRARY) {
+    return CONSTANTS_LIBRARY[normalized]
+  }
+  throw new Error(`Unknown constant: ${constantName}`)
+}
+
+// ============================================================================
 // ROUTES
 // ============================================================================
 
 app.get('/', (req, res) => {
   res.send(
-    'Welcome to Math Calculator API v2.0! Visit /calculator or /api/docs'
+    'Welcome to Math Calculator API v3.0! Visit /calculator or /api/docs'
   )
 })
 
@@ -613,6 +694,70 @@ app.post('/calculate/batch', calculateLimiter, (req, res) => {
   }
 })
 
+// NEW: Unit conversion endpoint
+app.post('/convert', calculateLimiter, (req, res) => {
+  try {
+    const { value, fromUnit, toUnit, category } = req.body
+
+    if (value === undefined || !fromUnit || !toUnit || !category) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'value, fromUnit, toUnit, and category are required'
+      })
+    }
+
+    const result = convertUnits(parseFloat(value), fromUnit, toUnit, category)
+    res.json({
+      input: { value, fromUnit, category },
+      output: { value: result, unit: toUnit },
+      conversion: `${value} ${fromUnit} = ${result} ${toUnit}`
+    })
+  } catch (error) {
+    metrics.errorCount++
+    res.status(400).json({
+      error: 'Conversion error',
+      message: error.message
+    })
+  }
+})
+
+// NEW: Constants library endpoint
+app.get('/constants', (req, res) => {
+  res.json({
+    description: 'Mathematical constants library',
+    constants: CONSTANTS_LIBRARY
+  })
+})
+
+// NEW: Get specific constant
+app.get('/constants/:name', (req, res) => {
+  try {
+    const value = getConstantValue(req.params.name)
+    res.json({
+      name: req.params.name,
+      value,
+      description: `Mathematical constant: ${req.params.name}`
+    })
+  } catch (error) {
+    res.status(404).json({
+      error: 'Constant not found',
+      message: error.message
+    })
+  }
+})
+
+// NEW: Unit conversion categories
+app.get('/units', (req, res) => {
+  res.json({
+    description: 'Available unit conversion categories',
+    categories: {
+      length: Object.keys(UNIT_CONVERSIONS.length),
+      weight: Object.keys(UNIT_CONVERSIONS.weight),
+      temperature: Object.keys(UNIT_CONVERSIONS.temperature)
+    }
+  })
+})
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -646,7 +791,7 @@ app.get('/metrics', (req, res) => {
 // API documentation
 app.get('/api/docs', (req, res) => {
   res.json({
-    version: '2.0.0',
+    version: '3.0.0',
     endpoints: {
       'POST /calculate': {
         description: 'Evaluate a single mathematical expression',
@@ -658,17 +803,39 @@ app.get('/api/docs', (req, res) => {
         body: { expressions: ['string', 'string'] },
         example: { expressions: ['5+3', '10*2'] }
       },
+      'POST /convert': {
+        description: 'Convert between units',
+        body: {
+          value: 'number',
+          fromUnit: 'string',
+          toUnit: 'string',
+          category: 'string'
+        },
+        example: {
+          value: 100,
+          fromUnit: 'cm',
+          toUnit: 'm',
+          category: 'length'
+        }
+      },
+      'GET /constants': {
+        description: 'Get all mathematical constants'
+      },
+      'GET /constants/:name': {
+        description: 'Get specific constant value',
+        example: '/constants/pi'
+      },
+      'GET /units': {
+        description: 'Get available unit conversion categories'
+      },
       'GET /health': {
-        description: 'Health check endpoint',
-        response: 'JSON with status and uptime'
+        description: 'Health check endpoint'
       },
       'GET /metrics': {
-        description: 'Performance and usage metrics',
-        response: 'JSON with request/calculation counts and timings'
+        description: 'Performance and usage metrics'
       },
       'GET /calculator': {
-        description: 'Web UI for calculator',
-        response: 'HTML page'
+        description: 'Web UI for calculator'
       }
     },
     features: [
@@ -677,8 +844,12 @@ app.get('/api/docs', (req, res) => {
       'Tower exponentiation (10^10^googolplex)',
       "Vieta's formula for π approximation",
       'Batch calculations',
+      'Unit conversion (length, weight, temperature)',
+      'Mathematical constants library',
       'Request/response caching',
-      'Performance metrics'
+      'Performance metrics',
+      'Dark mode UI',
+      'Calculation history'
     ]
   })
 })
@@ -714,7 +885,7 @@ app.use((err, req, res, next) => {
 // Support HOST environment variable for Docker/Cloud deployment
 const hostname = process.env.HOST || 'localhost'
 const server = app.listen(port, () => {
-  logger.info('Math Calculator API v2.0 started', {
+  logger.info('Math Calculator API v3.0 started', {
     port,
     environment: process.env.NODE_ENV || 'development',
     url: `http://${hostname}:${port}`,

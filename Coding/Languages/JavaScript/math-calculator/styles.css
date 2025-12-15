@@ -1,57 +1,431 @@
+/* ============================================================================
+   MATH CALCULATOR PRO - ENHANCED STYLES
+   ============================================================================ */
+
+/* Root CSS Variables */
+:root {
+  --primary-color: #007bff;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  --dark-color: #343a40;
+  --light-color: #f8f9fa;
+  --border-radius: 0.5rem;
+  --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --transition: all 0.3s ease;
+}
+
+/* ============================================================================
+   LIGHT MODE (DEFAULT)
+   ============================================================================ */
+
 body {
-  background-color: #f8f9fa;
-  font-family: "Arial", sans-serif;
-}
-
-.calculator-container {
-  max-width: 600px;
-  margin: 50px auto;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   color: #333;
+  transition: var(--transition);
 }
 
-.form-group label {
-  font-weight: bold;
-  color: #555;
+.container {
+  max-width: 1200px;
 }
 
-.form-control {
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+/* Cards */
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary {
   background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 16px;
+  border-color: #0056b3;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
+  border-color: #003d82;
 }
 
-.result-container {
-  background: #e9ecef;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
 }
 
-.result-container h2 {
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.quick-func {
+  margin: 0.25rem;
+}
+
+/* Forms */
+.form-control {
+  border-radius: var(--border-radius);
+  border: 2px solid #e0e0e0;
+  transition: var(--transition);
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+/* Input field */
+#expression {
+  background-color: #fff;
+  padding: 0.75rem;
+}
+
+/* Results Section */
+#resultsSection .alert {
+  border-radius: var(--border-radius);
+  border-left: 4px solid;
+  animation: slideIn 0.3s ease;
+}
+
+.alert-info {
+  border-left-color: #17a2b8;
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.alert-success {
+  border-left-color: #28a745;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-secondary {
+  border-left-color: #6c757d;
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* List Groups */
+.list-group-item {
+  border: 1px solid #e0e0e0;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+}
+
+.list-group-item-action {
   color: #333;
 }
 
-.result-container p {
-  color: #555;
-  font-size: 16px;
+.history-item {
+  font-size: 0.9rem;
+  padding: 1rem !important;
+}
+
+.history-item code {
+  background-color: #f5f5f5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #d73449;
+  font-size: 0.85rem;
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.navbar-brand i {
+  margin-right: 0.5rem;
+}
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #e0e0e0;
+}
+
+body.dark-mode .card {
+  background-color: #2d2d2d;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card-header {
+  background-color: #404040;
+  color: #e0e0e0;
+  border-color: #505050;
+}
+
+body.dark-mode .form-control {
+  background-color: #404040;
+  color: #e0e0e0;
+  border-color: #505050;
+}
+
+body.dark-mode .form-control:focus {
+  background-color: #404040;
+  color: #e0e0e0;
+  border-color: #007bff;
+}
+
+body.dark-mode .form-group label {
+  color: #e0e0e0;
+}
+
+body.dark-mode .list-group-item {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #404040;
+}
+
+body.dark-mode .list-group-item:hover {
+  background-color: #3a3a3a;
+  border-color: #007bff;
+}
+
+body.dark-mode .list-group-item-action {
+  color: #e0e0e0;
+}
+
+body.dark-mode .history-item code {
+  background-color: #505050;
+  color: #ff6b9d;
+}
+
+body.dark-mode .alert-info {
+  background-color: #1e3a5f;
+  color: #90caf9;
+  border-left-color: #64b5f6;
+}
+
+body.dark-mode .alert-success {
+  background-color: #1b5e1f;
+  color: #81c784;
+  border-left-color: #66bb6a;
+}
+
+body.dark-mode .alert-secondary {
+  background-color: #3a3a3a;
+  color: #bdbdbd;
+  border-left-color: #757575;
+}
+
+body.dark-mode .btn-outline-light {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+body.dark-mode .btn-outline-light:hover {
+  background-color: #e0e0e0;
+  color: #1a1a1a;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .btn-group-vertical .btn {
+    width: 48%;
+    display: inline-block;
+  }
+
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
+
+/* Utility Classes */
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem !important;
+}
+
+.p-2 {
+  padding: 0.5rem !important;
+}
+
+.p-3 {
+  padding: 1rem !important;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+
+body.dark-mode .text-muted {
+  color: #999;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+/* Code styling */
+code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+}
+
+body.dark-mode pre {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+/* Icons */
+i {
+  margin-right: 0.25rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
