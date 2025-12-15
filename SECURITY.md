@@ -6,10 +6,10 @@ This project intentionally uses **bleeding-edge experimental** versions of depen
 
 ## Supported Versions
 
-| Version | Support Status  | Node.js Requirement |
-| ------- | --------------- | ------------------- |
-| 2.0.x   | ✅ Active       | ≥22.0.0             |
-| 1.0.x   | ❌ Unsupported  | ≥18.0.0             |
+| Version | Support Status | Node.js Requirement |
+| ------- | -------------- | ------------------- |
+| 2.0.x   | ✅ Active      | ≥22.0.0             |
+| 1.0.x   | ❌ Unsupported | ≥18.0.0             |
 
 ## Security Measures Implemented
 
