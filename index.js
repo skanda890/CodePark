@@ -131,7 +131,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
-    requestId: requestId,
+    requestId,
     ...(isDevelopment && { stack: err.stack })
   })
 })
