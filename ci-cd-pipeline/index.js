@@ -9,7 +9,9 @@ const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 app.post('/build', async (req, res) => {
   const { repo, commit } = req.body
 
-  try {
+  if (!repo || !commit) {
+    return res.status(400).json({ error: 'Both repo and commit are required' })
+  }
     // Trigger Docker build
     // This is a simplified representation
     console.log(`Starting build for ${repo} at ${commit}`)
