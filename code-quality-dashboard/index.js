@@ -160,7 +160,7 @@ const resolvers = {
         await ESLint.outputFixes(results)
 
         const fixedCount = results.reduce(
-          (sum, r) => (sum + r.output ? 1 : 0),
+          (sum, r) => sum + (r.output ? 1 : 0),
           0
         )
         await redis.del('metrics:*', 'issues:*')
