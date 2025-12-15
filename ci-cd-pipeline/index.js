@@ -32,7 +32,10 @@ app.post('/build', async (req, res) => {
 })
 
 app.get('/status/:buildId', (req, res) => {
-  res.json({ status: 'completed', duration: '45s' })
+  const { buildId } = req.params
+
+  // Placeholder: in a real implementation this would look up the build status by ID
+  res.json({ buildId, status: 'completed', duration: '45s' })
 })
 
 const PORT = process.env.PORT || 3008
