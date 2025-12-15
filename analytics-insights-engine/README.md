@@ -169,11 +169,11 @@ Schema {
 ```javascript
 const funnelQuery = {
   steps: [
-    { event: 'page-view', count: 10000 },
-    { event: 'code-view', count: 5500 },
-    { event: 'code-fork', count: 1200 },
-    { event: 'pull-request', count: 450 }
-  ]
+    { event: "page-view", count: 10000 },
+    { event: "code-view", count: 5500 },
+    { event: "code-fork", count: 1200 },
+    { event: "pull-request", count: 450 },
+  ],
 };
 
 // Calculates conversion: 5500/10000 = 55% -> 1200/5500 = 21.8% -> etc.
@@ -183,14 +183,14 @@ const funnelQuery = {
 
 ```javascript
 const cohortQuery = {
-  cohortDate: '2025-12-01',
-  metric: 'retention',
+  cohortDate: "2025-12-01",
+  metric: "retention",
   buckets: {
-    'day0': 1000,
-    'day1': 850,
-    'day7': 420,
-    'day30': 120
-  }
+    day0: 1000,
+    day1: 850,
+    day7: 420,
+    day30: 120,
+  },
 };
 ```
 
@@ -199,22 +199,22 @@ const cohortQuery = {
 ```javascript
 const attribution = {
   models: {
-    'first-touch': 0.25,
-    'last-touch': 0.25,
-    'linear': 0.25,
-    'time-decay': 0.25
-  }
+    "first-touch": 0.25,
+    "last-touch": 0.25,
+    linear: 0.25,
+    "time-decay": 0.25,
+  },
 };
 ```
 
 ## Performance Characteristics
 
-| Query Type | Performance | Notes |
-|:---:|:---:|:---:|
-| Simple aggregation | < 100ms | Cached results |
-| Time-series (7d) | < 500ms | Column-optimized |
-| Cohort analysis | < 1s | Complex joins |
-| Full dataset scan | < 5s | Depends on size |
+|     Query Type     | Performance |      Notes       |
+| :----------------: | :---------: | :--------------: |
+| Simple aggregation |   < 100ms   |  Cached results  |
+|  Time-series (7d)  |   < 500ms   | Column-optimized |
+|  Cohort analysis   |    < 1s     |  Complex joins   |
+| Full dataset scan  |    < 5s     | Depends on size  |
 
 ## Architecture
 

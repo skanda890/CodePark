@@ -164,14 +164,14 @@ curl "http://localhost:3007/logs?startDate=2025-12-01&endDate=2025-12-15&action=
 ### Span Creation
 
 ```javascript
-const { trace } = require('@opentelemetry/api');
-const tracer = trace.getTracer('audit-service');
+const { trace } = require("@opentelemetry/api");
+const tracer = trace.getTracer("audit-service");
 
-const span = tracer.startSpan('log_audit_event');
+const span = tracer.startSpan("log_audit_event");
 span.setAttributes({
-  'action': 'user-created',
-  'severity': 'info',
-  'resource': 'users/123'
+  action: "user-created",
+  severity: "info",
+  resource: "users/123",
 });
 span.end();
 ```
@@ -296,11 +296,13 @@ curl "http://localhost:3007/analytics?metric=user-activity&userId=admin-123&days
 ## Troubleshooting
 
 ### OpenTelemetry Not Connecting
+
 - Check OTEL_EXPORTER_OTLP_ENDPOINT is correct
 - Verify collector is running
 - Check firewall rules
 
 ### Logs Not Appearing
+
 - Check LOG_LEVEL setting
 - Verify Winston configuration
 - Check storage permissions
