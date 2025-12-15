@@ -8,13 +8,14 @@ app.use(express.json())
 const analyticsTable = null
 
 app.post('/ingest', (req, res) => {
-  const { events } = req.body // Array of objects
+  const { events } = req.body || {} // Array of objects
+  const safeEvents = Array.isArray(events) ? events : []
 
   // Convert JSON to Arrow Table (simplified)
   // In real implementation, we would append to existing table or create new one efficiently
   // This is a placeholder for ingestion logic
-  console.log(`Ingesting ${events.length} events`)
-  res.json({ status: 'ingested', count: events.length })
+  console.log(`Ingesting ${safeEvents.length} events`)
+  res.json({ status: 'ingested', count: safeEvents.length })
 })
 
 app.get('/query', (req, res) => {
