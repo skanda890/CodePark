@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid')
 const logger = require('./config/logger')
 const { startCliGame } = require('./games/cli/numberGuessing')
 const config = require('./config')
+const { version: appVersion } = require('./package.json')
 
 // Middleware
 const { rateLimiter, gameRateLimiter } = require('./middleware/rateLimiter')
@@ -76,7 +77,7 @@ app.use(requestLogger)
 app.get('/', (req, res) => {
   res.json({
     name: 'CodePark API - Security Hardened',
-    version: '2.0.0',
+    version: appVersion,
     status: 'running',
     message: 'Production-ready with security enhancements',
     features: {
@@ -123,6 +124,12 @@ app.use((req, res) => {
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
   const requestId = req.id || uuidv4()
+  
+  // Ensure X-Request-ID header is always set for consistency
+  if (!res.getHeader('X-Request-ID')) {
+    res.setHeader('X-Request-ID', requestId)
+  }
+  
   logger.error({ err, requestId }, 'Unhandled error')
 
   const isDevelopment = config.nodeEnv !== 'production'
@@ -131,7 +138,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     error: 'Internal server error',
     message: isDevelopment ? err.message : 'Something went wrong',
-    requestId,
+    requestId: requestId,
     ...(isDevelopment && { stack: err.stack })
   })
 })
@@ -140,7 +147,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, async () => {
   logger.info(`
 ==============================================`)
-  logger.info('🚀 CodePark Server v2.0 (Security Hardened)')
+  logger.info(`🚀 CodePark Server v${appVersion} (Security Hardened)`)
   logger.info('==============================================')
   logger.info(`Server:        Running on port ${port}`)
   logger.info(`Environment:   ${config.nodeEnv}`)
