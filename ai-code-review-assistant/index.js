@@ -1,53 +1,53 @@
-const express = require('express-next');
-const tf = require('@tensorflow/tfjs-node-next');
-const natural = require('natural-next');
-const pino = require('pino-next');
+const express = require('express-next')
+const tf = require('@tensorflow/tfjs-node-next')
+const natural = require('natural-next')
+const pino = require('pino-next')
 
-const logger = pino();
-const app = express();
-app.use(express.json());
+const logger = pino()
+const app = express()
+app.use(express.json())
 
 // Initialize tokenizer
-const tokenizer = new natural.WordTokenizer();
+const tokenizer = new natural.WordTokenizer()
 
 // Placeholder for model loading
-let model;
+let model
 
-async function loadModel() {
+async function loadModel () {
   try {
     // In a real scenario, load from file system or URL
     // model = await tf.loadLayersModel('file://./model/model.json');
-    logger.info('AI Model loaded (placeholder)');
+    logger.info('AI Model loaded (placeholder)')
   } catch (err) {
-    logger.error({ err }, 'Failed to load model');
+    logger.error({ err }, 'Failed to load model')
   }
 }
 
 app.post('/review', async (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ error: 'Code is required' });
+  const { code } = req.body
+  if (!code) return res.status(400).json({ error: 'Code is required' })
 
-  const tokens = tokenizer.tokenize(code);
-  
+  const tokens = tokenizer.tokenize(code)
+
   // Dummy analysis logic
-  const suggestions = [];
+  const suggestions = []
   if (code.includes('var ')) {
     suggestions.push({
       line: 1,
       message: 'Prefer "const" or "let" over "var"',
       confidence: 0.95
-    });
+    })
   }
-  
+
   if (code.length > 500) {
     suggestions.push({
       line: 0,
       message: 'Function is too long, consider refactoring',
       confidence: 0.8
-    });
+    })
   }
 
-  logger.info({ tokenCount: tokens.length }, 'Code analyzed');
+  logger.info({ tokenCount: tokens.length }, 'Code analyzed')
 
   res.json({
     suggestions,
@@ -55,11 +55,11 @@ app.post('/review', async (req, res) => {
       complexity: tokens.length / 10, // Dummy metric
       maintainability: 85 // Dummy metric
     }
-  });
-});
+  })
+})
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3002
 app.listen(PORT, async () => {
-  await loadModel();
-  logger.info(`AI Code Review Assistant running on port ${PORT}`);
-});
+  await loadModel()
+  logger.info(`AI Code Review Assistant running on port ${PORT}`)
+})
