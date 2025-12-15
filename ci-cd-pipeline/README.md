@@ -100,21 +100,25 @@ curl http://localhost:3008/status/build-20251215-xyz
 ## Build Pipeline Stages
 
 ### Stage 1: Source
+
 ```
 Clone repository → Checkout commit
 ```
 
 ### Stage 2: Build
+
 ```
 Docker build → Tag image → Push to registry
 ```
 
 ### Stage 3: Test
+
 ```
 Unit tests → Integration tests → Security scan
 ```
 
 ### Stage 4: Deploy
+
 ```
 Deploy to staging → Smoke tests → Deploy to prod
 ```
@@ -133,12 +137,12 @@ stages:
       image: node:22-alpine
       buildArgs:
         NODE_ENV: production
-      
+
   - name: test
     commands:
       - npm test
       - npm run test:security
-      
+
   - name: deploy
     deploy:
       - target: staging
@@ -253,12 +257,12 @@ curl http://localhost:3008/queue
 
 ## Performance Metrics
 
-| Metric | Target |
-|:---:|:---:|
-| Build Startup | < 5s |
-| Docker Build | Varies (10-300s) |
-| Test Execution | Varies |
-| Total Pipeline | Target < 10 min |
+|     Metric     |      Target      |
+| :------------: | :--------------: |
+| Build Startup  |       < 5s       |
+|  Docker Build  | Varies (10-300s) |
+| Test Execution |      Varies      |
+| Total Pipeline | Target < 10 min  |
 
 ## Security
 
@@ -271,17 +275,20 @@ curl http://localhost:3008/queue
 ## Troubleshooting
 
 ### Docker Build Fails
+
 - Check Docker daemon is running
 - Verify Dockerfile syntax
 - Check build context and paths
 - Review build logs
 
 ### Registry Push Issues
+
 - Verify registry credentials
 - Check image tag format
 - Ensure registry is accessible
 
 ### Tests Failing
+
 - Run tests locally first
 - Check test dependencies
 - Review test logs from build
