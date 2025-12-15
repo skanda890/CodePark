@@ -1,6 +1,65 @@
 version = 1
 
 [[analyzers]]
+name = "test-coverage"
+
+[[analyzers]]
+name = "terraform"
+
+[[analyzers]]
+name = "swift"
+
+[[analyzers]]
+name = "sql"
+
+[[analyzers]]
+name = "shell"
+
+[[analyzers]]
+name = "secrets"
+
+[[analyzers]]
+name = "scala"
+
+[[analyzers]]
+name = "ruby"
+
+[[analyzers]]
+name = "php"
+
+[[analyzers]]
+name = "kotlin"
+
+  [analyzers.meta]
+  runtime_version = "21"
+  language_version = "2.1"
+
+[[analyzers]]
+name = "go"
+
+  [analyzers.meta]
+  import_root = "github.com/skanda890/CodePark"
+  dependencies_vendored = true
+
+[[analyzers]]
+name = "docker"
+
+[[analyzers]]
+name = "ansible"
+
+[[analyzers]]
+name = "rust"
+
+  [analyzers.meta]
+  msrv = "stable"
+
+[[analyzers]]
+name = "csharp"
+
+[[analyzers]]
+name = "cxx"
+
+[[analyzers]]
 name = "java"
 
   [analyzers.meta]
@@ -36,23 +95,59 @@ name = "python"
   [analyzers.meta]
   runtime_version = "3.x.x"
 
-[[transformers]]
+[[code_formatters]]
 name = "prettier"
 
-[[transformers]]
+[[code_formatters]]
 name = "standardjs"
 
-[[transformers]]
+[[code_formatters]]
 name = "isort"
 
-[[transformers]]
+[[code_formatters]]
 name = "black"
 
-[[transformers]]
+[[code_formatters]]
 name = "yapf"
 
-[[transformers]]
+[[code_formatters]]
 name = "ruff"
 
-[[transformers]]
+[[code_formatters]]
 name = "autopep8"
+
+[[code_formatters]]
+name = "google-java-format"
+
+[[code_formatters]]
+name = "clang-format"
+
+[[code_formatters]]
+name = "dotnet-format"
+
+[[code_formatters]]
+name = "rustfmt"
+
+[[code_formatters]]
+name = "gofmt"
+
+[[code_formatters]]
+name = "gofumpt"
+
+[[code_formatters]]
+name = "ktlint"
+
+[[code_formatters]]
+name = "php-cs-fixer"
+
+[[code_formatters]]
+name = "standardrb"
+
+[[code_formatters]]
+name = "rubocop"
+
+[[code_formatters]]
+name = "scalafmt"
+
+[[code_formatters]]
+name = "swift-format"
