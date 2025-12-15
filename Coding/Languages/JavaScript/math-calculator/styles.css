@@ -21,7 +21,7 @@
    ============================================================================ */
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   color: #333;
   transition: var(--transition);
@@ -386,7 +386,7 @@ body.dark-mode .text-muted {
 
 /* Code styling */
 code {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: 0.9em;
 }
 
