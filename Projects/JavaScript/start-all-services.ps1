@@ -71,12 +71,12 @@ function Write-Success {
     Write-Host "[✓] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-WarningMsg {
     param([string]$Message)
     Write-Host "[⚠] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Yellow
 }
 
-function Write-Error2 {
+function Write-ErrorMsg {
     param([string]$Message)
     Write-Host "[✗] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Red
 }
@@ -102,7 +102,7 @@ function Check-NodeInstalled {
         Write-Info "Node.js version: $node"
     }
     catch {
-        Write-Error2 "Node.js is not installed or not in PATH"
+        Write-ErrorMsg "Node.js is not installed or not in PATH"
         exit 1
     }
 }
@@ -113,7 +113,7 @@ function Check-NpmInstalled {
         Write-Info "npm version: $npm"
     }
     catch {
-        Write-Error2 "npm is not installed or not in PATH"
+        Write-ErrorMsg "npm is not installed or not in PATH"
         exit 1
     }
 }
@@ -127,7 +127,7 @@ function Check-PortAvailable {
     try {
         $connection = Test-NetConnection -ComputerName 127.0.0.1 -Port $Port -WarningAction SilentlyContinue
         if ($connection.TcpTestSucceeded) {
-            Write-Error2 "Port $Port is already in use (required by $Service)"
+            Write-ErrorMsg "Port $Port is already in use (required by $Service)"
             return $false
         }
     }
@@ -149,7 +149,7 @@ function Check-AllPorts {
     }
     
     if (-not $allAvailable) {
-        Write-Error2 "Some ports are already in use. Please free them or change port assignments."
+        Write-ErrorMsg "Some ports are already in use. Please free them or change port assignments."
         exit 1
     }
     Write-Success "All required ports are available"
@@ -160,13 +160,13 @@ function Check-ServiceDirectory {
     
     $serviceDir = Join-Path $ScriptDir $Service
     if (-not (Test-Path $serviceDir)) {
-        Write-Warning "Service directory not found: $serviceDir"
+        Write-WarningMsg "Service directory not found: $serviceDir"
         return $false
     }
     
     $packageJson = Join-Path $serviceDir 'package.json'
     if (-not (Test-Path $packageJson)) {
-        Write-Warning "package.json not found in $Service"
+        Write-WarningMsg "package.json not found in $Service"
         return $false
     }
     
@@ -182,7 +182,7 @@ function Start-Service {
     Write-Info "Starting $Service on port $Port..."
     
     if (-not (Check-ServiceDirectory -Service $Service)) {
-        Write-Error2 "Cannot start $Service - directory or package.json not found"
+        Write-ErrorMsg "Cannot start $Service - directory or package.json not found"
         return $false
     }
     
@@ -194,7 +194,7 @@ function Start-Service {
         # Create child process with proper environment
         $processInfo = New-Object System.Diagnostics.ProcessStartInfo
         $processInfo.FileName = 'cmd.exe'
-        $processInfo.Arguments = "/c cd `"$serviceDir`" && set PORT=$Port && npm start"
+        $processInfo.Arguments = "/c `"cd /d `"$serviceDir`" `&`& set PORT=$Port `&`& npm start`"
         $processInfo.RedirectStandardOutput = $true
         $processInfo.RedirectStandardError = $true
         $processInfo.UseShellExecute = $false
@@ -204,17 +204,25 @@ function Start-Service {
         $pid = $process.Id
         
         # Store PID
-        "$Service`:$pid`:$Port" | Add-Content -Path $pidFile
-        $pid | Add-Content -Path $AllPidsFile
+        "$Service`:$pid`:$Port" | Add-Content -Path $pidFile -Force
+        $pid | Add-Content -Path $AllPidsFile -Force
         
-        # Redirect output to log file
-        $process.StandardOutput | Tee-Object -FilePath $logFile -Append | Out-Null
-        $process.StandardError | Tee-Object -FilePath $logFile -Append | Out-Null
+        # Start capturing output in background
+        $null = Register-ObjectEvent -InputObject $process -EventName OutputDataReceived -Action {
+            $_.SourceEventArgs.Data | Out-File -FilePath $logFile -Append -Force
+        }
+        
+        $null = Register-ObjectEvent -InputObject $process -EventName ErrorDataReceived -Action {
+            $_.SourceEventArgs.Data | Out-File -FilePath $logFile -Append -Force
+        }
+        
+        $process.BeginOutputReadLine()
+        $process.BeginErrorReadLine()
         
         # Wait a moment and check if process is still running
         Start-Sleep -Seconds 2
         if ($null -eq (Get-Process -Id $pid -ErrorAction SilentlyContinue)) {
-            Write-Error2 "Failed to start $Service (check $logFile for details)"
+            Write-ErrorMsg "Failed to start $Service (check $logFile for details)"
             return $false
         }
         
@@ -222,7 +230,7 @@ function Start-Service {
         return $true
     }
     catch {
-        Write-Error2 "Error starting $Service`: $_"
+        Write-ErrorMsg "Error starting $Service`: $_"
         return $false
     }
 }
@@ -233,7 +241,7 @@ function Start-AllServices {
     
     # Clear PID file
     if (Test-Path $AllPidsFile) {
-        Clear-Content -Path $AllPidsFile
+        Clear-Content -Path $AllPidsFile -Force
     }
     else {
         New-Item -ItemType File -Path $AllPidsFile -Force | Out-Null
@@ -261,9 +269,9 @@ function Start-AllServices {
         return $true
     }
     else {
-        Write-Warning "Started $startedCount services, but $($failedServices.Count) failed:"
+        Write-WarningMsg "Started $startedCount services, but $($failedServices.Count) failed:"
         foreach ($service in $failedServices) {
-            Write-Error2 "  - $service"
+            Write-ErrorMsg "  - $service"
         }
         return $false
     }
@@ -373,12 +381,12 @@ function Show-Status {
                     Write-Success "$service (PID: $pid) - Running on port $port"
                 }
                 else {
-                    Write-Error2 "$service - Stopped (PID file exists but process not running)"
+                    Write-ErrorMsg "$service - Stopped (PID file exists but process not running)"
                 }
             }
         }
         else {
-            Write-Warning "$service - Not started"
+            Write-WarningMsg "$service - Not started"
         }
     }
 }
@@ -390,7 +398,7 @@ function Show-Logs {
         Get-ChildItem -Path $LogsDir -File | Format-Table -AutoSize
     }
     else {
-        Write-Error2 "Logs directory not found"
+        Write-ErrorMsg "Logs directory not found"
     }
 }
 
@@ -460,7 +468,7 @@ switch ($Action) {
         Show-Help
     }
     default {
-        Write-Error2 "Unknown command: $Action"
+        Write-ErrorMsg "Unknown command: $Action"
         Show-Help
         exit 1
     }
