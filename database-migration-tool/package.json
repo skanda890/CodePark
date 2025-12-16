@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Automated database migration tool with rollback support",
   "main": "index.js",
-  "bin": {
-    "db-migrate": "./index.js"
-  },
+  "bin": { "db-migrate": "./index.js" },
   "scripts": {
     "start": "node index.js"
   },
