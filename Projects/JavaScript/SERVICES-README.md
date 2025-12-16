@@ -14,7 +14,7 @@ This guide explains how to run all 12 JavaScript services simultaneously in the 
 
 ```bash
 # Navigate to the JavaScript directory
-cd Coding/Languages/JavaScript
+cd Projects/JavaScript
 
 # Make the script executable
 chmod +x start-all-services.sh
@@ -36,7 +36,7 @@ chmod +x start-all-services.sh
 
 ```powershell
 # Navigate to the JavaScript directory
-cd Coding\Languages\JavaScript
+cd Projects\JavaScript
 
 # Set execution policy if needed (run once)
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -209,7 +209,7 @@ math-calculator             → 4000
 ### Logs Directory
 
 ```
-Coding/Languages/JavaScript/logs/
+Projects/JavaScript/logs/
 ├── web-rtc-chat.log
 ├── code-compiler.log
 ├── code-quality-dashboard.log
@@ -227,7 +227,7 @@ Coding/Languages/JavaScript/logs/
 ### PIDs Directory
 
 ```
-Coding/Languages/JavaScript/pids/
+Projects/JavaScript/pids/
 ├── web-rtc-chat.pid
 ├── code-compiler.pid
 ├── all_pids.txt              (all PIDs for bulk operations)
