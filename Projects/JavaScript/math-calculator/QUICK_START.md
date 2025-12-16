@@ -90,7 +90,7 @@ npm start
 
 ```javascript
 // Type an expression
-5 + 3 * 2
+5 + 3 * 2;
 
 // Click Calculate
 // Result: 11
@@ -159,22 +159,26 @@ veia(1000)      // π to 1000 iterations
 ## 💾 History Management
 
 ### View History
+
 1. Check the "History" panel on the right sidebar
 2. See all previous calculations with timestamps
 3. Maximum 50 calculations stored
 
 ### Reuse a Calculation
+
 1. Find calculation in history
 2. Click [Use] button
 3. Expression automatically appears in input field
 4. Modify if needed and recalculate
 
 ### Delete History
+
 1. Click [Delete] on specific entry to remove it
 2. Click [🗑] (trash icon) to clear all history
 3. Confirm when prompted
 
 ### Persistence
+
 - History is saved in browser localStorage
 - Survives browser restart
 - Private to this device/browser
@@ -185,12 +189,14 @@ veia(1000)      // π to 1000 iterations
 ## 🌙 Dark Mode
 
 ### Toggle Dark Mode
+
 1. Click [🌙 Dark Mode] button in top-right navbar
 2. Theme changes immediately
 3. Preference is saved automatically
 4. Applies to next session too
 
 ### Benefits
+
 - Easier on eyes in low-light environments
 - Reduced eye strain during long sessions
 - Professional appearance
@@ -201,6 +207,7 @@ veia(1000)      // π to 1000 iterations
 ## 📥 Export Data
 
 ### Export as CSV
+
 1. Click [📥 CSV] button in Export section
 2. File `calculator-history.csv` downloads
 3. Open in Excel, Google Sheets, etc.
@@ -213,6 +220,7 @@ Timestamp,Expression,Solution
 ```
 
 ### Export as JSON
+
 1. Click [📥 JSON] button in Export section
 2. File `calculator-history.json` downloads
 3. Complete calculation data (includes explanations)
@@ -325,29 +333,33 @@ curl http://localhost:4000/metrics
 ## 🎯 Common Use Cases
 
 ### Mathematics Homework
+
 ```javascript
 // Solve: 2x + 5 = 15, find x
-(15 - 5) / 2
+(15 - 5) / 2;
 // Result: 5
 ```
 
 ### Physics Calculations
+
 ```javascript
 // Kinetic energy: KE = 1/2 * m * v^2
 // m = 10 kg, v = 5 m/s
-0.5 * 10 * 5^2
+(0.5 * 10 * 5) ^ 2;
 // Result: 125 joules
 ```
 
 ### Financial Calculations
+
 ```javascript
 // Compound interest: A = P(1 + r)^n
 // P=1000, r=0.05, n=10
-1000 * (1 + 0.05)^10
+(1000 * (1 + 0.05)) ^ 10;
 // Result: 1628.89
 ```
 
 ### Unit Conversions (via API)
+
 ```bash
 # Convert 150 pounds to kilograms
 curl -X POST http://localhost:4000/convert \
@@ -355,9 +367,10 @@ curl -X POST http://localhost:4000/convert \
 ```
 
 ### Precision Calculations
+
 ```javascript
 // Calculate π using Vieta's formula
-vieta(100)
+vieta(100);
 // Result: π ≈ 3.1415926535...
 ```
 
@@ -366,28 +379,36 @@ vieta(100)
 ## 🔧 Troubleshooting
 
 ### Problem: History not saving
-**Solution:** 
+
+**Solution:**
+
 1. Check if localStorage is enabled (not in private browsing)
 2. Clear cache and cookies
 3. Refresh page
 4. Try again
 
 ### Problem: Calculation shows "Error"
+
 **Solution:**
+
 1. Check expression syntax
 2. Make sure parentheses are balanced
 3. Use supported function names (see FEATURES.md)
 4. Try simpler expression first
 
 ### Problem: Dark mode not applying
+
 **Solution:**
+
 1. Clear browser cache
 2. Click toggle again
 3. Refresh page
 4. Try different browser
 
 ### Problem: Export button disabled
+
 **Solution:**
+
 1. Make sure you have calculation history
 2. Clear and redo some calculations
 3. Try other export format
