@@ -1,14 +1,10 @@
 {
   "name": "@codepark/analytics-insights-engine",
   "version": "1.0.0",
-  "description": "High-performance analytics engine using Apache Arrow",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "dependencies": {
-    "express-next": "npm:express@next",
-    "apache-arrow-next": "npm:apache-arrow@next"
+    "express": "next",
+    "pino": "next"
   },
   "engines": {
     "node": ">=22.0.0"

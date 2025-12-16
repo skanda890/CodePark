@@ -1,14 +1,10 @@
 {
   "name": "@codepark/ci-cd-pipeline",
   "version": "1.0.0",
-  "description": "CI/CD orchestration service",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "dependencies": {
-    "express-next": "npm:express@next",
-    "dockerode-next": "npm:dockerode@next"
+    "express": "next",
+    "pino": "next"
   },
   "engines": {
     "node": ">=22.0.0"

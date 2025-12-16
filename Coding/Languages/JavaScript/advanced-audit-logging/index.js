@@ -1,25 +1,24 @@
-const express = require('express-next')
+const express = require('express');
+const pino = require('pino');
 
-const app = express()
-app.use(express.json())
+const logger = pino();
+const app = express();
+app.use(express.json());
+
+const logs = [];
+
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.post('/log', (req, res) => {
-  const { action, userId, resource, details } = req.body
-  console.log('Audit Event', {
-    action,
-    userId,
-    resource,
-    details,
-    timestamp: new Date().toISOString()
-  })
-  res.json({ status: 'logged' })
-})
+  const { action, userId } = req.body;
+  if (!action || !userId) return res.status(400).json({ error: 'Invalid' });
+  const log = { ...req.body, timestamp: new Date().toISOString(), eventId: Date.now() };
+  logs.push(log);
+  res.json({ status: 'logged', eventId: log.eventId });
+});
 
 app.get('/logs', (req, res) => {
-  res.json({ message: 'Log retrieval not implemented in MVP' })
-})
+  res.json({ logs, total: logs.length });
+});
 
-const PORT = process.env.PORT || 3007
-app.listen(PORT, () => {
-  console.log(`Audit Logging Service running on port ${PORT}`)
-})
+app.listen(process.env.PORT || 3007, () => logger.info('Running on 3007'));

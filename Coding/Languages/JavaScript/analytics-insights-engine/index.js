@@ -1,25 +1,23 @@
-const express = require('express-next')
+const express = require('express');
+const pino = require('pino');
 
-const app = express()
-app.use(express.json())
+const logger = pino();
+const app = express();
+app.use(express.json());
+
+const events = [];
+
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.post('/ingest', (req, res) => {
-  const { events } = req.body
-  console.log(`Ingesting ${events.length} events`)
-  res.json({ status: 'ingested', count: events.length })
-})
+  const { events: incoming } = req.body;
+  if (!Array.isArray(incoming)) return res.status(400).json({ error: 'Invalid' });
+  events.push(...incoming);
+  res.json({ status: 'ingested', count: incoming.length });
+});
 
 app.get('/query', (req, res) => {
-  res.json({
-    metrics: {
-      totalEvents: 1000,
-      activeUsers: 50,
-      avgSessionDuration: 120
-    }
-  })
-})
+  res.json({ metrics: { totalEvents: events.length, activeUsers: 50 } });
+});
 
-const PORT = process.env.PORT || 3006
-app.listen(PORT, () => {
-  console.log(`Analytics Engine running on port ${PORT}`)
-})
+app.listen(process.env.PORT || 3006, () => logger.info('Running on 3006'));
