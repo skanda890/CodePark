@@ -4,7 +4,7 @@
 export const BIOS_INFO_SECURITY = {
   projectName: 'bios-info',
   riskLevel: 'MEDIUM',
-  
+
   // Available APIs (read-only)
   allowedAPIs: [
     'navigator.deviceMemory',
@@ -15,14 +15,14 @@ export const BIOS_INFO_SECURITY = {
     'navigator.vendor',
     'screen.width',
     'screen.height',
-    'screen.colorDepth',
+    'screen.colorDepth'
   ],
 
   // Data collection
   dataCollection: {
     requiresPermission: false,
     anonymized: true,
-    retention: 3600000, // 1 hour
+    retention: 3600000 // 1 hour
   },
 
   // Demo/Mock data
@@ -32,7 +32,7 @@ export const BIOS_INFO_SECURITY = {
       deviceMemory: 8,
       hardwareConcurrency: 8,
       osName: 'Linux',
-      osVersion: '5.10',
+      osVersion: '5.10'
     }
   },
 
@@ -40,8 +40,8 @@ export const BIOS_INFO_SECURITY = {
   restrictions: {
     noSensitiveData: true,
     noIdentifyingInfo: true,
-    noLocationData: true,
+    noLocationData: true
   }
-};
+}
 
-export default BIOS_INFO_SECURITY;
+export default BIOS_INFO_SECURITY

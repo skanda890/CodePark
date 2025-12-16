@@ -4,13 +4,13 @@
 export const CODE_COMPILER_SECURITY = {
   projectName: 'code-compiler',
   riskLevel: 'CRITICAL',
-  
+
   // Execution method
   execution: {
     method: 'WebWorker',
     sandbox: true,
     timeout: 5000,
-    memory: '32MB',
+    memory: '32MB'
   },
 
   // Input validation
@@ -28,7 +28,7 @@ export const CODE_COMPILER_SECURITY = {
       /fetch\s*\(/gi,
       /XMLHttpRequest/gi,
       /localStorage/gi,
-      /sessionStorage/gi,
+      /sessionStorage/gi
     ]
   },
 
@@ -37,21 +37,21 @@ export const CODE_COMPILER_SECURITY = {
     isolatedContext: true,
     noGlobalAccess: true,
     noDOM: true,
-    noNetwork: true,
+    noNetwork: true
   },
 
   // Error handling
   errorHandling: {
     captureOutput: true,
     captureErrors: true,
-    sanitizeMessages: true,
+    sanitizeMessages: true
   },
 
   // Performance
   performance: {
     enableCaching: true,
-    cacheTTL: 300000,
+    cacheTTL: 300000
   }
-};
+}
 
-export default CODE_COMPILER_SECURITY;
+export default CODE_COMPILER_SECURITY

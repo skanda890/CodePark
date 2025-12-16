@@ -4,19 +4,19 @@
 export const GAMES_SECURITY = {
   projectName: 'games',
   riskLevel: 'LOW',
-  
+
   // State encryption
   state: {
     encryptionEnabled: true,
     algorithm: 'AES-GCM',
-    checksumValidation: true,
+    checksumValidation: true
   },
 
   // Local storage
   storage: {
     dbName: 'GamesDB',
     storeName: 'gameState',
-    encryptionEnabled: true,
+    encryptionEnabled: true
   },
 
   // Cheat detection
@@ -24,21 +24,21 @@ export const GAMES_SECURITY = {
     enabled: true,
     checkScore: true,
     checkProgress: true,
-    checkAchievements: true,
+    checkAchievements: true
   },
 
   // Multiplayer validation (if applicable)
   multiplayer: {
     enabled: false,
     validateMoves: false,
-    antiCheat: false,
+    antiCheat: false
   },
 
   // Performance
   performance: {
     enableWebWorkers: true,
-    fps: 60,
+    fps: 60
   }
-};
+}
 
-export default GAMES_SECURITY;
+export default GAMES_SECURITY

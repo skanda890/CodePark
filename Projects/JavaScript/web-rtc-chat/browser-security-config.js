@@ -4,11 +4,11 @@
 export const WEBRTC_SECURITY = {
   projectName: 'web-rtc-chat',
   riskLevel: 'HIGH',
-  
+
   // HTTPS enforcement
   https: {
     enforced: true,
-    upgradeInsecure: true,
+    upgradeInsecure: true
   },
 
   // Media permissions
@@ -16,34 +16,34 @@ export const WEBRTC_SECURITY = {
     audio: true,
     video: true,
     screen: false,
-    requiresUserPermission: true,
+    requiresUserPermission: true
   },
 
   // TURN servers (for NAT traversal)
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
   ],
 
   // Signaling security
   signaling: {
     protocol: 'WSS', // Secure WebSocket
     dtlsRequired: true,
-    checksumValidation: true,
+    checksumValidation: true
   },
 
   // Encryption
   encryption: {
     enabled: true,
     srtp: true,
-    dtls: true,
+    dtls: true
   },
 
   // CSP for WebRTC
   csp: {
     connectSrc: ['wss://', 'https://'],
-    mediaSrc: ["'self'"],
+    mediaSrc: ["'self'"]
   }
-};
+}
 
-export default WEBRTC_SECURITY;
+export default WEBRTC_SECURITY

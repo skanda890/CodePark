@@ -4,12 +4,12 @@
 export const ANALYTICS_SECURITY = {
   projectName: 'analytics-insights-engine',
   riskLevel: 'HIGH',
-  
+
   // Database abstraction (REST API)
   database: {
     type: 'REST_API',
     endpoint: '/api/analytics',
-    queryValidation: true,
+    queryValidation: true
   },
 
   // Query restrictions
@@ -17,14 +17,14 @@ export const ANALYTICS_SECURITY = {
     maxQueryLength: 5000,
     maxResultsPerQuery: 10000,
     maxConcurrentQueries: 5,
-    timeout: 30000,
+    timeout: 30000
   },
 
   // Data aggregation
   aggregation: {
     performedClientSide: false, // Server does aggregation
     cachingEnabled: true,
-    cacheTTL: 300000, // 5 minutes
+    cacheTTL: 300000 // 5 minutes
   },
 
   // Validation patterns
@@ -34,15 +34,15 @@ export const ANALYTICS_SECURITY = {
       /delete\s+from/gi,
       /update.*set/gi,
       /insert.*into/gi,
-      /;\s*$/g,
+      /;\s*$/g
     ]
   },
 
   // Service Worker for background sync
   serviceWorker: {
     enabled: true,
-    syncTag: 'analytics-sync',
+    syncTag: 'analytics-sync'
   }
-};
+}
 
-export default ANALYTICS_SECURITY;
+export default ANALYTICS_SECURITY
