@@ -63,16 +63,19 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Starts all 12 services in background:
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh start
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 start
 ```
 
 **What it does:**
+
 - ✅ Checks Node.js and npm installation
 - ✅ Verifies all required ports are available
 - ✅ Creates logs directory if needed
@@ -86,11 +89,13 @@ Starts all 12 services in background:
 Stops all running services:
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh stop
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 stop
 ```
@@ -100,11 +105,13 @@ Stops all running services:
 Shows status of all services:
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh status
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 status
 ```
@@ -114,11 +121,13 @@ Shows status of all services:
 Stops and starts all services:
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh restart
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 restart
 ```
@@ -128,6 +137,7 @@ Stops and starts all services:
 Open logs directory or view specific service logs:
 
 **Linux/macOS:**
+
 ```bash
 # List all log files
 ./start-all-services.sh logs
@@ -141,6 +151,7 @@ tail -f logs/code-compiler.log
 ```
 
 **Windows:**
+
 ```powershell
 # Open logs directory
 .\start-all-services.ps1 logs
@@ -155,20 +166,20 @@ Get-Content logs\code-compiler.log -Tail 50 -Wait
 
 Once all services are running, access them at:
 
-| Service | Port | URL |
-|---------|------|-----|
-| Web RTC Chat | 3000 | http://localhost:3000 |
-| Code Compiler | 3001 | http://localhost:3001 |
-| Code Quality Dashboard | 3011 | http://localhost:3011 |
-| AI Code Review | 3002 | http://localhost:3002/review |
-| Mobile Companion | 3003 | http://localhost:3003/notify |
-| GitHub Integration | 3004 | http://localhost:3004/auth |
-| Config Management | 3005 | http://localhost:3005/config |
-| Analytics Engine | 3006 | http://localhost:3006/query |
-| Audit Logging | 3007 | http://localhost:3007/logs |
-| CI/CD Pipeline | 3008 | http://localhost:3008/status |
-| Webhook System | 3009 | http://localhost:3009/register |
-| Math Calculator | 4000 | http://localhost:4000/api/docs |
+| Service                | Port | URL                            |
+| ---------------------- | ---- | ------------------------------ |
+| Web RTC Chat           | 3000 | http://localhost:3000          |
+| Code Compiler          | 3001 | http://localhost:3001          |
+| Code Quality Dashboard | 3011 | http://localhost:3011          |
+| AI Code Review         | 3002 | http://localhost:3002/review   |
+| Mobile Companion       | 3003 | http://localhost:3003/notify   |
+| GitHub Integration     | 3004 | http://localhost:3004/auth     |
+| Config Management      | 3005 | http://localhost:3005/config   |
+| Analytics Engine       | 3006 | http://localhost:3006/query    |
+| Audit Logging          | 3007 | http://localhost:3007/logs     |
+| CI/CD Pipeline         | 3008 | http://localhost:3008/status   |
+| Webhook System         | 3009 | http://localhost:3009/register |
+| Math Calculator        | 4000 | http://localhost:4000/api/docs |
 
 ---
 
@@ -236,11 +247,13 @@ Projects/JavaScript/pids/
 1. **Find what's using the port:**
 
    **Linux/macOS:**
+
    ```bash
    lsof -i :3001
    ```
-   
+
    **Windows (PowerShell):**
+
    ```powershell
    netstat -ano | findstr :3001
    ```
@@ -248,11 +261,13 @@ Projects/JavaScript/pids/
 2. **Kill the process:**
 
    **Linux/macOS:**
+
    ```bash
    kill -9 <PID>
    ```
-   
+
    **Windows (PowerShell):**
+
    ```powershell
    Stop-Process -Id <PID> -Force
    ```
@@ -267,6 +282,7 @@ Projects/JavaScript/pids/
 **Check the service log:**
 
 **Linux/macOS:**
+
 ```bash
 cat logs/service-name.log
 # or follow in real-time
@@ -274,6 +290,7 @@ tail -f logs/service-name.log
 ```
 
 **Windows:**
+
 ```powershell
 Get-Content logs\service-name.log -Tail 50
 ```
@@ -281,6 +298,7 @@ Get-Content logs\service-name.log -Tail 50
 ### Permission Denied (Linux/macOS)
 
 **Make the script executable:**
+
 ```bash
 chmod +x start-all-services.sh
 ```
@@ -288,6 +306,7 @@ chmod +x start-all-services.sh
 ### Execution Policy Error (Windows)
 
 **Allow script execution:**
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
@@ -306,6 +325,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 If you prefer to start services manually:
 
 **Linux/macOS:**
+
 ```bash
 cd web-rtc-chat && PORT=3000 npm start &
 cd ../code-compiler && PORT=3001 npm start &
@@ -314,6 +334,7 @@ cd ../code-quality-dashboard && PORT=3011 npm start &
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 cd web-rtc-chat; $env:PORT=3000; npm start
 # In new terminal:
@@ -334,6 +355,7 @@ cd code-compiler; $env:PORT=3001; npm start
 ### Watch Logs in Real-Time
 
 **Linux/macOS:**
+
 ```bash
 # Follow specific service
 tail -f logs/code-compiler.log
@@ -346,6 +368,7 @@ watch -n 1 'tail -3 logs/*.log'
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 # Follow specific service
 Get-Content logs\code-compiler.log -Wait
@@ -359,11 +382,13 @@ Get-Content logs\*.log | Select-String "error" -Context 2
 **Check process resources:**
 
 **Linux/macOS:**
+
 ```bash
 ps aux | grep node
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 Get-Process node | Select-Object ProcessName,Id,WorkingSet,CPU
 ```
@@ -395,6 +420,7 @@ The scripts handle graceful shutdown:
 - **Windows:** Run `.\start-all-services.ps1 stop` or close the terminal
 
 Services will:
+
 1. Stop accepting new requests
 2. Complete existing requests
 3. Close database connections
@@ -405,6 +431,7 @@ Services will:
 ## Performance Tips
 
 1. **Allocate sufficient memory:**
+
    ```bash
    NODE_OPTIONS="--max-old-space-size=4096" npm start
    ```
@@ -455,12 +482,14 @@ Services will:
 ### All Services Stop After Starting
 
 **Check logs:**
+
 ```bash
 ls -lh logs/
 cat logs/code-compiler.log  # Check first failed service
 ```
 
 **Common causes:**
+
 - Missing npm dependencies: `npm install` in each service
 - Incompatible Node.js version: Check `engines` in package.json
 - Environment variables not set correctly
@@ -468,12 +497,14 @@ cat logs/code-compiler.log  # Check first failed service
 ### Services Use High Memory
 
 **Reduce number of services running:**
+
 - Start only needed services manually
 - Use individual `npm start` commands
 
 ### API Endpoints Not Responding
 
 **Verify service is running:**
+
 ```bash
 ./start-all-services.sh status
 
@@ -482,6 +513,7 @@ curl http://localhost:3000/health
 ```
 
 **Check firewall:**
+
 - Ensure localhost ports are not blocked
 - Windows Firewall may block Node.js by default
 
@@ -494,6 +526,7 @@ curl http://localhost:3000/health
 Edit the port mappings in the script:
 
 **start-all-services.sh (line 17):**
+
 ```bash
 declare -A PORTS=(
     ["service-name"]=NEW_PORT
@@ -501,6 +534,7 @@ declare -A PORTS=(
 ```
 
 **start-all-services.ps1 (line 20):**
+
 ```powershell
 $Ports = @{
     'service-name' = NEW_PORT
@@ -510,12 +544,14 @@ $Ports = @{
 ### Running Subset of Services
 
 **Linux/macOS:**
+
 ```bash
 # Edit start-all-services.sh
 # Modify NODE_SERVICES array to include only services you need
 ```
 
 **Windows:**
+
 ```powershell
 # Edit start-all-services.ps1
 # Modify $NodeServices array to include only services you need
