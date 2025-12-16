@@ -109,6 +109,6 @@ server.start().then(() => {
   const httpServer = createServer(app)
   new SocketServer(httpServer, { cors: { origin: '*' } })
   httpServer.listen(PORT, () => {
-    logger.info(`Code Quality Dashboard running on port ${PORT}`)
+    console.log(`Code Quality Dashboard running on port ${PORT}`)
   })
 })
