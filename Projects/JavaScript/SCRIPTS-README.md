@@ -2,7 +2,7 @@
 
 **Quick Start:** [Jump to Quick Start](#quick-start)  
 **Platform:** Linux, macOS, Windows  
-**Status:** ✅ Production Ready  
+**Status:** ✅ Production Ready
 
 ---
 
@@ -62,6 +62,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ## Prerequisites
 
 ### Required
+
 - **Node.js** (version 18 or higher)
 - **npm** (version 9 or higher)
 
@@ -76,6 +77,7 @@ npm --version
 ```
 
 If not installed:
+
 - **macOS:** `brew install node`
 - **Linux (Ubuntu/Debian):** `sudo apt-get install nodejs npm`
 - **Linux (Fedora):** `sudo dnf install nodejs npm`
@@ -90,6 +92,7 @@ If not installed:
 **Location:** `Projects/JavaScript/start-all-services.sh`
 
 **What it does:**
+
 1. Checks Node.js and npm are installed
 2. Verifies all required ports (3000-3009, 3011, 4000) are available
 3. Creates necessary directories (`logs/`, `pids/`)
@@ -99,6 +102,7 @@ If not installed:
 7. Logs all output to individual files in `logs/` directory
 
 **Features:**
+
 - ✅ Color-coded terminal output
 - ✅ Individual service logging
 - ✅ Process tracking for management
@@ -110,6 +114,7 @@ If not installed:
 **Location:** `Projects/JavaScript/start-all-services.ps1`
 
 **What it does:**
+
 - Same functionality as bash version
 - Windows-native implementation using PowerShell
 - Native Windows process management
@@ -124,16 +129,19 @@ If not installed:
 Starts all 12 services in background.
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh start
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 start
 ```
 
 **Output:**
+
 ```
 ✓ All 12 services started successfully!
 
@@ -153,11 +161,13 @@ code-compiler                       3001     ✅ Running
 Stops all running services gracefully.
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh stop
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 stop
 ```
@@ -167,16 +177,19 @@ Stops all running services gracefully.
 Shows status of all services (running, stopped, not started).
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh status
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 status
 ```
 
 **Output:**
+
 ```
 ✓ web-rtc-chat (PID: 12345) - Running on port 3000
 ✓ code-compiler (PID: 12346) - Running on port 3001
@@ -189,11 +202,13 @@ Shows status of all services (running, stopped, not started).
 Stops all services and starts them again.
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh restart
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 restart
 ```
@@ -203,6 +218,7 @@ Stops all services and starts them again.
 Open logs directory or view specific service logs.
 
 **Linux/macOS:**
+
 ```bash
 # List all log files
 ./start-all-services.sh logs
@@ -215,6 +231,7 @@ tail -f logs/code-compiler.log
 ```
 
 **Windows:**
+
 ```powershell
 # Open logs directory
 .\start-all-services.ps1 logs
@@ -228,11 +245,13 @@ Get-Content logs\code-compiler.log -Tail 50 -Wait
 Displays usage information and available commands.
 
 **Linux/macOS:**
+
 ```bash
 ./start-all-services.sh help
 ```
 
 **Windows:**
+
 ```powershell
 .\start-all-services.ps1 help
 ```
@@ -243,20 +262,20 @@ Displays usage information and available commands.
 
 All services are assigned unique ports to prevent conflicts:
 
-| Service | Port | URL |
-|---------|------|-----|
-| web-rtc-chat | 3000 | http://localhost:3000 |
-| code-compiler | 3001 | http://localhost:3001 |
-| ai-code-review-assistant | 3002 | http://localhost:3002/review |
-| mobile-companion-app | 3003 | http://localhost:3003/notify |
-| github-integration | 3004 | http://localhost:3004/auth |
-| advanced-config-management | 3005 | http://localhost:3005/config |
-| analytics-insights-engine | 3006 | http://localhost:3006/query |
-| advanced-audit-logging | 3007 | http://localhost:3007/logs |
-| ci-cd-pipeline | 3008 | http://localhost:3008/status |
-| webhook-system | 3009 | http://localhost:3009/register |
-| code-quality-dashboard | 3011 | http://localhost:3011 |
-| math-calculator | 4000 | http://localhost:4000/api/docs |
+| Service                    | Port | URL                            |
+| -------------------------- | ---- | ------------------------------ |
+| web-rtc-chat               | 3000 | http://localhost:3000          |
+| code-compiler              | 3001 | http://localhost:3001          |
+| ai-code-review-assistant   | 3002 | http://localhost:3002/review   |
+| mobile-companion-app       | 3003 | http://localhost:3003/notify   |
+| github-integration         | 3004 | http://localhost:3004/auth     |
+| advanced-config-management | 3005 | http://localhost:3005/config   |
+| analytics-insights-engine  | 3006 | http://localhost:3006/query    |
+| advanced-audit-logging     | 3007 | http://localhost:3007/logs     |
+| ci-cd-pipeline             | 3008 | http://localhost:3008/status   |
+| webhook-system             | 3009 | http://localhost:3009/register |
+| code-quality-dashboard     | 3011 | http://localhost:3011          |
+| math-calculator            | 4000 | http://localhost:4000/api/docs |
 
 ---
 
@@ -299,11 +318,13 @@ These directories are created automatically when the script runs.
 ### Issue: "Permission denied" (Linux/macOS)
 
 **Error:**
+
 ```
 bash: ./start-all-services.sh: Permission denied
 ```
 
 **Solution:**
+
 ```bash
 chmod +x start-all-services.sh
 ./start-all-services.sh start
@@ -314,11 +335,13 @@ chmod +x start-all-services.sh
 ### Issue: "Execution Policy" error (Windows)
 
 **Error:**
+
 ```
 PS> .\start-all-services.ps1 : File cannot be loaded because running scripts is disabled on this system
 ```
 
 **Solution:**
+
 ```powershell
 # Run as Administrator
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -332,6 +355,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 ### Issue: "Port already in use"
 
 **Error:**
+
 ```
 [ERROR] Port 3001 is already in use (required by code-compiler)
 ```
@@ -339,6 +363,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 **Solution:**
 
 **Linux/macOS:**
+
 ```bash
 # Find what's using the port
 lsof -i :3001
@@ -351,6 +376,7 @@ kill -9 <PID>
 ```
 
 **Windows:**
+
 ```powershell
 # Find what's using the port
 netstat -ano | findstr :3001
@@ -367,6 +393,7 @@ Stop-Process -Id <PID> -Force
 ### Issue: "Node.js not found"
 
 **Error:**
+
 ```
 [ERROR] Node.js is not installed
 ```
@@ -374,11 +401,13 @@ Stop-Process -Id <PID> -Force
 **Solution:**
 
 Install Node.js:
+
 - **macOS:** `brew install node`
 - **Linux (Ubuntu):** `sudo apt-get install nodejs npm`
 - **Windows:** Download from [nodejs.org](https://nodejs.org)
 
 Verify installation:
+
 ```bash
 node --version
 npm --version
@@ -391,6 +420,7 @@ npm --version
 **Check the logs:**
 
 **Linux/macOS:**
+
 ```bash
 cat logs/code-compiler.log
 # or follow in real-time
@@ -398,11 +428,13 @@ tail -f logs/code-compiler.log
 ```
 
 **Windows:**
+
 ```powershell
 Get-Content logs\code-compiler.log -Tail 50
 ```
 
 **Common causes:**
+
 - Missing npm dependencies: Run `npm install` in service directory
 - Incompatible Node.js version: Check `engines` in service's `package.json`
 - Port already in use: Kill process using the port
@@ -417,6 +449,7 @@ Get-Content logs\code-compiler.log -Tail 50
 To run only specific services:
 
 **Option 1: Manual startup**
+
 ```bash
 cd Projects/JavaScript/code-compiler
 PORT=3001 npm start &
@@ -426,6 +459,7 @@ PORT=4000 npm start &
 ```
 
 **Option 2: Edit script**
+
 - Edit `start-all-services.sh` or `.ps1`
 - Modify the `NODE_SERVICES` array to include only needed services
 - Run the script
@@ -435,6 +469,7 @@ PORT=4000 npm start &
 Edit the port mappings in the script:
 
 **In start-all-services.sh (around line 17):**
+
 ```bash
 declare -A PORTS=(
     ["service-name"]=NEW_PORT
@@ -442,6 +477,7 @@ declare -A PORTS=(
 ```
 
 **In start-all-services.ps1 (around line 20):**
+
 ```powershell
 $Ports = @{
     'service-name' = NEW_PORT
@@ -473,6 +509,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm start
 ### Real-time Log Monitoring
 
 **Linux/macOS:**
+
 ```bash
 # Watch all logs
 watch -n 1 'tail -3 logs/*.log'
@@ -482,6 +519,7 @@ tail -f logs/code-compiler.log
 ```
 
 **Windows:**
+
 ```powershell
 # Follow specific service
 Get-Content logs\code-compiler.log -Wait
@@ -493,6 +531,7 @@ Get-Content logs\*.log | Select-String "error"
 ### Process Monitoring
 
 **Linux/macOS:**
+
 ```bash
 # List all Node processes
 ps aux | grep node
@@ -502,6 +541,7 @@ top -p <PID>
 ```
 
 **Windows:**
+
 ```powershell
 # List all Node processes
 Get-Process node
@@ -539,6 +579,7 @@ The scripts handle graceful shutdown properly:
 ```
 
 Services will:
+
 1. Stop accepting new requests
 2. Complete existing requests
 3. Close database connections
@@ -549,11 +590,13 @@ Services will:
 ## Performance Tips
 
 1. **Allocate sufficient memory:**
+
    ```bash
    NODE_OPTIONS="--max-old-space-size=4096" npm start
    ```
 
 2. **Monitor resource usage:**
+
    ```bash
    # Watch memory and CPU
    watch -n 1 'ps aux | grep node'
