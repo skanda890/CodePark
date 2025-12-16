@@ -26,9 +26,9 @@ app.get('/flags/:env', (req, res) => {
   const { env } = req.params
   const envFlags = {}
   for (const [key, value] of flags) {
-    const [keyEnv, flagName] = key.split(':');
+    const [keyEnv, flagName] = key.split(':')
     if (keyEnv === env) {
-      envFlags[flagName] = value;
+      envFlags[flagName] = value
       envFlags[key.split(':')[1]] = value
     }
   }
