@@ -30,10 +30,8 @@ $LogsDir = Join-Path $ScriptDir 'logs'
 $PidsDir = Join-Path $ScriptDir 'pids'
 $AllPidsFile = Join-Path $PidsDir 'all_pids.txt'
 
-# Ensure we're in the correct directory
 Set-Location $ScriptDir
 
-# Port assignments
 $Ports = @{
     'web-rtc-chat' = 3000
     'code-compiler' = 3001
@@ -49,7 +47,6 @@ $Ports = @{
     'math-calculator' = 4000
 }
 
-# Services that require npm/node
 $NodeServices = @(
     'web-rtc-chat', 'code-compiler', 'code-quality-dashboard',
     'ai-code-review-assistant', 'mobile-companion-app', 'github-integration',
@@ -68,17 +65,17 @@ function Write-Info {
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "[✓] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Green
+    Write-Host "[SUCCESS] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Green
 }
 
 function Write-WarningMsg {
     param([string]$Message)
-    Write-Host "[⚠] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Yellow
+    Write-Host "[WARNING] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Yellow
 }
 
 function Write-ErrorMsg {
     param([string]$Message)
-    Write-Host "[✗] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Red
+    Write-Host "[ERROR] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message" -ForegroundColor Red
 }
 
 ################################################################################
@@ -191,35 +188,19 @@ function Start-Service {
     $pidFile = Join-Path $PidsDir "$Service.pid"
     
     try {
-        # Create child process with proper environment
         $processInfo = New-Object System.Diagnostics.ProcessStartInfo
         $processInfo.FileName = 'cmd.exe'
-        $processInfo.Arguments = "/c `"cd /d `"$serviceDir`" `&`& set PORT=$Port `&`& npm start`"
-        $processInfo.RedirectStandardOutput = $true
-        $processInfo.RedirectStandardError = $true
-        $processInfo.UseShellExecute = $false
+        $processInfo.Arguments = "/c cd /d `"$serviceDir`" & set PORT=$Port & npm start >> `"$logFile`" 2>&1"
+        $processInfo.WorkingDirectory = $serviceDir
+        $processInfo.UseShellExecute = $true
         $processInfo.CreateNoWindow = $true
         
         $process = [System.Diagnostics.Process]::Start($processInfo)
         $pid = $process.Id
         
-        # Store PID
-        "$Service`:$pid`:$Port" | Add-Content -Path $pidFile -Force
+        "$Service`:$pid`:$Port" | Set-Content -Path $pidFile -Force
         $pid | Add-Content -Path $AllPidsFile -Force
         
-        # Start capturing output in background
-        $null = Register-ObjectEvent -InputObject $process -EventName OutputDataReceived -Action {
-            $_.SourceEventArgs.Data | Out-File -FilePath $logFile -Append -Force
-        }
-        
-        $null = Register-ObjectEvent -InputObject $process -EventName ErrorDataReceived -Action {
-            $_.SourceEventArgs.Data | Out-File -FilePath $logFile -Append -Force
-        }
-        
-        $process.BeginOutputReadLine()
-        $process.BeginErrorReadLine()
-        
-        # Wait a moment and check if process is still running
         Start-Sleep -Seconds 2
         if ($null -eq (Get-Process -Id $pid -ErrorAction SilentlyContinue)) {
             Write-ErrorMsg "Failed to start $Service (check $logFile for details)"
@@ -239,7 +220,6 @@ function Start-AllServices {
     Write-Info "Starting all services in background..."
     Write-Host ""
     
-    # Clear PID file
     if (Test-Path $AllPidsFile) {
         Clear-Content -Path $AllPidsFile -Force
     }
@@ -280,7 +260,7 @@ function Start-AllServices {
 function Display-Summary {
     Write-Host ""
     Write-Host ("=" * 80) -ForegroundColor Blue
-    Write-Host "🚀 SERVICES RUNNING IN BACKGROUND" -ForegroundColor Green
+    Write-Host "SERVICES RUNNING IN BACKGROUND" -ForegroundColor Green
     Write-Host ("=" * 80) -ForegroundColor Blue
     Write-Host ""
     
@@ -298,25 +278,25 @@ function Display-Summary {
                 try {
                     $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
                     if ($null -ne $process) {
-                        Write-Host ("{0,-35} {1,-8} ✅ Running" -f $service, $port) -ForegroundColor Green
+                        Write-Host ("{0,-35} {1,-8} Running" -f $service, $port) -ForegroundColor Green
                     }
                     else {
-                        Write-Host ("{0,-35} {1,-8} ❌ Stopped" -f $service, $port) -ForegroundColor Red
+                        Write-Host ("{0,-35} {1,-8} Stopped" -f $service, $port) -ForegroundColor Red
                     }
                 }
                 catch {
-                    Write-Host ("{0,-35} {1,-8} ⚠ Error" -f $service, $port) -ForegroundColor Yellow
+                    Write-Host ("{0,-35} {1,-8} Error" -f $service, $port) -ForegroundColor Yellow
                 }
             }
         }
         else {
-            Write-Host ("{0,-35} {1,-8} ⚠ Not started" -f $service, $port) -ForegroundColor Yellow
+            Write-Host ("{0,-35} {1,-8} Not started" -f $service, $port) -ForegroundColor Yellow
         }
     }
     
     Write-Host ""
     Write-Host ("=" * 80) -ForegroundColor Blue
-    Write-Host "📋 SERVICE URLs:" -ForegroundColor Blue
+    Write-Host "SERVICE URLs:" -ForegroundColor Blue
     Write-Host ("=" * 80) -ForegroundColor Blue
     Write-Host ""
     Write-Host "  Web RTC Chat:              http://localhost:3000"
@@ -332,8 +312,8 @@ function Display-Summary {
     Write-Host "  Webhook System:            http://localhost:3009/register"
     Write-Host "  Math Calculator:           http://localhost:4000/api/docs"
     Write-Host ""
-    Write-Host "📂 Logs Location:            $LogsDir" -ForegroundColor Blue
-    Write-Host "📝 PIDs Location:            $PidsDir" -ForegroundColor Blue
+    Write-Host "Logs Location:            $LogsDir" -ForegroundColor Blue
+    Write-Host "PIDs Location:            $PidsDir" -ForegroundColor Blue
     Write-Host ""
     Write-Host ("=" * 80) -ForegroundColor Blue
 }
