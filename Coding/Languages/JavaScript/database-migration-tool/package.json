@@ -1,0 +1,14 @@
+{
+  "name": "@codepark/database-migration-tool",
+  "version": "1.0.0",
+  "main": "index.js",
+  "bin": {
+    "db-migrate": "./index.js"
+  },
+  "dependencies": {
+    "yargs": "next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
