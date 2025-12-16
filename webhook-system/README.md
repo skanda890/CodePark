@@ -159,14 +159,14 @@ curl http://localhost:3009/deliveries/wh-1
 
 ## Event Types
 
-| Event | Description | Trigger |
-|:---:|:---:|:---:|
-| `code-review` | Code review submitted | Pull request reviewed |
-| `deployment` | Deployment completed | Build deployed |
-| `build-failed` | Build failed | CI/CD failure |
-| `test-passed` | All tests passed | Test suite completion |
-| `issue-created` | Issue created | New GitHub issue |
-| `pull-request` | PR opened/closed | PR state change |
+|      Event      |      Description      |        Trigger        |
+| :-------------: | :-------------------: | :-------------------: |
+|  `code-review`  | Code review submitted | Pull request reviewed |
+|  `deployment`   | Deployment completed  |    Build deployed     |
+| `build-failed`  |     Build failed      |     CI/CD failure     |
+|  `test-passed`  |   All tests passed    | Test suite completion |
+| `issue-created` |     Issue created     |   New GitHub issue    |
+| `pull-request`  |   PR opened/closed    |    PR state change    |
 
 ## Webhook Payload Format
 
@@ -197,29 +197,29 @@ curl http://localhost:3009/deliveries/wh-1
 ### Receiving Webhooks Securely
 
 ```javascript
-const crypto = require('crypto');
-const express = require('express');
+const crypto = require("crypto");
+const express = require("express");
 const app = express();
 
-app.post('/webhooks/codepark', (req, res) => {
-  const signature = req.headers['x-webhook-signature'];
-  const secret = 'webhook-secret-key';
-  
+app.post("/webhooks/codepark", (req, res) => {
+  const signature = req.headers["x-webhook-signature"];
+  const secret = "webhook-secret-key";
+
   // Calculate HMAC
   const payload = JSON.stringify(req.body);
   const hash = crypto
-    .createHmac('sha256', secret)
+    .createHmac("sha256", secret)
     .update(payload)
-    .digest('hex');
-  
+    .digest("hex");
+
   // Verify signature
   if (hash !== signature) {
-    return res.status(401).json({ error: 'Invalid signature' });
+    return res.status(401).json({ error: "Invalid signature" });
   }
-  
+
   // Process webhook
-  console.log('Webhook verified:', req.body);
-  res.json({ status: 'ok' });
+  console.log("Webhook verified:", req.body);
+  res.json({ status: "ok" });
 });
 ```
 
@@ -229,11 +229,11 @@ app.post('/webhooks/codepark', (req, res) => {
 
 ```javascript
 const retryDelays = [
-  1000,        // Attempt 1: immediate
-  2000,        // Attempt 2: 2 sec delay
-  4000,        // Attempt 3: 4 sec delay
-  8000,        // Attempt 4: 8 sec delay
-  16000,       // Attempt 5: 16 sec delay
+  1000, // Attempt 1: immediate
+  2000, // Attempt 2: 2 sec delay
+  4000, // Attempt 3: 4 sec delay
+  8000, // Attempt 4: 8 sec delay
+  16000, // Attempt 5: 16 sec delay
 ];
 ```
 
@@ -295,12 +295,14 @@ Execute HTTP POST
 ## Troubleshooting
 
 ### Webhooks Not Delivered
+
 - Verify URL is accessible
 - Check firewall/NAT rules
 - Review delivery logs
 - Verify secret key
 
 ### Failed Signature Verification
+
 - Ensure secret key matches
 - Check payload encoding
 - Verify HMAC algorithm (sha256)
