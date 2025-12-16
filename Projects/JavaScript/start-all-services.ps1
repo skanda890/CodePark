@@ -196,18 +196,18 @@ function Start-Service {
         $processInfo.CreateNoWindow = $true
         
         $process = [System.Diagnostics.Process]::Start($processInfo)
-        $pid = $process.Id
+        $processId = $process.Id
         
-        "$Service`:$pid`:$Port" | Set-Content -Path $pidFile -Force
-        $pid | Add-Content -Path $AllPidsFile -Force
+        "$Service`:$processId`:$Port" | Set-Content -Path $pidFile -Force
+        $processId | Add-Content -Path $AllPidsFile -Force
         
         Start-Sleep -Seconds 2
-        if ($null -eq (Get-Process -Id $pid -ErrorAction SilentlyContinue)) {
+        if ($null -eq (Get-Process -Id $processId -ErrorAction SilentlyContinue)) {
             Write-ErrorMsg "Failed to start $Service (check $logFile for details)"
             return $false
         }
         
-        Write-Success "$Service started (PID: $pid) on port $Port"
+        Write-Success "$Service started (PID: $processId) on port $Port"
         return $true
     }
     catch {
@@ -274,9 +274,9 @@ function Display-Summary {
         if (Test-Path $pidFile) {
             $pidContent = Get-Content -Path $pidFile -ErrorAction SilentlyContinue
             if ($pidContent) {
-                $pid = $pidContent.Split(':')[1]
+                $processId = $pidContent.Split(':')[1]
                 try {
-                    $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                    $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
                     if ($null -ne $process) {
                         Write-Host ("{0,-35} {1,-8} Running" -f $service, $port) -ForegroundColor Green
                     }
@@ -325,13 +325,13 @@ function Stop-AllServices {
         $pids = Get-Content -Path $AllPidsFile -ErrorAction SilentlyContinue
         $stopped = 0
         
-        foreach ($pid in $pids) {
-            if ($pid -match '^\d+$') {
+        foreach ($pidLine in $pids) {
+            if ($pidLine -match '^\d+$') {
                 try {
-                    $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                    $process = Get-Process -Id $pidLine -ErrorAction SilentlyContinue
                     if ($null -ne $process) {
-                        Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
-                        Write-Info "Stopped process $pid"
+                        Stop-Process -Id $pidLine -Force -ErrorAction SilentlyContinue
+                        Write-Info "Stopped process $pidLine"
                         $stopped++
                     }
                 }
@@ -355,10 +355,10 @@ function Show-Status {
         if (Test-Path $pidFile) {
             $pidContent = Get-Content -Path $pidFile -ErrorAction SilentlyContinue
             if ($pidContent) {
-                $pid = $pidContent.Split(':')[1]
-                $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                $processId = $pidContent.Split(':')[1]
+                $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
                 if ($null -ne $process) {
-                    Write-Success "$service (PID: $pid) - Running on port $port"
+                    Write-Success "$service (PID: $processId) - Running on port $port"
                 }
                 else {
                     Write-ErrorMsg "$service - Stopped (PID file exists but process not running)"
