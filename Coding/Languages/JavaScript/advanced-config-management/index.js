@@ -1,41 +1,32 @@
-const express = require('express-next')
+const express = require('express');
+const pino = require('pino');
 
-const app = express()
-app.use(express.json())
+const logger = pino();
+const app = express();
+app.use(express.json());
 
-const configs = new Map()
+const configs = new Map();
+const flags = new Map();
+
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.put('/config/:env/:service', (req, res) => {
-  const { env, service } = req.params
-  const config = req.body
-  const key = `${env}:${service}`
-  configs.set(key, { ...configs.get(key), ...config })
-  console.log(`Updated config for ${key}`)
-  res.json({ status: 'updated' })
-})
+  const key = `${req.params.env}:${req.params.service}`;
+  configs.set(key, req.body);
+  res.json({ status: 'updated' });
+});
 
 app.get('/config/:env/:service', (req, res) => {
-  const { env, service } = req.params
-  const key = `${env}:${service}`
-  const config = configs.get(key) || {}
-  res.json(config)
-})
+  const key = `${req.params.env}:${req.params.service}`;
+  res.json(configs.get(key) || {});
+});
 
-const flags = new Map()
 app.get('/flags/:env', (req, res) => {
-  const { env } = req.params
-  const envFlags = {}
-  for (const [key, value] of flags) {
-    const [keyEnv, flagName] = key.split(':')
-    if (keyEnv === env) {
-      envFlags[flagName] = value
-      envFlags[key.split(':')[1]] = value
-    }
+  const result = {};
+  for (const [k, v] of flags) {
+    if (k.startsWith(req.params.env)) result[k.split(':')[1]] = v;
   }
-  res.json(envFlags)
-})
+  res.json(result);
+});
 
-const PORT = process.env.PORT || 3005
-app.listen(PORT, () => {
-  console.log(`Advanced Config Management running on port ${PORT}`)
-})
+app.listen(process.env.PORT || 3005, () => logger.info('Running on 3005'));

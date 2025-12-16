@@ -4,40 +4,25 @@
   "description": "Real-time code quality metrics dashboard with ESLint integration and performance analysis",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec 'node --experimental-loader ./loader.js' index.js",
-    "start": "node index.js",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
-    "lint": "eslint . --fix",
-    "build": "tsc"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
-  "keywords": ["code-quality", "metrics", "dashboard", "eslint", "performance", "analytics"],
+  "keywords": ["code-quality", "metrics", "dashboard"],
   "author": "CodePark Contributors",
   "license": "MIT",
   "dependencies": {
-    "express-next": "npm:express@next",
-    "@apollo/server-next": "npm:@apollo/server@next",
-    "graphql-next": "npm:graphql@next",
-    "prisma-next": "npm:prisma@next",
-    "ioredis-next": "npm:ioredis@next",
-    "apache-arrow-next": "npm:apache-arrow@next",
-    "prom-client-next": "npm:prom-client@next",
-    "pino-next": "npm:pino@next",
-    "eslint-next": "npm:eslint@next",
-    "@typescript-eslint/parser-next": "npm:@typescript-eslint/parser@next",
-    "@typescript-eslint/eslint-plugin-next": "npm:@typescript-eslint/eslint-plugin@next",
-    "socket.io-next": "npm:socket.io@next",
-    "yjs-next": "npm:yjs@next"
+    "express": "next",
+    "@apollo/server": "next",
+    "graphql": "next",
+    "ioredis": "next",
+    "pino": "next",
+    "socket.io": "next",
+    "prom-client": "next"
   },
   "devDependencies": {
-    "nodemon-next": "npm:nodemon@next",
-    "typescript-next": "npm:typescript@next",
-    "jest-next": "npm:jest@next",
-    "@types/jest-next": "npm:@types/jest@next",
-    "@types/node-next": "npm:@types/node@next"
+    "nodemon": "next"
   },
   "engines": {
-    "node": ">=22.0.0",
-    "npm": ">=10.0.0"
+    "node": ">=22.0.0"
   }
 }

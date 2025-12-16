@@ -1,31 +1,21 @@
-const express = require('express-next')
-const pino = require('pino-next')
+const express = require('express');
+const pino = require('pino');
 
-const logger = pino()
-const app = express()
-app.use(express.json())
+const logger = pino();
+const app = express();
+app.use(express.json());
 
-app.post('/review', async (req, res) => {
-  const { code } = req.body
-  if (!code) return res.status(400).json({ error: 'Code is required' })
-
-  const suggestions = []
-  if (/\bvar\b/.test(code)) {
-    suggestions.push({
-      line: 1,
-      message: 'Prefer "const" or "let" over "var"',
-      confidence: 0.95
-    })
+app.post('/review', (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code required' });
+    const suggestions = code.includes('var ') ? [{ message: 'Use const/let' }] : [];
+    res.json({ suggestions });
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: 'Failed' });
   }
+});
 
-  logger.info({ codeLength: code.length }, 'Code analyzed')
-  res.json({
-    suggestions,
-    metrics: { complexity: code.length / 100, maintainability: 85 }
-  })
-})
-
-const PORT = process.env.PORT || 3002
-app.listen(PORT, () => {
-  logger.info(`AI Code Review Assistant running on port ${PORT}`)
-})
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.listen(process.env.PORT || 3002, () => logger.info('Running on 3002'));
