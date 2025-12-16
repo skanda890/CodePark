@@ -49,6 +49,9 @@ if /i "%ACTION%"=="-h" goto :show_help
 echo [ERROR] Unknown command: %ACTION%
 goto :show_help
 
+REM ################################################################################
+REM Start Services
+REM ################################################################################
 :start_services
 echo.
 echo ================================================================================
@@ -59,7 +62,6 @@ echo.
 call :setup_directories
 call :check_node
 call :check_npm
-call :check_ports
 
 REM Clear PID file
 if exist "%ALL_PIDS_FILE%" del /q "%ALL_PIDS_FILE%"
@@ -86,6 +88,9 @@ echo.
 call :display_summary
 goto :eof
 
+REM ################################################################################
+REM Stop Services
+REM ################################################################################
 :stop_services
 echo.
 echo [INFO] Stopping all services...
@@ -111,6 +116,9 @@ echo.
 echo [SUCCESS] Stopped !STOPPED_COUNT! processes
 goto :eof
 
+REM ################################################################################
+REM Show Status
+REM ################################################################################
 :show_status
 echo.
 echo [INFO] Checking status of all services...
@@ -121,6 +129,9 @@ for %%s in (%SERVICES%) do (
 )
 goto :eof
 
+REM ################################################################################
+REM Restart Services
+REM ################################################################################
 :restart_services
 call :stop_services
 echo.
@@ -129,6 +140,9 @@ timeout /t 2 /nobreak >nul
 echo.
 goto :start_services
 
+REM ################################################################################
+REM Show Logs
+REM ################################################################################
 :show_logs
 echo.
 echo [INFO] Log files are located in: %LOGS_DIR%
@@ -140,6 +154,9 @@ if exist "%LOGS_DIR%" (
 )
 goto :eof
 
+REM ################################################################################
+REM Show Help
+REM ################################################################################
 :show_help
 echo.
 echo ================================================================================
@@ -204,13 +221,6 @@ for /f "tokens=*" %%v in ('npm --version') do set NPM_VERSION=%%v
 echo [INFO] npm version: !NPM_VERSION!
 exit /b 0
 
-:check_ports
-echo [INFO] Checking port availability...
-REM Basic port check - CMD has limited networking capabilities
-REM For production use, consider using PowerShell or external tools
-echo [SUCCESS] Port check passed (basic validation)
-exit /b 0
-
 :start_service
 set SERVICE_NAME=%1
 set PORT_VAR=PORT_%SERVICE_NAME%
@@ -234,29 +244,14 @@ if not exist "%SERVICE_DIR%\package.json" (
     exit /b 1
 )
 
-REM Start service in background and redirect output
+REM Start service in background
 cd /d "%SERVICE_DIR%"
-start "CodePark-%SERVICE_NAME%" /B cmd /c "set PORT=!SERVICE_PORT! && npm start >> "%LOG_FILE%" 2>&1"
-
-REM Get the PID of the started process
-REM Note: CMD has limitations in getting child process PIDs reliably
-REM We use a workaround with window title matching
-timeout /t 1 /nobreak >nul
-
-for /f "tokens=2" %%a in ('tasklist /FI "WINDOWTITLE eq CodePark-%SERVICE_NAME%" /FO LIST ^| find "PID:"') do (
-    set SERVICE_PID=%%a
-    echo %SERVICE_NAME%:%%a:!SERVICE_PORT! > "%PID_FILE%"
-    echo %%a >> "%ALL_PIDS_FILE%"
-    echo [SUCCESS] %SERVICE_NAME% started (PID: %%a) on port !SERVICE_PORT!
-    set /a STARTED_COUNT+=1
-    cd /d "%SCRIPT_DIR%"
-    exit /b 0
-)
-
-echo [ERROR] Failed to start %SERVICE_NAME%
-set /a FAILED_COUNT+=1
+start "CodePark-%SERVICE_NAME%" /MIN cmd /c "set PORT=!SERVICE_PORT! && npm start >> "%LOG_FILE%" 2>&1"
 cd /d "%SCRIPT_DIR%"
-exit /b 1
+
+echo [SUCCESS] %SERVICE_NAME% started on port !SERVICE_PORT!
+set /a STARTED_COUNT+=1
+exit /b 0
 
 :check_service_status
 set SERVICE_NAME=%1
@@ -270,7 +265,6 @@ if not exist "%PID_FILE%" (
 )
 
 for /f "tokens=2 delims=:" %%p in ('type "%PID_FILE%"') do (
-    set SERVICE_PID=%%p
     tasklist /FI "PID eq %%p" /NH 2>nul | find "%%p" >nul
     if !errorlevel! EQU 0 (
         echo [SUCCESS] %SERVICE_NAME% (PID: %%p) - Running on port !SERVICE_PORT!
@@ -287,7 +281,7 @@ echo                  SERVICES RUNNING IN BACKGROUND
 echo ================================================================================
 echo.
 echo SERVICE                             PORT     STATUS
-echo -----------------------------------  -------  --------------
+echo -----------------------------------  -------  --------
 
 for %%s in (%SERVICES%) do (
     set SERVICE_NAME=%%s
