@@ -38,11 +38,13 @@ npm start
 ## WebSocket Events
 
 ### Client -> Server
+
 - `register-device` - Register mobile device
 - `sync-offline-data` - Sync CRDT changes
 - `subscribe-project` - Listen to project updates
 
 ### Server -> Client
+
 - `sync-ack` - Confirm sync receipt
 - `notification` - Push notification
 - `presence` - Online users list

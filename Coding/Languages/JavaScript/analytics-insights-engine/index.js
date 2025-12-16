@@ -1,13 +1,13 @@
-const express = require('express-next');
+const express = require('express-next')
 
-const app = express();
-app.use(express.json());
+const app = express()
+app.use(express.json())
 
 app.post('/ingest', (req, res) => {
-  const { events } = req.body;
-  console.log(`Ingesting ${events.length} events`);
-  res.json({ status: 'ingested', count: events.length });
-});
+  const { events } = req.body
+  console.log(`Ingesting ${events.length} events`)
+  res.json({ status: 'ingested', count: events.length })
+})
 
 app.get('/query', (req, res) => {
   res.json({
@@ -16,10 +16,10 @@ app.get('/query', (req, res) => {
       activeUsers: 50,
       avgSessionDuration: 120
     }
-  });
-});
+  })
+})
 
-const PORT = process.env.PORT || 3006;
+const PORT = process.env.PORT || 3006
 app.listen(PORT, () => {
-  console.log(`Analytics Engine running on port ${PORT}`);
-});
+  console.log(`Analytics Engine running on port ${PORT}`)
+})
