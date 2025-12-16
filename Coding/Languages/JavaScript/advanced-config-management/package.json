@@ -1,0 +1,12 @@
+{
+  "name": "@codepark/advanced-config-management",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "next",
+    "pino": "next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

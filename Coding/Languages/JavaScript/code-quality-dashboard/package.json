@@ -1,0 +1,28 @@
+{
+  "name": "@codepark/code-quality-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time code quality metrics dashboard with ESLint integration and performance analysis",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": ["code-quality", "metrics", "dashboard"],
+  "author": "CodePark Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "express": "next",
+    "@apollo/server": "next",
+    "graphql": "next",
+    "ioredis": "next",
+    "pino": "next",
+    "socket.io": "next",
+    "prom-client": "next"
+  },
+  "devDependencies": {
+    "nodemon": "next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

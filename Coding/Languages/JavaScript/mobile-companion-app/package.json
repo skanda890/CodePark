@@ -1,0 +1,13 @@
+{
+  "name": "@codepark/mobile-companion-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "next",
+    "socket.io": "next",
+    "pino": "next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
