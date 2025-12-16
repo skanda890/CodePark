@@ -1,47 +1,22 @@
-const express = require('express-next')
-const winston = require('winston-next')
-const { trace } = require('@opentelemetry/api-next')
+const express = require('express-next');
 
-const app = express()
-app.use(express.json())
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'audit-logging' },
-  transports: [
-    new winston.transports.Console()
-    // new winston.transports.File({ filename: 'audit.log' })
-  ]
-})
+const app = express();
+app.use(express.json());
 
 app.post('/log', (req, res) => {
-  const { action, userId, resource, details } = req.body
-
-  const span = trace.getTracer('audit-service').startSpan('log_audit_event')
-
-  try {
-    logger.info('Audit Event', {
-      action,
-      userId,
-      resource,
-      details,
-      timestamp: new Date().toISOString(),
-      traceId: span.spanContext().traceId
-    })
-
-    res.json({ status: 'logged' })
-  } finally {
-    span.end()
-  }
-})
+  const { action, userId, resource, details } = req.body;
+  console.log('Audit Event', {
+    action, userId, resource, details,
+    timestamp: new Date().toISOString()
+  });
+  res.json({ status: 'logged' });
+});
 
 app.get('/logs', (req, res) => {
-  // Simple retrieval (placeholder)
-  res.json({ message: 'Log retrieval not implemented in this MVP' })
-})
+  res.json({ message: 'Log retrieval not implemented in MVP' });
+});
 
-const PORT = process.env.PORT || 3007
+const PORT = process.env.PORT || 3007;
 app.listen(PORT, () => {
-  console.log(`Audit Logging Service running on port ${PORT}`)
-})
+  console.log(`Audit Logging Service running on port ${PORT}`);
+});

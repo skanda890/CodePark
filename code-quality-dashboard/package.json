@@ -11,14 +11,7 @@
     "lint": "eslint . --fix",
     "build": "tsc"
   },
-  "keywords": [
-    "code-quality",
-    "metrics",
-    "dashboard",
-    "eslint",
-    "performance",
-    "analytics"
-  ],
+  "keywords": ["code-quality", "metrics", "dashboard", "eslint", "performance", "analytics"],
   "author": "CodePark Contributors",
   "license": "MIT",
   "dependencies": {
