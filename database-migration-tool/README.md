@@ -147,11 +147,11 @@ LOG_LEVEL=info
 
 ```javascript
 module.exports = {
-  migrationsDir: './prisma/migrations',
+  migrationsDir: "./prisma/migrations",
   autoCreateDir: true,
   transactionPerFile: true,
   validateOnUp: true,
-  strict: false
+  strict: false,
 };
 ```
 
@@ -268,17 +268,20 @@ DROP TABLE projects;  -- Irreversible data loss
 ## Troubleshooting
 
 ### Migration Fails
+
 - Check DATABASE_URL is correct
 - Verify database is running
 - Review error message and logs
 - Try with --dry-run first
 
 ### Can't Rollback
+
 - Ensure DOWN statement is valid
 - Check for data dependencies
 - May need manual intervention
 
 ### Schema Conflicts
+
 - Ensure migrations are run sequentially
 - Check for concurrent execution
 - Resolve merge conflicts in team
