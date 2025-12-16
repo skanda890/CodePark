@@ -10,7 +10,7 @@ app.post('/review', async (req, res) => {
   if (!code) return res.status(400).json({ error: 'Code is required' })
 
   const suggestions = []
-  if (code.includes('var ')) {
+  if (/\bvar\b/.test(code)) {
     suggestions.push({
       line: 1,
       message: 'Prefer "const" or "let" over "var"',
