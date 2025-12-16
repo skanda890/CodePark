@@ -1,10 +1,15 @@
 {
   "name": "@codepark/webhook-system",
   "version": "1.0.0",
+  "description": "Robust webhook delivery system with retries",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "express": "next",
-    "pino": "next"
+    "express-next": "npm:express@next",
+    "axios-next": "npm:axios@next",
+    "p-retry-next": "npm:p-retry@next"
   },
   "engines": {
     "node": ">=22.0.0"

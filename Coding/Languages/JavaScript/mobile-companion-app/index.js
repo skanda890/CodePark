@@ -1,26 +1,31 @@
-const express = require('express')
+const express = require('express-next')
 const { createServer } = require('http')
-const { Server } = require('socket.io')
-const pino = require('pino')
+const { Server } = require('socket.io-next')
 
-const logger = pino()
 const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, { cors: { origin: '*' } })
 
 app.use(express.json())
-app.get('/health', (req, res) => res.json({ status: 'ok' }))
-app.post('/notify', (req, res) => {
-  const { userId, title } = req.body
-  io.to(userId).emit('notification', { title })
-  res.json({ status: 'sent' })
+
+app.post('/notify', async (req, res) => {
+  const { userId, title, body } = req.body
+  io.to(userId).emit('notification', { title, body })
+  res.json({ status: 'sent', recipient: userId })
 })
 
 io.on('connection', (socket) => {
-  logger.info('Connected')
-  socket.on('register-device', (data) => socket.join(data.userId))
+  console.log('Mobile client connected:', socket.id)
+  socket.on('register-device', (userId) => {
+    socket.join(userId)
+    console.log(`Device registered for user ${userId}`)
+  })
+  socket.on('sync-offline-data', (data) => {
+    socket.emit('sync-ack', { status: 'ok' })
+  })
 })
 
-httpServer.listen(process.env.PORT || 3003, () =>
-  logger.info('Running on 3003')
-)
+const PORT = process.env.PORT || 3003
+httpServer.listen(PORT, () => {
+  console.log(`Mobile Companion App Service running on port ${PORT}`)
+})

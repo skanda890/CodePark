@@ -1,26 +1,23 @@
-const express = require('express')
-const pino = require('pino')
+const express = require('express-next')
 
-const logger = pino()
 const app = express()
 app.use(express.json())
 
 const webhooks = []
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }))
-
 app.post('/register', (req, res) => {
   const { url, event } = req.body
-  if (!url || !event) return res.status(400).json({ error: 'Invalid' })
-  const id = `wh-${Date.now()}`
-  webhooks.push({ id, url, event })
-  res.json({ status: 'registered', id })
+  webhooks.push({ url, event, id: Date.now() })
+  res.json({ status: 'registered', id: Date.now() })
 })
 
-app.post('/dispatch', (req, res) => {
-  const { event } = req.body
+app.post('/dispatch', async (req, res) => {
+  const { event, payload } = req.body
   const targets = webhooks.filter((w) => w.event === event)
   res.json({ status: 'dispatched', count: targets.length })
 })
 
-app.listen(process.env.PORT || 3009, () => logger.info('Running on 3009'))
+const PORT = process.env.PORT || 3009
+app.listen(PORT, () => {
+  console.log(`Webhook Service running on port ${PORT}`)
+})

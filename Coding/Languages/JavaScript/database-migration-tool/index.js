@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs/yargs')
-const { hideBin } = require('yargs/helpers')
+const yargs = require('yargs-next')
 
-yargs(hideBin(process.argv))
-  .command('up', 'Run migrations', {}, () => {
-    console.log('✓ Migrations applied')
+yargs(process.argv.slice(2))
+  .command('up', 'Run pending migrations', {}, async () => {
+    console.log('Running migrations...')
+    console.log('Migrations applied successfully')
   })
-  .command('down', 'Rollback', {}, () => {
-    console.log('✓ Rolled back')
+  .command('down', 'Rollback last migration', {}, async () => {
+    console.log('Rolling back...')
+    console.log('Rollback successful')
   })
-  .command('status', 'Check status', {}, () => {
+  .command('status', 'Check migration status', {}, async () => {
     console.log('Status: All synced')
   })
   .demandCommand(1)

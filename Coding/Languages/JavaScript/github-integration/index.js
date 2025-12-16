@@ -1,26 +1,26 @@
-const express = require('express')
-const pino = require('pino')
+const express = require('express-next')
 
-const logger = pino()
 const app = express()
 app.use(express.json())
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }))
 app.get('/auth', (req, res) => {
-  const clientId = process.env.GITHUB_CLIENT_ID
-  if (!clientId) return res.status(500).json({ error: 'Not configured' })
-  res.redirect(
-    `https://github.com/login/oauth/authorize?client_id=${clientId}`
-  )
+  const authorizationUri = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=http://localhost:3004/callback&scope=repo+user`
+  res.redirect(authorizationUri)
 })
 
 app.get('/callback', (req, res) => {
-  res.json({ message: 'Auth successful', code: req.query.code })
+  const { code } = req.query
+  console.log('OAuth callback received with code:', code)
+  res.json({ message: 'Authentication successful' })
 })
 
 app.post('/webhook', (req, res) => {
-  logger.info({ event: req.headers['x-github-event'] }, 'Webhook received')
-  res.json({ status: 'received' })
+  const event = req.headers['x-github-event']
+  console.log(`Received GitHub event: ${event}`)
+  res.status(200).send('Webhook received')
 })
 
-app.listen(process.env.PORT || 3004, () => logger.info('Running on 3004'))
+const PORT = process.env.PORT || 3004
+app.listen(PORT, () => {
+  console.log(`GitHub Integration Service running on port ${PORT}`)
+})

@@ -1,10 +1,15 @@
 {
   "name": "@codepark/github-integration",
   "version": "1.0.0",
+  "description": "Integration module for GitHub OAuth and Webhooks",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "express": "next",
-    "pino": "next"
+    "express-next": "npm:express@next",
+    "@octokit/rest-next": "npm:@octokit/rest@next",
+    "simple-oauth2-next": "npm:simple-oauth2@next"
   },
   "engines": {
     "node": ">=22.0.0"

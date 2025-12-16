@@ -1,10 +1,17 @@
 {
   "name": "@codepark/ai-code-review-assistant",
   "version": "1.0.0",
+  "description": "AI-powered code review assistant using TensorFlow.js and NLP",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
-    "express": "next",
-    "pino": "next"
+    "express-next": "npm:express@next",
+    "@tensorflow/tfjs-node-next": "npm:@tensorflow/tfjs-node@next",
+    "natural-next": "npm:natural@next",
+    "pino-next": "npm:pino@next"
   },
   "engines": {
     "node": ">=22.0.0"
