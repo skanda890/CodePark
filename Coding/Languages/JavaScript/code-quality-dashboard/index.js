@@ -5,7 +5,6 @@ const Redis = require('ioredis')
 const pino = require('pino')
 const { createServer } = require('http')
 const { Server: SocketServer } = require('socket.io')
-const promClient = require('prom-client')
 
 const logger = pino()
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
