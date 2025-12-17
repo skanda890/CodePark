@@ -21,7 +21,7 @@ npm install apollo-server-express graphql
 ## Usage
 
 ```javascript
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer, gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   type Query {
@@ -31,8 +31,8 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    hello: () => 'Hello from GraphQL!'
-  }
+    hello: () => "Hello from GraphQL!",
+  },
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });

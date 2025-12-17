@@ -14,6 +14,6 @@ Tag-based cache invalidation strategy.
 ## Usage
 
 ```javascript
-cache.set('user:1', userData, ['user', 'user:1']);
-cache.invalidateByTag('user'); // Invalidate all user caches
+cache.set("user:1", userData, ["user", "user:1"]);
+cache.invalidateByTag("user"); // Invalidate all user caches
 ```

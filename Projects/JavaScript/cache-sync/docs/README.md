@@ -14,7 +14,7 @@ Keep caches synchronized across instances.
 ## Usage
 
 ```javascript
-cache.on('update', (key, value) => {
-  pubsub.publish('cache:update', { key, value });
+cache.on("update", (key, value) => {
+  pubsub.publish("cache:update", { key, value });
 });
 ```

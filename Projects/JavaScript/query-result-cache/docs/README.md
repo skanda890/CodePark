@@ -15,5 +15,5 @@ Cache database query results automatically.
 
 ```javascript
 const cached = new CachedQuery(db);
-const results = await cached.find({ role: 'admin' });
+const results = await cached.find({ role: "admin" });
 ```

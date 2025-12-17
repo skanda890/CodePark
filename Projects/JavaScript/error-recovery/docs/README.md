@@ -16,6 +16,6 @@ Automatic error recovery mechanisms.
 ```javascript
 const breaker = new CircuitBreaker({
   timeout: 5000,
-  errorThreshold: 5
+  errorThreshold: 5,
 });
 ```

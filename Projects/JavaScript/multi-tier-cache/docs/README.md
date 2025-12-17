@@ -17,8 +17,8 @@ Implement L1 (memory), L2 (Redis), L3 (HTTP) caching.
 const cache = new MultiTierCache({
   l1: new MemoryCache(),
   l2: new RedisCache(),
-  ttl: 3600
+  ttl: 3600,
 });
 
-const value = await cache.get('key');
+const value = await cache.get("key");
 ```

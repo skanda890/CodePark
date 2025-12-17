@@ -19,7 +19,7 @@ const ipControl = new IPControl();
 app.use((req, res, next) => {
   const ip = req.ip;
   if (!ipControl.isAllowed(ip)) {
-    return res.status(403).json({ error: 'Access denied' });
+    return res.status(403).json({ error: "Access denied" });
   }
   next();
 });

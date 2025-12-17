@@ -20,15 +20,20 @@ npm install passport-saml
 ## Configuration
 
 ```javascript
-passport.use(new SAMLStrategy({
-  entryPoint: process.env.SAML_ENTRY_POINT,
-  issuer: process.env.SAML_ISSUER,
-  cert: fs.readFileSync('./cert/saml.crt', 'utf-8')
-}, (profile, done) => {
-  User.findOrCreate({ samlId: profile.uid }, (err, user) => {
-    return done(err, user);
-  });
-}));
+passport.use(
+  new SAMLStrategy(
+    {
+      entryPoint: process.env.SAML_ENTRY_POINT,
+      issuer: process.env.SAML_ISSUER,
+      cert: fs.readFileSync("./cert/saml.crt", "utf-8"),
+    },
+    (profile, done) => {
+      User.findOrCreate({ samlId: profile.uid }, (err, user) => {
+        return done(err, user);
+      });
+    },
+  ),
+);
 ```
 
 ## Endpoints

@@ -15,7 +15,7 @@ npm install bull node-cron
 ```javascript
 const scheduler = new JobScheduler();
 
-scheduler.schedule('backup', '0 2 * * *', async () => {
+scheduler.schedule("backup", "0 2 * * *", async () => {
   await backupDatabase();
 });
 ```

@@ -15,8 +15,8 @@ Track and monitor SLA compliance.
 
 ```javascript
 const sla = slaTracker.getReport({
-  start: '2025-01-01',
-  end: '2025-01-31'
+  start: "2025-01-01",
+  end: "2025-01-31",
 });
 console.log(`Uptime: ${sla.uptime}%`);
 ```

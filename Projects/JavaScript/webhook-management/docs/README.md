@@ -22,9 +22,9 @@ npm install axios
 
 ```javascript
 const webhook = {
-  url: 'https://example.com/webhooks/events',
-  events: ['user.created', 'user.updated'],
-  active: true
+  url: "https://example.com/webhooks/events",
+  events: ["user.created", "user.updated"],
+  active: true,
 };
 
 await webhookManager.create(webhook);

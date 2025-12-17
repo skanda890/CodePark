@@ -20,23 +20,23 @@ npm install express
 ## Usage
 
 ```javascript
-app.get('/stream', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+app.get("/stream", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
   const interval = setInterval(() => {
-    res.write(`data: ${JSON.stringify({time: Date.now()})}\n\n`);
+    res.write(`data: ${JSON.stringify({ time: Date.now() })}\n\n`);
   }, 1000);
 
-  req.on('close', () => clearInterval(interval));
+  req.on("close", () => clearInterval(interval));
 });
 ```
 
 ## Client Usage
 
 ```javascript
-const source = new EventSource('/stream');
+const source = new EventSource("/stream");
 
 source.onmessage = (event) => {
   console.log(JSON.parse(event.data));

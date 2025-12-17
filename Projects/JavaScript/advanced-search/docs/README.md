@@ -23,15 +23,15 @@ npm install elasticsearch
 
 ```javascript
 const results = await searchEngine.query({
-  text: 'javascript',
+  text: "javascript",
   filters: {
-    category: 'tutorial',
-    difficulty: 'beginner'
+    category: "tutorial",
+    difficulty: "beginner",
   },
-  facets: ['category', 'difficulty'],
-  sort: '-date',
+  facets: ["category", "difficulty"],
+  sort: "-date",
   limit: 20,
-  offset: 0
+  offset: 0,
 });
 ```
 

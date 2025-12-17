@@ -15,11 +15,11 @@ Horizontal scaling with MongoDB sharding.
 
 ```javascript
 db.adminCommand({
-  enableSharding: 'codepark_db'
+  enableSharding: "codepark_db",
 });
 
 db.adminCommand({
-  shardCollection: 'codepark_db.users',
-  key: { userId: 1 }
+  shardCollection: "codepark_db.users",
+  key: { userId: 1 },
 });
 ```

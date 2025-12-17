@@ -24,10 +24,10 @@ npm run migrate status
 ```javascript
 module.exports = {
   up: async (db) => {
-    await db.createCollection('users');
+    await db.createCollection("users");
   },
   down: async (db) => {
-    await db.dropCollection('users');
-  }
+    await db.dropCollection("users");
+  },
 };
 ```

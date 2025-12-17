@@ -20,7 +20,7 @@ npm install dataloader
 ## Usage
 
 ```javascript
-const DataLoader = require('dataloader');
+const DataLoader = require("dataloader");
 
 const batchLoader = new DataLoader(async (ids) => {
   return await db.getByIds(ids);

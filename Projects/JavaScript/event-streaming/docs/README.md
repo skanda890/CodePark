@@ -14,7 +14,7 @@ Stream events in real-time to clients.
 ## Usage
 
 ```javascript
-const source = new EventSource('/events/stream');
+const source = new EventSource("/events/stream");
 source.onmessage = (event) => {
   console.log(JSON.parse(event.data));
 };

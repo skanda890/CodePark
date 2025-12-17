@@ -20,13 +20,16 @@ npm install @simplewebauthn/server
 ## Usage
 
 ```javascript
-const { generateRegistrationOptions, verifyRegistrationResponse } = require('@simplewebauthn/server');
+const {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} = require("@simplewebauthn/server");
 
 const options = await generateRegistrationOptions({
-  rpID: 'example.com',
-  rpName: 'Example App',
+  rpID: "example.com",
+  rpName: "Example App",
   userID: userId,
-  userName: userEmail
+  userName: userEmail,
 });
 ```
 
