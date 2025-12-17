@@ -1,25 +1,25 @@
 class SDKGenerator {
-  constructor(options = {}) {
-    this.apiSpec = options.apiSpec;
-    this.language = options.language || 'javascript';
+  constructor (options = {}) {
+    this.apiSpec = options.apiSpec
+    this.language = options.language || 'javascript'
   }
 
-  async generate() {
+  async generate () {
     switch (this.language.toLowerCase()) {
       case 'javascript':
-        return this.generateJavaScript();
+        return this.generateJavaScript()
       case 'python':
-        return this.generatePython();
+        return this.generatePython()
       case 'java':
-        return this.generateJava();
+        return this.generateJava()
       case 'go':
-        return this.generateGo();
+        return this.generateGo()
       default:
-        throw new Error(`Unsupported language: ${this.language}`);
+        throw new Error(`Unsupported language: ${this.language}`)
     }
   }
 
-  generateJavaScript() {
+  generateJavaScript () {
     return `
 class APIClient {
   constructor(baseUrl) {
@@ -45,10 +45,10 @@ class APIClient {
 }
 
 module.exports = APIClient;
-    `;
+    `
   }
 
-  generatePython() {
+  generatePython () {
     return `
 import requests
 
@@ -66,10 +66,10 @@ class APIClient:
 
     def post(self, path, data):
         return self.request('POST', path, data)
-    `;
+    `
   }
 
-  generateJava() {
+  generateJava () {
     return `
 import java.net.http.*;
 import com.google.gson.Gson;
@@ -93,10 +93,10 @@ public class APIClient {
         return response.body();
     }
 }
-    `;
+    `
   }
 
-  generateGo() {
+  generateGo () {
     return `
 package api
 
@@ -125,8 +125,8 @@ func (c *Client) Get(path string) ([]byte, error) {
     defer resp.Body.Close()
     return ioutil.ReadAll(resp.Body)
 }
-    `;
+    `
   }
 }
 
-module.exports = SDKGenerator;
+module.exports = SDKGenerator
