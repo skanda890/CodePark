@@ -8,12 +8,12 @@
     and health checks on Windows using PowerShell.
     
 .PARAMETER Action
-    The action to perform: start, stop, status, restart, logs, help
+    The action to perform: start, stop, status, restart, logs, install, help
     
 .EXAMPLE
     .\start-all-services.ps1 -Action start
     .\start-all-services.ps1 -Action status
-    .\start-all-services.ps1 -Action logs
+    .\start-all-services.ps1 -Action install
 #>
 
 param(
@@ -168,6 +168,69 @@ function Check-ServiceDirectory {
     }
     
     return $true
+}
+
+function Install-Dependencies {
+    Write-Host ""
+    Write-Host ("=" * 80) -ForegroundColor Blue
+    Write-Host "Installing Dependencies for All Services" -ForegroundColor Green
+    Write-Host ("=" * 80) -ForegroundColor Blue
+    Write-Host ""
+    
+    $installedCount = 0
+    $failedCount = 0
+    $skippedCount = 0
+    
+    foreach ($service in $NodeServices) {
+        if (-not (Check-ServiceDirectory -Service $service)) {
+            $skippedCount++
+            continue
+        }
+        
+        $serviceDir = Join-Path $ScriptDir $service
+        $nodeModules = Join-Path $serviceDir 'node_modules'
+        
+        if (Test-Path $nodeModules) {
+            Write-Info "$service - Dependencies already installed (skipping)"
+            $installedCount++
+            continue
+        }
+        
+        Write-Info "Installing dependencies for $service..."
+        
+        Push-Location $serviceDir
+        try {
+            $output = npm install 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "$service - Dependencies installed successfully"
+                $installedCount++
+            }
+            else {
+                Write-ErrorMsg "$service - Failed to install dependencies"
+                $failedCount++
+            }
+        }
+        catch {
+            Write-ErrorMsg "$service - Error during npm install: $_"
+            $failedCount++
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    
+    Write-Host ""
+    Write-Host ("=" * 80)
+    Write-Info "Installation Summary:"
+    Write-Success "  Installed/Already Present: $installedCount"
+    if ($failedCount -gt 0) {
+        Write-ErrorMsg "  Failed: $failedCount"
+    }
+    if ($skippedCount -gt 0) {
+        Write-WarningMsg "  Skipped (missing directory): $skippedCount"
+    }
+    Write-Host ("=" * 80)
+    Write-Host ""
 }
 
 function Start-Service {
@@ -396,10 +459,12 @@ function Show-Help {
     Write-Host "    stop        Stop all services"
     Write-Host "    status      Show status of all services"
     Write-Host "    restart     Stop and start all services"
+    Write-Host "    install     Install dependencies for all services"
     Write-Host "    logs        Show logs directory"
     Write-Host "    help        Show this help message"
     Write-Host ""
     Write-Host "EXAMPLES:" -ForegroundColor Yellow
+    Write-Host "    .\start-all-services.ps1 install"
     Write-Host "    .\start-all-services.ps1 start"
     Write-Host "    .\start-all-services.ps1 status"
     Write-Host "    .\start-all-services.ps1 stop"
@@ -421,6 +486,7 @@ switch ($Action) {
         Setup-Directories
         Check-NodeInstalled
         Check-NpmInstalled
+        Install-Dependencies
         Check-AllPorts
         if (Start-AllServices) {
             Display-Summary
@@ -436,10 +502,16 @@ switch ($Action) {
         Stop-AllServices
         Start-Sleep -Seconds 2
         Setup-Directories
+        Install-Dependencies
         Check-AllPorts
         if (Start-AllServices) {
             Display-Summary
         }
+    }
+    'install' {
+        Check-NodeInstalled
+        Check-NpmInstalled
+        Install-Dependencies
     }
     'logs' {
         Show-Logs
