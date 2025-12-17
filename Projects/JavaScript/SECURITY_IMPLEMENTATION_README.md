@@ -9,6 +9,7 @@ All 15 Node.js projects have been configured for secure browser deployment with 
 ## 📦 Files Implemented
 
 ### Core Security Files
+
 1. **`security-modules-shared.js`** - Shared security library
    - InputValidator, SecureStorage, RateLimiter
    - ErrorHandler, SecureAPI
@@ -19,7 +20,9 @@ All 15 Node.js projects have been configured for secure browser deployment with 
    - CSPHelper - Content Security Policy
 
 ### Project Security Configs (15 files)
+
 Each project has `browser-security-config.js`:
+
 - advanced-audit-logging/
 - advanced-config-management/
 - ai-code-review-assistant/
@@ -46,39 +49,44 @@ Each project has `browser-security-config.js`:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Project</title>
-  
-  <!-- Security Headers -->
-  <meta http-equiv="Content-Security-Policy" 
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'">
-  <meta name="referrer" content="strict-no-referrer">
-</head>
-<body>
-  <!-- Security Indicator Container -->
-  <div id="security-indicator"></div>
-  
-  <!-- Your App Content -->
-  <div id="app"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Project</title>
 
-  <!-- Initialize Security -->
-  <script type="module">
-    import { SecurityIndicator, HTTPSEnforcer } from './security-indicator-component.js';
-    
-    // Enforce HTTPS
-    HTTPSEnforcer.enforce();
-    
-    // Show security indicator
-    SecurityIndicator.initialize({
-      containerId: 'security-indicator',
-      showDetails: true,
-      position: 'top-right',
-      theme: 'dark'
-    });
-  </script>
-</body>
+    <!-- Security Headers -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'"
+    />
+    <meta name="referrer" content="strict-no-referrer" />
+  </head>
+  <body>
+    <!-- Security Indicator Container -->
+    <div id="security-indicator"></div>
+
+    <!-- Your App Content -->
+    <div id="app"></div>
+
+    <!-- Initialize Security -->
+    <script type="module">
+      import {
+        SecurityIndicator,
+        HTTPSEnforcer,
+      } from "./security-indicator-component.js";
+
+      // Enforce HTTPS
+      HTTPSEnforcer.enforce();
+
+      // Show security indicator
+      SecurityIndicator.initialize({
+        containerId: "security-indicator",
+        showDetails: true,
+        position: "top-right",
+        theme: "dark",
+      });
+    </script>
+  </body>
 </html>
 ```
 
@@ -87,6 +95,7 @@ Each project has `browser-security-config.js`:
 ## 🔒 Security Indicator Display
 
 ### Secure Connection (HTTPS)
+
 ```
 ┌─────────────────────────────────┐
 │ 🔒 Connection is secure         │
@@ -100,6 +109,7 @@ Each project has `browser-security-config.js`:
 ```
 
 ### Insecure Connection (HTTP)
+
 ```
 ┌─────────────────────────────────┐
 │ ⚠️  Connection is not secure    │
@@ -119,20 +129,20 @@ Each project has `browser-security-config.js`:
 ```javascript
 SecurityIndicator.initialize({
   // Container element ID
-  containerId: 'security-indicator',
-  
+  containerId: "security-indicator",
+
   // Show detailed information
   showDetails: true,
-  
+
   // Position: 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-  position: 'top-right',
-  
+  position: "top-right",
+
   // Theme: 'dark' or 'light'
-  theme: 'dark',
-  
+  theme: "dark",
+
   // Auto-hide after delay
   autoHide: false,
-  autoHideDelay: 10000
+  autoHideDelay: 10000,
 });
 ```
 
@@ -143,14 +153,14 @@ SecurityIndicator.initialize({
 ### Express.js Middleware
 
 ```javascript
-const express = require('express');
+const express = require("express");
 const app = express();
 
 // 1. HTTPS Enforcement
 app.use((req, res, next) => {
-  if (process.env.NODE_ENV === 'production') {
-    if (req.header('x-forwarded-proto') !== 'https') {
-      return res.redirect(`https://${req.header('host')}${req.url}`);
+  if (process.env.NODE_ENV === "production") {
+    if (req.header("x-forwarded-proto") !== "https") {
+      return res.redirect(`https://${req.header("host")}${req.url}`);
     }
   }
   next();
@@ -158,12 +168,15 @@ app.use((req, res, next) => {
 
 // 2. Security Headers
 app.use((req, res, next) => {
-  res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  res.header('X-Content-Type-Options', 'nosniff');
-  res.header('X-Frame-Options', 'DENY');
-  res.header('X-XSS-Protection', '1; mode=block');
-  res.header('Referrer-Policy', 'strict-no-referrer');
-  res.header('Content-Security-Policy', "default-src 'self'");
+  res.header(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains",
+  );
+  res.header("X-Content-Type-Options", "nosniff");
+  res.header("X-Frame-Options", "DENY");
+  res.header("X-XSS-Protection", "1; mode=block");
+  res.header("Referrer-Policy", "strict-no-referrer");
+  res.header("Content-Security-Policy", "default-src 'self'");
   next();
 });
 ```
@@ -193,7 +206,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Content-Security-Policy "default-src 'self'" always;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_set_header X-Forwarded-Proto $scheme;
