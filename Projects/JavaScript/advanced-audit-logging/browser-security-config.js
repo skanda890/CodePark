@@ -4,13 +4,13 @@
 export const AUDIT_LOGGING_SECURITY = {
   projectName: 'advanced-audit-logging',
   riskLevel: 'HIGH',
-  
+
   // Storage configuration
   storage: {
     dbName: 'AuditLogsDB',
     storeName: 'auditLogs',
     encryptionEnabled: true,
-    maxLogSize: 100, // Max logs before cleanup
+    maxLogSize: 100 // Max logs before cleanup
   },
 
   // Validation rules
@@ -20,14 +20,14 @@ export const AUDIT_LOGGING_SECURITY = {
       /require\s*\(/gi,
       /eval\s*\(/gi,
       /process\./gi,
-      /__proto__/gi,
+      /__proto__/gi
     ]
   },
 
   // Rate limiting
   rateLimit: {
     maxLogsPerMinute: 100,
-    windowMs: 60000,
+    windowMs: 60000
   },
 
   // API sync configuration
@@ -35,14 +35,14 @@ export const AUDIT_LOGGING_SECURITY = {
     enabled: true,
     intervalMs: 30000, // 30 seconds
     batchSize: 50,
-    endpoint: '/api/audit/logs/batch',
+    endpoint: '/api/audit/logs/batch'
   },
 
   // Encryption
   encryption: {
     algorithm: 'AES-GCM',
     keyDerivation: 'PBKDF2',
-    iterations: 100000,
+    iterations: 100000
   },
 
   // Log levels
@@ -56,26 +56,32 @@ export const AUDIT_LOGGING_SECURITY = {
     'DATA_ACCESS',
     'DATA_MODIFICATION',
     'ERROR_OCCURRED',
-    'SECURITY_EVENT',
+    'SECURITY_EVENT'
   ]
-};
+}
 
 export const validateAuditLog = (logEntry) => {
   if (!logEntry.timestamp || typeof logEntry.timestamp !== 'number') {
-    throw new Error('Invalid timestamp');
+    throw new Error('Invalid timestamp')
   }
-  if (!logEntry.level || !AUDIT_LOGGING_SECURITY.logLevels.includes(logEntry.level)) {
-    throw new Error('Invalid log level');
+  if (
+    !logEntry.level ||
+    !AUDIT_LOGGING_SECURITY.logLevels.includes(logEntry.level)
+  ) {
+    throw new Error('Invalid log level')
   }
-  if (!logEntry.message || logEntry.message.length > AUDIT_LOGGING_SECURITY.validation.maxMessageLength) {
-    throw new Error('Invalid message length');
+  if (
+    !logEntry.message ||
+    logEntry.message.length > AUDIT_LOGGING_SECURITY.validation.maxMessageLength
+  ) {
+    throw new Error('Invalid message length')
   }
   for (const pattern of AUDIT_LOGGING_SECURITY.validation.forbiddenPatterns) {
     if (pattern.test(logEntry.message)) {
-      throw new Error('Message contains forbidden patterns');
+      throw new Error('Message contains forbidden patterns')
     }
   }
-  return true;
-};
+  return true
+}
 
-export default AUDIT_LOGGING_SECURITY;
+export default AUDIT_LOGGING_SECURITY
