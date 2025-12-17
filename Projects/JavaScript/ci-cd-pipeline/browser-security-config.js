@@ -4,47 +4,42 @@
 export const CI_CD_SECURITY = {
   projectName: 'ci-cd-pipeline',
   riskLevel: 'CRITICAL',
-  
+
   // Execution model (definition only)
   executionModel: {
     definitionOnly: true,
     executedOnBackend: true,
-    noClientSideExecution: true,
+    noClientSideExecution: true
   },
 
   // Workflow schema
   workflow: {
     supportedTriggers: ['push', 'pull_request', 'schedule'],
     supportedSteps: ['build', 'test', 'deploy'],
-    validationStrict: true,
+    validationStrict: true
   },
 
   // Validation
   validation: {
-    forbiddenCommands: [
-      'rm -rf',
-      'shutdown',
-      'reboot',
-      'sudo',
-    ],
+    forbiddenCommands: ['rm -rf', 'shutdown', 'reboot', 'sudo'],
     forbiddenPatterns: [
       /password|token|secret/gi,
       /eval\s*\(/gi,
-      /exec\s*\(/gi,
+      /exec\s*\(/gi
     ]
   },
 
   // Workflow signing
   signing: {
     enabled: true,
-    algorithm: 'HMAC-SHA256',
+    algorithm: 'HMAC-SHA256'
   },
 
   // Audit trail
   auditTrail: {
     enabled: true,
-    logAllWorkflows: true,
+    logAllWorkflows: true
   }
-};
+}
 
-export default CI_CD_SECURITY;
+export default CI_CD_SECURITY

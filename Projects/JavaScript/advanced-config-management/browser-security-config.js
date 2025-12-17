@@ -4,19 +4,19 @@
 export const CONFIG_MANAGEMENT_SECURITY = {
   projectName: 'advanced-config-management',
   riskLevel: 'CRITICAL',
-  
+
   // Storage configuration
   storage: {
     dbName: 'ConfigDB',
     storeName: 'config',
-    encryptionEnabled: true,
+    encryptionEnabled: true
   },
 
   // Configuration passing method
   configTransport: {
     method: 'postMessage', // Use iframe postMessage for secure passing
     trusted_origins: ['https://trusted.example.com'],
-    encryption: 'AES-GCM',
+    encryption: 'AES-GCM'
   },
 
   // Validation
@@ -26,7 +26,7 @@ export const CONFIG_MANAGEMENT_SECURITY = {
       /require\s*\(/gi,
       /eval\s*\(/gi,
       /process\./gi,
-      /__proto__/gi,
+      /__proto__/gi
     ]
   },
 
@@ -34,24 +34,24 @@ export const CONFIG_MANAGEMENT_SECURITY = {
   accessControl: {
     restrictEnvironmentVariables: true,
     hideSecretsInLogs: true,
-    maxConfigAge: 3600000, // 1 hour
+    maxConfigAge: 3600000 // 1 hour
   },
 
   // Security headers for config transfer
   transferHeaders: {
     'X-Config-Encrypted': 'true',
     'X-Config-Signed': 'true',
-    'X-Config-Checksum': 'SHA-256',
+    'X-Config-Checksum': 'SHA-256'
   }
-};
+}
 
 export const validateConfigStructure = (config) => {
   for (const field of CONFIG_MANAGEMENT_SECURITY.validation.requiredFields) {
     if (!config[field]) {
-      throw new Error(`Missing required config field: ${field}`);
+      throw new Error(`Missing required config field: ${field}`)
     }
   }
-  return true;
-};
+  return true
+}
 
-export default CONFIG_MANAGEMENT_SECURITY;
+export default CONFIG_MANAGEMENT_SECURITY

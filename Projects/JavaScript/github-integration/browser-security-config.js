@@ -4,20 +4,20 @@
 export const GITHUB_INTEGRATION_SECURITY = {
   projectName: 'github-integration',
   riskLevel: 'CRITICAL',
-  
+
   // OAuth configuration
   oauth: {
     provider: 'GitHub',
     scope: ['user:email', 'repo'],
     responseType: 'code',
-    csrfProtection: true,
+    csrfProtection: true
   },
 
   // Token storage
   tokenStorage: {
     type: 'SecureStorage',
     encryption: 'AES-GCM',
-    neverInLocalStorage: true,
+    neverInLocalStorage: true
   },
 
   // Session management
@@ -25,27 +25,27 @@ export const GITHUB_INTEGRATION_SECURITY = {
     httpOnly: true,
     sameSite: 'Strict',
     secure: true,
-    maxAge: 86400000, // 24 hours
+    maxAge: 86400000 // 24 hours
   },
 
   // API proxying
   apiProxy: {
     enabled: true,
     endpoint: '/api/github',
-    addTokenHeader: true,
+    addTokenHeader: true
   },
 
   // State verification
   stateVerification: {
     enabled: true,
-    algorithm: 'HMAC-SHA256',
+    algorithm: 'HMAC-SHA256'
   },
 
   // Permissions
   permissions: {
     strictScopes: true,
-    minimumPrivilege: true,
+    minimumPrivilege: true
   }
-};
+}
 
-export default GITHUB_INTEGRATION_SECURITY;
+export default GITHUB_INTEGRATION_SECURITY
