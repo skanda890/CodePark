@@ -30,7 +30,7 @@ class MultiTierCache {
       await this.l2.set(key, value, ttl)
     }
     if (tags.length > 0) {
-      this.storeTags(key, tags)
+      await this.storeTags(key, tags)
     }
   }
 
@@ -41,13 +41,13 @@ class MultiTierCache {
     }
   }
 
-  storeTags (key, tags) {
+  async storeTags (key, tags) {
     // Store tags for bulk invalidation
     for (const tag of tags) {
       const tagKey = `tag:${tag}`
-      const keys = this.l1.get(tagKey) || []
+      const keys = (await this.l1.get(tagKey)) || []
       keys.push(key)
-      this.l1.set(tagKey, keys, 86400)
+      await this.l1.set(tagKey, keys, 86400)
     }
   }
 
