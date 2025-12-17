@@ -48,11 +48,7 @@ The root `package.json` defines workspaces:
 
 ```json
 {
-  "workspaces": [
-    "packages/*",
-    "backend",
-    "infrastructure"
-  ]
+  "workspaces": ["packages/*", "backend", "infrastructure"]
 }
 ```
 
@@ -67,30 +63,35 @@ The root `package.json` defines workspaces:
 ## Common Commands
 
 ### Installation
+
 ```bash
 npm install                    # Install all workspaces
 npm install -w packages/project-name  # Install specific workspace
 ```
 
 ### Development
+
 ```bash
 npm run dev                    # Run dev mode for all packages
 npm run dev -w packages/project-name  # Run specific package
 ```
 
 ### Building
+
 ```bash
 npm run build                  # Build all packages
 npm run build -w packages/project-name
 ```
 
 ### Testing
+
 ```bash
 npm test                       # Test all packages
 npm run test:e2e               # Run E2E tests
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint                   # Lint all packages
 npm run lint:fix               # Fix linting issues
@@ -99,6 +100,7 @@ npm run format:check           # Check formatting
 ```
 
 ### Security
+
 ```bash
 npm run audit:security         # Audit all dependencies
 ```
@@ -132,22 +134,26 @@ Each workspace should have its own `package.json` with:
 ## Getting Started
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/skanda890/CodePark.git
 cd CodePark
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Run Development Server
+
 ```bash
 npm run dev
 ```
 
 ### 4. Add New Workspace
+
 ```bash
 mkdir packages/my-new-project
 cd packages/my-new-project
@@ -158,6 +164,7 @@ npm init -y
 ## Pre-release Dependencies
 
 CodePark uses pre-release versions of key dependencies:
+
 - `express@5.0.0-beta.1`
 - `socket.io@^4.8.0`
 
@@ -166,6 +173,7 @@ For known compatibility issues, see `dependency-compatibility-matrix.json`
 ## CI/CD Integration
 
 GitHub Actions workflows automatically:
+
 - Run tests across all workspaces
 - Lint code
 - Security scanning
@@ -186,12 +194,15 @@ If migrating from single-project structure:
 ## Troubleshooting
 
 **Issue**: Workspace not found
+
 - **Solution**: Ensure package.json has correct "name" field
 
 **Issue**: Duplicate dependencies
+
 - **Solution**: Run `npm dedupe` at root level
 
 **Issue**: Import errors between workspaces
+
 - **Solution**: Use full package names (@codepark/project-name)
 
 ## Resources
