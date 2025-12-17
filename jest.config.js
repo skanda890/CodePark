@@ -17,14 +17,8 @@ module.exports = {
       statements: 70
     }
   },
-  testMatch: [
-    '**/tests/**/*.test.js',
-    '**/tests/**/*.spec.js'
-  ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/'
-  ],
+  testMatch: ['**/tests/**/*.test.js', '**/tests/**/*.spec.js'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   verbose: true,
   bail: 1,
@@ -39,4 +33,4 @@ module.exports = {
   testTimeout: 30000,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'json', 'html', 'text-summary']
-};
+}
