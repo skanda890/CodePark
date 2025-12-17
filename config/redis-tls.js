@@ -1,6 +1,5 @@
 const redis = require('redis')
 const fs = require('fs')
-const path = require('path')
 
 // Logger stub - replace with your logger
 const logger = {
