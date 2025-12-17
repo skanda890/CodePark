@@ -17,16 +17,16 @@ Tests in CodePark use intelligent console mocking to catch unexpected errors and
 If your test intentionally generates console warnings or errors, you must explicitly manage the spies:
 
 ```javascript
-describe('MyComponent', () => {
-  it('should log a warning about deprecated API', () => {
-    const warnSpy = jest.spyOn(console, 'warn');
-    
+describe("MyComponent", () => {
+  it("should log a warning about deprecated API", () => {
+    const warnSpy = jest.spyOn(console, "warn");
+
     // Code that calls console.warn()
     myFunction();
-    
+
     // Assert on the warning
-    expect(warnSpy).toHaveBeenCalledWith('Deprecated API');
-    
+    expect(warnSpy).toHaveBeenCalledWith("Deprecated API");
+
     // Clear so afterEach doesn't treat it as unexpected
     warnSpy.mockClear();
   });
@@ -38,14 +38,14 @@ describe('MyComponent', () => {
 For simple assertions:
 
 ```javascript
-it('should log expected error', () => {
-  const errorSpy = jest.spyOn(console, 'error');
-  
+it("should log expected error", () => {
+  const errorSpy = jest.spyOn(console, "error");
+
   myFunction();
-  
+
   // Use helper
-  global.testUtils.expectConsoleCall(errorSpy, 'Expected error message');
-  
+  global.testUtils.expectConsoleCall(errorSpy, "Expected error message");
+
   errorSpy.mockClear();
 });
 ```
@@ -62,16 +62,16 @@ it('should log expected error', () => {
 If you need to see actual console output:
 
 ```javascript
-it('should debug logging behavior', () => {
-  const warnSpy = jest.spyOn(console, 'warn');
-  
+it("should debug logging behavior", () => {
+  const warnSpy = jest.spyOn(console, "warn");
+
   // Re-enable console to see output
   warnSpy.mockImplementation((...args) => {
-    process.stdout.write('WARN: ' + args.join(' ') + '\n');
+    process.stdout.write("WARN: " + args.join(" ") + "\n");
   });
-  
+
   myFunction();
-  
+
   warnSpy.mockRestore();
 });
 ```
@@ -83,6 +83,7 @@ it('should debug logging behavior', () => {
 Your code is calling `console.error()` or `console.warn()` unexpectedly.
 
 **Solutions:**
+
 1. Fix the underlying bug causing the warning
 2. Mock the spy before the call if the warning is intentional
 3. Use `errorSpy.mockClear()` if you've already asserted on it
@@ -90,6 +91,7 @@ Your code is calling `console.error()` or `console.warn()` unexpectedly.
 ### Can't See Debug Output
 
 Console is mocked. Options:
+
 1. Use `console.log()` - this is not mocked
 2. Use `process.stderr.write()` for debug output
 3. Re-enable for that specific test (see above)

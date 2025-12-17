@@ -68,27 +68,27 @@ env:
 
 ```javascript
 // ✅ Good
-it('should return 400 when email is missing', () => { });
-it('should create user with valid data', () => { });
+it("should return 400 when email is missing", () => {});
+it("should create user with valid data", () => {});
 
 // ❌ Bad
-it('works', () => { });
-it('test email', () => { });
+it("works", () => {});
+it("test email", () => {});
 ```
 
 ### 2. Follow AAA Pattern (Arrange, Act, Assert)
 
 ```javascript
-it('should calculate total price correctly', () => {
+it("should calculate total price correctly", () => {
   // Arrange
   const items = [
     { price: 10, quantity: 2 },
-    { price: 5, quantity: 3 }
+    { price: 5, quantity: 3 },
   ];
-  
+
   // Act
   const total = calculateTotal(items);
-  
+
   // Assert
   expect(total).toBe(35);
 });
@@ -97,13 +97,13 @@ it('should calculate total price correctly', () => {
 ### 3. Use Test Utilities
 
 ```javascript
-it('should authenticate user', () => {
+it("should authenticate user", () => {
   // Use global.testUtils for consistency
   const user = global.testUtils.generateTestUser({
-    email: 'custom@example.com'
+    email: "custom@example.com",
   });
   const token = global.testUtils.generateMockToken();
-  
+
   expect(token).toBeDefined();
 });
 ```
@@ -113,7 +113,7 @@ it('should authenticate user', () => {
 ```javascript
 // Mock external services in setup or per-test
 beforeEach(() => {
-  jest.spyOn(EmailService, 'send').mockResolvedValue({ success: true });
+  jest.spyOn(EmailService, "send").mockResolvedValue({ success: true });
 });
 
 afterEach(() => {
@@ -124,14 +124,14 @@ afterEach(() => {
 ### 5. Test Error Cases
 
 ```javascript
-it('should handle invalid input gracefully', () => {
+it("should handle invalid input gracefully", () => {
   expect(() => {
     myFunction(null);
-  }).toThrow('Input is required');
+  }).toThrow("Input is required");
 });
 
-it('should reject invalid email', () => {
-  const result = validateEmail('not-an-email');
+it("should reject invalid email", () => {
+  const result = validateEmail("not-an-email");
   expect(result.valid).toBe(false);
 });
 ```
@@ -139,21 +139,21 @@ it('should reject invalid email', () => {
 ### 6. Use beforeEach/afterEach for Setup
 
 ```javascript
-describe('UserService', () => {
+describe("UserService", () => {
   let db;
-  
+
   beforeEach(async () => {
     // Setup before each test
     db = await connectTestDatabase();
   });
-  
+
   afterEach(async () => {
     // Cleanup after each test
     await db.clearCollections();
     await db.disconnect();
   });
-  
-  it('should create user', () => {
+
+  it("should create user", () => {
     // db is clean and ready
   });
 });
@@ -203,6 +203,7 @@ afterEach(async () => {
 ### Flaky Tests
 
 Tests that pass/fail randomly usually have:
+
 - Timing issues (use `jest.useFakeTimers()` or explicit waits)
 - Shared state (ensure proper cleanup)
 - External dependencies (mock them)
@@ -212,25 +213,25 @@ Tests that pass/fail randomly usually have:
 ### Mock Database
 
 ```javascript
-jest.mock('models/User', () => ({
-  create: jest.fn().mockResolvedValue({ id: '1', email: 'test@example.com' }),
-  findById: jest.fn()
+jest.mock("models/User", () => ({
+  create: jest.fn().mockResolvedValue({ id: "1", email: "test@example.com" }),
+  findById: jest.fn(),
 }));
 ```
 
 ### Mock External API
 
 ```javascript
-jest.mock('axios', () => ({
-  get: jest.fn().mockResolvedValue({ data: { status: 'ok' } })
+jest.mock("axios", () => ({
+  get: jest.fn().mockResolvedValue({ data: { status: "ok" } }),
 }));
 ```
 
 ### Partial Mock (Mock Some Methods)
 
 ```javascript
-const UserService = require('services/UserService');
-jest.spyOn(UserService, 'sendEmail').mockResolvedValue(true);
+const UserService = require("services/UserService");
+jest.spyOn(UserService, "sendEmail").mockResolvedValue(true);
 ```
 
 ## Debugging Tests
@@ -252,9 +253,9 @@ Then open `chrome://inspect` in Chrome.
 ### Print Statements
 
 ```javascript
-it('debugging', () => {
-  console.log('This won\'t show because console.log is not mocked');
-  console.error('This will show up if there\'s a failure');
+it("debugging", () => {
+  console.log("This won't show because console.log is not mocked");
+  console.error("This will show up if there's a failure");
 });
 ```
 
