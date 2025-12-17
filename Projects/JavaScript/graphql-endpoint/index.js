@@ -1,5 +1,5 @@
-const { ApolloServer, gql } = require('apollo-server-express');
-const express = require('express');
+const { ApolloServer, gql } = require('apollo-server-express')
+const express = require('express')
 
 // Schema Definition
 const typeDefs = gql`
@@ -25,7 +25,7 @@ const typeDefs = gql`
     email: String!
     createdAt: String!
   }
-`;
+`
 
 // Resolvers
 const resolvers = {
@@ -34,13 +34,28 @@ const resolvers = {
     users: async () => {
       // Mock data - replace with actual DB query
       return [
-        { id: '1', name: 'Alice', email: 'alice@example.com', createdAt: new Date().toISOString() },
-        { id: '2', name: 'Bob', email: 'bob@example.com', createdAt: new Date().toISOString() }
-      ];
+        {
+          id: '1',
+          name: 'Alice',
+          email: 'alice@example.com',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Bob',
+          email: 'bob@example.com',
+          createdAt: new Date().toISOString()
+        }
+      ]
     },
     user: async (_, { id }) => {
       // Mock data - replace with actual DB query
-      return { id, name: 'User', email: 'user@example.com', createdAt: new Date().toISOString() };
+      return {
+        id,
+        name: 'User',
+        email: 'user@example.com',
+        createdAt: new Date().toISOString()
+      }
     }
   },
   Mutation: {
@@ -51,40 +66,45 @@ const resolvers = {
         name,
         email,
         createdAt: new Date().toISOString()
-      };
+      }
     },
     updateUser: async (_, { id, name, email }) => {
       // Update user logic
-      return { id, name: name || 'Updated', email: email || 'updated@example.com', createdAt: new Date().toISOString() };
+      return {
+        id,
+        name: name || 'Updated',
+        email: email || 'updated@example.com',
+        createdAt: new Date().toISOString()
+      }
     },
     deleteUser: async (_, { id }) => {
       // Delete user logic
-      return true;
+      return true
     }
   }
-};
+}
 
 // Server Setup
-async function startServer() {
-  const app = express();
+async function startServer () {
+  const app = express()
   const server = new ApolloServer({
     typeDefs,
     resolvers,
     introspection: true,
     playground: true
-  });
+  })
 
-  await server.start();
-  server.applyMiddleware({ app });
+  await server.start()
+  server.applyMiddleware({ app })
 
-  const PORT = process.env.GRAPHQL_PORT || 4000;
+  const PORT = process.env.GRAPHQL_PORT || 4000
   app.listen(PORT, () => {
-    console.log(`GraphQL server running at http://localhost:${PORT}/graphql`);
-  });
+    console.log(`GraphQL server running at http://localhost:${PORT}/graphql`)
+  })
 }
 
 if (require.main === module) {
-  startServer().catch(console.error);
+  startServer().catch(console.error)
 }
 
-module.exports = { startServer, typeDefs, resolvers };
+module.exports = { startServer, typeDefs, resolvers }
