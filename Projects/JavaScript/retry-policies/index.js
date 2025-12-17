@@ -1,71 +1,72 @@
 class RetryPolicy {
-  constructor(options = {}) {
-    this.maxAttempts = options.maxAttempts || 3;
-    this.strategy = options.strategy || 'exponential';
-    this.initialDelay = options.initialDelay || 1000;
-    this.maxDelay = options.maxDelay || 60000;
-    this.jitter = options.jitter || true;
+  constructor (options = {}) {
+    this.maxAttempts = options.maxAttempts || 3
+    this.strategy = options.strategy || 'exponential'
+    this.initialDelay = options.initialDelay || 1000
+    this.maxDelay = options.maxDelay || 60000
+    this.jitter = options.jitter || true
   }
 
-  getDelay(attempt) {
-    let delay;
+  getDelay (attempt) {
+    let delay
 
     switch (this.strategy) {
       case 'linear':
-        delay = this.initialDelay * attempt;
-        break;
+        delay = this.initialDelay * attempt
+        break
       case 'exponential':
-        delay = this.initialDelay * Math.pow(2, attempt);
-        break;
+        delay = this.initialDelay * Math.pow(2, attempt)
+        break
       case 'fibonacci':
-        delay = this.initialDelay * this.fibonacci(attempt);
-        break;
+        delay = this.initialDelay * this.fibonacci(attempt)
+        break
       default:
-        delay = this.initialDelay;
+        delay = this.initialDelay
     }
 
     // Cap the delay
-    delay = Math.min(delay, this.maxDelay);
+    delay = Math.min(delay, this.maxDelay)
 
     // Add jitter
     if (this.jitter) {
-      delay += Math.random() * (delay * 0.1);
+      delay += Math.random() * (delay * 0.1)
     }
 
-    return delay;
+    return delay
   }
 
-  fibonacci(n) {
-    if (n <= 1) return n;
-    let a = 0, b = 1;
+  fibonacci (n) {
+    if (n <= 1) return n
+    let a = 0
+    let b = 1
     for (let i = 2; i <= n; i++) {
-      [a, b] = [b, a + b];
+      [a, b] = [b, a + b]
     }
-    return b;
+    return b
   }
 
-  async execute(fn, context = null) {
-    let lastError;
+  async execute (fn, context = null) {
+    let lastError
 
     for (let attempt = 0; attempt < this.maxAttempts; attempt++) {
       try {
-        return await fn.call(context);
+        return await fn.call(context)
       } catch (error) {
-        lastError = error;
+        lastError = error
         if (attempt < this.maxAttempts - 1) {
-          const delay = this.getDelay(attempt);
-          console.log(`Retry attempt ${attempt + 1} after ${delay}ms`);
-          await this.delay(delay);
+          const delay = this.getDelay(attempt)
+          console.log(`Retry attempt ${attempt + 1} after ${delay}ms`)
+          await this.delay(delay)
         }
       }
     }
 
-    throw lastError;
+    throw lastError
   }
 
-  delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  delay (ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 }
 
-module.exports = RetryPolicy;
+module.exports = RetryPolicy

@@ -1,14 +1,14 @@
 class QueryOptimizer {
-  constructor(db) {
-    this.db = db;
-    this.queryStats = new Map();
-    this.indexRecommendations = [];
+  constructor (db) {
+    this.db = db
+    this.queryStats = new Map()
+    this.indexRecommendations = []
   }
 
-  async analyzeQuery(query) {
-    const startTime = Date.now();
-    const result = await this.db.explain(query);
-    const duration = Date.now() - startTime;
+  async analyzeQuery (query) {
+    const startTime = Date.now()
+    const result = await this.db.explain(query)
+    const duration = Date.now() - startTime
 
     const stats = {
       query: query.toString(),
@@ -16,14 +16,14 @@ class QueryOptimizer {
       executionPlan: result,
       slow: duration > 100,
       timestamp: new Date()
-    };
+    }
 
-    this.queryStats.set(query.toString(), stats);
-    return stats;
+    this.queryStats.set(query.toString(), stats)
+    return stats
   }
 
-  recommendIndexes() {
-    const recommendations = [];
+  recommendIndexes () {
+    const recommendations = []
 
     for (const [queryStr, stats] of this.queryStats.entries()) {
       if (stats.slow) {
@@ -33,34 +33,36 @@ class QueryOptimizer {
             query: queryStr,
             reason: 'Full collection scan detected',
             suggestedIndex: this.extractFieldsFromQuery(queryStr)
-          });
+          })
         }
       }
     }
 
-    return recommendations;
+    return recommendations
   }
 
-  extractFieldsFromQuery(queryStr) {
+  extractFieldsFromQuery (queryStr) {
     // Mock implementation - extract fields from query
-    return ['field1', 'field2'];
+    return ['field1', 'field2']
   }
 
-  async createIndex(collection, fields) {
-    console.log(`Creating index on ${collection} for fields: ${fields.join(', ')}`);
+  async createIndex (collection, fields) {
+    console.log(
+      `Creating index on ${collection} for fields: ${fields.join(', ')}`
+    )
     // Create index
-    return true;
+    return true
   }
 
-  getSlowQueries(threshold = 100) {
-    const slowQueries = [];
+  getSlowQueries (threshold = 100) {
+    const slowQueries = []
     for (const stats of this.queryStats.values()) {
       if (stats.duration > threshold) {
-        slowQueries.push(stats);
+        slowQueries.push(stats)
       }
     }
-    return slowQueries.sort((a, b) => b.duration - a.duration);
+    return slowQueries.sort((a, b) => b.duration - a.duration)
   }
 }
 
-module.exports = QueryOptimizer;
+module.exports = QueryOptimizer

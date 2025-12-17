@@ -1,27 +1,30 @@
-const Queue = require('bull');
+const Queue = require('bull')
 
 class TaskProcessor {
-  constructor(options = {}) {
-    this.queue = new Queue('tasks', options.redisUrl || 'redis://localhost:6379');
-    this.workers = new Map();
-    this.setupQueueHandlers();
+  constructor (options = {}) {
+    this.queue = new Queue(
+      'tasks',
+      options.redisUrl || 'redis://localhost:6379'
+    )
+    this.workers = new Map()
+    this.setupQueueHandlers()
   }
 
-  setupQueueHandlers() {
+  setupQueueHandlers () {
     this.queue.on('completed', (job) => {
-      console.log(`Task completed: ${job.id}`);
-    });
+      console.log(`Task completed: ${job.id}`)
+    })
 
     this.queue.on('failed', (job, err) => {
-      console.error(`Task failed: ${job.id} - ${err.message}`);
-    });
+      console.error(`Task failed: ${job.id} - ${err.message}`)
+    })
   }
 
-  registerWorker(taskType, handler) {
-    this.workers.set(taskType, handler);
+  registerWorker (taskType, handler) {
+    this.workers.set(taskType, handler)
   }
 
-  async addTask(taskType, data, options = {}) {
+  async addTask (taskType, data, options = {}) {
     const job = await this.queue.add(
       { type: taskType, data },
       {
@@ -33,23 +36,23 @@ class TaskProcessor {
         },
         removeOnComplete: true
       }
-    );
-    return job;
+    )
+    return job
   }
 
-  async processQueue() {
+  async processQueue () {
     this.queue.process('*', async (job) => {
-      const handler = this.workers.get(job.data.type);
+      const handler = this.workers.get(job.data.type)
       if (!handler) {
-        throw new Error(`No handler for task type: ${job.data.type}`);
+        throw new Error(`No handler for task type: ${job.data.type}`)
       }
-      return await handler(job.data.data);
-    });
+      return await handler(job.data.data)
+    })
   }
 
-  async getTaskStatus(jobId) {
-    const job = await this.queue.getJob(jobId);
-    if (!job) return null;
+  async getTaskStatus (jobId) {
+    const job = await this.queue.getJob(jobId)
+    if (!job) return null
 
     return {
       id: job.id,
@@ -57,8 +60,8 @@ class TaskProcessor {
       progress: job.progress(),
       attempts: job.attemptsMade,
       data: job.data
-    };
+    }
   }
 }
 
-module.exports = TaskProcessor;
+module.exports = TaskProcessor
