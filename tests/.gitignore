@@ -1,0 +1,14 @@
+# Test artifacts
+coverage/
+*.lcov
+.nyc_output/
+
+# Environment files
+.env.local
+.env.*.local
+
+# Debug files
+debug.log
+
+# Cache
+.jest-cache/
