@@ -4,12 +4,12 @@
 export const MOBILE_COMPANION_SECURITY = {
   projectName: 'mobile-companion-app',
   riskLevel: 'MEDIUM',
-  
+
   // PWA configuration
   pwa: {
     enabled: true,
     offlineFirst: true,
-    serviceWorkerEnabled: true,
+    serviceWorkerEnabled: true
   },
 
   // Storage
@@ -17,14 +17,14 @@ export const MOBILE_COMPANION_SECURITY = {
     dbName: 'MobileAppDB',
     storeName: 'appData',
     encryptionEnabled: true,
-    maxSize: 50 * 1024 * 1024, // 50MB
+    maxSize: 50 * 1024 * 1024 // 50MB
   },
 
   // Service Worker
   serviceWorker: {
     enabled: true,
     backgroundSync: true,
-    pushNotifications: true,
+    pushNotifications: true
   },
 
   // Sync strategy
@@ -32,20 +32,20 @@ export const MOBILE_COMPANION_SECURITY = {
     strategy: 'queue-based',
     onlineCheck: true,
     autoSync: true,
-    syncInterval: 300000, // 5 minutes
+    syncInterval: 300000 // 5 minutes
   },
 
   // Data freshness
   dataFreshness: {
     cacheExpiration: 3600000, // 1 hour
-    forceRefreshOnInterval: false,
+    forceRefreshOnInterval: false
   },
 
   // Responsive design
   responsive: {
     mobileFirst: true,
-    touchOptimized: true,
+    touchOptimized: true
   }
-};
+}
 
-export default MOBILE_COMPANION_SECURITY;
+export default MOBILE_COMPANION_SECURITY

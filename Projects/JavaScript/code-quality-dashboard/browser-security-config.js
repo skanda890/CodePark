@@ -4,12 +4,12 @@
 export const CODE_QUALITY_SECURITY = {
   projectName: 'code-quality-dashboard',
   riskLevel: 'MEDIUM',
-  
+
   // Data source
   dataSources: {
     type: 'REST_API',
     endpoint: '/api/metrics',
-    updateInterval: 300000, // 5 minutes
+    updateInterval: 300000 // 5 minutes
   },
 
   // Metrics collection
@@ -19,29 +19,29 @@ export const CODE_QUALITY_SECURITY = {
       'complexity',
       'duplication',
       'bugs',
-      'vulnerabilities',
+      'vulnerabilities'
     ],
-    aggregationMethod: 'server-side',
+    aggregationMethod: 'server-side'
   },
 
   // Caching
   caching: {
     enabled: true,
     ttl: 600000, // 10 minutes
-    strategy: 'LRU',
+    strategy: 'LRU'
   },
 
   // Service Worker for background updates
   backgroundSync: {
     enabled: true,
-    syncInterval: 600000,
+    syncInterval: 600000
   },
 
   // Validation
   validation: {
     validateMetricRanges: true,
-    rejectOutliers: true,
+    rejectOutliers: true
   }
-};
+}
 
-export default CODE_QUALITY_SECURITY;
+export default CODE_QUALITY_SECURITY
