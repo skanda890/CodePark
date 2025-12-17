@@ -1,78 +1,78 @@
-const DataLoader = require('dataloader');
+const DataLoader = require('dataloader')
 
 class BatchOperations {
-  constructor() {
-    this.userLoader = new DataLoader(this.batchLoadUsers.bind(this));
-    this.postLoader = new DataLoader(this.batchLoadPosts.bind(this));
+  constructor () {
+    this.userLoader = new DataLoader(this.batchLoadUsers.bind(this))
+    this.postLoader = new DataLoader(this.batchLoadPosts.bind(this))
   }
 
-  async batchLoadUsers(userIds) {
-    console.log(`Loading users: ${userIds.join(', ')}`);
+  async batchLoadUsers (userIds) {
+    console.log(`Loading users: ${userIds.join(', ')}`)
     // Mock data - replace with actual DB query
-    return userIds.map(id => ({
+    return userIds.map((id) => ({
       id,
       name: `User ${id}`,
       email: `user${id}@example.com`
-    }));
+    }))
   }
 
-  async batchLoadPosts(postIds) {
-    console.log(`Loading posts: ${postIds.join(', ')}`);
+  async batchLoadPosts (postIds) {
+    console.log(`Loading posts: ${postIds.join(', ')}`)
     // Mock data - replace with actual DB query
-    return postIds.map(id => ({
+    return postIds.map((id) => ({
       id,
       title: `Post ${id}`,
       content: `Content of post ${id}`
-    }));
+    }))
   }
 
-  async processBatch(requests) {
-    const results = [];
+  async processBatch (requests) {
+    const results = []
     for (const req of requests) {
-      const result = await this.handleRequest(req);
-      results.push(result);
+      const result = await this.handleRequest(req)
+      results.push(result)
     }
-    return results;
+    return results
   }
 
-  async handleRequest(request) {
-    const { method, path, data } = request;
+  async handleRequest (request) {
+    const { method, path, data } = request
     switch (method.toUpperCase()) {
       case 'GET':
-        return this.get(path);
+        return this.get(path)
       case 'POST':
-        return this.post(path, data);
+        return this.post(path, data)
       case 'PUT':
-        return this.put(path, data);
+        return this.put(path, data)
       case 'DELETE':
-        return this.delete(path);
+        return this.delete(path)
       default:
-        return { error: 'Unknown method' };
+        return { error: 'Unknown method' }
     }
   }
 
-  async get(path) {
+  async get (path) {
     if (path.startsWith('/users/')) {
-      const id = path.split('/').pop();
-      return this.userLoader.load(id);
+      const id = path.split('/').pop()
+      return this.userLoader.load(id)
     }
-    return { error: 'Not found' };
+    return { error: 'Not found' }
   }
 
-  async post(path, data) {
-    console.log(`Creating ${path}`, data);
-    return { success: true, id: Math.random().toString(), ...data };
+  async post (path, data) {
+    console.log(`Creating ${path}`, data)
+    return { success: true, id: Math.random().toString(), ...data }
   }
 
-  async put(path, data) {
-    console.log(`Updating ${path}`, data);
-    return { success: true, ...data };
+  async put (path, data) {
+    console.log(`Updating ${path}`, data)
+    return { success: true, ...data }
   }
 
-  async delete(path) {
-    console.log(`Deleting ${path}`);
-    return { success: true };
+  async delete (path) {
+    console.log(`Deleting ${path}`)
+    return { success: true }
   }
 }
 
-module.exports = BatchOperations;
+module.exports = BatchOperations

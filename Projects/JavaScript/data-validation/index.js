@@ -1,34 +1,34 @@
-const joi = require('joi');
+const joi = require('joi')
 
 class DataValidator {
-  constructor() {
-    this.schemas = new Map();
+  constructor () {
+    this.schemas = new Map()
   }
 
-  defineSchema(name, schema) {
-    this.schemas.set(name, joi.object(schema));
+  defineSchema (name, schema) {
+    this.schemas.set(name, joi.object(schema))
   }
 
-  async validate(data, schemaName) {
-    const schema = this.schemas.get(schemaName);
+  async validate (data, schemaName) {
+    const schema = this.schemas.get(schemaName)
     if (!schema) {
-      throw new Error(`Schema not found: ${schemaName}`);
+      throw new Error(`Schema not found: ${schemaName}`)
     }
 
     const { error, value } = schema.validate(data, {
       abortEarly: false,
       stripUnknown: true
-    });
+    })
 
     if (error) {
-      const errors = error.details.map(d => ({
+      const errors = error.details.map((d) => ({
         field: d.path.join('.'),
         message: d.message
-      }));
-      return { valid: false, errors };
+      }))
+      return { valid: false, errors }
     }
 
-    return { valid: true, data: value };
+    return { valid: true, data: value }
   }
 }
 
@@ -50,6 +50,6 @@ const CommonSchemas = {
     maxPlayers: joi.number().min(2).max(100),
     gameType: joi.string().valid('competitive', 'casual', 'cooperative')
   }
-};
+}
 
-module.exports = { DataValidator, CommonSchemas };
+module.exports = { DataValidator, CommonSchemas }
