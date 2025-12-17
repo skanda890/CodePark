@@ -16,8 +16,8 @@ Multi-channel notifications.
 
 ```javascript
 await notificationManager.send({
-  type: 'welcome',
-  channels: ['email', 'in-app'],
-  recipient: user
+  type: "welcome",
+  channels: ["email", "in-app"],
+  recipient: user,
 });
 ```

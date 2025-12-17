@@ -17,11 +17,11 @@ Comprehensive audit logging for compliance.
 ```javascript
 auditLogger.log({
   userId: user.id,
-  action: 'user.update',
-  resource: 'User',
+  action: "user.update",
+  resource: "User",
   resourceId: user.id,
-  changes: { role: 'admin' },
-  timestamp: new Date()
+  changes: { role: "admin" },
+  timestamp: new Date(),
 });
 ```
 

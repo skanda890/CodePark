@@ -14,6 +14,6 @@ Implement AI opponents for games.
 ## Implementation
 
 ```javascript
-const ai = new AIOpponent('hard');
+const ai = new AIOpponent("hard");
 const move = ai.getMove(gameState);
 ```

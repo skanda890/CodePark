@@ -15,5 +15,5 @@ Process tasks asynchronously using queues.
 
 ```javascript
 const queue = new TaskQueue();
-await queue.add({ type: 'email', data: { to: 'user@example.com' } });
+await queue.add({ type: "email", data: { to: "user@example.com" } });
 ```

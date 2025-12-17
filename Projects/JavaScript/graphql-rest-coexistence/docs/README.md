@@ -13,6 +13,6 @@ Run GraphQL and REST APIs together.
 ## Usage
 
 ```javascript
-app.use('/api', restRouter);
-app.use('/graphql', apolloServer);
+app.use("/api", restRouter);
+app.use("/graphql", apolloServer);
 ```

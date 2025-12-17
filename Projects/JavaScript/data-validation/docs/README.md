@@ -15,6 +15,6 @@ npm install joi
 ```javascript
 const schema = joi.object({
   email: joi.string().email().required(),
-  age: joi.number().min(18).max(100)
+  age: joi.number().min(18).max(100),
 });
 ```

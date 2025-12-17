@@ -24,9 +24,9 @@ npm install csv-parser papaparse
 ```javascript
 const importer = new BulkImporter();
 
-const result = await importer.importCSV('data.csv', {
+const result = await importer.importCSV("data.csv", {
   batchSize: 1000,
-  skipValidation: false
+  skipValidation: false,
 });
 
 console.log(`Imported: ${result.imported} records`);

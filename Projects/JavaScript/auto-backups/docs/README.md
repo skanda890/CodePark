@@ -16,8 +16,8 @@ Automatic database backups with scheduling.
 
 ```javascript
 const backupManager = new BackupManager({
-  schedule: '0 2 * * *', // Daily at 2 AM
+  schedule: "0 2 * * *", // Daily at 2 AM
   retention: 30, // days
-  incremental: true
+  incremental: true,
 });
 ```

@@ -16,8 +16,10 @@ Optimize static asset delivery and caching.
 
 ```javascript
 app.use(compression({ level: 9, brotli: true }));
-app.use(express.static('public', {
-  maxAge: '1d',
-  etag: false
-}));
+app.use(
+  express.static("public", {
+    maxAge: "1d",
+    etag: false,
+  }),
+);
 ```

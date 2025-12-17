@@ -14,9 +14,9 @@ Implement multiplayer game support.
 ## Usage
 
 ```javascript
-const room = new GameRoom('room123', {
+const room = new GameRoom("room123", {
   maxPlayers: 4,
-  gameType: 'competitive'
+  gameType: "competitive",
 });
 
 await room.addPlayer(player);

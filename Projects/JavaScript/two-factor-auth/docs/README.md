@@ -21,14 +21,14 @@ npm install speakeasy
 
 ```javascript
 const secret = speakeasy.generateSecret({
-  name: 'CodePark',
-  issuer: 'CodePark'
+  name: "CodePark",
+  issuer: "CodePark",
 });
 
 const verified = speakeasy.totp.verify({
   secret: secret.base32,
-  encoding: 'base32',
+  encoding: "base32",
   token: userToken,
-  window: 2
+  window: 2,
 });
 ```

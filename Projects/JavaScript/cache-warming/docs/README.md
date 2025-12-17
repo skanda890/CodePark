@@ -14,10 +14,10 @@ Pre-populate cache with frequently accessed data.
 
 ```javascript
 const warmer = new CacheWarmer({
-  schedule: '0 * * * *', // Hourly
+  schedule: "0 * * * *", // Hourly
   datasets: [
-    { key: 'popular_games', loader: loadPopularGames },
-    { key: 'trending_topics', loader: loadTrendingTopics }
-  ]
+    { key: "popular_games", loader: loadPopularGames },
+    { key: "trending_topics", loader: loadTrendingTopics },
+  ],
 });
 ```

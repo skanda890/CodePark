@@ -24,7 +24,7 @@ npm install redis
 const limiter = new RateLimiter({
   windowMs: 60000,
   max: 100,
-  skipSuccessfulRequests: false
+  skipSuccessfulRequests: false,
 });
 
 app.use(limiter);
@@ -34,9 +34,9 @@ app.use(limiter);
 
 ```javascript
 const overrides = {
-  userId: 'user123',
+  userId: "user123",
   limit: 10000,
-  expires: '2025-12-31'
+  expires: "2025-12-31",
 };
 
 await limiter.setOverride(overrides);

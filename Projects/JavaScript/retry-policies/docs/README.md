@@ -16,7 +16,7 @@ Implement configurable retry strategies.
 ```javascript
 const retryPolicy = new RetryPolicy({
   maxAttempts: 5,
-  strategy: 'exponential',
-  initialDelay: 1000
+  strategy: "exponential",
+  initialDelay: 1000,
 });
 ```

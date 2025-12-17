@@ -16,7 +16,7 @@ Archive old data to cold storage.
 ```javascript
 const archiver = new DataArchiver({
   retentionDays: 365,
-  archiveStorage: 's3://bucket/archive',
-  compressionLevel: 9
+  archiveStorage: "s3://bucket/archive",
+  compressionLevel: 9,
 });
 ```
