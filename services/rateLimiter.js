@@ -1,5 +1,5 @@
 /**
- * Rate Limiter Service
+ * Rate Limiter Service - Fixed Version
  * Implements distributed rate limiting using Redis
  * Supports sliding window and token bucket algorithms
  */
@@ -9,25 +9,41 @@ const logger = require('./logger');
 
 class RateLimiter {
   constructor(options = {}) {
-    this.redis = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD,
-      retryStrategy: (times) => Math.min(times * 50, 2000),
-      maxRetriesPerRequest: null
-    });
+    try {
+      this.redis = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379,
+        password: process.env.REDIS_PASSWORD,
+        retryStrategy: (times) => Math.min(times * 50, 2000),
+        maxRetriesPerRequest: null,
+        enableReadyCheck: false,
+        enableOfflineQueue: true
+      });
 
-    this.defaultWindowMs = options.windowMs || 60000; // 1 minute
-    this.defaultMaxRequests = options.maxRequests || 100;
-    this.keyPrefix = options.keyPrefix || 'ratelimit:';
-    this.skipSuccessfulRequests = options.skipSuccessfulRequests || false;
-    this.skipFailedRequests = options.skipFailedRequests || false;
+      this.redis.on('error', (err) => {
+        logger.error('Redis connection error in RateLimiter', { error: err.message });
+      });
+
+      this.defaultWindowMs = options.windowMs || 60000;
+      this.defaultMaxRequests = options.maxRequests || 100;
+      this.keyPrefix = options.keyPrefix || 'ratelimit:';
+      this.skipSuccessfulRequests = options.skipSuccessfulRequests || false;
+      this.skipFailedRequests = options.skipFailedRequests || false;
+    } catch (error) {
+      logger.error('RateLimiter initialization failed', { error: error.message });
+      throw error;
+    }
   }
 
   /**
    * Check if request is within rate limit (sliding window)
    */
   async checkLimit(key, options = {}) {
+    if (!key || typeof key !== 'string') {
+      logger.warn('Invalid key provided to checkLimit', { key: typeof key });
+      return { allowed: false, error: 'Invalid key' };
+    }
+
     const windowMs = options.windowMs || this.defaultWindowMs;
     const maxRequests = options.maxRequests || this.defaultMaxRequests;
     const fullKey = `${this.keyPrefix}${key}`;
@@ -44,7 +60,9 @@ class RateLimiter {
 
       if (requestCount >= maxRequests) {
         const oldestRequest = await this.redis.zrange(fullKey, 0, 0, 'WITHSCORES');
-        const resetTime = oldestRequest[1] ? parseInt(oldestRequest[1]) + windowMs : now + windowMs;
+        const resetTime = oldestRequest && oldestRequest[1]
+          ? parseInt(oldestRequest[1], 10) + windowMs
+          : now + windowMs;
 
         return {
           allowed: false,
@@ -55,8 +73,9 @@ class RateLimiter {
         };
       }
 
-      // Add current request
-      await this.redis.zadd(fullKey, now, `${now}-${Math.random()}`);
+      // Add current request with unique ID
+      const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`;
+      await this.redis.zadd(fullKey, now, requestId);
       await this.redis.expire(fullKey, Math.ceil(windowMs / 1000) + 1);
 
       return {
@@ -64,12 +83,12 @@ class RateLimiter {
         limit: maxRequests,
         current: requestCount + 1,
         resetTime: now + windowMs,
-        remaining: maxRequests - (requestCount + 1)
+        remaining: Math.max(0, maxRequests - (requestCount + 1))
       };
     } catch (error) {
       logger.error('Rate limiter check failed', { key, error: error.message });
       // Fail open - allow request if Redis is down
-      return { allowed: true, error: error.message };
+      return { allowed: true, warning: 'Rate limiter unavailable' };
     }
   }
 
@@ -77,9 +96,14 @@ class RateLimiter {
    * Token bucket algorithm for more granular control
    */
   async checkTokenBucket(key, options = {}) {
+    if (!key || typeof key !== 'string') {
+      logger.warn('Invalid key provided to checkTokenBucket', { key: typeof key });
+      return { allowed: false, error: 'Invalid key' };
+    }
+
     const capacity = options.capacity || 100;
-    const refillRate = options.refillRate || 10; // tokens per second
-    const tokensPerRequest = options.tokensPerRequest || 1;
+    const refillRate = options.refillRate || 10;
+    const tokensPerRequest = Math.max(1, options.tokensPerRequest || 1);
     const fullKey = `${this.keyPrefix}bucket:${key}`;
 
     try {
@@ -87,34 +111,40 @@ class RateLimiter {
       const bucketData = await this.redis.hgetall(fullKey);
 
       let tokens = bucketData.tokens ? parseFloat(bucketData.tokens) : capacity;
-      let lastRefill = bucketData.lastRefill ? parseInt(bucketData.lastRefill) : now;
+      let lastRefill = bucketData.lastRefill ? parseInt(bucketData.lastRefill, 10) : now;
+
+      // Validate parsed values
+      if (isNaN(tokens)) tokens = capacity;
+      if (isNaN(lastRefill)) lastRefill = now;
 
       // Calculate elapsed time and add tokens
-      const elapsed = (now - lastRefill) / 1000;
-      tokens = Math.min(capacity, tokens + elapsed * refillRate);
+      const elapsed = Math.max(0, (now - lastRefill) / 1000);
+      tokens = Math.min(capacity, tokens + (elapsed * refillRate));
 
       if (tokens >= tokensPerRequest) {
         tokens -= tokensPerRequest;
         await this.redis.hset(fullKey, 'tokens', tokens.toString(), 'lastRefill', now.toString());
-        await this.redis.expire(fullKey, Math.ceil((capacity / refillRate) * 1.5));
+        await this.redis.expire(fullKey, Math.ceil((capacity / Math.max(1, refillRate)) * 1.5));
 
         return {
           allowed: true,
           tokensRemaining: Math.floor(tokens),
-          tokensCapacity: capacity
+          tokensCapacity: capacity,
+          refillRate
         };
       }
 
-      const timeToWait = (tokensPerRequest - tokens) / refillRate;
+      const timeToWait = Math.max(0, (tokensPerRequest - tokens) / Math.max(1, refillRate));
       return {
         allowed: false,
         tokensRemaining: Math.floor(tokens),
         tokensCapacity: capacity,
+        refillRate,
         retryAfter: Math.ceil(timeToWait * 1000)
       };
     } catch (error) {
       logger.error('Token bucket check failed', { key, error: error.message });
-      return { allowed: true, error: error.message };
+      return { allowed: true, warning: 'Token bucket unavailable' };
     }
   }
 
@@ -122,15 +152,30 @@ class RateLimiter {
    * Reset rate limit for a key
    */
   async reset(key) {
-    const fullKey = `${this.keyPrefix}${key}`;
-    await this.redis.del(fullKey);
-    return { success: true, key };
+    if (!key || typeof key !== 'string') {
+      logger.warn('Invalid key provided to reset', { key: typeof key });
+      return { success: false, error: 'Invalid key' };
+    }
+
+    try {
+      const fullKey = `${this.keyPrefix}${key}`;
+      await this.redis.del(fullKey);
+      return { success: true, key };
+    } catch (error) {
+      logger.error('Reset failed', { key, error: error.message });
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Get current rate limit status
    */
   async getStatus(key, options = {}) {
+    if (!key || typeof key !== 'string') {
+      logger.warn('Invalid key provided to getStatus', { key: typeof key });
+      return { key, error: 'Invalid key' };
+    }
+
     const windowMs = options.windowMs || this.defaultWindowMs;
     const maxRequests = options.maxRequests || this.defaultMaxRequests;
     const fullKey = `${this.keyPrefix}${key}`;
@@ -147,7 +192,8 @@ class RateLimiter {
         requests: requestCount,
         limit: maxRequests,
         remaining: Math.max(0, maxRequests - requestCount),
-        reset: ttl > 0 ? new Date(now + ttl) : null
+        resetTime: ttl > 0 ? new Date(now + ttl).toISOString() : null,
+        ttlMs: Math.max(0, ttl)
       };
     } catch (error) {
       logger.error('Get status failed', { key, error: error.message });
@@ -159,7 +205,12 @@ class RateLimiter {
    * Cleanup and close Redis connection
    */
   async close() {
-    await this.redis.quit();
+    try {
+      await this.redis.quit();
+      logger.info('RateLimiter Redis connection closed');
+    } catch (error) {
+      logger.error('Error closing RateLimiter Redis connection', { error: error.message });
+    }
   }
 }
 
