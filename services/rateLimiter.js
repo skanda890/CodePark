@@ -60,40 +60,66 @@ class RateLimiter {
       await this.redis.zremrangebyscore(fullKey, '-inf', windowStart)
 
       // Count requests in current window
-      const requestCount = await this.redis.zcard(fullKey)
+      const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`;
 
-      if (requestCount >= maxRequests) {
-        const oldestRequest = await this.redis.zrange(
-          fullKey,
-          0,
-          0,
-          'WITHSCORES'
-        )
-        const resetTime =
-          oldestRequest && oldestRequest[1]
-            ? parseInt(oldestRequest[1], 10) + windowMs
-            : now + windowMs
+      // Use a Lua script to perform cleanup, count, and conditional insert atomically
+      const script = `
+        local key = KEYS[1]
+        local now = tonumber(ARGV[1])
+        local window = tonumber(ARGV[2])
+        local maxReq = tonumber(ARGV[3])
+        local member = ARGV[4]
 
+        local windowStart = now - window
+        redis.call('ZREMRANGEBYSCORE', key, '-inf', windowStart)
+        local count = redis.call('ZCARD', key)
+
+        if count >= maxReq then
+          local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+          local oldestScore
+          if oldest[2] ~= nil then
+            oldestScore = tonumber(oldest[2])
+          else
+            oldestScore = now
+          end
+          return {0, count, oldestScore + window}
+        end
+
+        redis.call('ZADD', key, now, member)
+        redis.call('EXPIRE', key, math.ceil(window / 1000) + 1)
+        return {1, count + 1, now + window}
+      `;
+
+      const result = await this.redis.eval(
+        script,
+        1,
+        fullKey,
+        now.toString(),
+        windowMs.toString(),
+        maxRequests.toString(),
+        requestId
+      );
+
+      const allowed = result[0] === 1;
+      const current = result[1];
+      const resetTime = result[2];
+
+      if (!allowed) {
         return {
           allowed: false,
           limit: maxRequests,
-          current: requestCount,
+          current,
           resetTime,
           retryAfter: Math.ceil((resetTime - now) / 1000)
-        }
+        };
       }
-
-      // Add current request with unique ID
-      const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`
-      await this.redis.zadd(fullKey, now, requestId)
-      await this.redis.expire(fullKey, Math.ceil(windowMs / 1000) + 1)
 
       return {
         allowed: true,
         limit: maxRequests,
-        current: requestCount + 1,
-        resetTime: now + windowMs,
-        remaining: Math.max(0, maxRequests - (requestCount + 1))
+        current,
+        resetTime,
+        remaining: Math.max(0, maxRequests - current)
       }
     } catch (error) {
       logger.error('Rate limiter check failed', { key, error: error.message })
