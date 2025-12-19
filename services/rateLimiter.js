@@ -60,7 +60,7 @@ class RateLimiter {
       await this.redis.zremrangebyscore(fullKey, '-inf', windowStart)
 
       // Count requests in current window
-      const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`;
+      const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`
 
       // Use a Lua script to perform cleanup, count, and conditional insert atomically
       const script = `
@@ -88,7 +88,7 @@ class RateLimiter {
         redis.call('ZADD', key, now, member)
         redis.call('EXPIRE', key, math.ceil(window / 1000) + 1)
         return {1, count + 1, now + window}
-      `;
+      `
 
       const result = await this.redis.eval(
         script,
@@ -98,11 +98,11 @@ class RateLimiter {
         windowMs.toString(),
         maxRequests.toString(),
         requestId
-      );
+      )
 
-      const allowed = result[0] === 1;
-      const current = result[1];
-      const resetTime = result[2];
+      const allowed = result[0] === 1
+      const current = result[1]
+      const resetTime = result[2]
 
       if (!allowed) {
         return {
@@ -111,7 +111,7 @@ class RateLimiter {
           current,
           resetTime,
           retryAfter: Math.ceil((resetTime - now) / 1000)
-        };
+        }
       }
 
       return {
