@@ -192,7 +192,7 @@ class RateLimiter {
         tokensRemaining: Math.floor(tokens),
         tokensCapacity: capacity,
         refillRate,
-        retryAfter: Math.ceil(timeToWait * 1000)
+        retryAfter: Math.ceil(timeToWait)
       }
     } catch (error) {
       logger.error('Token bucket check failed', { key, error: error.message })
