@@ -4,23 +4,23 @@
  * @version 1.0.0
  */
 
-const Ajv = require('ajv');
-const addFormats = require('ajv-formats');
+const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 
 class RequestValidator {
-  constructor(options = {}) {
+  constructor (options = {}) {
     this.ajv = new Ajv({
       allErrors: true,
       removeAdditional: options.removeAdditional || false,
       useDefaults: true,
       coerceTypes: true,
-      ...options.ajvOptions,
-    });
-    
-    addFormats(this.ajv);
-    this.schemas = new Map();
-    this.customRules = new Map();
-    this.errorFormatter = options.errorFormatter || this.defaultErrorFormatter;
+      ...options.ajvOptions
+    })
+
+    addFormats(this.ajv)
+    this.schemas = new Map()
+    this.customRules = new Map()
+    this.errorFormatter = options.errorFormatter || this.defaultErrorFormatter
   }
 
   /**
@@ -28,13 +28,13 @@ class RequestValidator {
    * @param {string} name - Schema identifier
    * @param {object} schema - JSON Schema definition
    */
-  registerSchema(name, schema) {
+  registerSchema (name, schema) {
     try {
-      this.ajv.addSchema(schema, name);
-      this.schemas.set(name, schema);
-      return true;
+      this.ajv.addSchema(schema, name)
+      this.schemas.set(name, schema)
+      return true
     } catch (error) {
-      throw new Error(`Failed to register schema '${name}': ${error.message}`);
+      throw new Error(`Failed to register schema '${name}': ${error.message}`)
     }
   }
 
@@ -43,11 +43,11 @@ class RequestValidator {
    * @param {string} name - Rule name
    * @param {Function} validator - Validation function
    */
-  registerRule(name, validator) {
+  registerRule (name, validator) {
     if (typeof validator !== 'function') {
-      throw new Error(`Custom rule '${name}' must be a function`);
+      throw new Error(`Custom rule '${name}' must be a function`)
     }
-    this.customRules.set(name, validator);
+    this.customRules.set(name, validator)
   }
 
   /**
@@ -56,29 +56,29 @@ class RequestValidator {
    * @param {object} data - Data to validate
    * @returns {object} - Validation result with valid flag and errors
    */
-  validate(schemaName, data) {
+  validate (schemaName, data) {
     try {
-      const validate = this.ajv.getSchema(schemaName);
+      const validate = this.ajv.getSchema(schemaName)
       if (!validate) {
-        throw new Error(`Schema '${schemaName}' not found`);
+        throw new Error(`Schema '${schemaName}' not found`)
       }
 
-      const isValid = validate(data);
-      const errors = validate.errors || [];
+      const isValid = validate(data)
+      const errors = validate.errors || []
 
       return {
         valid: isValid,
         data: isValid ? data : null,
         errors: isValid ? [] : this.errorFormatter(errors),
-        originalErrors: errors,
-      };
+        originalErrors: errors
+      }
     } catch (error) {
       return {
         valid: false,
         data: null,
         errors: [{ message: error.message }],
-        originalErrors: [],
-      };
+        originalErrors: []
+      }
     }
   }
 
@@ -88,50 +88,53 @@ class RequestValidator {
    * @param {object} rules - Custom rules to apply
    * @returns {object} - Validation result
    */
-  validateWithRules(data, rules) {
+  validateWithRules (data, rules) {
     const results = {
       valid: true,
-      errors: [],
-    };
+      errors: []
+    }
 
     for (const [fieldName, ruleNames] of Object.entries(rules)) {
-      const fieldValue = data[fieldName];
-      const rules_ = Array.isArray(ruleNames) ? ruleNames : [ruleNames];
+      const fieldValue = data[fieldName]
+      const rules_ = Array.isArray(ruleNames) ? ruleNames : [ruleNames]
 
       for (const ruleName of rules_) {
-        const rule = this.customRules.get(ruleName);
+        const rule = this.customRules.get(ruleName)
         if (!rule) {
           results.errors.push({
             field: fieldName,
             rule: ruleName,
-            message: `Rule '${ruleName}' not found`,
-          });
-          results.valid = false;
-          continue;
+            message: `Rule '${ruleName}' not found`
+          })
+          results.valid = false
+          continue
         }
 
         try {
-          const ruleResult = rule(fieldValue, data);
+          const ruleResult = rule(fieldValue, data)
           if (ruleResult !== true) {
             results.errors.push({
               field: fieldName,
               rule: ruleName,
-              message: typeof ruleResult === 'string' ? ruleResult : 'Validation failed',
-            });
-            results.valid = false;
+              message:
+                typeof ruleResult === 'string'
+                  ? ruleResult
+                  : 'Validation failed'
+            })
+            results.valid = false
           }
         } catch (error) {
           results.errors.push({
             field: fieldName,
             rule: ruleName,
-            message: error.message,
-          });
-          results.valid = false;
+            message: error.message
+          })
+          results.valid = false
         }
       }
     }
 
-    return results;
+    return results
   }
 
   /**
@@ -141,76 +144,80 @@ class RequestValidator {
    * @param {object} customRules - Custom rules map
    * @returns {Function} - Middleware function
    */
-  middleware(schemaName, source = 'body', customRules = null) {
+  middleware (schemaName, source = 'body', customRules = null) {
     return (req, res, next) => {
-      const data = req[source];
-      const validation = this.validate(schemaName, data);
+      const data = req[source]
+      const validation = this.validate(schemaName, data)
 
       if (!validation.valid) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
-          errors: validation.errors,
-        });
+          errors: validation.errors
+        })
       }
 
       if (customRules) {
-        const customValidation = this.validateWithRules(validation.data, customRules);
+        const customValidation = this.validateWithRules(
+          validation.data,
+          customRules
+        )
         if (!customValidation.valid) {
           return res.status(400).json({
             status: 'error',
             message: 'Validation failed',
-            errors: customValidation.errors,
-          });
+            errors: customValidation.errors
+          })
         }
       }
 
-      req.validatedData = validation.data;
-      next();
-    };
+      req.validatedData = validation.data
+      next()
+    }
   }
 
   /**
    * Default error formatter
    * @private
    */
-  defaultErrorFormatter(errors) {
+  defaultErrorFormatter (errors) {
     return errors.map((error) => ({
-      field: error.instancePath.replace(/^\//g, '').replace(/\//g, '.') || 'root',
+      field:
+        error.instancePath.replace(/^\//g, '').replace(/\//g, '.') || 'root',
       keyword: error.keyword,
-      message: this.getErrorMessage(error),
-    }));
+      message: this.getErrorMessage(error)
+    }))
   }
 
   /**
    * Get user-friendly error message
    * @private
    */
-  getErrorMessage(error) {
-    const { keyword, params } = error;
+  getErrorMessage (error) {
+    const { keyword, params } = error
     switch (keyword) {
       case 'required':
-        return `Field '${params.missingProperty}' is required`;
+        return `Field '${params.missingProperty}' is required`
       case 'type':
-        return `Must be of type ${params.type}`;
+        return `Must be of type ${params.type}`
       case 'minLength':
-        return `Must be at least ${params.limit} characters`;
+        return `Must be at least ${params.limit} characters`
       case 'maxLength':
-        return `Must be at most ${params.limit} characters`;
+        return `Must be at most ${params.limit} characters`
       case 'minimum':
-        return `Must be >= ${params.limit}`;
+        return `Must be >= ${params.limit}`
       case 'maximum':
-        return `Must be <= ${params.limit}`;
+        return `Must be <= ${params.limit}`
       case 'enum':
-        return `Must be one of: ${params.allowedValues.join(', ')}`;
+        return `Must be one of: ${params.allowedValues.join(', ')}`
       case 'format':
-        return `Invalid ${params.format} format`;
+        return `Invalid ${params.format} format`
       case 'pattern':
-        return `Must match pattern ${params.pattern}`;
+        return `Must match pattern ${params.pattern}`
       default:
-        return error.message || 'Invalid value';
+        return error.message || 'Invalid value'
     }
   }
 }
 
-module.exports = RequestValidator;
+module.exports = RequestValidator

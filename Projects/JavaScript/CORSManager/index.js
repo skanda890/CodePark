@@ -5,17 +5,16 @@
  */
 
 class CORSManager {
-  constructor(options = {}) {
-    this.origins = new Set(options.origins || ['*']);
-    this.methods = options.methods || ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-    this.allowedHeaders = new Set(options.allowedHeaders || [
-      'Content-Type',
-      'Authorization',
-    ]);
-    this.exposedHeaders = new Set(options.exposedHeaders || []);
-    this.credentials = options.credentials || false;
-    this.maxAge = options.maxAge || 86400;
-    this.cache = new Map();
+  constructor (options = {}) {
+    this.origins = new Set(options.origins || ['*'])
+    this.methods = options.methods || ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+    this.allowedHeaders = new Set(
+      options.allowedHeaders || ['Content-Type', 'Authorization']
+    )
+    this.exposedHeaders = new Set(options.exposedHeaders || [])
+    this.credentials = options.credentials || false
+    this.maxAge = options.maxAge || 86400
+    this.cache = new Map()
   }
 
   /**
@@ -23,33 +22,33 @@ class CORSManager {
    * @param {string} origin - Request origin
    * @returns {boolean} - Whether origin is allowed
    */
-  isOriginAllowed(origin) {
+  isOriginAllowed (origin) {
     if (this.cache.has(origin)) {
-      return this.cache.get(origin);
+      return this.cache.get(origin)
     }
 
-    let allowed = false;
+    let allowed = false
 
     for (const allowedOrigin of this.origins) {
       if (allowedOrigin === '*') {
-        allowed = true;
-        break;
+        allowed = true
+        break
       }
 
       if (this.isRegexOrigin(allowedOrigin)) {
-        const regex = new RegExp(allowedOrigin);
+        const regex = new RegExp(allowedOrigin)
         if (regex.test(origin)) {
-          allowed = true;
-          break;
+          allowed = true
+          break
         }
       } else if (allowedOrigin === origin) {
-        allowed = true;
-        break;
+        allowed = true
+        break
       }
     }
 
-    this.cache.set(origin, allowed);
-    return allowed;
+    this.cache.set(origin, allowed)
+    return allowed
   }
 
   /**
@@ -57,8 +56,8 @@ class CORSManager {
    * @param {string} method - HTTP method
    * @returns {boolean}
    */
-  isMethodAllowed(method) {
-    return this.methods.includes(method);
+  isMethodAllowed (method) {
+    return this.methods.includes(method)
   }
 
   /**
@@ -66,44 +65,44 @@ class CORSManager {
    * @param {Array} headers - Request headers
    * @returns {boolean}
    */
-  areHeadersAllowed(headers) {
-    if (!Array.isArray(headers)) return true;
+  areHeadersAllowed (headers) {
+    if (!Array.isArray(headers)) return true
 
-    return headers.every((header) => this.allowedHeaders.has(header));
+    return headers.every((header) => this.allowedHeaders.has(header))
   }
 
   /**
    * Add origin to allowed list
    * @param {string} origin - Origin to add
    */
-  addOrigin(origin) {
-    this.origins.add(origin);
-    this.cache.clear();
+  addOrigin (origin) {
+    this.origins.add(origin)
+    this.cache.clear()
   }
 
   /**
    * Remove origin from allowed list
    * @param {string} origin - Origin to remove
    */
-  removeOrigin(origin) {
-    this.origins.delete(origin);
-    this.cache.clear();
+  removeOrigin (origin) {
+    this.origins.delete(origin)
+    this.cache.clear()
   }
 
   /**
    * Add header to allowed list
    * @param {string} header - Header to add
    */
-  addAllowedHeader(header) {
-    this.allowedHeaders.add(header);
+  addAllowedHeader (header) {
+    this.allowedHeaders.add(header)
   }
 
   /**
    * Add header to exposed list
    * @param {string} header - Header to expose
    */
-  addExposedHeader(header) {
-    this.exposedHeaders.add(header);
+  addExposedHeader (header) {
+    this.exposedHeaders.add(header)
   }
 
   /**
@@ -112,72 +111,69 @@ class CORSManager {
    * @param {string} method - Request method
    * @returns {object} - CORS headers
    */
-  getCorsHeaders(origin, method) {
-    const headers = {};
+  getCorsHeaders (origin, method) {
+    const headers = {}
 
     if (!this.isOriginAllowed(origin)) {
-      return headers;
+      return headers
     }
 
     headers['Access-Control-Allow-Origin'] = this.origins.has('*')
       ? '*'
-      : origin;
+      : origin
 
     if (this.credentials && origin !== '*') {
-      headers['Access-Control-Allow-Credentials'] = 'true';
+      headers['Access-Control-Allow-Credentials'] = 'true'
     }
 
     if (this.methods.length > 0) {
-      headers['Access-Control-Allow-Methods'] = this.methods.join(', ');
+      headers['Access-Control-Allow-Methods'] = this.methods.join(', ')
     }
 
     if (this.allowedHeaders.size > 0) {
       headers['Access-Control-Allow-Headers'] = Array.from(
         this.allowedHeaders
-      ).join(', ');
+      ).join(', ')
     }
 
     if (this.exposedHeaders.size > 0) {
       headers['Access-Control-Expose-Headers'] = Array.from(
         this.exposedHeaders
-      ).join(', ');
+      ).join(', ')
     }
 
     if (this.maxAge > 0) {
-      headers['Access-Control-Max-Age'] = this.maxAge.toString();
+      headers['Access-Control-Max-Age'] = this.maxAge.toString()
     }
 
-    return headers;
+    return headers
   }
 
   /**
    * Check if origin is regex pattern
    * @private
    */
-  isRegexOrigin(origin) {
-    return origin.startsWith('/');
+  isRegexOrigin (origin) {
+    return origin.startsWith('/')
   }
 
   /**
    * Express middleware
    */
-  middleware() {
+  middleware () {
     return (req, res, next) => {
-      const origin = req.headers.origin || req.headers.referer;
+      const origin = req.headers.origin || req.headers.referer
 
       // Handle preflight requests
       if (req.method === 'OPTIONS') {
-        const requestMethod = req.headers['access-control-request-method'];
-        const requestHeaders = req.headers['access-control-request-headers'];
+        const requestMethod = req.headers['access-control-request-method']
+        const requestHeaders = req.headers['access-control-request-headers']
 
-        if (
-          requestMethod &&
-          !this.isMethodAllowed(requestMethod)
-        ) {
+        if (requestMethod && !this.isMethodAllowed(requestMethod)) {
           return res.status(403).json({
             status: 'error',
-            message: 'Method not allowed',
-          });
+            message: 'Method not allowed'
+          })
         }
 
         if (
@@ -186,24 +182,24 @@ class CORSManager {
         ) {
           return res.status(403).json({
             status: 'error',
-            message: 'Headers not allowed',
-          });
+            message: 'Headers not allowed'
+          })
         }
       }
 
       // Apply CORS headers
-      const corsHeaders = this.getCorsHeaders(origin, req.method);
+      const corsHeaders = this.getCorsHeaders(origin, req.method)
       Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
+        res.setHeader(key, value)
+      })
 
       if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        return res.status(200).end()
       }
 
-      next();
-    };
+      next()
+    }
   }
 }
 
-module.exports = CORSManager;
+module.exports = CORSManager
