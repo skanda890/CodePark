@@ -1,21 +1,39 @@
 /**
- * Centralized Logger Service
- * Provides structured logging with pino
+ * Logger Service - Fixed
+ * Conditional pretty printing (development only)
+ * Optimized for production performance
  */
 
-const pino = require('pino')
+const pino = require('pino');
 
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      singleLine: false,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname'
-    }
+const getLoggerConfig = () => {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const logLevel = process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info');
+
+  const baseConfig = {
+    level: logLevel
+  };
+
+  // Only use pretty printing in development
+  if (isDevelopment) {
+    return {
+      ...baseConfig,
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          singleLine: false,
+          translateTime: 'SYS:standard',
+          ignore: 'pid,hostname'
+        }
+      }
+    };
   }
-})
 
-module.exports = logger
+  // Production: raw JSON logs for performance and machine parsing
+  return baseConfig;
+};
+
+const logger = pino(getLoggerConfig());
+
+module.exports = logger;
