@@ -17,19 +17,21 @@ Based on the comprehensive code review from PR #387, here are all identified err
 ### 1. **HealthCheckService/index.js**
 
 #### Error 1: Default Value Logic (Line 16-17)
+
 **Issue:** Using `||` instead of `??` causes valid falsy values like `0` to be ignored
 
 ```javascript
 // ❌ BEFORE (WRONG)
-this.failureThreshold = options.failureThreshold || 3
-this.checkTimeout = options.checkTimeout || 5000
+this.failureThreshold = options.failureThreshold || 3;
+this.checkTimeout = options.checkTimeout || 5000;
 
 // ✅ AFTER (FIXED)
-this.failureThreshold = options.failureThreshold ?? 3
-this.checkTimeout = options.checkTimeout ?? 5000
+this.failureThreshold = options.failureThreshold ?? 3;
+this.checkTimeout = options.checkTimeout ?? 5000;
 ```
 
 #### Error 2: Per-Check Timeout Logic (Line 31)
+
 **Issue:** Per-check timeout of 0 is ignored
 
 ```javascript
@@ -41,26 +43,28 @@ timeout: options.timeout ?? this.checkTimeout,
 ```
 
 #### Error 3: Inconsistent Response Shape (Line 95)
+
 **Issue:** Failed results missing `duration` field
 
 ```javascript
 // ❌ BEFORE (WRONG)
 return {
   name: check.name,
-  status: 'failed',
-  error: error.message
+  status: "failed",
+  error: error.message,
 };
 
 // ✅ AFTER (FIXED)
 return {
   name: check.name,
-  status: 'failed',
+  status: "failed",
   error: error.message,
-  duration: Date.now() - startTime  // ADD THIS LINE
+  duration: Date.now() - startTime, // ADD THIS LINE
 };
 ```
 
 #### Error 4: setTimeout with Untrusted Data (Line 67)
+
 **Issue:** Security vulnerability - untrusted data in setTimeout
 
 ```javascript
@@ -72,7 +76,7 @@ setTimeout(() => {
 // ✅ AFTER (SAFE)
 const timeout = parseInt(options.timeout, 10);
 if (isNaN(timeout) || timeout < 0) {
-  throw new Error('Invalid timeout value');
+  throw new Error("Invalid timeout value");
 }
 setTimeout(() => {
   // ...
@@ -84,25 +88,29 @@ setTimeout(() => {
 ### 2. **IPWhitelistingService/index.js**
 
 #### Error 1: IP Prefix Collision (Line 203)
+
 **Issue:** Rate limiting uses `startsWith()` causing cross-IP mixing (1.1.1.1 matches 1.1.1.10)
 
 ```javascript
 // ❌ BEFORE (WRONG)
 for (const key of this.requestCounts.keys()) {
-  if (key.startsWith(ip)) {  // WRONG!
+  if (key.startsWith(ip)) {
+    // WRONG!
     // ...
   }
 }
 
 // ✅ AFTER (FIXED)
 for (const key of this.requestCounts.keys()) {
-  if (key.startsWith(`${ip}:`)) {  // CORRECT - needs colon delimiter
+  if (key.startsWith(`${ip}:`)) {
+    // CORRECT - needs colon delimiter
     // ...
   }
 }
 ```
 
 #### Error 2: Unbounded Memory Growth (Line 189)
+
 **Issue:** requestCounts map grows indefinitely with old entries never pruned
 
 ```javascript
@@ -136,6 +144,7 @@ recordAccess(ip, allowed) {
 ```
 
 #### Error 3: CIDR Tier Lookup Failure (Line 232)
+
 **Issue:** getIpStats only does exact IP lookup, missing CIDR-configured tiers
 
 ```javascript
