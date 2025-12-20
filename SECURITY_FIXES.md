@@ -14,25 +14,29 @@ Comprehensive security fixes, performance improvements, and complexity reduction
 
 ```javascript
 // BEFORE: Only warning log
-if (!this.jwtSecret || this.jwtSecret === 'your-secret-key-change-in-production') {
-  logger.warn('Using default JWT_SECRET - change in production!');
+if (
+  !this.jwtSecret ||
+  this.jwtSecret === "your-secret-key-change-in-production"
+) {
+  logger.warn("Using default JWT_SECRET - change in production!");
 }
 
 // AFTER: Hard-fail in production/staging
-if (!jwtSecret || jwtSecret === 'your-secret-key-change-in-production') {
-  if (isProduction || nodeEnv === 'staging') {
+if (!jwtSecret || jwtSecret === "your-secret-key-change-in-production") {
+  if (isProduction || nodeEnv === "staging") {
     throw new Error(
-      'FATAL: JWT_SECRET not properly configured for production. '
-      + 'Set JWT_SECRET environment variable before deploying.'
+      "FATAL: JWT_SECRET not properly configured for production. " +
+        "Set JWT_SECRET environment variable before deploying.",
     );
   }
   if (!isDevelopment) {
-    logger.warn('Using default JWT_SECRET - this is only safe in development');
+    logger.warn("Using default JWT_SECRET - this is only safe in development");
   }
 }
 ```
 
-**Impact**: 
+**Impact**:
+
 - Application fails fast if insecure secrets reach production
 - Deployment cannot proceed without proper configuration
 - Clear error message guides developers
@@ -53,6 +57,7 @@ host: process.env.REDIS_HOST || '127.0.0.1',
 ```
 
 **Why 127.0.0.1**:
+
 - More explicit than 'localhost'
 - Works in containerized environments
 - Clearer intent (not left as 'debug' value)
@@ -97,6 +102,7 @@ const getLoggerConfig = () => {
 ```
 
 **Performance Impact**:
+
 - Development: Pretty-printed console output
 - Production: Raw JSON (significant performance gain)
 - Eliminates pino-pretty overhead in production
@@ -149,6 +155,7 @@ _validateKey(key, methodName) {
 ```
 
 **Impact**:
+
 - Users won't be stuck throttled after reset
 - Both rate limiting algorithms fully reset
 - Consistent behavior regardless of algorithm used
@@ -183,6 +190,7 @@ _validateKey(key, methodName) {
 ```
 
 **Impact**:
+
 - Consumers don't need conditional logic for retryAfter presence
 - Easier to implement retry logic
 - More predictable API surface
@@ -192,6 +200,7 @@ _validateKey(key, methodName) {
 ### 1. AuthService Refactoring ✅
 
 **Changes**:
+
 - Moved config to separate `config/authConfig.js`
 - Simplified constructor (no validation logic)
 - Consistent "throw on error" strategy for tokens
@@ -264,6 +273,7 @@ refreshTokens(refreshToken) {
 ```
 
 **Benefits**:
+
 - 25% fewer lines of code
 - Easier to test (no null sentinel handling)
 - Single error handling path
@@ -272,6 +282,7 @@ refreshTokens(refreshToken) {
 ### 2. RateLimiter Refactoring ✅
 
 **Changes**:
+
 - Centralized key validation in `_validateKey()` helper
 - Separated algorithm logic to `_checkSlidingWindow()` and `_checkTokenBucket()`
 - Removed unused options (skipSuccessfulRequests, skipFailedRequests)
@@ -330,6 +341,7 @@ async checkLimit(key, options = {}) {
 ```
 
 **Benefits**:
+
 - 30% fewer lines in main class
 - Validation changes only need one place
 - Private helpers make intent clear
@@ -340,11 +352,13 @@ async checkLimit(key, options = {}) {
 ### Logger Performance
 
 **Development**:
+
 - Color-coded pretty output for debugging
 - Easy to read in terminal
 - Performance: ~1M logs/sec (acceptable for dev)
 
 **Production**:
+
 - Raw JSON logs (no pino-pretty overhead)
 - Performance: ~2-3M logs/sec (50-100% faster)
 - Better for centralized logging systems
@@ -385,19 +399,23 @@ LOG_LEVEL=info        # info in production, debug in dev
 ### Code Changes
 
 1. **Update imports if using old auth service**:
+
    ```javascript
    // BEFORE
-   const authService = require('./services/auth');
+   const authService = require("./services/auth");
 
    // AFTER (same location, same API)
-   const authService = require('./services/authService');
+   const authService = require("./services/authService");
    ```
 
 2. **Update error handling for token methods**:
+
    ```javascript
    // BEFORE: Check for null
    const payload = authService.verifyToken(token);
-   if (!payload) { /* error */ }
+   if (!payload) {
+     /* error */
+   }
 
    // AFTER: Handle thrown error
    try {
@@ -410,7 +428,7 @@ LOG_LEVEL=info        # info in production, debug in dev
 3. **Update rate limiter for full reset**:
    ```javascript
    // Now deletes both sliding-window and token-bucket state
-   await rateLimiter.reset(key);  // Works for both algorithms!
+   await rateLimiter.reset(key); // Works for both algorithms!
    ```
 
 ## ✅ Checklist
@@ -461,16 +479,16 @@ try {
 
 ## Summary
 
-| Issue | Status | Impact |
-|-------|--------|--------|
-| JWT Secret Hard-Fail | ✅ Fixed | High Security |
-| Localhost Hardcoding | ✅ Fixed | Medium |
-| Logger Perf Overhead | ✅ Fixed | Medium Performance |
-| Rate Limiter Reset | ✅ Fixed | High Correctness |
-| Response Normalization | ✅ Fixed | Medium Usability |
+| Issue                  | Status     | Impact                 |
+| ---------------------- | ---------- | ---------------------- |
+| JWT Secret Hard-Fail   | ✅ Fixed   | High Security          |
+| Localhost Hardcoding   | ✅ Fixed   | Medium                 |
+| Logger Perf Overhead   | ✅ Fixed   | Medium Performance     |
+| Rate Limiter Reset     | ✅ Fixed   | High Correctness       |
+| Response Normalization | ✅ Fixed   | Medium Usability       |
 | AuthService Complexity | ✅ Reduced | Medium Maintainability |
 | RateLimiter Complexity | ✅ Reduced | Medium Maintainability |
-| Unused Options | ✅ Removed | Low Clarity |
+| Unused Options         | ✅ Removed | Low Clarity            |
 
 ---
 
