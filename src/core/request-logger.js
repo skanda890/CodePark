@@ -4,12 +4,12 @@
  * Features: PII protection, request correlation, audit trails
  */
 
-const crypto = require('crypto');
+const crypto = require('crypto')
 
 class RequestLogger {
-  constructor(options = {}) {
-    this.logger = options.logger || console;
-    this.excludePaths = options.excludePaths || ['/health', '/metrics'];
+  constructor (options = {}) {
+    this.logger = options.logger || console
+    this.excludePaths = options.excludePaths || ['/health', '/metrics']
     this.sensitiveFields = options.sensitiveFields || [
       'password',
       'token',
@@ -18,80 +18,80 @@ class RequestLogger {
       'creditCard',
       'ssn',
       'email',
-      'phone',
-    ];
+      'phone'
+    ]
   }
 
   /**
    * Generate unique request ID for tracing
    */
-  generateRequestId() {
-    return crypto.randomUUID();
+  generateRequestId () {
+    return crypto.randomUUID()
   }
 
   /**
    * Sanitize object by removing sensitive fields
    */
-  sanitizeData(data, depth = 0) {
-    const MAX_DEPTH = 5;
+  sanitizeData (data, depth = 0) {
+    const MAX_DEPTH = 5
 
     if (depth > MAX_DEPTH) {
-      return '[Max depth exceeded]';
+      return '[Max depth exceeded]'
     }
 
     if (typeof data !== 'object' || data === null) {
-      return data;
+      return data
     }
 
     if (Array.isArray(data)) {
-      return data.map((item) => this.sanitizeData(item, depth + 1));
+      return data.map((item) => this.sanitizeData(item, depth + 1))
     }
 
-    const sanitized = {};
+    const sanitized = {}
 
     for (const [key, value] of Object.entries(data)) {
       if (this.isSensitiveField(key)) {
-        sanitized[key] = '[REDACTED]';
+        sanitized[key] = '[REDACTED]'
       } else if (typeof value === 'object') {
-        sanitized[key] = this.sanitizeData(value, depth + 1);
+        sanitized[key] = this.sanitizeData(value, depth + 1)
       } else {
-        sanitized[key] = value;
+        sanitized[key] = value
       }
     }
 
-    return sanitized;
+    return sanitized
   }
 
   /**
    * Check if field name is sensitive
    */
-  isSensitiveField(fieldName) {
-    const lower = fieldName.toLowerCase();
-    return this.sensitiveFields.some((field) => lower.includes(field));
+  isSensitiveField (fieldName) {
+    const lower = fieldName.toLowerCase()
+    return this.sensitiveFields.some((field) => lower.includes(field))
   }
 
   /**
    * Express middleware for request logging
    */
-  middleware() {
+  middleware () {
     return (req, res, next) => {
       // Generate request ID
-      req.id = this.generateRequestId();
-      const startTime = Date.now();
+      req.id = this.generateRequestId()
+      const startTime = Date.now()
 
       // Skip logging for excluded paths
       if (this.excludePaths.some((path) => req.path.startsWith(path))) {
-        return next();
+        return next()
       }
 
       // Capture response end
-      const originalEnd = res.end;
-      let responseBody = '';
+      const originalEnd = res.end
+      let responseBody = ''
 
       res.end = function (...args) {
-        responseBody = args[0];
-        originalEnd.apply(res, args);
-      };
+        responseBody = args[0]
+        originalEnd.apply(res, args)
+      }
 
       // Log request
       const log = {
@@ -104,19 +104,19 @@ class RequestLogger {
         query: this.sanitizeData(req.query),
         body: this.sanitizeData(req.body),
         statusCode: res.statusCode,
-        duration: `${Date.now() - startTime}ms`,
-      };
+        duration: `${Date.now() - startTime}ms`
+      }
 
       // Log to logger
       if (res.statusCode >= 400) {
-        this.logger.error('Request error:', log);
+        this.logger.error('Request error:', log)
       } else {
-        this.logger.info('Request:', log);
+        this.logger.info('Request:', log)
       }
 
-      next();
-    };
+      next()
+    }
   }
 }
 
-module.exports = RequestLogger;
+module.exports = RequestLogger
