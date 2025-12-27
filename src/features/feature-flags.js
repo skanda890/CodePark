@@ -3,21 +3,23 @@
  * Manages feature toggles for gradual rollout and A/B testing
  */
 
-const redis = require('redis');
+const redis = require('redis')
 
 class FeatureFlagManager {
-  constructor(options = {}) {
-    this.redisClient = options.redisClient || redis.createClient({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-    });
-    this.flags = new Map();
+  constructor (options = {}) {
+    this.redisClient =
+      options.redisClient ||
+      redis.createClient({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379
+      })
+    this.flags = new Map()
   }
 
   /**
    * Register feature flag
    */
-  registerFlag(name, options = {}) {
+  registerFlag (name, options = {}) {
     const flag = {
       name,
       enabled: options.enabled || false,
@@ -26,34 +28,34 @@ class FeatureFlagManager {
       userBlacklist: options.userBlacklist || [],
       description: options.description || '',
       createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.flags.set(name, flag);
-    return flag;
+      updatedAt: new Date()
+    }
+    this.flags.set(name, flag)
+    return flag
   }
 
   /**
    * Check if feature is enabled for user
    */
-  async isEnabled(flagName, userId = null) {
-    const flag = this.flags.get(flagName);
+  async isEnabled (flagName, userId = null) {
+    const flag = this.flags.get(flagName)
     if (!flag) {
-      return false;
+      return false
     }
 
     // Check blacklist
     if (flag.userBlacklist.includes(userId)) {
-      return false;
+      return false
     }
 
     // Check whitelist
     if (flag.userWhitelist.includes(userId)) {
-      return true;
+      return true
     }
 
     // Check global enable
     if (flag.enabled && flag.rolloutPercentage === 100) {
-      return true;
+      return true
     }
 
     // Check rollout percentage
@@ -61,46 +63,46 @@ class FeatureFlagManager {
       const hash = require('crypto')
         .createHash('md5')
         .update(`${flagName}:${userId}`)
-        .digest('hex');
-      const hashNum = parseInt(hash.substring(0, 8), 16);
-      const percentage = (hashNum % 100) + 1;
-      return percentage <= flag.rolloutPercentage;
+        .digest('hex')
+      const hashNum = parseInt(hash.substring(0, 8), 16)
+      const percentage = (hashNum % 100) + 1
+      return percentage <= flag.rolloutPercentage
     }
 
-    return false;
+    return false
   }
 
   /**
    * Enable/disable flag
    */
-  async toggleFlag(flagName, enabled, rolloutPercentage = null) {
-    const flag = this.flags.get(flagName);
+  async toggleFlag (flagName, enabled, rolloutPercentage = null) {
+    const flag = this.flags.get(flagName)
     if (!flag) {
-      throw new Error(`Flag ${flagName} not found`);
+      throw new Error(`Flag ${flagName} not found`)
     }
 
-    flag.enabled = enabled;
+    flag.enabled = enabled
     if (rolloutPercentage !== null) {
-      flag.rolloutPercentage = rolloutPercentage;
+      flag.rolloutPercentage = rolloutPercentage
     }
-    flag.updatedAt = new Date();
+    flag.updatedAt = new Date()
 
     // Persist to Redis
     await this.redisClient.setex(
       `feature_flag:${flagName}`,
       86400,
       JSON.stringify(flag)
-    );
+    )
 
-    return flag;
+    return flag
   }
 
   /**
    * Get all flags
    */
-  getAllFlags() {
-    return Array.from(this.flags.values());
+  getAllFlags () {
+    return Array.from(this.flags.values())
   }
 }
 
-module.exports = FeatureFlagManager;
+module.exports = FeatureFlagManager
