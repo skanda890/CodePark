@@ -2,7 +2,7 @@
 
 **Created:** December 27, 2025  
 **Version:** 1.0  
-**Status:** Ready for Production  
+**Status:** Ready for Production
 
 ---
 
@@ -123,6 +123,7 @@ touch package.json
 ```
 
 **package.json:**
+
 ```json
 {
   "name": "universal-error-handler",
@@ -136,9 +137,10 @@ touch package.json
 ```
 
 **index.js:**
+
 ```javascript
-const ErrorHandler = require('./handler');
-const CustomErrors = require('./custom-errors');
+const ErrorHandler = require("./handler");
+const CustomErrors = require("./custom-errors");
 
 module.exports = {
   ErrorHandler,
@@ -147,7 +149,7 @@ module.exports = {
     app.use((err, req, res, next) => {
       ErrorHandler.handle(err, req, res, next);
     });
-  }
+  },
 };
 ```
 
@@ -173,6 +175,7 @@ cd Projects/JavaScript/graphql-subscriptions
 ```
 
 **package.json:**
+
 ```json
 {
   "name": "graphql-subscriptions",
@@ -186,9 +189,10 @@ cd Projects/JavaScript/graphql-subscriptions
 ```
 
 **index.js:**
+
 ```javascript
-const { ApolloServer, gql } = require('apollo-server');
-const { PubSub } = require('graphql-subscriptions');
+const { ApolloServer, gql } = require("apollo-server");
+const { PubSub } = require("graphql-subscriptions");
 
 const pubsub = new PubSub();
 
@@ -201,9 +205,9 @@ const typeDefs = gql`
 const resolvers = {
   Subscription: {
     messageAdded: {
-      subscribe: () => pubsub.asyncIterator(['MESSAGE_ADDED'])
-    }
-  }
+      subscribe: () => pubsub.asyncIterator(["MESSAGE_ADDED"]),
+    },
+  },
 };
 
 module.exports = { pubsub, typeDefs, resolvers };
@@ -312,27 +316,27 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 0 * * 0'  # Weekly
+    - cron: "0 0 * * 0" # Weekly
 
 jobs:
   security:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
-      
+          node-version: "22.x"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run npm audit
         run: npm audit --audit-level=moderate
-      
+
       - name: Run Snyk
         run: npm run snyk-test
-      
+
       - name: Check OWASP
         run: npm run security-check
 ```
@@ -429,37 +433,37 @@ spec:
         app: codepark-api
     spec:
       containers:
-      - name: api
-        image: codepark:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: production
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: secrets
-              key: jwt-secret
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: api
+          image: codepark:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: jwt-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ```
 
 ---
@@ -478,26 +482,27 @@ touch lib/monitoring/metrics.js
 ```
 
 **lib/monitoring/metrics.js:**
+
 ```javascript
-const prometheus = require('prom-client');
+const prometheus = require("prom-client");
 
 const httpRequestDuration = new prometheus.Histogram({
-  name: 'http_request_duration_ms',
-  help: 'Duration of HTTP requests in ms',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.1, 5, 15, 50, 100, 500]
+  name: "http_request_duration_ms",
+  help: "Duration of HTTP requests in ms",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.1, 5, 15, 50, 100, 500],
 });
 
 const httpRequestTotal = new prometheus.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
 });
 
 module.exports = {
   httpRequestDuration,
   httpRequestTotal,
-  register: prometheus.register
+  register: prometheus.register,
 };
 ```
 
@@ -509,10 +514,10 @@ npm install elastic-apm-node
 
 ```javascript
 // index.js - at the very top
-const apm = require('elastic-apm-node').start({
-  serviceName: 'codepark-api',
+const apm = require("elastic-apm-node").start({
+  serviceName: "codepark-api",
   serverUrl: process.env.ELASTIC_APM_SERVER_URL,
-  environment: process.env.NODE_ENV
+  environment: process.env.NODE_ENV,
 });
 ```
 
@@ -565,12 +570,14 @@ npm test
 ### Common Issues
 
 **Issue: "Cannot find module" errors**
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 ```
 
 **Issue: Port already in use**
+
 ```bash
 # Find process using port 3000
 lsof -i :3000
@@ -580,6 +587,7 @@ kill -9 <PID>
 ```
 
 **Issue: Database connection errors**
+
 ```bash
 # Check MongoDB connection
 mongo --version
@@ -590,6 +598,7 @@ redis-cli ping
 ```
 
 **Issue: Memory leaks**
+
 ```bash
 clinic doctor -- npm start
 npm run test:memory
@@ -600,17 +609,20 @@ npm run test:memory
 ## Support & Resources
 
 ### Documentation
+
 - [Node.js Documentation](https://nodejs.org/docs/)
 - [Express.js Guide](https://expressjs.com/)
 - [MongoDB Manual](https://docs.mongodb.com/manual/)
 - [Redis Documentation](https://redis.io/documentation)
 
 ### Community
+
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/node.js)
 - [Node.js Discord](https://discord.gg/nodejs)
 - [GitHub Discussions](https://github.com/skanda890/CodePark/discussions)
 
 ### Contributing
+
 - [CONTRIBUTING.md](../../CONTRIBUTING.md)
 - [Code of Conduct](../../CODE_OF_CONDUCT.md)
 - [Security Policy](../../SECURITY.md)
@@ -624,9 +636,10 @@ npm run test:memory
 ✅ **Implementation guide provided**  
 ✅ **Testing framework established**  
 ✅ **Deployment procedures documented**  
-✅ **Monitoring and observability configured**  
+✅ **Monitoring and observability configured**
 
 **Next Steps:**
+
 1. Review and approve changes
 2. Merge branch into main
 3. Tag release as v2.1.0
