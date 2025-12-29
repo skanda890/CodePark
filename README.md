@@ -648,8 +648,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Disk**: 1GB free space
 - **OS**: Windows, macOS, Linux
 
+### Dependency Policy
+
+CodePark **intentionally tracks pre-release (`next`, `beta`, `rc`) versions** of core libraries.
+This is a design choice to explore future Node.js and ecosystem capabilities. Breakage is expected.
+
 **Made with ❤️ by SkandaBT**
-
-**⚡ Powered by bleeding-edge experimental npm packages**
-
-_Last updated: December 2025_
