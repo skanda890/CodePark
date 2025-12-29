@@ -3,19 +3,19 @@
  * Logs all actions for compliance and debugging
  */
 
-const crypto = require('crypto')
+const crypto = require('crypto');
 
 class AuditLogger {
-  constructor (options = {}) {
-    this.logs = []
-    this.maxLogs = options.maxLogs || 10000
-    this.actions = new Map()
+  constructor(options = {}) {
+    this.logs = [];
+    this.maxLogs = options.maxLogs || 10000;
+    this.actions = new Map();
   }
 
   /**
    * Log action
    */
-  logAction (userId, action, resource, result, metadata = {}) {
+  logAction(userId, action, resource, result, metadata = {}) {
     const log = {
       id: crypto.randomUUID(),
       userId,
@@ -25,70 +25,68 @@ class AuditLogger {
       metadata,
       timestamp: new Date(),
       ipAddress: metadata.ipAddress,
-      userAgent: metadata.userAgent
-    }
+      userAgent: metadata.userAgent,
+    };
 
-    this.logs.push(log)
+    this.logs.push(log);
 
-    // Keep logs size manageable
     if (this.logs.length > this.maxLogs) {
-      this.logs.shift()
+      this.logs.shift();
     }
 
-    // Track action counts
-    const key = `${userId}:${action}`
+    const key = `${userId}:${action}`;
     if (!this.actions.has(key)) {
-      this.actions.set(key, 0)
+      this.actions.set(key, 0);
     }
-    this.actions.set(key, this.actions.get(key) + 1)
+    this.actions.set(key, this.actions.get(key) + 1);
 
-    return log
+    return log;
   }
 
   /**
    * Get user activity
    */
-  getUserActivity (userId, limit = 100) {
+  getUserActivity(userId, limit = 100) {
     return this.logs
       .filter((log) => log.userId === userId)
       .slice(-limit)
-      .reverse()
+      .reverse();
   }
 
   /**
    * Get action history
    */
-  getActionHistory (resource, limit = 100) {
+  getActionHistory(resource, limit = 100) {
     return this.logs
       .filter((log) => log.resource === resource)
       .slice(-limit)
-      .reverse()
+      .reverse();
   }
 
   /**
    * Get audit report
    */
-  getAuditReport (userId = null, startDate = null, endDate = null) {
-    let filtered = this.logs
+  getAuditReport(userId = null, startDate = null, endDate = null) {
+    let filtered = this.logs;
 
     if (userId) {
-      filtered = filtered.filter((log) => log.userId === userId)
+      filtered = filtered.filter((log) => log.userId === userId);
     }
 
     if (startDate) {
-      filtered = filtered.filter((log) => log.timestamp >= startDate)
+      filtered = filtered.filter((log) => log.timestamp >= startDate);
     }
 
     if (endDate) {
-      filtered = filtered.filter((log) => log.timestamp <= endDate)
+      filtered = filtered.filter((log) => log.timestamp <= endDate);
     }
 
     return {
       totalActions: filtered.length,
       actions: filtered,
-      period: { startDate, endDate }
-    }
+      period: { startDate, endDate },
+    };
   }
 }
 
-module.exports = AuditLogger
+module.exports = AuditLogger;
