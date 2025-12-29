@@ -4,44 +4,44 @@
  */
 
 class MiddlewareChain {
-  constructor() {
-    this.middlewares = [];
+  constructor () {
+    this.middlewares = []
   }
 
   /**
    * Use middleware
    */
-  use(middleware) {
+  use (middleware) {
     if (typeof middleware !== 'function') {
-      throw new Error('Middleware must be a function');
+      throw new Error('Middleware must be a function')
     }
-    this.middlewares.push(middleware);
+    this.middlewares.push(middleware)
   }
 
   /**
    * Execute middleware chain
    */
-  async execute(req, res) {
-    let index = -1;
+  async execute (req, res) {
+    let index = -1
 
     const next = async () => {
-      index += 1;
+      index += 1
 
       if (index >= this.middlewares.length) {
-        return;
+        return
       }
 
-      const middleware = this.middlewares[index];
+      const middleware = this.middlewares[index]
 
       return new Promise((resolve) => {
         middleware(req, res, () => {
-          next().then(resolve);
-        });
-      });
-    };
+          next().then(resolve)
+        })
+      })
+    }
 
-    await next();
+    await next()
   }
 }
 
-module.exports = MiddlewareChain;
+module.exports = MiddlewareChain

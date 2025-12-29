@@ -4,88 +4,88 @@
  */
 
 class EventEmitter {
-  constructor() {
-    this.listeners = new Map();
+  constructor () {
+    this.listeners = new Map()
   }
 
   /**
    * Register event listener
    */
-  on(event, handler, options = {}) {
+  on (event, handler, options = {}) {
     if (!this.listeners.has(event)) {
-      this.listeners.set(event, []);
+      this.listeners.set(event, [])
     }
 
     const listener = {
       handler,
       once: options.once || false,
-      priority: options.priority || 0,
-    };
+      priority: options.priority || 0
+    }
 
-    this.listeners.get(event).push(listener);
-    this.listeners.get(event).sort((a, b) => b.priority - a.priority);
+    this.listeners.get(event).push(listener)
+    this.listeners.get(event).sort((a, b) => b.priority - a.priority)
 
-    return () => this.off(event, handler);
+    return () => this.off(event, handler)
   }
 
   /**
    * Register one-time listener
    */
-  once(event, handler, options = {}) {
-    return this.on(event, handler, { ...options, once: true });
+  once (event, handler, options = {}) {
+    return this.on(event, handler, { ...options, once: true })
   }
 
   /**
    * Remove listener
    */
-  off(event, handler) {
+  off (event, handler) {
     if (!this.listeners.has(event)) {
-      return;
+      return
     }
 
     this.listeners.set(
       event,
       this.listeners.get(event).filter((l) => l.handler !== handler)
-    );
+    )
   }
 
   /**
    * Emit event
    */
-  async emit(event, data) {
+  async emit (event, data) {
     if (!this.listeners.has(event)) {
-      return [];
+      return []
     }
 
-    const handlers = this.listeners.get(event);
-    const results = [];
+    const handlers = this.listeners.get(event)
+    const results = []
 
     for (const listener of handlers) {
       try {
-        const result = await listener.handler(data);
-        results.push({ status: 'success', result });
+        const result = await listener.handler(data)
+        results.push({ status: 'success', result })
 
         if (listener.once) {
-          this.off(event, listener.handler);
+          this.off(event, listener.handler)
         }
       } catch (error) {
-        results.push({ status: 'error', error });
+        results.push({ status: 'error', error })
       }
     }
 
-    return results;
+    return results
   }
 
   /**
    * Remove all listeners
    */
-  removeAllListeners(event) {
+  removeAllListeners (event) {
     if (event) {
-      this.listeners.delete(event);
+      this.listeners.delete(event)
     } else {
-      this.listeners.clear();
+      this.listeners.clear()
     }
   }
 }
 
-module.exports = EventEmitter;
+module.exports = EventEmitter
