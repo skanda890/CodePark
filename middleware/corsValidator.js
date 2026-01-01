@@ -5,7 +5,7 @@
  */
 
 class CORSValidator {
-  static validate(config) {
+  static validate (config) {
     const errors = []
     const warnings = []
 
@@ -37,8 +37,13 @@ class CORSValidator {
     // Warn about localhost in production
     if (process.env.NODE_ENV === 'production') {
       config.origins.forEach((origin, idx) => {
-        if (origin.includes('localhost') || origin === 'http://localhost:3000') {
-          warnings.push(`WARNING: Localhost origin in production at index ${idx}`)
+        if (
+          origin.includes('localhost') ||
+          origin === 'http://localhost:3000'
+        ) {
+          warnings.push(
+            `WARNING: Localhost origin in production at index ${idx}`
+          )
         }
       })
     }
@@ -58,14 +63,16 @@ class CORSValidator {
     }
   }
 
-  static createMiddleware(config) {
+  static createMiddleware (config) {
     const validation = this.validate(config)
 
     if (!validation.valid) {
-      throw new Error(`CORS Configuration Error: ${validation.errors.join(', ')}`)
+      throw new Error(
+        `CORS Configuration Error: ${validation.errors.join(', ')}`
+      )
     }
 
-    validation.warnings.forEach(w => {
+    validation.warnings.forEach((w) => {
       global.logger?.warn(w)
     })
 
@@ -108,10 +115,7 @@ class CORSValidator {
         res.setHeader('Access-Control-Allow-Credentials', 'true')
       }
 
-      res.setHeader(
-        'Access-Control-Max-Age',
-        validation.config.maxAge
-      )
+      res.setHeader('Access-Control-Max-Age', validation.config.maxAge)
 
       // Handle preflight
       if (req.method === 'OPTIONS') {
