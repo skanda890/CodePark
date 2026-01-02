@@ -8,15 +8,16 @@ const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 
 class EnhancedAuthMiddleware {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.jwtSecret = config.jwtSecret || process.env.JWT_SECRET
-    this.jwtRefreshSecret = config.jwtRefreshSecret || process.env.JWT_REFRESH_SECRET
+    this.jwtRefreshSecret =
+      config.jwtRefreshSecret || process.env.JWT_REFRESH_SECRET
     this.tokenBlacklist = new Set()
     this.roles = new Map()
     this.initializeRoles()
   }
 
-  initializeRoles() {
+  initializeRoles () {
     this.roles.set('admin', {
       permissions: [
         'system:read',
@@ -42,10 +43,7 @@ class EnhancedAuthMiddleware {
     })
 
     this.roles.set('user', {
-      permissions: [
-        'projects:read',
-        'projects:write:own'
-      ],
+      permissions: ['projects:read', 'projects:write:own'],
       level: 10
     })
   }
@@ -53,7 +51,7 @@ class EnhancedAuthMiddleware {
   /**
    * Middleware to verify JWT token
    */
-  verifyToken() {
+  verifyToken () {
     return (req, res, next) => {
       try {
         const authHeader = req.headers.authorization
@@ -94,7 +92,8 @@ class EnhancedAuthMiddleware {
         next()
       } catch (error) {
         const statusCode = error.name === 'TokenExpiredError' ? 401 : 401
-        const code = error.name === 'TokenExpiredError' ? 'AUTH_EXPIRED' : 'AUTH_INVALID'
+        const code =
+          error.name === 'TokenExpiredError' ? 'AUTH_EXPIRED' : 'AUTH_INVALID'
 
         return res.status(statusCode).json({
           error: error.message || 'Authentication failed',
@@ -107,7 +106,7 @@ class EnhancedAuthMiddleware {
   /**
    * Middleware to enforce role-based access
    */
-  requireRole(...allowedRoles) {
+  requireRole (...allowedRoles) {
     return (req, res, next) => {
       if (!req.user) {
         return res.status(401).json({
@@ -140,7 +139,7 @@ class EnhancedAuthMiddleware {
   /**
    * Middleware to enforce permissions
    */
-  requirePermission(...requiredPermissions) {
+  requirePermission (...requiredPermissions) {
     return (req, res, next) => {
       if (!req.user) {
         return res.status(401).json({
@@ -153,7 +152,7 @@ class EnhancedAuthMiddleware {
       const roleInfo = this.roles.get(userRole)
       const userPermissions = roleInfo?.permissions || []
 
-      const hasPermission = requiredPermissions.some(perm =>
+      const hasPermission = requiredPermissions.some((perm) =>
         userPermissions.includes(perm)
       )
 
@@ -178,7 +177,7 @@ class EnhancedAuthMiddleware {
   /**
    * Generate access and refresh tokens
    */
-  generateTokens(user) {
+  generateTokens (user) {
     const accessToken = jwt.sign(
       {
         id: user.id,
@@ -213,14 +212,14 @@ class EnhancedAuthMiddleware {
   /**
    * Revoke a token (add to blacklist)
    */
-  revokeToken(token) {
+  revokeToken (token) {
     this.tokenBlacklist.add(token)
   }
 
   /**
    * Verify refresh token and generate new access token
    */
-  refreshAccessToken(refreshToken) {
+  refreshAccessToken (refreshToken) {
     try {
       const decoded = jwt.verify(refreshToken, this.jwtRefreshSecret, {
         algorithms: ['HS256']
@@ -249,14 +248,14 @@ class EnhancedAuthMiddleware {
   /**
    * Get RBAC role permissions
    */
-  getRolePermissions(role) {
+  getRolePermissions (role) {
     return this.roles.get(role)?.permissions || []
   }
 
   /**
    * Check if user has specific permission
    */
-  hasPermission(userRole, permission) {
+  hasPermission (userRole, permission) {
     const permissions = this.getRolePermissions(userRole)
     return permissions.includes(permission)
   }
