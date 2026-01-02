@@ -17,7 +17,7 @@ const ERROR_CODES = {
   SERVICE_UNAVAILABLE: 503
 }
 
-function errorHandler(err, req, res, next) {
+function errorHandler (err, req, res, next) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const statusCode = err.statusCode || ERROR_CODES.INTERNAL_ERROR
   const errorCode = err.code || 'INTERNAL_ERROR'
@@ -51,7 +51,7 @@ function errorHandler(err, req, res, next) {
   res.status(statusCode).json(response)
 }
 
-function sanitizeErrorMessage(message, isDevelopment) {
+function sanitizeErrorMessage (message, isDevelopment) {
   if (isDevelopment) {
     return message
   }
@@ -70,7 +70,7 @@ function sanitizeErrorMessage(message, isDevelopment) {
 
   let sanitized = message
 
-  sensitivePatterns.forEach(pattern => {
+  sensitivePatterns.forEach((pattern) => {
     sanitized = sanitized.replace(pattern, '[REDACTED]')
   })
 
