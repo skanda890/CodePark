@@ -9,7 +9,7 @@ const crypto = require('crypto')
 const { EventEmitter } = require('events')
 
 class AuditLogger extends EventEmitter {
-  constructor(options = {}) {
+  constructor (options = {}) {
     super()
     this.logDir = options.logDir || './logs/audit'
     this.buffer = []
@@ -23,7 +23,7 @@ class AuditLogger extends EventEmitter {
     this.startCleanupSchedule()
   }
 
-  async initializeStorage() {
+  async initializeStorage () {
     try {
       await fs.mkdir(this.logDir, { recursive: true })
     } catch (error) {
@@ -31,7 +31,7 @@ class AuditLogger extends EventEmitter {
     }
   }
 
-  log(event, metadata = {}) {
+  log (event, metadata = {}) {
     const entry = {
       timestamp: new Date().toISOString(),
       event,
@@ -47,14 +47,14 @@ class AuditLogger extends EventEmitter {
     }
   }
 
-  computeSignature(data) {
+  computeSignature (data) {
     return crypto
       .createHmac('sha256', this.signingKey)
       .update(JSON.stringify(data))
       .digest('hex')
   }
 
-  async flush() {
+  async flush () {
     if (this.buffer.length === 0) return
 
     const entries = this.buffer.splice(0, this.buffer.length)
@@ -63,7 +63,7 @@ class AuditLogger extends EventEmitter {
     const filepath = path.join(this.logDir, filename)
 
     try {
-      const lines = entries.map(e => JSON.stringify(e)).join('\n') + '\n'
+      const lines = entries.map((e) => JSON.stringify(e)).join('\n') + '\n'
       await fs.appendFile(filepath, lines)
     } catch (error) {
       console.error('Failed to flush audit logs:', error)
@@ -71,15 +71,15 @@ class AuditLogger extends EventEmitter {
     }
   }
 
-  startFlushSchedule() {
+  startFlushSchedule () {
     setInterval(() => this.flush(), this.flushInterval)
   }
 
-  startCleanupSchedule() {
+  startCleanupSchedule () {
     setInterval(() => this.cleanup(), 24 * 60 * 60 * 1000)
   }
 
-  async cleanup() {
+  async cleanup () {
     try {
       const files = await fs.readdir(this.logDir)
       const now = Date.now()
@@ -97,32 +97,37 @@ class AuditLogger extends EventEmitter {
     }
   }
 
-  logAuthentication(userId, success, ip, metadata = {}) {
+  logAuthentication (userId, success, ip, metadata = {}) {
     this.log('AUTHENTICATION', { userId, success, ip, ...metadata })
   }
 
-  logAuthorization(userId, resource, action, granted, ip) {
+  logAuthorization (userId, resource, action, granted, ip) {
     this.log('AUTHORIZATION', { userId, resource, action, granted, ip })
   }
 
-  logAdminAction(userId, action, resource, changes) {
+  logAdminAction (userId, action, resource, changes) {
     this.log('ADMIN_ACTION', { userId, action, resource, changes })
   }
 
-  logSecurityEvent(eventType, severity, description, metadata = {}) {
-    this.log('SECURITY_EVENT', { eventType, severity, description, ...metadata })
+  logSecurityEvent (eventType, severity, description, metadata = {}) {
+    this.log('SECURITY_EVENT', {
+      eventType,
+      severity,
+      description,
+      ...metadata
+    })
   }
 
-  redact(value) {
+  redact (value) {
     if (typeof value !== 'string' || value.length <= 8) return '[REDACTED]'
     return value.substring(0, 4) + '***' + value.substring(value.length - 4)
   }
 
-  async getStats() {
+  async getStats () {
     try {
       const files = await fs.readdir(this.logDir)
       const totalSize = (
-        await Promise.all(files.map(f => fs.stat(path.join(this.logDir, f))))
+        await Promise.all(files.map((f) => fs.stat(path.join(this.logDir, f))))
       ).reduce((sum, stat) => sum + stat.size, 0)
 
       return {
