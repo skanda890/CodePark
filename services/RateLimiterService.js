@@ -1,183 +1,294 @@
 /**
- * RateLimiterService - API Rate Limiting
- * Implements configurable rate limiting for API protection
+ * Rate Limiter Service - Refactored & Fixed
+ * Centralized validation, separated algorithms, normalized responses
+ * Fixes: Full reset of both sliding-window and token-bucket keys
  */
 
-class RateLimiterService {
+const Redis = require('ioredis')
+const logger = require('./logger')
+
+class RateLimiter {
   constructor (options = {}) {
-    this.options = {
-      windowMs: options.windowMs || 15 * 60 * 1000, // 15 minutes
-      max: options.max || 100, // Max requests per window
-      message: options.message || 'Too many requests, please try again later',
-      statusCode: options.statusCode || 429,
-      skipSuccessfulRequests: options.skipSuccessfulRequests || false,
-      skipFailedRequests: options.skipFailedRequests || false,
-      keyGenerator: options.keyGenerator || this._defaultKeyGenerator,
-      handler: options.handler || this._defaultHandler,
-      skip: options.skip || (() => false),
-      ...options
-    }
+    try {
+      this.redis = new Redis({
+        host: process.env.REDIS_HOST || '127.0.0.1',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        password: process.env.REDIS_PASSWORD,
+        retryStrategy: (times) => Math.min(times * 50, 2000),
+        maxRetriesPerRequest: null,
+        enableReadyCheck: false,
+        enableOfflineQueue: true
+      })
 
-    this.clients = new Map()
-    this.resetTimer = null
-    this._startResetTimer()
-  }
+      this.redis.on('error', (err) => {
+        logger.error('Redis connection error in RateLimiter', {
+          error: err.message
+        })
+      })
 
-  /**
-   * Get middleware function for Express
-   * @returns {Function} Express middleware
-   */
-  middleware () {
-    return async (req, res, next) => {
-      // Check if request should be skipped
-      if (await this.options.skip(req, res)) {
-        return next()
-      }
-
-      const key = this.options.keyGenerator(req)
-      const client = this._getClient(key)
-
-      // Check if limit exceeded
-      if (client.count >= this.options.max) {
-        return this.options.handler(req, res, next)
-      }
-
-      // Increment counter
-      client.count++
-      client.lastRequest = Date.now()
-
-      // Set rate limit headers
-      res.setHeader('X-RateLimit-Limit', this.options.max)
-      res.setHeader(
-        'X-RateLimit-Remaining',
-        Math.max(0, this.options.max - client.count)
-      )
-      res.setHeader(
-        'X-RateLimit-Reset',
-        new Date(client.resetTime).toISOString()
-      )
-
-      // Handle response tracking
-      if (
-        this.options.skipSuccessfulRequests ||
-        this.options.skipFailedRequests
-      ) {
-        const originalSend = res.send.bind(res)
-        res.send = (body) => {
-          const statusCode = res.statusCode
-          const isSuccess = statusCode >= 200 && statusCode < 400
-
-          if (
-            (isSuccess && this.options.skipSuccessfulRequests) ||
-            (!isSuccess && this.options.skipFailedRequests)
-          ) {
-            client.count--
-          }
-
-          return originalSend(body)
-        }
-      }
-
-      next()
+      this.defaultWindowMs = options.windowMs || 60000
+      this.defaultMaxRequests = options.maxRequests || 100
+      this.keyPrefix = options.keyPrefix || 'ratelimit:'
+    } catch (error) {
+      logger.error('RateLimiter initialization failed', {
+        error: error.message
+      })
+      throw error
     }
   }
 
   /**
-   * Reset rate limit for a specific key
-   * @param {string} key - Client key
+   * Validate key and return normalized result
+   * Centralizes key validation logic
    */
-  reset (key) {
-    this.clients.delete(key)
+  _validateKey (key, methodName) {
+    if (!key || typeof key !== 'string') {
+      logger.warn(`Invalid key provided to ${methodName}`, { key: typeof key })
+      return { ok: false, error: 'Invalid key' }
+    }
+    return {
+      ok: true,
+      slidingWindowKey: `${this.keyPrefix}${key}`,
+      tokenBucketKey: `${this.keyPrefix}bucket:${key}`,
+      logicalKey: key
+    }
   }
 
   /**
-   * Reset all rate limits
+   * Sliding window implementation
+   * Internal helper for cleaner public API
    */
-  resetAll () {
-    this.clients.clear()
-  }
+  async _checkSlidingWindow (fullKey, windowMs, maxRequests) {
+    const now = Date.now()
+    const windowStart = now - windowMs
 
-  /**
-   * Get current status for a key
-   * @param {string} key - Client key
-   * @returns {Object} Rate limit status
-   */
-  getStatus (key) {
-    const client = this.clients.get(key)
+    // Remove old entries outside the window
+    await this.redis.zremrangebyscore(fullKey, '-inf', windowStart)
 
-    if (!client) {
+    // Count requests in current window
+    const requestCount = await this.redis.zcard(fullKey)
+
+    if (requestCount >= maxRequests) {
+      const oldestRequest = await this.redis.zrange(
+        fullKey,
+        0,
+        0,
+        'WITHSCORES'
+      )
+      const resetTime =
+        oldestRequest && oldestRequest[1]
+          ? parseInt(oldestRequest[1], 10) + windowMs
+          : now + windowMs
+
       return {
-        count: 0,
-        remaining: this.options.max,
-        limit: this.options.max,
-        resetTime: Date.now() + this.options.windowMs
+        allowed: false,
+        limit: maxRequests,
+        current: requestCount,
+        resetTime,
+        retryAfter: Math.ceil((resetTime - now) / 1000)
       }
     }
+
+    // Add current request with unique ID
+    const requestId = `${now}-${Math.random().toString(36).substr(2, 9)}`
+    await this.redis.zadd(fullKey, now, requestId)
+    await this.redis.expire(fullKey, Math.ceil(windowMs / 1000) + 1)
 
     return {
-      count: client.count,
-      remaining: Math.max(0, this.options.max - client.count),
-      limit: this.options.max,
-      resetTime: client.resetTime
+      allowed: true,
+      limit: maxRequests,
+      current: requestCount + 1,
+      resetTime: now + windowMs,
+      remaining: Math.max(0, maxRequests - (requestCount + 1)),
+      retryAfter: null
     }
   }
 
   /**
-   * Stop the rate limiter and clean up
+   * Token bucket implementation
+   * Internal helper for cleaner public API
    */
-  stop () {
-    if (this.resetTimer) {
-      clearInterval(this.resetTimer)
-      this.resetTimer = null
+  async _checkTokenBucket (fullKey, capacity, refillRate, tokensPerRequest) {
+    const now = Date.now()
+    const bucketData = await this.redis.hgetall(fullKey)
+
+    let tokens = bucketData.tokens ? parseFloat(bucketData.tokens) : capacity
+    let lastRefill = bucketData.lastRefill
+      ? parseInt(bucketData.lastRefill, 10)
+      : now
+
+    // Validate parsed values
+    if (isNaN(tokens)) tokens = capacity
+    if (isNaN(lastRefill)) lastRefill = now
+
+    // Calculate elapsed time and add tokens
+    const elapsed = Math.max(0, (now - lastRefill) / 1000)
+    tokens = Math.min(capacity, tokens + elapsed * refillRate)
+
+    if (tokens >= tokensPerRequest) {
+      tokens -= tokensPerRequest
+      await this.redis.hset(
+        fullKey,
+        'tokens',
+        tokens.toString(),
+        'lastRefill',
+        now.toString()
+      )
+      await this.redis.expire(
+        fullKey,
+        Math.ceil((capacity / Math.max(1, refillRate)) * 1.5)
+      )
+
+      return {
+        allowed: true,
+        tokensRemaining: Math.floor(tokens),
+        tokensCapacity: capacity,
+        refillRate,
+        retryAfter: null
+      }
     }
-    this.clients.clear()
+
+    const timeToWait = Math.max(
+      0,
+      (tokensPerRequest - tokens) / Math.max(1, refillRate)
+    )
+    return {
+      allowed: false,
+      tokensRemaining: Math.floor(tokens),
+      tokensCapacity: capacity,
+      refillRate,
+      retryAfter: Math.ceil(timeToWait * 1000)
+    }
   }
 
   /**
-   * Private: Get or create client record
+   * Check if request is within rate limit (sliding window)
    */
-  _getClient (key) {
-    if (!this.clients.has(key)) {
-      this.clients.set(key, {
-        count: 0,
-        resetTime: Date.now() + this.options.windowMs,
-        lastRequest: Date.now()
+  async checkLimit (key, options = {}) {
+    const { ok, slidingWindowKey, error } = this._validateKey(
+      key,
+      'checkLimit'
+    )
+    if (!ok) return { allowed: false, error, retryAfter: null }
+
+    const windowMs = options.windowMs || this.defaultWindowMs
+    const maxRequests = options.maxRequests || this.defaultMaxRequests
+
+    try {
+      return await this._checkSlidingWindow(
+        slidingWindowKey,
+        windowMs,
+        maxRequests
+      )
+    } catch (error) {
+      logger.error('Rate limiter check failed', { key, error: error.message })
+      // Fail open - allow request if Redis is down
+      return {
+        allowed: true,
+        warning: 'Rate limiter unavailable',
+        retryAfter: null
+      }
+    }
+  }
+
+  /**
+   * Token bucket rate limiting
+   */
+  async checkTokenBucket (key, options = {}) {
+    const { ok, tokenBucketKey, error } = this._validateKey(
+      key,
+      'checkTokenBucket'
+    )
+    if (!ok) return { allowed: false, error, retryAfter: null }
+
+    const capacity = options.capacity || 100
+    const refillRate = options.refillRate || 10
+    const tokensPerRequest = Math.max(1, options.tokensPerRequest || 1)
+
+    try {
+      return await this._checkTokenBucket(
+        tokenBucketKey,
+        capacity,
+        refillRate,
+        tokensPerRequest
+      )
+    } catch (error) {
+      logger.error('Token bucket check failed', { key, error: error.message })
+      return {
+        allowed: true,
+        warning: 'Token bucket unavailable',
+        retryAfter: null
+      }
+    }
+  }
+
+  /**
+   * Reset rate limit for a key - clears BOTH algorithms' state
+   * FIX: Now deletes both sliding-window and token-bucket keys
+   */
+  async reset (key) {
+    const { ok, slidingWindowKey, tokenBucketKey, error } = this._validateKey(
+      key,
+      'reset'
+    )
+    if (!ok) return { success: false, error }
+
+    try {
+      // Delete both sliding-window and token-bucket keys
+      // Ensures complete reset regardless of which algorithm was used
+      await this.redis.del(slidingWindowKey, tokenBucketKey)
+      logger.debug('Rate limit reset', { key })
+      return { success: true, key }
+    } catch (error) {
+      logger.error('Reset failed', { key, error: error.message })
+      return { success: false, error: error.message }
+    }
+  }
+
+  /**
+   * Get current rate limit status
+   */
+  async getStatus (key, options = {}) {
+    const { ok, slidingWindowKey, error } = this._validateKey(key, 'getStatus')
+    if (!ok) return { key, error }
+
+    const windowMs = options.windowMs || this.defaultWindowMs
+    const maxRequests = options.maxRequests || this.defaultMaxRequests
+
+    try {
+      const now = Date.now()
+      const windowStart = now - windowMs
+      await this.redis.zremrangebyscore(slidingWindowKey, '-inf', windowStart)
+      const requestCount = await this.redis.zcard(slidingWindowKey)
+      const ttl = await this.redis.pttl(slidingWindowKey)
+
+      return {
+        key,
+        requests: requestCount,
+        limit: maxRequests,
+        remaining: Math.max(0, maxRequests - requestCount),
+        resetTime: ttl > 0 ? new Date(now + ttl).toISOString() : null,
+        ttlMs: Math.max(0, ttl)
+      }
+    } catch (error) {
+      logger.error('Get status failed', { key, error: error.message })
+      return { key, error: error.message }
+    }
+  }
+
+  /**
+   * Cleanup and close Redis connection
+   */
+  async close () {
+    try {
+      await this.redis.quit()
+      logger.info('RateLimiter Redis connection closed')
+    } catch (error) {
+      logger.error('Error closing RateLimiter Redis connection', {
+        error: error.message
       })
     }
-    return this.clients.get(key)
-  }
-
-  /**
-   * Private: Default key generator (uses IP address)
-   */
-  _defaultKeyGenerator (req) {
-    return req.ip || req.connection.remoteAddress
-  }
-
-  /**
-   * Private: Default rate limit handler
-   */
-  _defaultHandler (req, res) {
-    res.status(this.options.statusCode).json({
-      error: this.options.message,
-      retryAfter: Math.ceil(this.options.windowMs / 1000)
-    })
-  }
-
-  /**
-   * Private: Start automatic reset timer
-   */
-  _startResetTimer () {
-    this.resetTimer = setInterval(() => {
-      const now = Date.now()
-
-      for (const [key, client] of this.clients.entries()) {
-        if (now >= client.resetTime) {
-          this.clients.delete(key)
-        }
-      }
-    }, 60000) // Check every minute
   }
 }
 
-module.exports = RateLimiterService
+module.exports = RateLimiter
