@@ -11,7 +11,7 @@ const DEFAULT_TIMEOUTS = {
   GRAPHQL: 30 * 1000
 }
 
-function requestTimeout(timeoutMs = DEFAULT_TIMEOUTS.API) {
+function requestTimeout (timeoutMs = DEFAULT_TIMEOUTS.API) {
   return (req, res, next) => {
     res.setTimeout(timeoutMs, () => {
       global.logger?.warn('REQUEST_TIMEOUT', {
@@ -45,7 +45,7 @@ function requestTimeout(timeoutMs = DEFAULT_TIMEOUTS.API) {
   }
 }
 
-function createTimeoutMiddleware() {
+function createTimeoutMiddleware () {
   return {
     api: requestTimeout(DEFAULT_TIMEOUTS.API),
     auth: requestTimeout(DEFAULT_TIMEOUTS.AUTH),
