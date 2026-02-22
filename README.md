@@ -109,7 +109,7 @@ That's it! Your dependencies will now update daily at 2:00 AM.
 
 ### Core Framework
 
-- **Node.js 22+** with experimental features (WASM, network imports)
+- **Node.js 25+** with experimental features (WASM, network imports)
 - **Express.js** (next) - Fast, unopinionated web framework
 - **TypeScript Ready** - Full type safety support
 
@@ -182,8 +182,8 @@ That's it! Your dependencies will now update daily at 2:00 AM.
 
 ### Prerequisites
 
-- **Node.js 22.0.0 or higher** (for experimental features)
-- **npm 10.0.0 or higher**
+- **Node.js 25.6.1 or higher** (for experimental features)
+- **npm 11.9.0 or higher**
 - **Git**
 - **Redis** (for caching and job queues)
 - **MongoDB** (for database)
@@ -642,8 +642,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### System Requirements
 
-- **Node.js**: ≥22.0.0
-- **npm**: ≥10.0.0
+- **Node.js**: ≥25.6.1
+- **npm**: ≥11.9.0
 - **RAM**: 2GB minimum, 4GB recommended
 - **Disk**: 1GB free space
 - **OS**: Windows, macOS, Linux
