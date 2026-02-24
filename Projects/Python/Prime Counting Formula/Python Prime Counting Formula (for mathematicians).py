@@ -1,68 +1,48 @@
 import math
 
-class PrimeElevationSieve:
-    """
-    An implementation of a targeted primality search algorithm.
-    Utilizes an adaptive step function and parametric elevation (n)
-    to identify primes in the form P ≡ ±1 (mod 2kX).
-    """
-
+class PrimeSieve:
     @staticmethod
-    def is_prime(m):
-        if m < 2: return False
-        if m % 2 == 0 or m % 3 == 0: return m in (2, 3)
-        for i in range(5, int(m**0.5) + 1, 6):
-            if m % i == 0 or m % (i + 2) == 0: return False
+    def check(n):
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0 or n % 3 == 0: return False
+        for i in range(5, int(n**0.5) + 1, 6):
+            if n % i == 0 or n % (i + 2) == 0: return False
         return True
 
-    def hunt(self, X):
-        print(f"\n[RESEARCH LOG] Analyzing Base X = {X}")
-        print("-" * 50)
-        
-        # Define the adaptive step: s = ⌈X/20⌉
-        s = math.ceil(X / 20)
-        n = 0
+    def solve(self, X):
+        # Step Boundary: m >= ceil(X/20)
+        m_start = math.ceil(X / 20)
+        k = m_start
         
         while True:
-            # Multiplier k = 2(s + n)
-            k = 2 * (s + n)
-            candidates = [k * X - 1, k * X + 1]
+            # Candidate set S = {2kX - 1, 2kX + 1}
+            candidates = [(2 * k * X) - 1, (2 * k * X) + 1]
+            primes = [p for p in candidates if self.check(p)]
             
-            results = [self.is_prime(p) for p in candidates]
-            
-            print(f"Iteration n={n}: Testing P ≡ ±1 (mod {k*X}) -> {candidates}")
-            
-            if any(results):
-                return n, k, candidates, results
-            n += 1
+            if primes:
+                # P = min(S intersect Primes)
+                return min(primes), k
+            k += 1
 
 def main():
-    print("NUMERICAL ANALYSIS: ADAPTIVE PRIME GENERATION")
-    X = int(input("Enter Domain Parameter (X): "))
+    print("--- 📐 FORMAL PARAMETRIC ANALYSIS ---")
+    X = int(input("Define Domain Parameter X: "))
     
-    sieve = PrimeElevationSieve()
-    n, k, candidates, results = sieve.hunt(X)
+    engine = PrimeSieve()
+    P, k_star = engine.solve(X)
     
-    print("\n" + "="*50)
-    print(f"CONVERGENCE ACHIEVED AT n = {n}")
-    for val, prime_status in zip(candidates, results):
-        status = "PRIME (∈ ℙ)" if prime_status else "COMPOSITE"
-        print(f"  P = {val} : {status}")
-    print("="*50)
+    print(f"\nCONVERGENCE: P = {P} at k* = {k_star}")
 
-    print("\n[FORMAL THEORY: THE ADAPTIVE SIEVE]")
-    print("1. RESIDUE CLASSES: The formula forces P ≡ ±1 (mod 2X).")
-    print("   By Dirichlet's Theorem, there exist infinitely many primes")
-    print("   in this progression, as gcd(±1, 2X) = 1.")
-    print("\n2. COMPOSITE EXCLUSION:")
-    print("   The term 2(s+n)X creates an even base, ensuring P is odd.")
-    print("   Furthermore, P is coprime to X, effectively 'sieving out'")
-    print("   all prime factors of X from the candidate pool.")
-    print("\n3. DENSITY ADAPTATION:")
-    print("   The function s = ⌈X/20⌉ accounts for the logarithmic")
-    print("   distribution of primes π(x) ≈ x/ln(x), increasing the")
-    print("   search interval as X moves toward infinity.")
+    print("\n" + "="*60)
+    print("📐 FORMAL THEORY: THE ADAPTIVE SIEVE")
+    print("-" * 60)
+    print("• RESIDUE CLASSES: Candidates are restricted to P ≡ ±1 (mod 2X).")
+    print("  Since gcd(±1, 2X) = 1, Dirichlet’s Theorem guarantees prime density.")
+    print("• PARAMETRIC MINIMIZATION: P is the infimum of the set intersection.")
+    print("  k is the minimal integer m where (2mX ± 1) ∩ ℙ is non-empty.")
+    print("• COPRIMALITY: The mapping ensures P is coprime to X (gcd(P, X) = 1).")
+    print("="*60)
 
 if __name__ == "__main__":
     main()
-    
