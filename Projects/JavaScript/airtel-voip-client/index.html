@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CodePark Voice | Dialer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; font-family: sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dial-btn { transition: all 0.2s; background: rgba(255, 255, 255, 0.05); }
+        .dial-btn:hover { background: #ef4444; transform: scale(1.05); }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <div class="glass w-96 rounded-3xl p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-bold">CodePark <span class="text-red-500">Voice</span></h1>
+            <div id="status-dot" class="w-3 h-3 bg-red-500 rounded-full"></div>
+        </div>
+
+        <input type="text" id="display" readonly 
+            class="bg-transparent text-4xl font-light w-full text-center outline-none mb-8 tracking-widest text-red-100" 
+            placeholder="Dial...">
+
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <button onclick="press('1')" class="dial-btn h-16 rounded-2xl text-xl">1</button>
+            <button onclick="press('2')" class="dial-btn h-16 rounded-2xl text-xl">2</button>
+            <button onclick="press('3')" class="dial-btn h-16 rounded-2xl text-xl">3</button>
+            <button onclick="press('4')" class="dial-btn h-16 rounded-2xl text-xl">4</button>
+            <button onclick="press('5')" class="dial-btn h-16 rounded-2xl text-xl">5</button>
+            <button onclick="press('6')" class="dial-btn h-16 rounded-2xl text-xl">6</button>
+            <button onclick="press('7')" class="dial-btn h-16 rounded-2xl text-xl">7</button>
+            <button onclick="press('8')" class="dial-btn h-16 rounded-2xl text-xl">8</button>
+            <button onclick="press('9')" class="dial-btn h-16 rounded-2xl text-xl">9</button>
+            <button onclick="press('*')" class="dial-btn h-16 rounded-2xl text-xl opacity-50">*</button>
+            <button onclick="press('0')" class="dial-btn h-16 rounded-2xl text-xl">0</button>
+            <button onclick="press('#')" class="dial-btn h-16 rounded-2xl text-xl opacity-50">#</button>
+        </div>
+
+        <div class="flex gap-4">
+            <button onclick="clearDial()" class="flex-1 py-4 bg-white/5 rounded-2xl font-bold hover:bg-white/10">CLEAR</button>
+            <button onclick="call()" class="flex-1 py-4 bg-red-600 rounded-2xl font-bold hover:bg-red-500 shadow-lg shadow-red-600/30">CALL</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+        const display = document.getElementById('display');
+        const statusDot = document.getElementById('status-dot');
+
+        function press(n) { display.value += n; }
+        function clearDial() { display.value = ''; }
+        
+        function call() {
+            if(display.value) socket.send(JSON.stringify({ type: 'DIAL', number: display.value }));
+        }
+
+        socket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if(data.event === 'REGISTERED') {
+                statusDot.classList.replace('bg-red-500', 'bg-green-500');
+            }
+        };
+    </script>
+</body>
+</html>
