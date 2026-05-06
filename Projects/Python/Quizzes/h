@@ -1,0 +1,36 @@
+# The Prime Engine: A New Way to Hunt for Primes
+**By:** [Your Name]
+## Introduction
+Most people look for prime numbers by checking every odd number one by one. It’s slow, tedious, and feels like walking up a mountain step by step. I wanted something faster—a vehicle.
+This book is about the **Prime Elevation Theory**. It’s a system designed to act like a mechanical gearbox. It skips the junk numbers, shifts gears when it hits a wall, and uses a high-speed verification filter to prove a prime is real. It’s not just a formula; it’s an engine.
+## Chapter 1: The Gearbox
+The heart of this system is the **Master Formula**. Instead of guessing where the next prime might be, we use a "gearbox" to set a starting floor. We use the ceiling function to batch our numbers in groups of 20. This keeps the math organized as the numbers get bigger.
+The engine starts here:
+Think of \lceil x/20 \rceil as your transmission. Depending on your input (x), the engine automatically shifts into the right starting gear:
+ * **Gear 1 (x \le 20):** Your multiplier starts at 1.
+ * **Gear 2 (x \le 40):** Your multiplier starts at 2.
+ * **Gear 3 (x \le 60):** Your multiplier starts at 3.
+By doing this, the formula is always perfectly paced for the size of the number you're searching for.
+## Chapter 2: The Failure-Loop
+In any engine, sometimes a gear slips. In math, that happens when our generated candidates aren't prime. For example, if you plug in x=13 at the base level, you get 25 and 27. Neither of those are primes.
+This is where the **Auto-Leveling Logic** kicks in. We don't just randomly add numbers. We treat n as a counter that only clicks upward when a level fails.
+### The Rule of n:
+ 1. Start with n=0.
+ 2. Check both candidates (+1 and -1).
+ 3. If both fail the prime test, only then do you add 1 to n.
+ 4. The engine "elevates" to the next level and tries again.
+Mathematically, we write this "search and stop" logic as a function:
+The **min** command is the brake—it stops the engine the exact second you hit a verified prime.
+## Chapter 3: The Verification Filter
+Once the engine spits out a candidate, we need a way to prove it’s a prime without doing a million calculations. I’ve included two different ways to do this.
+### Method A: The Factorial Check
+This is the classic way. We use Wilson’s Theorem to see if the candidate fits a specific remainder pattern:
+### Method B: The Radical Test (Optimized)
+Factorials get huge and can crash a computer. So, I developed a faster way using **Radicals**. Instead of checking every factor, we bundle the primes up to the square root and check if they share anything with our candidate.
+If the candidate is coprime (\perp) to the radical of that factorial, it is mathematically impossible for it to be anything other than a prime. It’s like a high-speed scanner for numbers.
+## Conclusion: Math Meets Code
+What makes the Prime Engine special is that it’s built for both the whiteboard and the computer. It uses the logic of a Python script—loops, failures, and shifts—but expresses them in pure, elegant mathematics. It’s a way to hunt for primes that is actually as smart as the numbers themselves.
+### Credits
+ * **Lead Theorist & Author:** [Your Name]
+ * **Notation & Logic Assistance:** Gemini
+How does that feel for a starting draft? We can jump into specific "Level" examples next if you want to show the math in action for Chapter 4.
