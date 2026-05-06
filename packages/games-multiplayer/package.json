@@ -15,7 +15,7 @@
     "jsonwebtoken": "^9.0.0-rc.1",
     "redis": "^4.6.0-alpha.1",
     "dotenv": "^16.0.0-alpha.1",
-    "uuid": "^9.0.0-beta.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.0-rc.1",
