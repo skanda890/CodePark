@@ -4,7 +4,7 @@
 # ================================
 # Stage 1: Dependencies
 # ================================
-FROM node:25-alpine AS dependencies
+FROM node:26-alpine AS dependencies
 
 # Install security updates
 RUN apk update && apk upgrade && \
@@ -26,7 +26,7 @@ RUN npm ci --only=production --ignore-scripts && \
 # ================================
 # Stage 2: Builder
 # ================================
-FROM node:25-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -43,7 +43,7 @@ COPY . .
 # ================================
 # Stage 3: Production
 # ================================
-FROM node:25-alpine AS production
+FROM node:26-alpine AS production
 
 # Install dumb-init and security updates
 RUN apk update && apk upgrade && \
