@@ -1,0 +1,22 @@
+name: Syncpack Fix
+on:
+  workflow_dispatch: # Allows you to trigger it manually via the GitHub UI
+
+jobs:
+  syncpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Syncpack
+        run: npx syncpack fix
+
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: syncpack auto-fix dependencies"
