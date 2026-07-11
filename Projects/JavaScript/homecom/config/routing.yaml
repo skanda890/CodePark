@@ -1,0 +1,13 @@
+# HomeCom Smart Routing Profiles
+routing:
+  simultaneousRing: true
+  deviceSequence:
+    - web
+    - terminal
+    - mobile
+  timeouts:
+    ringDurationSeconds: 20
+  fallback:
+    action: voicemail
+    transcribe: true
+    aiSummary: true
