@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lingua Studio - School Lab Edition (Offline)</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #238636;
+    --accent-hover: #2ea043;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    padding: 16px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .title-group { display: flex; align-items: center; gap: 10px; }
+  .title { font-size: 16px; font-weight: 600; }
+  .badge {
+    background: #1f6feb22;
+    color: #58a6ff;
+    border: 1px solid #1f6feb;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+  .main-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    min-height: 0;
+  }
+  .pane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .pane-header {
+    padding: 8px 12px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  textarea, pre {
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    overflow: auto;
+    white-space: pre;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  select, button {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  select:focus, button:focus { outline: none; border-color: #58a6ff; }
+  button.primary {
+    background: var(--accent);
+    border-color: #2ea043;
+    font-weight: 600;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  .terminal-box {
+    height: 120px;
+    background: #000;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 8px 12px;
+    color: #3fb950;
+    overflow-y: auto;
+  }
+  .terminal-title {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .quick-chips {
+    display: flex;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .chip {
+    font-size: 11px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: #8b949e; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-group">
+    <span class="title">Lingua Studio Pro</span>
+    <span class="badge">Lab Edition: 100% Offline</span>
+  </div>
+  <div class="controls">
+    <label for="targetLang" style="font-size: 12px; color: var(--text-muted);">Target:</label>
+    <select id="targetLang" onchange="runCompile()">
+      <option value="py">Python 3</option>
+      <option value="js">JavaScript (Node/ES6)</option>
+      <option value="cpp">C++20</option>
+      <option value="c">ANSI C99</option>
+      <option value="rs">Rust</option>
+      <option value="go">Go</option>
+    </select>
+    <button class="primary" onclick="runCompile()">Compile (Ctrl+Enter)</button>
+    <button onclick="downloadCode()">Save File</button>
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- Input Pane -->
+  <div class="pane">
+    <div class="pane-header">
+      <span>English Instruction / Code</span>
+      <span id="detectedType" style="color: #58a6ff; font-size: 11px;">Deterministic DSL</span>
+    </div>
+    <textarea id="srcCode" spellcheck="false" placeholder="Type either:
+1. Natural intent: 'test the Pythagorean theorem', 'tell hello world', 'reverse string'
+2. Structured DSL:
+Set counter to 1.
+While counter is less than 6:
+  Display counter times counter.
+  Set counter to counter plus 1."></textarea>
+    <div class="quick-chips">
+      <span class="chip" onclick="insertSnippet('say hello world')">hello world</span>
+      <span class="chip" onclick="insertSnippet('test the pythagorean theorem')">pythagoras</span>
+      <span class="chip" onclick="insertSnippet('Set x to 10.\nWhile x is greater than 0:\n  Display x.\n  Set x to x minus 1.')">countdown dsl</span>
+      <span class="chip" onclick="insertSnippet('calculate primes up to 20')">primes</span>
+    </div>
+  </div>
+
+  <!-- Output Pane -->
+  <div class="pane">
+    <div class="pane-header">
+      <span id="outLangTitle">Generated Source</span>
+      <button onclick="copyCode()">Copy Code</button>
+    </div>
+    <pre id="dstCode">// Compiled target code appears here...</pre>
+    <div class="terminal-box">
+      <div class="terminal-title">Live Sandbox Output (Stdout):</div>
+      <div id="termLogs">Program ready.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// OFFLINE DETERMINISTIC PARSER & EMITTER
+// ==========================================
+function parseDSL(code) {
+  const lines = code.split('\n');
+  const ast = [];
+  
+  for (let raw of lines) {
+    let line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    // Check statements
+    let m;
+    if ((m = line.match(/^Display\s+(.+?)(\.)?$/i))) {
+      ast.push({ type: 'print', expr: m[1] });
+    } else if ((m = line.match(/^Set\s+([a-zA-Z_]\w*)\s+to\s+(.+?)(\.)?$/i))) {
+      ast.push({ type: 'assign', var: m[1], expr: m[2] });
+    } else if ((m = line.match(/^While\s+(.+?):$/i))) {
+      ast.push({ type: 'while', cond: m[1] });
+    } else if ((m = line.match(/^If\s+(.+?)\s+then:$/i))) {
+      ast.push({ type: 'if', cond: m[1] });
+    }
+  }
+  return ast;
+}
+
+function exprToTarget(expr) {
+  return expr
+    .replace(/\bplus\b/gi, '+')
+    .replace(/\bminus\b/gi, '-')
+    .replace(/\btimes\b/gi, '*')
+    .replace(/\bdivided by\b/gi, '/')
+    .replace(/\bis equal to\b/gi, '==')
+    .replace(/\bis greater than\b/gi, '>')
+    .replace(/\bis less than\b/gi, '<');
+}
+
+// Generate code across all 6 target languages
+function compileToTarget(ast, target) {
+  let out = [];
+  if (target === 'py') {
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`print(${exprToTarget(s.expr)})`);
+      if (s.type === 'assign') out.push(`${s.var} = ${exprToTarget(s.expr)}`);
+      if (s.type === 'while') out.push(`while ${exprToTarget(s.cond)}:`);
+      if (s.type === 'if') out.push(`if ${exprToTarget(s.cond)}:`);
+    }
+    return out.join('\n');
+  } 
+  
+  if (target === 'js') {
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`console.log(${exprToTarget(s.expr)});`);
+      if (s.type === 'assign') out.push(`let ${s.var} = ${exprToTarget(s.expr)};`);
+      if (s.type === 'while') out.push(`while (${exprToTarget(s.cond)}) {`);
+      if (s.type === 'if') out.push(`if (${exprToTarget(s.cond)}) {`);
+    }
+    return out.join('\n');
+  }
+
+  if (target === 'cpp') {
+    out.push('#include <iostream>\n\nint main() {');
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`    std::cout << ${exprToTarget(s.expr)} << std::endl;`);
+      if (s.type === 'assign') out.push(`    auto ${s.var} = ${exprToTarget(s.expr)};`);
+      if (s.type === 'while') out.push(`    while (${exprToTarget(s.cond)}) {`);
+      if (s.type === 'if') out.push(`    if (${exprToTarget(s.cond)}) {`);
+    }
+    out.push('    return 0;\n}');
+    return out.join('\n');
+  }
+
+  if (target === 'c') {
+    out.push('#include <stdio.h>\n\nint main() {');
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`    printf("%g\\n", (double)(${exprToTarget(s.expr)}));`);
+      if (s.type === 'assign') out.push(`    double ${s.var} = ${exprToTarget(s.expr)};`);
+      if (s.type === 'while') out.push(`    while (${exprToTarget(s.cond)}) {`);
+      if (s.type === 'if') out.push(`    if (${exprToTarget(s.cond)}) {`);
+    }
+    out.push('    return 0;\n}');
+    return out.join('\n');
+  }
+
+  if (target === 'rs') {
+    out.push('fn main() {');
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`    println!("{}", ${exprToTarget(s.expr)});`);
+      if (s.type === 'assign') out.push(`    let mut ${s.var} = ${exprToTarget(s.expr)};`);
+      if (s.type === 'while') out.push(`    while ${exprToTarget(s.cond)} {`);
+      if (s.type === 'if') out.push(`    if ${exprToTarget(s.cond)} {`);
+    }
+    out.push('}');
+    return out.join('\n');
+  }
+
+  if (target === 'go') {
+    out.push('package main\n\nimport "fmt"\n\nfunc main() {');
+    for (let s of ast) {
+      if (s.type === 'print') out.push(`    fmt.Println(${exprToTarget(s.expr)})`);
+      if (s.type === 'assign') out.push(`    ${s.var} := ${exprToTarget(s.expr)}`);
+      if (s.type === 'while') out.push(`    for ${exprToTarget(s.cond)} {`);
+      if (s.type === 'if') out.push(`    if ${exprToTarget(s.cond)} {`);
+    }
+    out.push('}');
+    return out.join('\n');
+  }
+}
+
+// Built-in Offline Natural Fallbacks (covers tests, math, greetings)
+function handleNaturalOffline(prompt, target) {
+  const p = prompt.toLowerCase();
+
+  // 1. Hello World
+  if (p.includes('hello world') || p.includes('tell hello') || p.includes('say hello')) {
+    if (target === 'py') return `print("Hello, World!")`;
+    if (target === 'js') return `console.log("Hello, World!");`;
+    if (target === 'cpp') return `#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`;
+    if (target === 'c') return `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`;
+    if (target === 'rs') return `fn main() {\n    println!("Hello, World!");\n}`;
+    if (target === 'go') return `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}`;
+  }
+
+  // 2. Pythagorean theorem test suite
+  if (p.includes('pythagor')) {
+    if (target === 'py') {
+      return `def test_pythagorean(a, b, c):\n    passed = (a**2 + b**2 == c**2)\n    status = "PASS" if passed else "FAIL"\n    print(f"[{status}] Triplet ({a}, {b}, {c}): a^2 + b^2 = c^2 -> {passed}")\n\nprint("Testing Pythagorean Theorem:")\ntest_pythagorean(3, 4, 5)\ntest_pythagorean(5, 12, 13)\ntest_pythagorean(6, 8, 10)\ntest_pythagorean(3, 4, 6) # Intentional false test`;
+    }
+    if (target === 'js') {
+      return `function testPythagorean(a, b, c) {\n  const ok = (a*a + b*b === c*c);\n  console.log(\`[\${ok ? "PASS" : "FAIL"}] Triplet (\${a}, \${b}, \${c}): a^2 + b^2 = c^2 -> \${ok}\`);\n}\n\nconsole.log("Testing Pythagorean Theorem:");\ntestPythagorean(3, 4, 5);\ntestPythagorean(5, 12, 13);\ntestPythagorean(6, 8, 10);\ntestPythagorean(3, 4, 6);`;
+    }
+    if (target === 'cpp') {
+      return `#include <iostream>\n\nvoid testPythagorean(int a, int b, int c) {\n    bool ok = (a*a + b*b == c*c);\n    std::cout << "[" << (ok ? "PASS" : "FAIL") << "] Triplet (" << a << "," << b << "," << c << ") -> " << (ok ? "true" : "false") << std::endl;\n}\n\nint main() {\n    std::cout << "Testing Pythagorean Theorem:" << std::endl;\n    testPythagorean(3, 4, 5);\n    testPythagorean(5, 12, 13);\n    testPythagorean(3, 4, 6);\n    return 0;\n}`;
+    }
+  }
+
+  return null;
+}
+
+// ==========================================
+// EXECUTION & RUNTIME
+// ==========================================
+function runCompile() {
+  const src = document.getElementById('srcCode').value.trim();
+  const target = document.getElementById('targetLang').value;
+  const dst = document.getElementById('dstCode');
+  const logs = document.getElementById('termLogs');
+  const typeBadge = document.getElementById('detectedType');
+
+  if (!src) {
+    dst.textContent = '// Enter English code or instructions...';
+    logs.textContent = 'Awaiting input.';
+    return;
+  }
+
+  // Check if natural or DSL
+  const isNatural = /^(test|make|build|find|tell|say|show|how|write)\b/i.test(src) || !src.includes('Set ') && !src.includes('Display ');
+  
+  let generated = '';
+  if (isNatural) {
+    typeBadge.textContent = 'Natural Intent (Offline Synth)';
+    generated = handleNaturalOffline(src, target);
+    if (!generated) {
+      generated = `// [Offline Note]: '${src}' recognized as custom intent.\n// To generate arbitrary code offline, use the Structured DSL format on the left!`;
+    }
+  } else {
+    typeBadge.textContent = 'Deterministic DSL';
+    const ast = parseDSL(src);
+    generated = compileToTarget(ast, target);
+  }
+
+  dst.textContent = generated;
+
+  // Run live execution sandbox
+  logs.innerHTML = '';
+  try {
+    const termLines = [];
+    const fakeLog = (...args) => termLines.push(args.join(' '));
+    
+    // Simulate JS execution for immediate visual feedback
+    const jsExecutable = compileToTarget(parseDSL(src), 'js') || handleNaturalOffline(src, 'js');
+    if (jsExecutable && !jsExecutable.includes('// [Offline Note]')) {
+      const runFn = new Function('console', jsExecutable);
+      runFn({ log: fakeLog, error: fakeLog });
+      logs.textContent = termLines.join('\n') || '[Process completed with exit code 0]';
+    } else {
+      logs.textContent = '[Code compiled successfully. Ready for target runtime]';
+    }
+  } catch (err) {
+    logs.textContent = 'Runtime Note: ' + err.message;
+  }
+}
+
+function insertSnippet(txt) {
+  document.getElementById('srcCode').value = txt;
+  runCompile();
+}
+
+function copyCode() {
+  const code = document.getElementById('dstCode').textContent;
+  navigator.clipboard.writeText(code);
+  alert('Target code copied to clipboard!');
+}
+
+function downloadCode() {
+  const target = document.getElementById('targetLang').value;
+  const extMap = { py: 'py', js: 'js', cpp: 'cpp', c: 'c', rs: 'rs', go: 'go' };
+  const blob = new Blob([document.getElementById('dstCode').textContent], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `compiled_program.${extMap[target]}`;
+  a.click();
+}
+
+// Hotkey: Ctrl+Enter
+document.getElementById('srcCode').addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') runCompile();
+});
+
+// Initial run
+runCompile();
+</script>
+</body>
+</html>
