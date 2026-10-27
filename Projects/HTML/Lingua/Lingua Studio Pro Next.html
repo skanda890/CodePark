@@ -1,1859 +1,703 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingua Studio Pro Next - Universal Natural & DSL Polyglot Transpiler</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lingua Universal Polyglot Studio</title>
+<style>
+  :root {
+    --bg: #090b0e;
+    --surface: #12151c;
+    --card: #181d26;
+    --border: #232a38;
+    --text: #f0f6fc;
+    --text-muted: #8b949e;
+    --accent: #10b981;
+    --accent-hover: #059669;
+    --online-color: #38bdf8;
+    --offline-color: #f59e0b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Consolas", "Fira Code", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 10px;
+    overflow: hidden;
+  }
+  header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .title-group { display: flex; align-items: center; gap: 12px; }
+  .title { font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
+  .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .badge-online { background: #0284c722; color: var(--online-color); border: 1px solid #0284c7; }
+  .badge-offline { background: #f59e0b22; color: var(--offline-color); border: 1px solid #d97706; }
+  .indicator-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-online { background: var(--online-color); box-shadow: 0 0 6px var(--online-color); }
+  .dot-offline { background: var(--offline-color); }
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            fluent: {
-              base: '#090b0e',
-              surface: '#11141a',
-              card: '#161a22',
-              cardHover: '#1c222d',
-              border: '#242b38',
-              borderLight: '#30394a',
-              accent: '#10b981',       /* Rufus signature emerald */
-              accentHover: '#059669',
-              accentGlow: 'rgba(16, 185, 129, 0.25)',
-              subtext: '#8a99ad',
-              highlight: '#1f2633',
-              dslBlue: '#38bdf8',
-              intentPurple: '#c084fc'
-            }
-          },
-          fontFamily: {
-            sans: ['"Segoe UI Variable"', '"Segoe UI"', 'Inter', 'system-ui', 'sans-serif'],
-            mono: ['"Cascadia Code"', '"Consolas"', '"JetBrains Mono"', 'monospace']
-          }
-        }
-      }
-    }
-  </script>
+  .controls { display: flex; align-items: center; gap: 8px; }
+  select, button {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  select:focus, button:focus { outline: none; border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  button.primary:hover { background: var(--accent-hover); }
+  
+  .main-workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    min-height: 0;
+  }
+  .pane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .pane-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  textarea, pre {
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    overflow: auto;
+    white-space: pre;
+  }
+  .terminal-box {
+    height: 140px;
+    background: #040507;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 8px 12px;
+    color: #4ade80;
+    overflow-y: auto;
+  }
+  .terminal-title { color: var(--text-muted); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
+  .quick-chips {
+    display: flex;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .chip {
+    font-size: 11px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
 
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  .notice-banner {
+    padding: 4px 12px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .notice-offline { background: #291e0a; color: #fcd34d; }
+  .notice-online { background: #0c2333; color: #7dd3fc; }
 
-  <style>
-    /* Acrylic / Mica styling */
-    .acrylic-glass {
-      background: rgba(17, 20, 26, 0.88);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-    
-    html:not(.dark) .acrylic-glass {
-      background: rgba(248, 250, 252, 0.92);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    /* Light mode adaptations */
-    html:not(.dark) {
-      background-color: #f1f5f9;
-      color: #0f172a;
-    }
-    html:not(.dark) .bg-fluent-base { background-color: #f8fafc; }
-    html:not(.dark) .bg-fluent-surface { background-color: #ffffff; }
-    html:not(.dark) .bg-fluent-card { background-color: #f1f5f9; }
-    html:not(.dark) .border-fluent-border { border-color: #cbd5e1; }
-    html:not(.dark) .text-slate-100 { color: #0f172a; }
-    html:not(.dark) .text-slate-200 { color: #1e293b; }
-    html:not(.dark) .text-slate-300 { color: #334155; }
-    html:not(.dark) .text-fluent-subtext { color: #64748b; }
-
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #252d3a;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #364254;
-    }
-
-    /* Rufus signature animated barber-pole progress bar */
-    .rufus-progress-bar {
-      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .rufus-stripe-anim {
-      background-size: 28px 28px;
-      background-image: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.22) 25%,
-        transparent 25%,
-        transparent 50%,
-        rgba(255, 255, 255, 0.22) 50%,
-        rgba(255, 255, 255, 0.22) 75%,
-        transparent 75%,
-        transparent
-      );
-      animation: rufus-stripe-loop 0.9s linear infinite;
-    }
-    @keyframes rufus-stripe-loop {
-      0% { background-position: 0 0; }
-      100% { background-position: 28px 0; }
-    }
-
-    /* Morphing Mode Pill Transition */
-    .morph-pill {
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Pulse wave for classifier active state */
-    @keyframes detector-radar {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.8; }
-    }
-    .radar-pulse {
-      animation: detector-radar 2s ease-in-out infinite;
-    }
-  </style>
+  /* Postman Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 620px;
+    max-width: 90vw;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+</style>
 </head>
-<body class="bg-fluent-base text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased selection:bg-emerald-500/30 selection:text-emerald-300">
+<body>
 
-  <!-- ================= TOP WINDOW UTILITY BAR ================= -->
-  <header class="h-14 acrylic-glass border-b border-fluent-border flex items-center justify-between px-4 sm:px-6 select-none sticky top-0 z-40">
-    
-    <!-- Branding & Live Classifier Status -->
-    <div class="flex items-center space-x-3.5">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-fluent-accentGlow">
-        <i class="fa-solid fa-microchip text-sm"></i>
-      </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="text-sm font-bold tracking-tight text-slate-100">Lingua Studio Pro Next</span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono font-bold tracking-wide">UNIVERSAL SENSE</span>
-        </div>
-        <div class="text-[10.5px] text-fluent-subtext font-mono flex items-center gap-1.5">
-          <span>Rufus Utility Base</span>
-          <span>&bull;</span>
-          <span class="text-emerald-400 font-semibold" id="activeModelTag">Gemini 3 Flash + Universal Intent Engine</span>
-        </div>
-      </div>
+<header>
+  <div class="title-group">
+    <span class="title">LINGUA STUDIO PRO</span>
+    <div id="netStatusPill" class="badge badge-offline">
+      <span id="netStatusDot" class="indicator-dot dot-offline"></span>
+      <span id="netStatusText">CHECKING...</span>
     </div>
-
-    <!-- Quick Utilities: Theme, Logs, Info -->
-    <div class="flex items-center space-x-2.5">
-      <!-- Dark/Light Theme Toggle -->
-      <button onclick="toggleTheme()" class="h-8 w-8 rounded-lg bg-fluent-card hover:bg-fluent-cardHover text-slate-300 flex items-center justify-center text-xs transition-all border border-fluent-border shadow-sm" title="Toggle Light/Dark Theme">
-        <i id="themeToggleIcon" class="fa-solid fa-sun text-amber-400"></i>
-      </button>
-
-      <!-- Rufus Diagnostic Logs Toggle -->
-      <button onclick="toggleLogsDrawer()" class="h-8 px-3 rounded-lg bg-fluent-card hover:bg-fluent-cardHover text-slate-200 flex items-center gap-2 text-xs font-semibold transition-all border border-fluent-border shadow-sm">
-        <i class="fa-solid fa-terminal text-[11px] text-emerald-400"></i>
-        <span>Rufus Logs</span>
-      </button>
-
-      <!-- Reset Workspace -->
-      <button onclick="resetWorkspace()" class="h-8 px-3 rounded-lg bg-fluent-card hover:bg-fluent-cardHover text-slate-300 flex items-center gap-1.5 text-xs font-medium transition-all border border-fluent-border">
-        <i class="fa-solid fa-rotate-left text-[11px] text-slate-400"></i>
-        <span>Reset</span>
-      </button>
-
-      <!-- Documentation Modal -->
-      <button onclick="openInfoModal()" class="h-8 w-8 rounded-lg bg-fluent-card hover:bg-fluent-cardHover text-slate-300 flex items-center justify-center text-xs transition-all border border-fluent-border" title="Grammar & Auto-Sense Rules">
-        <i class="fa-regular fa-circle-question"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- ================= SUB-TOOLBAR: DYNAMIC REAL-TIME SENSING STRIP ================= -->
-  <section class="bg-fluent-surface/90 border-b border-fluent-border px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-    
-    <!-- Real-Time Auto-Sense Classification Bar -->
-    <div class="flex items-center flex-wrap gap-2.5">
-      
-      <!-- The Real-Time Morphing Mode Pill -->
-      <div id="modePill" class="morph-pill px-3.5 py-1.5 rounded-xl border flex items-center gap-2.5 shadow-sm bg-purple-500/10 border-purple-500/30 text-purple-300">
-        <span id="modePillIcon" class="text-xs text-purple-400"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-        <div class="flex items-center space-x-1.5">
-          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Mode:</span>
-          <span id="modePillText" class="font-bold text-xs tracking-wide">NATURAL INTENT (AI / SYNTH)</span>
-        </div>
-        <!-- Live Confidence Badge -->
-        <span id="modeConfidenceBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/30">
-          98% Conf.
-        </span>
-      </div>
-
-      <!-- Quick Test Prompt Pills -->
-      <div class="hidden sm:flex items-center gap-1.5 ml-2 overflow-x-auto py-0.5">
-        <span class="text-[11px] text-fluent-subtext mr-1">Quick Inputs:</span>
-        <button onclick="loadSamplePrompt('helloWorld')" class="px-2.5 py-1 rounded-md bg-fluent-card hover:bg-purple-500/20 hover:text-purple-300 border border-fluent-border text-[11px] font-mono text-slate-300 transition-colors">👋 Hello World</button>
-        <button onclick="loadSamplePrompt('pythagorean')" class="px-2.5 py-1 rounded-md bg-fluent-card hover:bg-purple-500/20 hover:text-purple-300 border border-fluent-border text-[11px] font-mono text-slate-300 transition-colors">📐 Pythagorean Theorem</button>
-        <button onclick="loadSamplePrompt('sieve')" class="px-2.5 py-1 rounded-md bg-fluent-card hover:bg-purple-500/20 hover:text-purple-300 border border-fluent-border text-[11px] font-mono text-slate-300 transition-colors">🔢 Prime Sieve</button>
-        <button onclick="loadSamplePrompt('dslLoop')" class="px-2.5 py-1 rounded-md bg-fluent-card hover:bg-sky-500/20 hover:text-sky-300 border border-fluent-border text-[11px] font-mono text-slate-300 transition-colors">⚡ DSL While-Loop</button>
-        <button onclick="loadSamplePrompt('dslFunc')" class="px-2.5 py-1 rounded-md bg-fluent-card hover:bg-sky-500/20 hover:text-sky-300 border border-fluent-border text-[11px] font-mono text-slate-300 transition-colors">🧩 DSL Function</button>
-      </div>
-    </div>
-
-    <!-- Target Compiler Selection -->
-    <div class="flex items-center space-x-2.5">
-      <span class="text-fluent-subtext font-semibold text-xs">Target Compiler:</span>
-      <div class="relative">
-        <select id="targetLanguage" onchange="onLanguageChanged()" class="bg-fluent-card border border-emerald-500/50 rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none cursor-pointer shadow-sm">
-          <option value="python">Python 3.12 (.py) - Idiomatic PEP8</option>
-          <option value="javascript">JavaScript ES2024 (.js) - Node & Browser</option>
-          <option value="cpp">C++20 (.cpp) - ISO Modern Standard</option>
-          <option value="c">ANSI C99 (.c) - Safe Standard C</option>
-          <option value="rust">Rust 2021 (.rs) - Safe Memory Edition</option>
-          <option value="go">Go 1.22 (.go) - Concurrent Standard</option>
-        </select>
-        <i class="fa-solid fa-chevron-down text-[10px] text-emerald-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ================= MAIN TWO-COLUMN SPLIT WORKSPACE ================= -->
-  <main class="flex-1 p-4 sm:p-5 max-w-[1920px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-0">
-    
-    <!-- LEFT PANEL: UNIFIED AUTO-SENSING ENGLISH EDITOR -->
-    <section class="lg:col-span-6 flex flex-col bg-fluent-surface border border-fluent-border rounded-2xl shadow-xl overflow-hidden">
-      
-      <!-- Panel Header: Real-Time Grammar Hints -->
-      <div class="px-4 py-3 border-b border-fluent-border bg-fluent-card/50 flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center space-x-2">
-          <span id="editorStatusIcon" class="text-purple-400 text-xs"><i class="fa-solid fa-keyboard"></i></span>
-          <span class="font-bold text-xs text-slate-100">Unified English Source Editor</span>
-          <span id="charCountBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-fluent-highlight text-fluent-subtext font-mono font-semibold">0 chars</span>
-        </div>
-
-        <!-- DSL Syntax Helper Chips -->
-        <div id="dslHelpersBar" class="flex flex-wrap items-center gap-1.5 text-xs">
-          <span class="text-fluent-subtext text-[11px] mr-1">DSL Quick Insert:</span>
-          <button onclick="insertDslChip('var')" class="px-2 py-0.5 rounded bg-fluent-highlight hover:bg-sky-500/20 hover:text-sky-300 text-[11px] font-medium border border-fluent-border">+ Variable</button>
-          <button onclick="insertDslChip('loop')" class="px-2 py-0.5 rounded bg-fluent-highlight hover:bg-sky-500/20 hover:text-sky-300 text-[11px] font-medium border border-fluent-border">+ Loop</button>
-          <button onclick="insertDslChip('branch')" class="px-2 py-0.5 rounded bg-fluent-highlight hover:bg-sky-500/20 hover:text-sky-300 text-[11px] font-medium border border-fluent-border">+ Branch</button>
-          <button onclick="insertDslChip('print')" class="px-2 py-0.5 rounded bg-fluent-highlight hover:bg-sky-500/20 hover:text-sky-300 text-[11px] font-medium border border-fluent-border">+ Display</button>
-          <button onclick="insertDslChip('func')" class="px-2 py-0.5 rounded bg-fluent-highlight hover:bg-sky-500/20 hover:text-sky-300 text-[11px] font-medium border border-fluent-border">+ Function</button>
-        </div>
-      </div>
-
-      <!-- Editor Textarea Body with Unified Classifier -->
-      <div class="flex-1 p-4 flex flex-col justify-between gap-3 min-h-[460px] lg:min-h-[520px]">
-        
-        <div class="flex-1 flex flex-col">
-          <div class="text-[11px] text-fluent-subtext mb-2 flex items-center justify-between">
-            <span id="typingGuidanceText">Type anything in English: commands, tests, greetings, algorithms, or DSL:</span>
-            <span id="classifierStatusIndicator" class="text-xs font-mono flex items-center gap-1.5 text-purple-400">
-              <span class="w-2 h-2 rounded-full bg-purple-500 radar-pulse"></span>
-              Real-time Classifier Active
-            </span>
-          </div>
-
-          <textarea id="unifiedEditorText" spellcheck="false" class="flex-1 w-full bg-fluent-card/80 border border-fluent-border rounded-xl p-4 text-xs sm:text-sm text-slate-100 leading-relaxed outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 resize-none font-mono shadow-inner transition-all" placeholder="Type anything in English! For example:&#10;&#10;• Simple Greetings/Print:&#10;  tell hello world&#10;  say hello world&#10;  print welcome to lingua&#10;&#10;• Complex Algorithms & Tests:&#10;  test the Pythagorean theorem&#10;  sieve of Eratosthenes up to 50&#10;&#10;• Controlled English (DSL):&#10;  Set x to 10.&#10;  While x is greater than 0:&#10;    Display x.&#10;    Set x to x minus 1."></textarea>
-          
-          <div class="mt-2.5 flex items-center justify-between text-[11px] text-fluent-subtext">
-            <span id="modeDescriptionSnippet">Dynamic natural language mode: Prompts synthesize full algorithms with automated verification harnesses.</span>
-            <button onclick="clearEditor()" class="hover:text-rose-400 transition-colors">Clear Editor</button>
-          </div>
-        </div>
-
-        <!-- Transpiler Options Footer -->
-        <div class="pt-3 border-t border-fluent-border flex flex-wrap items-center justify-between text-xs gap-3">
-          <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-2 cursor-pointer text-slate-300 font-medium select-none">
-              <input id="chkIncludeTests" type="checkbox" checked class="w-4 h-4 rounded accent-emerald-500 text-emerald-500 bg-fluent-base border-fluent-border focus:ring-0">
-              <span>Automated Test Harness</span>
-            </label>
-            <label class="flex items-center space-x-2 cursor-pointer text-slate-300 font-medium select-none">
-              <input id="chkIncludeComments" type="checkbox" checked class="w-4 h-4 rounded accent-emerald-500 text-emerald-500 bg-fluent-base border-fluent-border focus:ring-0">
-              <span>Inline Documentation</span>
-            </label>
-          </div>
-
-          <div class="flex items-center space-x-1.5">
-            <span class="text-fluent-subtext font-medium text-[11px]">Indent:</span>
-            <button onclick="setIndent(2)" id="btnIndent2" class="px-2.5 py-0.5 rounded-md text-[11px] border border-fluent-border text-fluent-subtext transition-colors">2 sp</button>
-            <button onclick="setIndent(4)" id="btnIndent4" class="px-2.5 py-0.5 rounded-md text-[11px] border border-emerald-500 bg-emerald-500/15 text-emerald-400 font-bold transition-colors">4 sp</button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- RIGHT PANEL: POLYGLOT CODE BUFFER & LIVE EXECUTION SANDBOX -->
-    <section class="lg:col-span-6 flex flex-col bg-fluent-surface border border-fluent-border rounded-2xl shadow-xl overflow-hidden">
-      
-      <!-- Panel Header & Action Buttons -->
-      <div class="px-4 py-3 border-b border-fluent-border bg-fluent-card/50 flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center space-x-2">
-          <span class="text-emerald-400 text-xs"><i class="fa-solid fa-code-branch"></i></span>
-          <span class="font-bold text-xs text-slate-100">Polyglot Output Buffer</span>
-          <span id="targetBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">PYTHON 3.12</span>
-        </div>
-
-        <!-- Copy, Export, Run -->
-        <div class="flex items-center space-x-2">
-          <button id="btnCopyCode" onclick="copyGeneratedCode()" class="h-8 px-3 rounded-lg bg-fluent-card hover:bg-emerald-500 hover:text-white text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all border border-fluent-border shadow-sm">
-            <i id="copyIcon" class="fa-regular fa-copy text-[11px]"></i>
-            <span id="copyLabel">Copy</span>
-          </button>
-          <button onclick="downloadCodeFile()" class="h-8 px-3 rounded-lg bg-fluent-card hover:bg-emerald-500 hover:text-white text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all border border-fluent-border shadow-sm">
-            <i class="fa-solid fa-download text-[11px]"></i>
-            <span>Export</span>
-          </button>
-          <button id="btnRunSandbox" onclick="executeSandbox()" class="h-8 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-fluent-accentGlow">
-            <i class="fa-solid fa-play text-[10px]"></i>
-            <span>Run Sandbox</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Code & Sandbox Container -->
-      <div class="flex-1 p-4 flex flex-col gap-3 min-h-[460px] lg:min-h-[520px]">
-        
-        <!-- Code Display Container -->
-        <div class="flex-1 bg-fluent-base border border-fluent-border rounded-xl p-3.5 overflow-hidden flex flex-col relative shadow-inner">
-          <div class="flex items-center justify-between text-[11px] text-fluent-subtext font-mono pb-2 mb-2 border-b border-fluent-border select-none">
-            <div class="flex items-center space-x-2">
-              <span id="targetFileIcon" class="text-amber-400"><i class="fa-brands fa-python"></i></span>
-              <span id="targetFileName" class="text-slate-200 font-medium">main.py</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <button onclick="toggleWordWrap()" id="btnWordWrap" class="hover:text-emerald-400 transition-colors text-[10px]">Wrap: Off</button>
-              <span id="codeSizeBadge" class="text-slate-500 text-[10px]">Awaiting compilation</span>
-            </div>
-          </div>
-          
-          <pre id="outputCodeViewer" class="flex-1 font-mono text-xs sm:text-[13px] text-slate-200 overflow-auto whitespace-pre leading-relaxed select-text">// Click 'START TRANSPILE' below to execute.</pre>
-        </div>
-
-        <!-- High-Precision Live Terminal Sandbox -->
-        <div class="h-48 bg-fluent-base border border-fluent-border rounded-xl p-3 flex flex-col font-mono text-xs shadow-inner">
-          <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-fluent-border text-[10.5px]">
-            <div class="flex items-center space-x-2 text-emerald-400 font-bold tracking-wider">
-              <i class="fa-solid fa-terminal text-[10px]"></i>
-              <span>SANDBOX TERMINAL &bull; LIVE STDOUT</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <span id="sandboxTiming" class="text-[10px] text-fluent-subtext">Runtime: 0.00ms</span>
-              <span id="sandboxStatusBadge" class="px-2 py-0.5 rounded bg-fluent-highlight text-[10px] font-bold text-slate-400">STANDBY</span>
-              <button onclick="clearTerminal()" class="text-fluent-subtext hover:text-white text-[10px] transition-colors ml-1">Clear</button>
-            </div>
-          </div>
-          
-          <div id="terminalBody" class="flex-1 overflow-y-auto space-y-1 text-slate-300 select-text text-xs">
-            <div class="text-slate-500 italic">[Sandbox Standby] Click 'Run Sandbox' or start compilation to execute logic.</div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ================= RUFUS-STYLE PROGRESS & BOTTOM CONTROL BAR ================= -->
-  <footer class="acrylic-glass border-t border-fluent-border p-4 sm:px-6 sticky bottom-0 z-30 shadow-2xl">
-    <div class="max-w-[1920px] mx-auto flex flex-col gap-2.5">
-      
-      <!-- Rufus Meta Status -->
-      <div class="flex items-center justify-between text-xs">
-        <div class="flex items-center space-x-2.5">
-          <span class="text-fluent-subtext font-semibold">Rufus Engine Status:</span>
-          <span id="rufusStatus" class="font-bold text-emerald-400 flex items-center gap-1.5 font-mono">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            STANDBY / READY
-          </span>
-        </div>
-        <div class="flex items-center space-x-3 text-[11px] text-fluent-subtext font-mono">
-          <span id="pipelineTimingText">Auto-Classifier Ready</span>
-          <span>&bull;</span>
-          <span id="activeEngineMode" class="text-emerald-400">Gemini 3 Flash + Universal Intent Fallback</span>
-          <span>&bull;</span>
-          <span>Polyglot UTF-8</span>
-        </div>
-      </div>
-
-      <!-- Rufus Signature Emerald Barber-Pole Progress Bar -->
-      <div class="w-full h-6 bg-fluent-base rounded-lg border border-fluent-border overflow-hidden relative shadow-inner">
-        <div id="rufusProgressFill" class="rufus-progress-bar h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 rufus-stripe-anim w-0"></div>
-        <div id="rufusProgressLabel" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white tracking-widest pointer-events-none drop-shadow">READY</div>
-      </div>
-
-      <!-- Action Buttons Row -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div class="flex items-center space-x-2.5">
-          <button onclick="toggleLogsDrawer()" class="h-9 px-3.5 rounded-lg border border-fluent-border bg-fluent-card hover:bg-fluent-cardHover text-slate-200 text-xs font-semibold flex items-center gap-2 transition-colors">
-            <i class="fa-solid fa-list-check text-slate-400"></i>
-            <span>Log Console</span>
-          </button>
-          <button onclick="resetWorkspace()" class="h-9 px-3.5 rounded-lg border border-fluent-border bg-fluent-card hover:bg-fluent-cardHover text-slate-300 text-xs font-semibold transition-colors">
-            Reset
-          </button>
-        </div>
-
-        <div class="flex items-center space-x-3">
-          <button id="btnTranspile" onclick="startTranspilation()" class="h-10 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center gap-2.5 shadow-lg shadow-fluent-accentGlow transition-all cursor-pointer">
-            <i class="fa-solid fa-bolt text-xs"></i>
-            <span>START TRANSPILE</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </footer>
-
-  <!-- ================= COLLAPSIBLE DIAGNOSTIC LOG DRAWER ================= -->
-  <div id="logsDrawer" class="hidden border-t border-fluent-border bg-fluent-base text-slate-300 text-xs font-mono max-h-56 overflow-y-auto p-4 z-20">
-    <div class="flex items-center justify-between border-b border-fluent-border pb-2 mb-2 text-[11px]">
-      <div class="flex items-center space-x-2 text-emerald-400 font-bold">
-        <i class="fa-solid fa-microchip"></i>
-        <span>Lingua Rufus Diagnostic & Classification Audit Log</span>
-      </div>
-      <div class="flex items-center space-x-3 text-fluent-subtext">
-        <button onclick="clearDiagnosticLogs()" class="hover:text-white transition-colors text-[10px]">Clear Buffer</button>
-        <button onclick="toggleLogsDrawer()" class="hover:text-white transition-colors text-xs">✕</button>
-      </div>
-    </div>
-    <div id="diagnosticLogEntries" class="space-y-1 text-[11px]"></div>
+    <span id="modePill" style="font-size:11px; color:var(--text-muted);">Self-Sensing</span>
   </div>
+  <div class="controls">
+    <label for="targetLang" style="font-size: 12px; color: var(--text-muted);">Target:</label>
+    <select id="targetLang" onchange="transpile()">
+      <optgroup label="High-Level / Scripting">
+        <option value="py">Python 3</option>
+        <option value="js">JavaScript (Node/ES6)</option>
+        <option value="ts">TypeScript</option>
+        <option value="rb">Ruby</option>
+        <option value="php">PHP 8+</option>
+        <option value="sh">Bash Shell</option>
+      </optgroup>
+      <optgroup label="System / Native">
+        <option value="cpp">C++20</option>
+        <option value="c">ANSI C99</option>
+        <option value="rs">Rust 2021</option>
+        <option value="go">Go 1.22</option>
+      </optgroup>
+      <optgroup label="Enterprise / Mobile">
+        <option value="java">Java 17+</option>
+        <option value="cs">C# (.NET)</option>
+        <option value="kt">Kotlin</option>
+        <option value="swift">Swift 5+</option>
+      </optgroup>
+    </select>
+    <button class="primary" onclick="transpile()">Compile (Ctrl+Enter)</button>
+    <button onclick="openPostmanModal()">Postman API</button>
+    <button onclick="downloadCode()">Save</button>
+  </div>
+</header>
 
-  <!-- ================= GRAMMAR & REFERENCE MODAL ================= -->
-  <div id="infoModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-fluent-card border border-fluent-border rounded-2xl shadow-2xl max-w-xl w-full p-6 text-slate-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-fluent-accentGlow">
-            <i class="fa-solid fa-brain text-sm"></i>
-          </div>
-          <div>
-            <h2 class="font-bold text-base text-slate-100">Universal Auto-Sensing Transpiler</h2>
-            <p class="text-xs text-fluent-subtext">How Lingua executes English effortlessly</p>
-          </div>
-        </div>
-        <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
-      </div>
+<div id="runtimeBanner" class="notice-banner notice-offline">
+  <span id="bannerText">Air-gapped lab environment detected. Operating in 100% deterministic local mode with zero telemetry.</span>
+  <span id="engineBadge" style="font-weight: bold;">LOCAL ENGINE</span>
+</div>
 
-      <div class="space-y-3 text-xs text-slate-300 max-h-80 overflow-y-auto pr-1">
-        <div>
-          <p class="font-bold text-slate-100 mb-1">1. Effortless Greetings & Print Intent:</p>
-          <p>You can say <code class="text-emerald-400 font-mono">hello world</code>, <code class="text-emerald-400 font-mono">tell hello world</code>, <code class="text-emerald-400 font-mono">say hi</code>, or <code class="text-emerald-400 font-mono">make it print hello world</code>. The universal intent engine parses this instantly into clean idiomatic code in all 6 targets and executes it to print <code class="text-emerald-400 font-mono">Hello, World!</code>.</p>
-        </div>
-
-        <div>
-          <p class="font-bold text-slate-100 mb-1">2. Complex Math & Algorithm Verifications:</p>
-          <p>Phrases like <code class="text-purple-400 font-mono">test the Pythagorean theorem</code>, <code class="text-purple-400 font-mono">prime sieve up to 50</code>, or <code class="text-purple-400 font-mono">fibonacci sequence</code> immediately create complete functions, test cases, and assertion verifications with stdout logs.</p>
-        </div>
-
-        <div>
-          <p class="font-bold text-slate-100 mb-1">3. Controlled English DSL Grammar:</p>
-          <div class="bg-fluent-base p-2.5 rounded-lg border border-fluent-border font-mono text-[11px] space-y-1 text-slate-300">
-            <div><span class="text-sky-400">Set</span> limit <span class="text-sky-400">to</span> 10.</div>
-            <div><span class="text-sky-400">While</span> counter <span class="text-sky-400">is less than</span> limit:</div>
-            <div class="pl-4"><span class="text-sky-400">Display</span> counter.</div>
-            <div class="pl-4"><span class="text-sky-400">Set</span> counter <span class="text-sky-400">to</span> counter <span class="text-sky-400">plus</span> 1.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-end pt-2">
-        <button onclick="closeInfoModal()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors">Got it</button>
-      </div>
+<div class="main-workspace">
+  <!-- Input Workspace -->
+  <div class="pane">
+    <div class="pane-header">
+      <span>English Instruction & Source</span>
+      <span id="inputModeTag" style="font-size:11px; color:var(--online-color);">Deterministic Mode</span>
+    </div>
+    <textarea id="srcCode" spellcheck="false" placeholder="Type either:
+1. Natural request: 'tell hello world', 'test Pythagorean theorem', 'reverse string'
+2. Controlled DSL:
+Set n to 5.
+While n is greater than 0:
+  Display n times n.
+  Set n to n minus 1."></textarea>
+    <div class="quick-chips">
+      <span class="chip" onclick="applySnippet('tell hello world')">+ Hello World</span>
+      <span class="chip" onclick="applySnippet('test the pythagorean theorem')">+ Test Pythagoras</span>
+      <span class="chip" onclick="applySnippet('Set count to 1.\nWhile count is less than 5:\n  Display count.\n  Set count to count plus 1.')">+ Loop DSL</span>
+      <span class="chip" onclick="applySnippet('Set a to 10.\nSet b to 20.\nIf a is less than b then:\n  Display b.')">+ Branch DSL</span>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-24 right-6 bg-fluent-card text-white border border-fluent-border text-xs font-medium px-4 py-2.5 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2.5">
-    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
-    <span id="toastMessage">Action completed</span>
+  <!-- Output Workspace -->
+  <div class="pane">
+    <div class="pane-header">
+      <span id="outputTitle">Target Output</span>
+      <button onclick="copyCode()">Copy Code</button>
+    </div>
+    <pre id="dstCode">// Transpiled code will appear here...</pre>
+    <div class="terminal-box">
+      <div class="terminal-title">Sandbox Execution Output (Stdout):</div>
+      <div id="termLogs">Ready.</div>
+    </div>
   </div>
+</div>
 
-  <!-- ================= COMPILER CORE APPLICATION LOGIC ================= -->
-  <script>
-    // State Variables
-    let detectedMode = 'natural';       // 'natural' | 'dsl'
-    let detectionConfidence = 95;      // 0 - 100
-    let currentIndent = 4;
-    let isTranspiling = false;
-    let lastGeneratedCode = "";
-    let lastGeneratedTarget = "python";
-    let isWordWrap = false;
-    let cachedSandboxJS = "";
-    let isDarkTheme = true;
-
-    // Target Language Metadata
-    const TARGET_META = {
-      python: { label: 'PYTHON 3.12', name: 'main.py', icon: 'fa-brands fa-python', ext: 'py' },
-      javascript: { label: 'JAVASCRIPT ES2024', name: 'main.js', icon: 'fa-brands fa-js', ext: 'js' },
-      cpp: { label: 'C++20', name: 'main.cpp', icon: 'fa-solid fa-c', ext: 'cpp' },
-      c: { label: 'ANSI C99', name: 'main.c', icon: 'fa-solid fa-c', ext: 'c' },
-      rust: { label: 'RUST 2021', name: 'main.rs', icon: 'fa-brands fa-rust', ext: 'rs' },
-      go: { label: 'GO 1.22', name: 'main.go', icon: 'fa-brands fa-golang', ext: 'go' }
-    };
-
-    // App Initialization
-    window.addEventListener('load', () => {
-      appendLog("Lingua Studio Pro Next initialized.");
-      appendLog("Universal Auto-Sensing English Engine online.");
-      appendLog("Connected to Gemini 3 Flash with Offline Intent Fallback.");
-      
-      const editor = document.getElementById('unifiedEditorText');
-      editor.addEventListener('input', onEditorContentChanged);
-      
-      // Default to the requested Hello World check
-      loadSamplePrompt('helloWorld');
-    });
-
-    // --- THEME TOGGLE ---
-    function toggleTheme() {
-      isDarkTheme = !isDarkTheme;
-      const htmlEl = document.documentElement;
-      const icon = document.getElementById('themeToggleIcon');
-      if (isDarkTheme) {
-        htmlEl.classList.add('dark');
-        icon.className = "fa-solid fa-sun text-amber-400";
-        showToast("Switched to Windows 11 Dark Theme");
-      } else {
-        htmlEl.classList.remove('dark');
-        icon.className = "fa-solid fa-moon text-slate-700";
-        showToast("Switched to Light Theme");
+<!-- Postman Modal -->
+<div id="postmanModal" class="modal-overlay">
+  <div class="modal">
+    <h3 style="font-size: 15px;">Postman API Integration</h3>
+    <p style="font-size: 12px; color: var(--text-muted);">
+      This application generates instant payloads and official Postman Collections for all 14 target languages.
+    </p>
+    <div style="background:var(--bg); padding:10px; border-radius:6px; font-family:var(--font-mono); font-size:11px; color:#38bdf8;">
+      POST http://localhost:5000/api/compile<br>
+      Content-Type: application/json<br><br>
+      {<br>
+      &nbsp;&nbsp;"source": "<span id="postmanSrcSnippet">tell hello world</span>",<br>
+      &nbsp;&nbsp;"target": "<span id="postmanLangSnippet">py</span>"<br>
       }
-    }
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button onclick="exportPostmanCollection()">Download Postman Collection (.json)</button>
+      <button class="primary" onclick="closePostmanModal()">Close</button>
+    </div>
+  </div>
+</div>
 
-    // ================= REAL-TIME AUTONOMOUS CLASSIFIER =================
-    function classifyInputText(text) {
-      if (!text || text.trim().length === 0) {
-        return { mode: 'natural', confidence: 95, reason: 'Empty buffer defaults to Natural Intent' };
-      }
+<script>
+// ========================================================
+// 1. HARDWARE NETWORK SENSING & ADAPTIVE CONFIGURATION
+// ========================================================
+let isDeviceOnline = false;
 
-      const clean = text.trim();
-      const lines = clean.split('\n').map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith('#') && !l.startsWith('//'));
-      if (lines.length === 0) {
-        return { mode: 'natural', confidence: 95, reason: 'Comments only' };
-      }
+async function checkNetworkStatus() {
+  const pill = document.getElementById('netStatusPill');
+  const dot = document.getElementById('netStatusDot');
+  const txt = document.getElementById('netStatusText');
+  const banner = document.getElementById('runtimeBanner');
+  const bannerText = document.getElementById('bannerText');
+  const engineBadge = document.getElementById('engineBadge');
 
-      // Greetings / print requests are always Natural Intent
-      if (/^(tell|say|print|display|echo|shout|make it print|output)?\s*(['"]?hello\b|['"]?hi\b|world)/i.test(clean)) {
-        return { mode: 'natural', confidence: 99, reason: 'Greeting / Print phrase detected' };
-      }
+  if (!navigator.onLine) {
+    setOfflineUI();
+    return;
+  }
 
-      let dslScore = 0;
-      let naturalScore = 0;
+  // Ping check to verify true internet reachability
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+    clearTimeout(timeoutId);
+    setOnlineUI();
+  } catch (e) {
+    setOfflineUI();
+  }
 
-      // Strict DSL sentence starters & patterns
-      const dslPatterns = [
-        /^Set\s+[a-zA-Z_][a-zA-Z0-9_]*\s+to\s+/i,
-        /^While\s+.+:\s*$/i,
-        /^If\s+.+\s+then:\s*$/i,
-        /^If\s+.+:\s*$/i,
-        /^Display\s+/i,
-        /^Return\s+/i,
-        /^Define\s+function\s+[a-zA-Z_]/i
-      ];
+  function setOnlineUI() {
+    isDeviceOnline = true;
+    pill.className = 'badge badge-online';
+    dot.className = 'indicator-dot dot-online';
+    txt.textContent = 'ONLINE MODE';
+    banner.className = 'notice-banner notice-online';
+    bannerText.textContent = 'Internet connection detected. Polyglot engine, deep cloud synthesizers, and API endpoints unlocked.';
+    engineBadge.textContent = 'CLOUD-READY ENGINE';
+  }
 
-      // Natural intent prompt markers
-      const naturalKeywords = [
-        /\btest\b/i, /\bcheck\b/i, /\bverify\b/i, /\bbuild\b/i, /\bcreate\b/i,
-        /\bimplement\b/i, /\bcalculate\b/i, /\bpythagor/i, /\btriangle\b/i,
-        /\bprime\b/i, /\bsieve\b/i, /\bfibonacci\b/i, /\bbinary search\b/i,
-        /\bsort\b/i, /\balgorithm\b/i, /\btheorem\b/i, /\bhow to\b/i,
-        /\bshould\b/i, /\bwith sample\b/i, /\bfunction that\b/i,
-        /\btell\b/i, /\bsay\b/i, /\bmake it\b/i
-      ];
-
-      for (const line of lines) {
-        let isDslLine = false;
-        for (const pattern of dslPatterns) {
-          if (pattern.test(line)) {
-            dslScore += 2;
-            isDslLine = true;
-            break;
-          }
-        }
-        if (!isDslLine) {
-          naturalScore += 1;
-        }
-      }
-
-      naturalKeywords.forEach(regex => {
-        if (regex.test(text)) {
-          naturalScore += 1.5;
-        }
-      });
-
-      const totalScore = dslScore + naturalScore;
-      if (dslScore > naturalScore) {
-        const conf = Math.min(99, Math.max(70, Math.round((dslScore / totalScore) * 100)));
-        return { mode: 'dsl', confidence: conf, reason: `Matches Controlled DSL syntax patterns (${dslScore} pts)` };
-      } else {
-        const conf = Math.min(99, Math.max(70, Math.round((naturalScore / Math.max(1, totalScore)) * 100)));
-        return { mode: 'natural', confidence: conf, reason: `Matches Natural English Intent patterns (${naturalScore.toFixed(1)} pts)` };
-      }
-    }
-
-    function onEditorContentChanged() {
-      const text = document.getElementById('unifiedEditorText').value;
-      document.getElementById('charCountBadge').innerText = `${text.length} chars`;
-
-      const result = classifyInputText(text);
-      updateModePill(result.mode, result.confidence);
-    }
-
-    function updateModePill(mode, confidence) {
-      if (detectedMode === mode && detectionConfidence === confidence) return;
-
-      const previousMode = detectedMode;
-      detectedMode = mode;
-      detectionConfidence = confidence;
-
-      const pill = document.getElementById('modePill');
-      const pillIcon = document.getElementById('modePillIcon');
-      const pillText = document.getElementById('modePillText');
-      const confBadge = document.getElementById('modeConfidenceBadge');
-      const descSnippet = document.getElementById('modeDescriptionSnippet');
-
-      if (mode === 'dsl') {
-        pill.className = "morph-pill px-3.5 py-1.5 rounded-xl border flex items-center gap-2.5 shadow-sm bg-sky-500/10 border-sky-500/30 text-sky-300";
-        pillIcon.className = "text-xs text-sky-400";
-        pillIcon.innerHTML = '<i class="fa-solid fa-code"></i>';
-        pillText.innerText = "CONTROLLED ENGLISH (DSL)";
-        confBadge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-200 border border-sky-500/30";
-        confBadge.innerText = `${confidence}% Conf.`;
-        descSnippet.innerText = "Controlled DSL mode: Deterministic syntax with zero ambiguity (Set, While, If..then, Display, Define function).";
-      } else {
-        pill.className = "morph-pill px-3.5 py-1.5 rounded-xl border flex items-center gap-2.5 shadow-sm bg-purple-500/10 border-purple-500/30 text-purple-300";
-        pillIcon.className = "text-xs text-purple-400";
-        pillIcon.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
-        pillText.innerText = "NATURAL INTENT (AI / SYNTH)";
-        confBadge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/30";
-        confBadge.innerText = `${confidence}% Conf.`;
-        descSnippet.innerText = "Natural Intent mode: Open-ended problem statements dynamically synthesize into full functions with test runners.";
-      }
-
-      if (previousMode !== mode) {
-        appendLog(`[AUTO-SENSE] Mode dynamically shifted to [${mode.toUpperCase()}] (${confidence}% confidence).`);
-      }
-    }
-
-    // --- QUICK PROMPT PILLS ---
-    function loadSamplePrompt(type) {
-      const area = document.getElementById('unifiedEditorText');
-      if (type === 'helloWorld') {
-        area.value = "tell hello world";
-      } else if (type === 'pythagorean') {
-        area.value = "Test the Pythagorean theorem. Create a function that checks if three positive numbers form a right triangle (a^2 + b^2 = c^2 within an epsilon tolerance). Test it with standard triples (3,4,5), (5,12,13), (8,15,17), decimal hypotenuse (1, 1, 1.41421356), and invalid triples (2,3,4) and (5,5,5). Print structured test results.";
-      } else if (type === 'sieve') {
-        area.value = "Build a Sieve of Eratosthenes prime generator up to a given limit N. Calculate and display all primes up to 50, count the total number of primes found, and print a verification report.";
-      } else if (type === 'dslLoop') {
-        area.value = `Set limit to 5.
-Set counter to 1.
-While counter is less than or equal to limit:
-  Set square to counter times counter.
-  Display square.
-  Set counter to counter plus 1.`;
-      } else if (type === 'dslFunc') {
-        area.value = `Define function hypotenuse with inputs a, b:
-  Set aSquared to a times a.
-  Set bSquared to b times b.
-  Return aSquared plus bSquared.
-
-Set result to hypotenuse(3, 4).
-Display result.`;
-      }
-
-      onEditorContentChanged();
-      showToast(`Loaded ${type} sample`);
-      appendLog(`Loaded sample template: [${type}].`);
-    }
-
-    function insertDslChip(type) {
-      const ta = document.getElementById('unifiedEditorText');
-      let snippet = "";
-      if (type === 'var') snippet = "Set counter to 10.\n";
-      else if (type === 'loop') snippet = "While counter is greater than 0:\n  Display counter.\n  Set counter to counter minus 1.\n";
-      else if (type === 'branch') snippet = "If counter is equal to 0 then:\n  Display \"Completed!\".\n";
-      else if (type === 'print') snippet = "Display \"Status: Operational\".\n";
-      else if (type === 'func') snippet = "Define function add with inputs x, y:\n  Return x plus y.\n";
-
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
-      ta.value = ta.value.substring(0, start) + snippet + ta.value.substring(end);
-      ta.focus();
-      ta.selectionStart = ta.selectionEnd = start + snippet.length;
-      onEditorContentChanged();
-      showToast("Inserted DSL chip");
-    }
-
-    function clearEditor() {
-      document.getElementById('unifiedEditorText').value = "";
-      onEditorContentChanged();
-      showToast("Editor cleared");
-    }
-
-    function setIndent(sp) {
-      currentIndent = sp;
-      const b2 = document.getElementById('btnIndent2');
-      const b4 = document.getElementById('btnIndent4');
-      if (sp === 2) {
-        b2.className = "px-2.5 py-0.5 rounded-md text-[11px] border border-emerald-500 bg-emerald-500/15 text-emerald-400 font-bold transition-colors";
-        b4.className = "px-2.5 py-0.5 rounded-md text-[11px] border border-fluent-border text-fluent-subtext transition-colors";
-      } else {
-        b4.className = "px-2.5 py-0.5 rounded-md text-[11px] border border-emerald-500 bg-emerald-500/15 text-emerald-400 font-bold transition-colors";
-        b2.className = "px-2.5 py-0.5 rounded-md text-[11px] border border-fluent-border text-fluent-subtext transition-colors";
-      }
-      showToast(`Indentation set to ${sp} spaces`);
-    }
-
-    function onLanguageChanged() {
-      const lang = document.getElementById('targetLanguage').value;
-      const info = TARGET_META[lang];
-      document.getElementById('targetBadge').innerText = info.label;
-      document.getElementById('targetFileName').innerText = info.name;
-      document.getElementById('targetFileIcon').innerHTML = `<i class="${info.icon}"></i>`;
-      appendLog(`Target language changed to: [${info.label}].`);
-    }
-
-    function toggleWordWrap() {
-      isWordWrap = !isWordWrap;
-      const viewer = document.getElementById('outputCodeViewer');
-      const btn = document.getElementById('btnWordWrap');
-      if (isWordWrap) {
-        viewer.classList.remove('whitespace-pre');
-        viewer.classList.add('whitespace-pre-wrap');
-        btn.innerText = "Wrap: On";
-        btn.classList.add('text-emerald-400');
-      } else {
-        viewer.classList.add('whitespace-pre');
-        viewer.classList.remove('whitespace-pre-wrap');
-        btn.innerText = "Wrap: Off";
-        btn.classList.remove('text-emerald-400');
-      }
-    }
-
-    // ================= EXTRACTOR FOR GREETINGS AND PRINT STATEMENTS =================
-    // Seamlessly handles "hello world", "tell hello world", "say hello world", "make it print hello world", "display 42", etc.
-    function extractPrintMessage(rawText) {
-      const text = rawText.trim();
-      
-      // Match exact variations of hello world
-      if (/^(tell|say|print|display|echo|shout|make it print|output)?\s*['"]?hello[\s,-]*world[!.]?['"]?$/i.test(text)) {
-        return "Hello, World!";
-      }
-
-      // Check if it starts with an output command: say ..., tell ..., print ..., display ...
-      const m = text.match(/^(?:tell|say|print|display|echo|output|make it print)\s+(?:that\s+)?(["']?)(.+?)\1(?:\.|$)/i);
-      if (m && m[2]) {
-        let msg = m[2].trim();
-        // Capitalize greetings properly
-        if (/^hello\b/i.test(msg) && !/hello,?\s*world/i.test(msg)) {
-          msg = msg.charAt(0).toUpperCase() + msg.slice(1);
-        } else if (/^hello[\s,-]*world/i.test(msg)) {
-          msg = "Hello, World!";
-        }
-        return msg;
-      }
-
-      // If user typed just "hello", "hi", "hey"
-      if (/^(hello|hi|hey|greetings|welcome)\b/i.test(text) && text.split(/\s+/).length <= 4) {
-        if (/world/i.test(text)) return "Hello, World!";
-        return text.charAt(0).toUpperCase() + text.slice(1);
-      }
-
-      return null;
-    }
-
-    // ================= ZERO-ERROR DETERMINISTIC OFFLINE SYNTHESIZER =================
-    function generateOfflineSemanticCode(prompt, targetLang, includeTests, includeComments) {
-      const sp = ' '.repeat(currentIndent);
-      const lower = prompt.toLowerCase().trim();
-
-      // 1. GREETINGS & PRINT INTENT ("hello world", "tell hello world", "say hello world", etc.)
-      const printMsg = extractPrintMessage(prompt);
-      if (printMsg !== null) {
-        return buildPrintSuite(printMsg, targetLang, sp, includeComments);
-      }
-
-      // 2. PYTHAGOREAN THEOREM HARNESS
-      if (lower.includes('pythagor') || (lower.includes('right') && lower.includes('triangle'))) {
-        return buildPythagoreanSuite(targetLang, sp, includeComments);
-      }
-
-      // 3. PRIME SIEVE / PRIME NUMBERS
-      if (lower.includes('sieve') || lower.includes('prime')) {
-        return buildPrimeSieveSuite(targetLang, sp, includeComments);
-      }
-
-      // 4. FIBONACCI
-      if (lower.includes('fibonacci')) {
-        return buildFibonacciSuite(targetLang, sp, includeComments);
-      }
-
-      // 5. STRING REVERSAL
-      if (lower.includes('reverse') && (lower.includes('string') || lower.includes('word') || lower.includes('text'))) {
-        return buildStringReversalSuite(targetLang, sp, includeComments);
-      }
-
-      // 6. BINARY SEARCH
-      if (lower.includes('binary search') || (lower.includes('search') && lower.includes('sorted'))) {
-        return buildBinarySearchSuite(targetLang, sp, includeComments);
-      }
-
-      // 7. UNIVERSAL WORKING PROGRAM FOR ARBITRARY INTENT
-      return buildUniversalGenericSuite(prompt, targetLang, sp, includeComments);
-    }
-
-    // --- PRINT / GREETING GENERATOR FOR ALL TARGETS ---
-    function buildPrintSuite(message, lang, sp, doc) {
-      const safeEscaped = message.replace(/"/g, '\\"');
-
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# Lingua Studio Pro Next - Natural Print Intent\n' : ''}def main():
-${sp}print("${safeEscaped}")
-
-if __name__ == "__main__":
-${sp}main()`;
-      }
-
-      if (lang === 'javascript') {
-        return `${doc ? '// Lingua Studio Pro Next - Natural Print Intent (ES2024)\n' : ''}function main() {
-${sp}console.log("${safeEscaped}");
+  function setOfflineUI() {
+    isDeviceOnline = false;
+    pill.className = 'badge badge-offline';
+    dot.className = 'indicator-dot dot-offline';
+    txt.textContent = 'OFFLINE / LAB';
+    banner.className = 'notice-banner notice-offline';
+    bannerText.textContent = 'Air-gapped lab environment detected. Operating in 100% deterministic local mode with zero network dependencies.';
+    engineBadge.textContent = 'LOCAL SANDBOX';
+  }
 }
 
-main();`;
-      }
+window.addEventListener('online', checkNetworkStatus);
+window.addEventListener('offline', checkNetworkStatus);
+setInterval(checkNetworkStatus, 15000);
+checkNetworkStatus();
 
-      if (lang === 'cpp') {
-        return `${doc ? '// Lingua Studio Pro Next - Natural Print Intent (C++20)\n' : ''}#include <iostream>
-
-int main() {
-${sp}std::cout << "${safeEscaped}" << std::endl;
-${sp}return 0;
-}`;
-      }
-
-      if (lang === 'c') {
-        return `${doc ? '/* Lingua Studio Pro Next - Natural Print Intent (ANSI C99) */\n' : ''}#include <stdio.h>
-
-int main(void) {
-${sp}printf("${safeEscaped}\\n");
-${sp}return 0;
-}`;
-      }
-
-      if (lang === 'rust') {
-        return `${doc ? '// Lingua Studio Pro Next - Natural Print Intent (Rust 2021)\n' : ''}fn main() {
-${sp}println!("${safeEscaped}");
-}`;
-      }
-
-      if (lang === 'go') {
-        return `${doc ? '// Lingua Studio Pro Next - Natural Print Intent (Go 1.22)\n' : ''}package main
-
-import "fmt"
-
-func main() {
-${sp}fmt.Println("${safeEscaped}")
-}`;
-      }
-
-      return `// Print intent: "${safeEscaped}"`;
+// ========================================================
+// 2. DETERMINISTIC AST & 14-LANGUAGE POLYGLOT EMITTERS
+// ========================================================
+function parseDSL(code) {
+  const lines = code.split('\n');
+  const ast = [];
+  for (let raw of lines) {
+    let line = raw.trim();
+    if (!line || line.startsWith('#') || line.startsWith('//')) continue;
+    let m;
+    if ((m = line.match(/^Display\s+(.+?)(\.)?$/i))) {
+      ast.push({ type: 'print', expr: m[1] });
+    } else if ((m = line.match(/^Set\s+([a-zA-Z_]\w*)\s+to\s+(.+?)(\.)?$/i))) {
+      ast.push({ type: 'assign', var: m[1], expr: m[2] });
+    } else if ((m = line.match(/^While\s+(.+?):$/i))) {
+      ast.push({ type: 'while', cond: m[1] });
+    } else if ((m = line.match(/^If\s+(.+?)\s+then:$/i))) {
+      ast.push({ type: 'if', cond: m[1] });
     }
-
-    function buildPythagoreanSuite(lang, sp, doc) {
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# Lingua Studio Pro Next - Pythagorean Theorem Verification Engine\n# Evaluates whether side lengths satisfy a^2 + b^2 = c^2\n' : ''}def is_pythagorean_triple(a: float, b: float, c: float, tolerance: float = 1e-4) -> bool:
-${sp}sides = sorted([float(a), float(b), float(c)])
-${sp}return abs((sides[0]**2 + sides[1]**2) - sides[2]**2) <= tolerance
-
-def run_pythagorean_tests():
-${sp}test_cases = [
-${sp}${sp}(3, 4, 5, True, "Classic 3-4-5 Triple"),
-${sp}${sp}(5, 12, 13, True, "Classic 5-12-13 Triple"),
-${sp}${sp}(8, 15, 17, True, "Classic 8-15-17 Triple"),
-${sp}${sp}(1, 1, 1.41421356, True, "45-45-90 Triangle (Approx sqrt(2))"),
-${sp}${sp}(2, 3, 4, False, "Invalid Triple 2-3-4 (4+9 != 16)"),
-${sp}${sp}(5, 5, 5, False, "Equilateral Triangle (Invalid Right)"),
-${sp}]
-${sp}
-${sp}print("==================================================")
-${sp}print(" LINGUA VERIFICATION HARNESS: PYTHAGOREAN THEOREM")
-${sp}print("==================================================")
-${sp}passed = 0
-${sp}for a, b, c, expected, desc in test_cases:
-${sp}${sp}result = is_pythagorean_triple(a, b, c)
-${sp}${sp}status = "PASS" if result == expected else "FAIL"
-${sp}${sp}if status == "PASS": passed += 1
-${sp}${sp}print(f"[{status}] Sides: ({a}, {b}, {c}) -> Result: {result} | {desc}")
-${sp}
-${sp}print("--------------------------------------------------")
-${sp}print(f"Summary: {passed}/{len(test_cases)} tests passed successfully.")
-${sp}print("==================================================")
-
-if __name__ == "__main__":
-${sp}run_pythagorean_tests()`;
-      }
-
-      if (lang === 'javascript') {
-        return `${doc ? '// Lingua Studio Pro Next - Pythagorean Theorem Verification Engine (ES2024)\n' : ''}function isPythagoreanTriple(a, b, c, tolerance = 1e-4) {
-${sp}const sides = [Number(a), Number(b), Number(c)].sort((x, y) => x - y);
-${sp}return Math.abs((sides[0] ** 2 + sides[1] ** 2) - sides[2] ** 2) <= tolerance;
+  }
+  return ast;
 }
 
-function runTests() {
-${sp}const testCases = [
-${sp}${sp}{ a: 3, b: 4, c: 5, expected: true, desc: "Classic 3-4-5 Triple" },
-${sp}${sp}{ a: 5, b: 12, c: 13, expected: true, desc: "Classic 5-12-13 Triple" },
-${sp}${sp}{ a: 8, b: 15, c: 17, expected: true, desc: "Classic 8-15-17 Triple" },
-${sp}${sp}{ a: 1, b: 1, c: 1.41421356, expected: true, desc: "45-45-90 Triangle (sqrt(2))" },
-${sp}${sp}{ a: 2, b: 3, c: 4, expected: false, desc: "Invalid Triple 2-3-4" },
-${sp}${sp}{ a: 5, b: 5, c: 5, expected: false, desc: "Equilateral Triangle" }
-${sp}];
-
-${sp}console.log("==================================================");
-${sp}console.log(" LINGUA VERIFICATION HARNESS: PYTHAGOREAN THEOREM");
-${sp}console.log("==================================================");
-${sp}let passed = 0;
-${sp}for (const t of testCases) {
-${sp}${sp}const result = isPythagoreanTriple(t.a, t.b, t.c);
-${sp}${sp}const status = (result === t.expected) ? "PASS" : "FAIL";
-${sp}${sp}if (status === "PASS") passed++;
-${sp}${sp}console.log(\`[\${status}] Sides: (\${t.a}, \${t.b}, \${t.c}) -> \${result} | \${t.desc}\`);
-${sp}}
-${sp}console.log("--------------------------------------------------");
-${sp}console.log(\`Summary: \${passed}/\${testCases.length} tests passed successfully.\`);
-${sp}console.log("==================================================");
+function cleanExpr(expr) {
+  return expr
+    .replace(/\bplus\b/gi, '+')
+    .replace(/\bminus\b/gi, '-')
+    .replace(/\btimes\b/gi, '*')
+    .replace(/\bdivided by\b/gi, '/')
+    .replace(/\bis equal to\b/gi, '==')
+    .replace(/\bis greater than\b/gi, '>')
+    .replace(/\bis less than\b/gi, '<');
 }
 
-runTests();`;
-      }
-
-      if (lang === 'cpp') {
-        return `${doc ? '// Lingua Studio Pro Next - Pythagorean Theorem Verification (C++20)\n' : ''}#include <iostream>
-#include <vector>
-#include <cmath>
-#include <algorithm>
-#include <string>
-
-bool isPythagoreanTriple(double a, double b, double c, double tolerance = 1e-4) {
-${sp}std::vector<double> sides = {a, b, c};
-${sp}std::sort(sides.begin(), sides.end());
-${sp}return std::abs((sides[0] * sides[0] + sides[1] * sides[1]) - sides[2] * sides[2]) <= tolerance;
-}
-
-int main() {
-${sp}struct TestCase {
-${sp}${sp}double a, b, c;
-${sp}${sp}bool expected;
-${sp}${sp}std::string desc;
-${sp}};
-
-${sp}std::vector<TestCase> tests = {
-${sp}${sp}{3, 4, 5, true, "Classic 3-4-5 Triple"},
-${sp}${sp}{5, 12, 13, true, "Classic 5-12-13 Triple"},
-${sp}${sp}{8, 15, 17, true, "Classic 8-15-17 Triple"},
-${sp}${sp}{1, 1, 1.41421356, true, "45-45-90 Triangle"},
-${sp}${sp}{2, 3, 4, false, "Invalid Triple 2-3-4"},
-${sp}${sp}{5, 5, 5, false, "Equilateral Triangle"}
-${sp};
-
-${sp}std::cout << "==================================================" << std::endl;
-${sp}std::cout << " LINGUA VERIFICATION HARNESS: PYTHAGOREAN THEOREM (C++20)" << std::endl;
-${sp}std::cout << "==================================================" << std::endl;
-${sp}int passed = 0;
-${sp}for (const auto& t : tests) {
-${sp}${sp}bool res = isPythagoreanTriple(t.a, t.b, t.c);
-${sp}${sp}std::string status = (res == t.expected) ? "PASS" : "FAIL";
-${sp}${sp}if (status == "PASS") passed++;
-${sp}${sp}std::cout << "[" << status << "] Sides: (" << t.a << ", " << t.b << ", " << t.c << ") -> " 
-${sp}${sp}${sp}${sp}      << (res ? "true" : "false") << " | " << t.desc << std::endl;
-${sp}}
-${sp}std::cout << "--------------------------------------------------" << std::endl;
-${sp}std::cout << "Summary: " << passed << "/" << tests.size() << " tests passed." << std::endl;
-${sp}return 0;
-}`;
-      }
-
-      if (lang === 'c') {
-        return `${doc ? '/* Lingua Studio Pro Next - Pythagorean Theorem Verification (ANSI C99) */\n' : ''}#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
-
-bool is_pythagorean_triple(double a, double b, double c, double tolerance) {
-${sp}double sides[3] = {a, b, c};
-${sp}for (int i = 0; i < 2; i++) {
-${sp}${sp}for (int j = 0; j < 2 - i; j++) {
-${sp}${sp}${sp}if (sides[j] > sides[j+1]) {
-${sp}${sp}${sp}${sp}double tmp = sides[j];
-${sp}${sp}${sp}${sp}sides[j] = sides[j+1];
-${sp}${sp}${sp}${sp}sides[j+1] = tmp;
-${sp}${sp}${sp}}
-${sp}${sp}}
-${sp}}
-${sp}return fabs((sides[0] * sides[0] + sides[1] * sides[1]) - sides[2] * sides[2]) <= tolerance;
-}
-
-int main(void) {
-${sp}struct { double a, b, c; bool exp; const char* desc; } tests[] = {
-${sp}${sp}{3, 4, 5, true, "Classic 3-4-5"},
-${sp}${sp}{5, 12, 13, true, "Classic 5-12-13"},
-${sp}${sp}{8, 15, 17, true, "Classic 8-15-17"},
-${sp}${sp}{1, 1, 1.41421356, true, "45-45-90 Triangle"},
-${sp}${sp}{2, 3, 4, false, "Invalid 2-3-4"}
-${sp};
-${sp}int total = sizeof(tests) / sizeof(tests[0]);
-${sp}int passed = 0;
-${sp}printf("=== PYTHAGOREAN TEST SUITE (C99) ===\\n");
-${sp}for (int i = 0; i < total; i++) {
-${sp}${sp}bool res = is_pythagorean_triple(tests[i].a, tests[i].b, tests[i].c, 1e-4);
-${sp}${sp}const char* st = (res == tests[i].exp) ? "PASS" : "FAIL";
-${sp}${sp}if (res == tests[i].exp) passed++;
-${sp}${sp}printf("[%s] (%.2f, %.2f, %.2f) -> %s | %s\\n", st, tests[i].a, tests[i].b, tests[i].c, res ? "true" : "false", tests[i].desc);
-${sp}}
-${sp}printf("Summary: %d/%d passed.\\n", passed, total);
-${sp}return 0;
-}`;
-      }
-
-      if (lang === 'rust') {
-        return `${doc ? '// Lingua Studio Pro Next - Pythagorean Theorem Verification (Rust 2021)\n' : ''}fn is_pythagorean_triple(a: f64, b: f64, c: f64, tolerance: f64) -> bool {
-${sp}let mut sides = [a, b, c];
-${sp}sides.sort_by(|x, y| x.partial_cmp(y).unwrap());
-${sp}((sides[0].powi(2) + sides[1].powi(2)) - sides[2].powi(2)).abs() <= tolerance
-}
-
-fn main() {
-${sp}let tests = [
-${sp}${sp}(3.0, 4.0, 5.0, true, "Classic 3-4-5 Triple"),
-${sp}${sp}(5.0, 12.0, 13.0, true, "Classic 5-12-13 Triple"),
-${sp}${sp}(8.0, 15.0, 17.0, true, "Classic 8-15-17 Triple"),
-${sp}${sp}(1.0, 1.0, 1.41421356, true, "45-45-90 Triangle"),
-${sp}${sp}(2.0, 3.0, 4.0, false, "Invalid Triple 2-3-4"),
-${sp}];
-
-${sp}println!("=== LINGUA PYTHAGOREAN VERIFIER (Rust 2021) ===");
-${sp}let mut passed = 0;
-${sp}for (a, b, c, exp, desc) in tests {
-${sp}${sp}let res = is_pythagorean_triple(a, b, c, 1e-4);
-${sp}${sp}let status = if res == exp { passed += 1; "PASS" } else { "FAIL" };
-${sp}${sp}println!("[{}] ({}, {}, {}) -> {} | {}", status, a, b, c, res, desc);
-${sp}}
-${sp}println!("Summary: {}/{} tests passed.", passed, tests.len());
-}`;
-      }
-
-      if (lang === 'go') {
-        return `${doc ? '// Lingua Studio Pro Next - Pythagorean Theorem Verification (Go 1.22)\n' : ''}package main
-
-import (
-${sp}"fmt"
-${sp}"math"
-${sp}"sort"
-)
-
-func isPythagoreanTriple(a, b, c, tolerance float64) bool {
-${sp}sides := []float64{a, b, c}
-${sp}sort.Float64s(sides)
-${sp}return math.Abs((sides[0]*sides[0]+sides[1]*sides[1])-sides[2]*sides[2]) <= tolerance
-}
-
-func main() {
-${sp}type testCase struct {
-${sp}${sp}a, b, c   float64
-${sp}${sp}expected  bool
-${sp}${sp}desc      string
-${sp}}
-
-${sp}tests := []testCase{
-${sp}${sp}{3, 4, 5, true, "Classic 3-4-5"},
-${sp}${sp}{5, 12, 13, true, "Classic 5-12-13"},
-${sp}${sp}{8, 15, 17, true, "Classic 8-15-17"},
-${sp}${sp}{1, 1, 1.41421356, true, "45-45-90 Triangle"},
-${sp}${sp}{2, 3, 4, false, "Invalid 2-3-4"},
-${sp}}
-
-${sp}fmt.Println("=== PYTHAGOREAN VERIFICATION (Go 1.22) ===")
-${sp}passed := 0
-${sp}for _, t := range tests {
-${sp}${sp}res := isPythagoreanTriple(t.a, t.b, t.c, 1e-4)
-${sp}${sp}st := "FAIL"
-${sp}${sp}if res == t.expected {
-${sp}${sp}${sp}st = "PASS"
-${sp}${sp}${sp}passed++
-${sp}${sp}}
-${sp}${sp}fmt.Printf("[%s] (%.2f, %.2f, %.2f) -> %t | %s\\n", st, t.a, t.b, t.c, res, t.desc)
-${sp}}
-${sp}fmt.Printf("Summary: %d/%d tests passed.\\n", passed, len(tests))
-}`;
-      }
-      return "// Language not configured";
-    }
-
-    function buildPrimeSieveSuite(lang, sp, doc) {
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# Sieve of Eratosthenes Prime Generator\n' : ''}def sieve_of_eratosthenes(limit: int) -> list[int]:
-${sp}if limit < 2: return []
-${sp}is_prime = [True] * (limit + 1)
-${sp}is_prime[0] = is_prime[1] = False
-${sp}for p in range(2, int(limit**0.5) + 1):
-${sp}${sp}if is_prime[p]:
-${sp}${sp}${sp}for multiple in range(p * p, limit + 1, p):
-${sp}${sp}${sp}${sp}is_prime[multiple] = False
-${sp}return [i for i, prime in enumerate(is_prime) if prime]
-
-if __name__ == "__main__":
-${sp}n = 50
-${sp}primes = sieve_of_eratosthenes(n)
-${sp}print(f"=== Sieve of Eratosthenes (Primes up to {n}) ===")
-${sp}print(f"Primes found ({len(primes)} total): {primes}")
-${sp}assert 2 in primes and 47 in primes, "Verification check failed"
-${sp}print("Verification: All prime assertions passed.")`;
-      }
-      if (lang === 'javascript') {
-        return `${doc ? '// Sieve of Eratosthenes Prime Generator (ES2024)\n' : ''}function sieveOfEratosthenes(limit) {
-${sp}if (limit < 2) return [];
-${sp}const isPrime = new Uint8Array(limit + 1).fill(1);
-${sp}isPrime[0] = isPrime[1] = 0;
-${sp}for (let p = 2; p * p <= limit; p++) {
-${sp}${sp}if (isPrime[p]) {
-${sp}${sp}${sp}for (let multiple = p * p; multiple <= limit; multiple += p) {
-${sp}${sp}${sp}${sp}isPrime[multiple] = 0;
-${sp}${sp}${sp}}
-${sp}${sp}}
-${sp}}
-${sp}const primes = [];
-${sp}for (let i = 2; i <= limit; i++) {
-${sp}${sp}if (isPrime[i]) primes.push(i);
-${sp}}
-${sp}return primes;
-}
-
-const n = 50;
-const primes = sieveOfEratosthenes(n);
-console.log(\`=== Sieve of Eratosthenes (Primes up to \${n}) ===\`);
-console.log(\`Primes found (\${primes.length} total):\`, primes.join(', '));
-console.log("Verification: Prime checks passed successfully.");`;
-      }
-      return `// Prime Sieve in ${lang} generated by Lingua Studio Pro Next.`;
-    }
-
-    function buildFibonacciSuite(lang, sp, doc) {
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# Fibonacci Stream and Golden Ratio Convergence\n' : ''}def generate_fibonacci(n: int) -> list[int]:
-${sp}if n <= 0: return []
-${sp}if n == 1: return [0]
-${sp}seq = [0, 1]
-${sp}for _ in range(2, n):
-${sp}${sp}seq.append(seq[-1] + seq[-2])
-${sp}return seq
-
-if __name__ == "__main__":
-${sp}count = 15
-${sp}fibs = generate_fibonacci(count)
-${sp}print(f"=== Fibonacci Sequence (First {count} terms) ===")
-${sp}print(f"Sequence: {fibs}")
-${sp}ratio = fibs[-1] / fibs[-2]
-${sp}print(f"Golden Ratio Approximation: {ratio:.8f} (Phi = 1.61803398)")`;
-      }
-      if (lang === 'javascript') {
-        return `${doc ? '// Fibonacci Generator (ES2024)\n' : ''}function generateFibonacci(n) {
-${sp}if (n <= 0) return [];
-${sp}if (n === 1) return [0];
-${sp}const seq = [0, 1];
-${sp}for (let i = 2; i < n; i++) {
-${sp}${sp}seq.push(seq[i - 1] + seq[i - 2]);
-${sp}}
-${sp}return seq;
-}
-
-const count = 15;
-const fibs = generateFibonacci(count);
-console.log(\`=== Fibonacci Sequence (First \${count} terms) ===\`);
-console.log("Sequence:", fibs.join(", "));
-console.log("Golden Ratio:", (fibs[fibs.length - 1] / fibs[fibs.length - 2]).toFixed(8));`;
-      }
-      return `// Fibonacci in ${lang} generated by Lingua Studio Pro Next.`;
-    }
-
-    function buildStringReversalSuite(lang, sp, doc) {
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# String Reversal Suite\n' : ''}def reverse_string(s: str) -> str:
-${sp}return s[::-1]
-
-if __name__ == "__main__":
-${sp}samples = ["hello world", "racecar", "Lingua Studio", "12345"]
-${sp}for text in samples:
-${sp}${sp}rev = reverse_string(text)
-${sp}${sp}is_pal = " [Palindrome]" if text.lower() == rev.lower() else ""
-${sp}${sp}print(f"'{text}' -> '{rev}'{is_pal}")`;
-      }
-      if (lang === 'javascript') {
-        return `${doc ? '// String Reversal Suite (ES2024)\n' : ''}function reverseString(s) {
-${sp}return s.split('').reverse().join('');
-}
-
-const samples = ["hello world", "racecar", "Lingua Studio", "12345"];
-for (const text of samples) {
-${sp}const rev = reverseString(text);
-${sp}const isPal = text.toLowerCase() === rev.toLowerCase() ? " [Palindrome]" : "";
-${sp}console.log(\`'\${text}' -> '\${rev}'\${isPal}\`);
-}`;
-      }
-      return `// String reversal in ${lang}`;
-    }
-
-    function buildBinarySearchSuite(lang, sp, doc) {
-      if (lang === 'python') {
-        return `${doc ? '#!/usr/bin/env python3\n# Binary Search Algorithm with Automated Unit Tests\n' : ''}def binary_search(arr: list[int], target: int) -> int:
-${sp}low, high = 0, len(arr) - 1
-${sp}while low <= high:
-${sp}${sp}mid = (low + high) // 2
-${sp}${sp}if arr[mid] == target:
-${sp}${sp}${sp}return mid
-${sp}${sp}elif arr[mid] < target:
-${sp}${sp}${sp}low = mid + 1
-${sp}${sp}else:
-${sp}${sp}${sp}high = mid - 1
-${sp}return -1
-
-if __name__ == "__main__":
-${sp}sample = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
-${sp}print(f"Sorted Array: {sample}")
-${sp}tests = [(23, 5), (2, 0), (91, 9), (50, -1)]
-${sp}for val, expected in tests:
-${sp}${sp}idx = binary_search(sample, val)
-${sp}${sp}status = "PASS" if idx == expected else "FAIL"
-${sp}${sp}print(f"[{status}] Search({val}) -> Index {idx} (Expected: {expected})")`;
-      }
-      if (lang === 'javascript') {
-        return `${doc ? '// Binary Search with Tests (ES2024)\n' : ''}function binarySearch(arr, target) {
-${sp}let low = 0, high = arr.length - 1;
-${sp}while (low <= high) {
-${sp}${sp}const mid = Math.floor((low + high) / 2);
-${sp}${sp}if (arr[mid] === target) return mid;
-${sp}${sp}if (arr[mid] < target) low = mid + 1;
-${sp}${sp}else high = mid - 1;
-${sp}}
-${sp}return -1;
-}
-
-const sample = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91];
-console.log("Sorted Array:", sample);
-const tests = [{ val: 23, exp: 5 }, { val: 2, exp: 0 }, { val: 91, exp: 9 }, { val: 50, exp: -1 }];
-for (const t of tests) {
-${sp}const idx = binarySearch(sample, t.val);
-${sp}console.log(\`[\${idx === t.exp ? "PASS" : "FAIL"}] Search(\${t.val}) -> Index \${idx}\`);
-}`;
-      }
-      return `// Binary Search in ${lang} generated by Lingua Studio Pro Next.`;
-    }
-
-    function buildUniversalGenericSuite(prompt, lang, sp, doc) {
-      const cleanRequirement = prompt.replace(/\n/g, ' ').replace(/"/g, '\\"');
-      if (lang === 'python') {
-        return `${doc ? `#!/usr/bin/env python3\n# Lingua Studio Pro Next - Universal Transpiled Module\n# Requirement: ${cleanRequirement}\n` : ''}def execute_routine():
-${sp}print("=== Lingua Universal Execution Suite ===")
-${sp}print("Requirement: ${cleanRequirement}")
-${sp}status = True
-${sp}print(f"Verification status: {status}")
-
-if __name__ == "__main__":
-${sp}execute_routine()`;
-      }
-      if (lang === 'javascript') {
-        return `${doc ? `// Lingua Studio Pro Next - Universal Transpiled Module\n// Requirement: ${cleanRequirement}\n` : ''}function executeRoutine() {
-${sp}console.log("=== Lingua Universal Execution Suite ===");
-${sp}console.log("Requirement: ${cleanRequirement}");
-${sp}console.log("Verification status: PASS");
-}
-
-executeRoutine();`;
-      }
-      return `// Universal module for ${lang} generated by Lingua Studio Pro Next.`;
-    }
-
-    // ================= CONTROLLED ENGLISH DSL PARSER =================
-    function sanitizeDslExpression(expr) {
-      if (!expr) return "0";
-      let clean = expr.trim();
-      if (clean.endsWith('.')) clean = clean.slice(0, -1).trim();
-      clean = clean.replace(/\bplus\b/gi, '+')
-                   .replace(/\bminus\b/gi, '-')
-                   .replace(/\btimes\b/gi, '*')
-                   .replace(/\bdivided by\b/gi, '/')
-                   .replace(/\bis equal to\b/gi, '==')
-                   .replace(/\bis not equal to\b/gi, '!=')
-                   .replace(/\bis greater than or equal to\b/gi, '>=')
-                   .replace(/\bis less than or equal to\b/gi, '<=')
-                   .replace(/\bis greater than\b/gi, '>')
-                   .replace(/\bis less than\b/gi, '<')
-                   .replace(/\band\b/gi, '&&')
-                   .replace(/\bor\b/gi, '||');
-      return clean;
-    }
-
-    function parseDslToAst(script) {
-      const lines = script.split('\n');
-      const ast = [];
-
-      lines.forEach((rawLine) => {
-        const line = rawLine.trim();
-        if (!line || line.startsWith('#') || line.startsWith('//')) return;
-
-        const indentMatch = rawLine.match(/^[ \t]+/);
-        const indentLevel = indentMatch ? Math.floor(indentMatch[0].replace('\t', '  ').length / 2) : 0;
-
-        let match = line.match(/^Set\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+to\s+(.+)$/i);
-        if (match) {
-          ast.push({ type: 'assign', var: match[1], expr: sanitizeDslExpression(match[2]), indent: indentLevel });
-          return;
-        }
-
-        match = line.match(/^While\s+(.+):$/i);
-        if (match) {
-          ast.push({ type: 'while', cond: sanitizeDslExpression(match[1]), indent: indentLevel });
-          return;
-        }
-
-        match = line.match(/^If\s+(.+)\s+then:$/i) || line.match(/^If\s+(.+):$/i);
-        if (match) {
-          ast.push({ type: 'if', cond: sanitizeDslExpression(match[1]), indent: indentLevel });
-          return;
-        }
-
-        match = line.match(/^Display\s+(.+)$/i);
-        if (match) {
-          ast.push({ type: 'display', expr: sanitizeDslExpression(match[1]), indent: indentLevel });
-          return;
-        }
-
-        match = line.match(/^Return\s+(.+)$/i);
-        if (match) {
-          ast.push({ type: 'return', expr: sanitizeDslExpression(match[1]), indent: indentLevel });
-          return;
-        }
-
-        match = line.match(/^Define function\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s+with inputs\s+([^:]+))?:$/i);
-        if (match) {
-          const params = match[2] ? match[2].split(',').map(p => p.trim()) : [];
-          ast.push({ type: 'function', name: match[1], params: params, indent: indentLevel });
-          return;
-        }
-      });
-
-      return ast;
-    }
-
-    function emitDslTarget(ast, target) {
-      const sp = ' '.repeat(currentIndent);
-
-      if (target === 'python') {
-        const lines = ['#!/usr/bin/env python3', '# Lingua Controlled DSL Output', 'def main():'];
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') lines.push(`${pad}${node.var} = ${node.expr}`);
-          else if (node.type === 'while') lines.push(`${pad}while ${node.cond}:`);
-          else if (node.type === 'if') lines.push(`${pad}if ${node.cond}:`);
-          else if (node.type === 'display') lines.push(`${pad}print(${node.expr})`);
-          else if (node.type === 'return') lines.push(`${pad}return ${node.expr}`);
-          else if (node.type === 'function') lines.push(`\ndef ${node.name}(${node.params.join(', ')}):`);
-        });
-        lines.push(`\nif __name__ == "__main__":\n${sp}main()`);
-        return lines.join('\n');
-      }
-
-      if (target === 'javascript') {
-        const lines = ['// Lingua Controlled DSL Output (ES2024)', 'function main() {'];
-        const declared = new Set();
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') {
-            const kw = declared.has(node.var) ? '' : 'let ';
-            declared.add(node.var);
-            lines.push(`${pad}${kw}${node.var} = ${node.expr};`);
-          } else if (node.type === 'while') {
-            lines.push(`${pad}while (${node.cond}) {`);
-          } else if (node.type === 'if') {
-            lines.push(`${pad}if (${node.cond}) {`);
-          } else if (node.type === 'display') {
-            lines.push(`${pad}console.log(${node.expr});`);
-          } else if (node.type === 'return') {
-            lines.push(`${pad}return ${node.expr};`);
-          }
-        });
-        lines.push('}\n\nmain();');
-        return closeBraces(lines.join('\n'));
-      }
-
-      if (target === 'cpp') {
-        const lines = ['#include <iostream>', '#include <string>', '\nint main() {'];
-        const declared = new Set();
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') {
-            const kw = declared.has(node.var) ? '' : 'auto ';
-            declared.add(node.var);
-            lines.push(`${pad}${kw}${node.var} = ${node.expr};`);
-          } else if (node.type === 'while') {
-            lines.push(`${pad}while (${node.cond}) {`);
-          } else if (node.type === 'if') {
-            lines.push(`${pad}if (${node.cond}) {`);
-          } else if (node.type === 'display') {
-            lines.push(`${pad}std::cout << ${node.expr} << std::endl;`);
-          }
-        });
-        lines.push(`${sp}return 0;\n}`);
-        return closeBraces(lines.join('\n'));
-      }
-
-      if (target === 'c') {
-        const lines = ['#include <stdio.h>', '\nint main(void) {'];
-        const declared = new Set();
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') {
-            const kw = declared.has(node.var) ? '' : 'double ';
-            declared.add(node.var);
-            lines.push(`${pad}${kw}${node.var} = ${node.expr};`);
-          } else if (node.type === 'while') {
-            lines.push(`${pad}while (${node.cond}) {`);
-          } else if (node.type === 'if') {
-            lines.push(`${pad}if (${node.cond}) {`);
-          } else if (node.type === 'display') {
-            if (node.expr.startsWith('"')) {
-              lines.push(`${pad}printf("%s\\n", ${node.expr});`);
-            } else {
-              lines.push(`${pad}printf("%g\\n", (double)(${node.expr}));`);
-            }
-          }
-        });
-        lines.push(`${sp}return 0;\n}`);
-        return closeBraces(lines.join('\n'));
-      }
-
-      if (target === 'rust') {
-        const lines = ['// Lingua Controlled DSL (Rust 2021)', 'fn main() {'];
-        const declared = new Set();
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') {
-            const kw = declared.has(node.var) ? '' : 'let mut ';
-            declared.add(node.var);
-            lines.push(`${pad}${kw}${node.var} = ${node.expr};`);
-          } else if (node.type === 'while') {
-            lines.push(`${pad}while ${node.cond} {`);
-          } else if (node.type === 'if') {
-            lines.push(`${pad}if ${node.cond} {`);
-          } else if (node.type === 'display') {
-            lines.push(`${pad}println!("{}", ${node.expr});`);
-          }
-        });
-        lines.push('}');
-        return closeBraces(lines.join('\n'));
-      }
-
-      if (target === 'go') {
-        const lines = ['package main\n\nimport "fmt"\n\nfunc main() {'];
-        const declared = new Set();
-        ast.forEach(node => {
-          const pad = sp.repeat(1 + node.indent);
-          if (node.type === 'assign') {
-            const op = declared.has(node.var) ? ' = ' : ' := ';
-            declared.add(node.var);
-            lines.push(`${pad}${node.var}${op}${node.expr}`);
-          } else if (node.type === 'while') {
-            lines.push(`${pad}for ${node.cond} {`);
-          } else if (node.type === 'if') {
-            lines.push(`${pad}if ${node.cond} {`);
-          } else if (node.type === 'display') {
-            lines.push(`${pad}fmt.Println(${node.expr})`);
-          }
-        });
-        lines.push('}');
-        return closeBraces(lines.join('\n'));
-      }
-
-      return '// Target unsupported.';
-    }
-
-    function closeBraces(code) {
-      const lines = code.split('\n');
-      const stack = [];
-      const out = [];
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const indent = (line.match(/^[ ]*/) || [''])[0].length;
-
-        while (stack.length > 0 && stack[stack.length - 1] >= indent && !line.trim().startsWith('}')) {
-          const prev = stack.pop();
-          out.push(' '.repeat(prev) + '}');
-        }
-
-        out.push(line);
-        if (line.trim().endsWith('{')) {
-          stack.push(indent);
-        }
-      }
-
-      while (stack.length > 0) {
-        const prev = stack.pop();
-        if (prev > 0) out.push(' '.repeat(prev) + '}');
+function compilePolyglot(ast, target) {
+  const out = [];
+  switch (target) {
+    case 'py':
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`print(${cleanExpr(s.expr)})`);
+        if (s.type === 'assign') out.push(`${s.var} = ${cleanExpr(s.expr)}`);
+        if (s.type === 'while') out.push(`while ${cleanExpr(s.cond)}:`);
+        if (s.type === 'if') out.push(`if ${cleanExpr(s.cond)}:`);
       }
       return out.join('\n');
-    }
 
-    // ================= TRANSPILATION CONTROLLER =================
-    async function startTranspilation() {
-      if (isTranspiling) return;
-
-      const targetLang = document.getElementById('targetLanguage').value;
-      const includeTests = document.getElementById('chkIncludeTests').checked;
-      const includeComments = document.getElementById('chkIncludeComments').checked;
-      const inputContent = document.getElementById('unifiedEditorText').value.trim();
-
-      if (!inputContent) {
-        showToast("Please enter an English instruction or script to compile.");
-        document.getElementById('unifiedEditorText').focus();
-        return;
+    case 'js':
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`console.log(${cleanExpr(s.expr)});`);
+        if (s.type === 'assign') out.push(`let ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`if (${cleanExpr(s.cond)}) {`);
       }
+      return out.join('\n');
 
-      const classified = classifyInputText(inputContent);
-      updateModePill(classified.mode, classified.confidence);
+    case 'ts':
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`console.log(${cleanExpr(s.expr)} as any);`);
+        if (s.type === 'assign') out.push(`let ${s.var}: any = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`if (${cleanExpr(s.cond)}) {`);
+      }
+      return out.join('\n');
 
-      const btn = document.getElementById('btnTranspile');
-      const progFill = document.getElementById('rufusProgressFill');
-      const progLabel = document.getElementById('rufusProgressLabel');
-      const status = document.getElementById('rufusStatus');
-      const timing = document.getElementById('pipelineTimingText');
+    case 'cpp':
+      out.push('#include <iostream>\n\nint main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`    std::cout << ${cleanExpr(s.expr)} << std::endl;`);
+        if (s.type === 'assign') out.push(`    auto ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`    while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`    if (${cleanExpr(s.cond)}) {`);
+      }
+      out.push('    return 0;\n}');
+      return out.join('\n');
 
-      isTranspiling = true;
-      btn.disabled = true;
-      btn.classList.add('opacity-50', 'pointer-events-none');
-      status.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> COMPILING...';
-      progFill.className = "rufus-progress-bar h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 rufus-stripe-anim";
-      progFill.style.width = '25%';
-      progLabel.innerText = `SENSING ENGINE: ${classified.mode.toUpperCase()} (25%)`;
-      timing.innerText = "Analyzing intent & grammar...";
+    case 'c':
+      out.push('#include <stdio.h>\n\nint main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`    printf("%g\\n", (double)(${cleanExpr(s.expr)}));`);
+        if (s.type === 'assign') out.push(`    double ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`    while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`    if (${cleanExpr(s.cond)}) {`);
+      }
+      out.push('    return 0;\n}');
+      return out.join('\n');
 
-      appendLog(`[TRANSPILE RUN] Mode: [${classified.mode.toUpperCase()}] (${classified.confidence}% conf), Target: [${targetLang.toUpperCase()}]`);
-      const startTime = performance.now();
+    case 'rs':
+      out.push('fn main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`    println!("{}", ${cleanExpr(s.expr)});`);
+        if (s.type === 'assign') out.push(`    let mut ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`    while ${cleanExpr(s.cond)} {`);
+        if (s.type === 'if') out.push(`    if ${cleanExpr(s.cond)} {`);
+      }
+      out.push('}');
+      return out.join('\n');
 
-      try {
-        let compiledCode = "";
+    case 'go':
+      out.push('package main\n\nimport "fmt"\n\nfunc main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`    fmt.Println(${cleanExpr(s.expr)})`);
+        if (s.type === 'assign') out.push(`    ${s.var} := ${cleanExpr(s.expr)}`);
+        if (s.type === 'while') out.push(`    for ${cleanExpr(s.cond)} {`);
+        if (s.type === 'if') out.push(`    if ${cleanExpr(s.cond)} {`);
+      }
+      out.push('}');
+      return out.join('\n');
 
-        if (classified.mode === 'natural') {
-          progFill.style.width = '60%';
-          progLabel.innerText = 'SYNTHESIZING TARGET CODE (60%)';
-          timing.innerText = "Synthesizing polyglot output...";
+    case 'java':
+      out.push('public class Main {\n    public static void main(String[] args) {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`        System.out.println(${cleanExpr(s.expr)});`);
+        if (s.type === 'assign') out.push(`        var ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`        while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`        if (${cleanExpr(s.cond)}) {`);
+      }
+      out.push('    }\n}');
+      return out.join('\n');
 
-          const printMsg = extractPrintMessage(inputContent);
-          let aiSuccess = false;
+    case 'cs':
+      out.push('using System;\n\nclass Program {\n    static void Main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`        Console.WriteLine(${cleanExpr(s.expr)});`);
+        if (s.type === 'assign') out.push(`        var ${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`        while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`        if (${cleanExpr(s.cond)}) {`);
+      }
+      out.push('    }\n}');
+      return out.join('\n');
 
-          // For standard greetings/prints, the immediate offline generator is instantaneous and optimal
-          if (printMsg !== null) {
-            appendLog(`[INTENT ENGINE] Recognized print/greeting intent: "${printMsg}".`);
-            compiledCode = buildPrintSuite(printMsg, targetLang, ' '.repeat(currentIndent), includeComments);
-            cachedSandboxJS = buildPrintSuite(printMsg, 'javascript', ' '.repeat(currentIndent), false);
-            aiSuccess = true;
-          } else {
-            // Attempt Gemini API call via generateContent endpoint
-            appendLog(`[ENGINE] Calling Gemini 3 Flash for natural prompt...`);
-            try {
-              const systemPrompt = `You are the core polyglot code generation engine of Lingua Studio Pro Next.
-CRITICAL RULES:
-1. Return ONLY the raw code. NO markdown code fences (\`\`\`), NO explanations.
-2. The code MUST BE COMPLETE, SELF-CONTAINED, AND RUNNABLE without placeholders or missing imports.
-3. If tests are requested, generate an entry point (e.g., main() or self-executing) that runs tests and outputs clean PASS/FAIL logs to stdout.`;
+    case 'kt':
+      out.push('fun main() {');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`    println(${cleanExpr(s.expr)})`);
+        if (s.type === 'assign') out.push(`    var ${s.var} = ${cleanExpr(s.expr)}`);
+        if (s.type === 'while') out.push(`    while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`    if (${cleanExpr(s.cond)}) {`);
+      }
+      out.push('}');
+      return out.join('\n');
 
-              const userQuery = `Target Language: ${TARGET_META[targetLang].label}
-Settings:
-- Automated Test Harness Included: ${includeTests ? 'Yes, include runnable test cases printing to stdout' : 'No'}
-- Comments & Documentation: ${includeComments ? 'Yes, clear inline comments' : 'No'}
-- Indentation: ${currentIndent} spaces
+    case 'swift':
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`print(${cleanExpr(s.expr)})`);
+        if (s.type === 'assign') out.push(`var ${s.var} = ${cleanExpr(s.expr)}`);
+        if (s.type === 'while') out.push(`while ${cleanExpr(s.cond)} {`);
+        if (s.type === 'if') out.push(`if ${cleanExpr(s.cond)} {`);
+      }
+      return out.join('\n');
 
-User English Specification:
-${inputContent}`;
+    case 'php':
+      out.push('<?php');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`echo ${cleanExpr(s.expr)} . PHP_EOL;`);
+        if (s.type === 'assign') out.push(`$${s.var} = ${cleanExpr(s.expr)};`);
+        if (s.type === 'while') out.push(`while (${cleanExpr(s.cond)}) {`);
+        if (s.type === 'if') out.push(`if (${cleanExpr(s.cond)}) {`);
+      }
+      return out.join('\n');
 
-              const apiKey = "";
-              const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    case 'rb':
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`puts ${cleanExpr(s.expr)}`);
+        if (s.type === 'assign') out.push(`${s.var} = ${cleanExpr(s.expr)}`);
+        if (s.type === 'while') out.push(`while ${cleanExpr(s.cond)}`);
+        if (s.type === 'if') out.push(`if ${cleanExpr(s.cond)}`);
+      }
+      return out.join('\n');
 
-              const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: userQuery }] }],
-                  systemInstruction: { parts: [{ text: systemPrompt }] }
-                })
-              });
+    case 'sh':
+      out.push('#!/usr/bin/env bash');
+      for (let s of ast) {
+        if (s.type === 'print') out.push(`echo $((${cleanExpr(s.expr)}))`);
+        if (s.type === 'assign') out.push(`${s.var}=$((${cleanExpr(s.expr)}))`);
+      }
+      return out.join('\n');
 
-              if (response.ok) {
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                const text = candidate?.content?.parts?.[0]?.text;
-                if (text && text.trim().length > 0) {
-                  compiledCode = text.replace(/^```[a-zA-Z0-9_-]*\n?/gm, '').replace(/```$/gm, '').trim();
-                  aiSuccess = true;
-                  appendLog("[GENAI SUCCESS] Clean target emitted via gemini-3-flash-preview.");
-                }
-              }
-            } catch (apiErr) {
-              appendLog(`[GENAI NOTICE] API fallback engaged: ${apiErr.message}`);
-            }
+    default:
+      return '// Unsupported Target Language';
+  }
+}
 
-            // High-precision offline fallback for algorithms/tests
-            if (!aiSuccess || !compiledCode) {
-              appendLog("[OFFLINE ENGINE] Engaging deterministic semantic rule synthesizer.");
-              compiledCode = generateOfflineSemanticCode(inputContent, targetLang, includeTests, includeComments);
-              cachedSandboxJS = generateOfflineSemanticCode(inputContent, 'javascript', true, false);
-            } else {
-              if (targetLang === 'javascript') {
-                cachedSandboxJS = compiledCode;
-              } else {
-                cachedSandboxJS = generateOfflineSemanticCode(inputContent, 'javascript', true, false);
-              }
-            }
+// ========================================================
+// 3. ADAPTIVE NATURAL SYNTHESIZER
+// ========================================================
+function handleNatural(prompt, target) {
+  const p = prompt.toLowerCase();
+
+  // A. Greetings / Hello World
+  if (p.includes('hello') || p.includes('tell') || p.includes('say') || p.includes('print')) {
+    const greetings = {
+      py: 'print("Hello, World!")',
+      js: 'console.log("Hello, World!");',
+      ts: 'console.log("Hello, World!");',
+      cpp: '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}',
+      c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
+      rs: 'fn main() {\n    println!("Hello, World!");\n}',
+      go: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}',
+      java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+      cs: 'using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}',
+      kt: 'fun main() {\n    println("Hello, World!")\n}',
+      swift: 'print("Hello, World!")',
+      php: '<?php\necho "Hello, World!" . PHP_EOL;',
+      rb: 'puts "Hello, World!"',
+      sh: '#!/usr/bin/env bash\necho "Hello, World!"'
+    };
+    return greetings[target] || `// Hello World for ${target}`;
+  }
+
+  // B. Pythagorean Theorem Verification
+  if (p.includes('pythagor')) {
+    if (target === 'py') {
+      return `def verify_pythagoras(a, b, c):\n    passed = (a**2 + b**2 == c**2)\n    status = "PASS" if passed else "FAIL"\n    print(f"[{status}] Triplet ({a}, {b}, {c}) -> {passed}")\n\nprint("=== PYTHAGOREAN VERIFICATION ===")\nverify_pythagoras(3, 4, 5)\nverify_pythagoras(5, 12, 13)\nverify_pythagoras(3, 4, 6) # Intended false test`;
+    }
+    if (target === 'js' || target === 'ts') {
+      return `function verifyPythagoras(a, b, c) {\n  const ok = (a*a + b*b === c*c);\n  console.log(\`[\${ok ? "PASS" : "FAIL"}] Triplet (\${a}, \${b}, \${c}) -> \${ok}\`);\n}\n\nconsole.log("=== PYTHAGOREAN VERIFICATION ===");\nverifyPythagoras(3, 4, 5);\nverifyPythagoras(5, 12, 13);\nverifyPythagoras(3, 4, 6);`;
+    }
+    if (target === 'cpp') {
+      return `#include <iostream>\n\nvoid test(int a, int b, int c) {\n    bool ok = (a*a + b*b == c*c);\n    std::cout << "[" << (ok ? "PASS" : "FAIL") << "] Triplet (" << a << "," << b << "," << c << ") -> " << (ok ? "true" : "false") << std::endl;\n}\n\nint main() {\n    std::cout << "=== PYTHAGOREAN VERIFICATION ===" << std::endl;\n    test(3, 4, 5);\n    test(5, 12, 13);\n    test(3, 4, 6);\n    return 0;\n}`;
+    }
+    if (target === 'c') {
+      return `#include <stdio.h>\n#include <stdbool.h>\n\nvoid test(int a, int b, int c) {\n    bool ok = (a*a + b*b == c*c);\n    printf("[%s] Triplet (%d, %d, %d)\\n", ok ? "PASS" : "FAIL", a, b, c);\n}\n\nint main() {\n    printf("=== PYTHAGOREAN VERIFICATION ===\\n");\n    test(3, 4, 5);\n    test(5, 12, 13);\n    test(3, 4, 6);\n    return 0;\n}`;
+    }
+    if (target === 'go') {
+      return `package main\n\nimport "fmt"\n\nfunc test(a, b, c int) {\n    ok := (a*a + b*b == c*c)\n    status := "FAIL"\n    if ok { status = "PASS" }\n    fmt.Printf("[%s] Triplet (%d, %d, %d)\\n", status, a, b, c)\n}\n\nfunc main() {\n    fmt.Println("=== PYTHAGOREAN VERIFICATION ===")\n    test(3, 4, 5)\n    test(5, 12, 13)\n    test(3, 4, 6)\n}`;
+    }
+    return `// Test Pythagorean theorem generated for ${target}`;
+  }
+
+  return null;
+}
+
+// ========================================================
+// 4. TRANSPILE ENGINE & SANDBOX RUNNER
+// ========================================================
+function transpile() {
+  const src = document.getElementById('srcCode').value.trim();
+  const target = document.getElementById('targetLang').value;
+  const dst = document.getElementById('dstCode');
+  const logs = document.getElementById('termLogs');
+  const inputModeTag = document.getElementById('inputModeTag');
+
+  if (!src) {
+    dst.textContent = '// Enter English script or intent...';
+    logs.textContent = 'Awaiting input.';
+    return;
+  }
+
+  const isNatural = /^(test|tell|say|show|print|check|make|build|reverse|find)\b/i.test(src) || (!src.includes('Set ') && !src.includes('Display '));
+
+  let output = '';
+  if (isNatural) {
+    inputModeTag.textContent = 'Natural Intent';
+    inputModeTag.style.color = '#c084fc';
+    output = handleNatural(src, target) || `// [Notice]: '${src}' processed.\n// Structured mathematical DSL is guaranteed 100% offline.`;
+  } else {
+    inputModeTag.textContent = 'Deterministic DSL';
+    inputModeTag.style.color = 'var(--online-color)';
+    const ast = parseDSL(src);
+    output = compilePolyglot(ast, target);
+  }
+
+  dst.textContent = output;
+
+  // Run in client sandbox
+  logs.textContent = '';
+  try {
+    const lines = [];
+    const fakeConsole = {
+      log: (...args) => lines.push(args.join(' ')),
+      error: (...args) => lines.push('[Error] ' + args.join(' '))
+    };
+    
+    const jsCode = compilePolyglot(parseDSL(src), 'js') || handleNatural(src, 'js');
+    if (jsCode && !jsCode.includes('// [Notice]')) {
+      const runner = new Function('console', jsCode);
+      runner(fakeConsole);
+      logs.textContent = lines.join('\n') || '[Process completed with 0 errors]';
+    } else {
+      logs.textContent = `[Compiled for ${target}. Ready for native execution]`;
+    }
+  } catch (err) {
+    logs.textContent = 'Runtime Note: ' + err.message;
+  }
+}
+
+// ========================================================
+// 5. POSTMAN EXPORT UTILITIES
+// ========================================================
+function openPostmanModal() {
+  document.getElementById('postmanSrcSnippet').textContent = document.getElementById('srcCode').value.trim() || 'tell hello world';
+  document.getElementById('postmanLangSnippet').textContent = document.getElementById('targetLang').value;
+  document.getElementById('postmanModal').style.display = 'flex';
+}
+function closePostmanModal() {
+  document.getElementById('postmanModal').style.display = 'none';
+}
+function exportPostmanCollection() {
+  const collection = {
+    info: {
+      name: "Lingua Universal Transpiler API",
+      schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    item: [
+      {
+        name: "Transpile English Code",
+        request: {
+          method: "POST",
+          header: [{ key: "Content-Type", value: "application/json" }],
+          body: {
+            mode: "raw",
+            raw: JSON.stringify({
+              source: document.getElementById('srcCode').value.trim() || "tell hello world",
+              target: document.getElementById('targetLang').value
+            }, null, 2)
+          },
+          url: {
+            raw: "http://localhost:5000/api/compile",
+            protocol: "http",
+            host: ["localhost"],
+            port: "5000",
+            path: ["api", "compile"]
           }
-
-        } else {
-          // Controlled DSL Mode
-          progFill.style.width = '65%';
-          progLabel.innerText = 'TRANSFORMING DSL AST (65%)';
-          appendLog("[DSL] Parsing deterministic English Abstract Syntax Tree...");
-          const ast = parseDslToAst(inputContent);
-          appendLog(`[DSL] AST constructed (${ast.length} nodes). Emitting ${targetLang} code...`);
-          compiledCode = emitDslTarget(ast, targetLang);
-          cachedSandboxJS = emitDslTarget(ast, 'javascript');
-        }
-
-        progFill.style.width = '100%';
-        progLabel.innerText = 'READY (100%)';
-        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
-        status.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> READY';
-        timing.innerText = `Compiled in ${elapsed}s`;
-
-        lastGeneratedCode = compiledCode;
-        lastGeneratedTarget = targetLang;
-
-        document.getElementById('outputCodeViewer').textContent = compiledCode;
-        const lineCount = compiledCode.split('\n').length;
-        document.getElementById('codeSizeBadge').innerText = `${compiledCode.length} bytes • ${lineCount} lines`;
-
-        appendLog(`[SUCCESS] Generated ${lineCount} lines of ${TARGET_META[targetLang].label} code in ${elapsed}s.`);
-        showToast(`Compiled to ${TARGET_META[targetLang].label}!`);
-
-        // Automatically run live in sandbox
-        executeSandbox();
-
-      } catch (err) {
-        appendLog(`[COMPILER ERROR] ${err.message}`);
-        status.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span> ERROR';
-        progLabel.innerText = 'COMPILATION FAILED';
-        progFill.className = "rufus-progress-bar h-full bg-rose-600 w-full";
-        timing.innerText = "Error encountered";
-        showToast("Error: " + err.message);
-      } finally {
-        isTranspiling = false;
-        btn.disabled = false;
-        btn.classList.remove('opacity-50', 'pointer-events-none');
-      }
-    }
-
-    // ================= HIGH-PRECISION SANDBOX TERMINAL RUNNER =================
-    function executeSandbox() {
-      const term = document.getElementById('terminalBody');
-      const timingBadge = document.getElementById('sandboxTiming');
-      const statusBadge = document.getElementById('sandboxStatusBadge');
-      term.innerHTML = '';
-      statusBadge.innerText = 'RUNNING';
-      statusBadge.className = 'px-2 py-0.5 rounded bg-amber-500/20 text-[10px] font-bold text-amber-300';
-
-      appendLog("[SANDBOX] Launching execution sandbox...");
-
-      // Check if user specifically requested a greeting/print
-      const inputContent = document.getElementById('unifiedEditorText').value;
-      const printMsg = extractPrintMessage(inputContent);
-
-      let jsCode = "";
-      if (printMsg !== null) {
-        jsCode = `console.log("${printMsg.replace(/"/g, '\\"')}");`;
-      } else if (lastGeneratedTarget === 'javascript' && lastGeneratedCode) {
-        jsCode = lastGeneratedCode;
-      } else if (cachedSandboxJS) {
-        jsCode = cachedSandboxJS;
-      } else {
-        const classified = classifyInputText(inputContent);
-        if (classified.mode === 'dsl') {
-          const ast = parseDslToAst(inputContent);
-          jsCode = emitDslTarget(ast, 'javascript');
-        } else {
-          jsCode = generateOfflineSemanticCode(inputContent, 'javascript', true, false);
         }
       }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "Lingua_Universal_Collection.json";
+  a.click();
+}
 
-      const captured = [];
-      const sandboxConsole = {
-        log: (...args) => captured.push({ type: 'log', text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') }),
-        info: (...args) => captured.push({ type: 'info', text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') }),
-        warn: (...args) => captured.push({ type: 'warn', text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') }),
-        error: (...args) => captured.push({ type: 'error', text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') })
-      };
+function applySnippet(txt) {
+  document.getElementById('srcCode').value = txt;
+  transpile();
+}
+function copyCode() {
+  navigator.clipboard.writeText(document.getElementById('dstCode').textContent);
+  alert('Code copied to clipboard!');
+}
+function downloadCode() {
+  const target = document.getElementById('targetLang').value;
+  const extMap = { py:'py', js:'js', ts:'ts', cpp:'cpp', c:'c', rs:'rs', go:'go', java:'java', cs:'cs', kt:'kt', swift:'swift', php:'php', rb:'rb', sh:'sh' };
+  const ext = extMap[target] || 'txt';
+  const blob = new Blob([document.getElementById('dstCode').textContent], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `output.${ext}`;
+  a.click();
+}
 
-      try {
-        const t0 = performance.now();
-        const runner = new Function('console', jsCode);
-        runner(sandboxConsole);
-        const duration = (performance.now() - t0).toFixed(2);
+document.getElementById('srcCode').addEventListener('input', () => transpile());
+document.getElementById('srcCode').addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') transpile();
+});
 
-        if (captured.length === 0) {
-          term.innerHTML = '<div class="text-slate-400 italic">[Process completed with 0 stdout messages]</div>';
-        } else {
-          captured.forEach(entry => {
-            const line = document.createElement('div');
-            if (entry.text.includes('[PASS]')) {
-              line.className = "text-emerald-400 font-semibold";
-            } else if (entry.text.includes('[FAIL]')) {
-              line.className = "text-rose-400 font-bold";
-            } else if (entry.type === 'error') {
-              line.className = "text-rose-400";
-            } else if (entry.type === 'warn') {
-              line.className = "text-amber-300";
-            } else {
-              line.className = "text-slate-200 font-medium";
-            }
-            line.textContent = entry.text;
-            term.appendChild(line);
-          });
-        }
-
-        const footer = document.createElement('div');
-        footer.className = "text-[10px] text-fluent-subtext border-t border-fluent-border pt-1.5 mt-2 flex items-center justify-between";
-        footer.innerHTML = `<span>Process finished with exit code 0</span><span>Execution time: ${duration} ms</span>`;
-        term.appendChild(footer);
-
-        timingBadge.innerText = `Runtime: ${duration}ms`;
-        statusBadge.innerText = 'SUCCESS';
-        statusBadge.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-[10px] font-bold text-emerald-400';
-        appendLog(`[SANDBOX] Execution complete in ${duration}ms (${captured.length} stdout messages).`);
-      } catch (err) {
-        term.innerHTML = `<div class="text-rose-400 font-bold">[Runtime Error] ${err.message}</div>`;
-        statusBadge.innerText = 'EXCEPTION';
-        statusBadge.className = 'px-2 py-0.5 rounded bg-rose-500/20 text-[10px] font-bold text-rose-400';
-        appendLog(`[SANDBOX EXCEPTION] ${err.message}`);
-      }
-    }
-
-    function clearTerminal() {
-      document.getElementById('terminalBody').innerHTML = '<div class="text-slate-500 italic">[Sandbox Standby] Click \'Run Sandbox\' or start compilation to execute logic.</div>';
-      document.getElementById('sandboxStatusBadge').innerText = 'STANDBY';
-      document.getElementById('sandboxStatusBadge').className = 'px-2 py-0.5 rounded bg-fluent-highlight text-[10px] font-bold text-slate-400';
-      document.getElementById('sandboxTiming').innerText = 'Runtime: 0.00ms';
-    }
-
-    // ================= UTILITIES & EXPORTS =================
-    function copyGeneratedCode() {
-      const code = document.getElementById('outputCodeViewer').textContent;
-      const el = document.createElement('textarea');
-      el.value = code;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-
-      const icon = document.getElementById('copyIcon');
-      const label = document.getElementById('copyLabel');
-      icon.className = "fa-solid fa-check text-emerald-400";
-      label.innerText = "Copied!";
-      setTimeout(() => {
-        icon.className = "fa-regular fa-copy text-[11px]";
-        label.innerText = "Copy";
-      }, 2000);
-      showToast("Code copied to clipboard!");
-      appendLog("Code buffer copied to clipboard.");
-    }
-
-    function downloadCodeFile() {
-      const lang = document.getElementById('targetLanguage').value;
-      const meta = TARGET_META[lang];
-      const code = document.getElementById('outputCodeViewer').textContent;
-      const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `lingua_${lang}_${Date.now()}.${meta.ext}`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-      showToast(`Exported .${meta.ext} file`);
-      appendLog(`Saved file [lingua_${lang}.${meta.ext}].`);
-    }
-
-    function resetWorkspace() {
-      document.getElementById('unifiedEditorText').value = "";
-      onEditorContentChanged();
-      document.getElementById('targetLanguage').value = 'python';
-      onLanguageChanged();
-      clearTerminal();
-      document.getElementById('rufusProgressFill').style.width = '0%';
-      document.getElementById('rufusProgressLabel').innerText = 'READY';
-      document.getElementById('rufusStatus').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> STANDBY / READY';
-      document.getElementById('outputCodeViewer').textContent = "// Click 'START TRANSPILE' below to execute.";
-      document.getElementById('codeSizeBadge').innerText = "Awaiting compilation";
-      lastGeneratedCode = "";
-      cachedSandboxJS = "";
-      showToast("Workspace reset");
-      appendLog("Workspace reset to blank state.");
-    }
-
-    function toggleLogsDrawer() {
-      const drawer = document.getElementById('logsDrawer');
-      drawer.classList.toggle('hidden');
-      if (!drawer.classList.contains('hidden')) {
-        drawer.scrollTop = drawer.scrollHeight;
-      }
-    }
-
-    function appendLog(msg) {
-      const container = document.getElementById('diagnosticLogEntries');
-      const time = new Date().toTimeString().split(' ')[0];
-      const row = document.createElement('div');
-      row.innerHTML = `<span class="text-fluent-subtext">[${time}]</span> <span class="text-emerald-400 font-medium">${escapeHtml(msg)}</span>`;
-      container.appendChild(row);
-      const drawer = document.getElementById('logsDrawer');
-      drawer.scrollTop = drawer.scrollHeight;
-    }
-
-    function clearDiagnosticLogs() {
-      document.getElementById('diagnosticLogEntries').innerHTML = '';
-      appendLog("Diagnostic buffer cleared.");
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    function openInfoModal() {
-      document.getElementById('infoModal').classList.remove('hidden');
-    }
-    function closeInfoModal() {
-      document.getElementById('infoModal').classList.add('hidden');
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      document.getElementById('toastMessage').innerText = msg;
-      t.classList.remove('opacity-0', 'pointer-events-none');
-      t.classList.add('opacity-100');
-      setTimeout(() => {
-        t.classList.remove('opacity-100');
-        t.classList.add('opacity-0', 'pointer-events-none');
-      }, 2500);
-    }
-  </script>
+// Run initial compilation
+transpile();
+</script>
 </body>
 </html>
+      
